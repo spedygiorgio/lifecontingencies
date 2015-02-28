@@ -1,0 +1,113 @@
+\NeedsTeXFormat{LaTeX2e}
+
+\ProvidesPackage{lifecon}[2004/07/27 v2.1 (Eddy Trivedi)]
+\PackageInfo{lifecon}{Provides Commands to typeset Life
+Contingencies' Symbols}
+
+\RequirePackage{amsmath}
+
+\newlength{\LC@temph}
+\newlength{\LC@tempw}
+\newlength{\LC@templ}
+\newlength{\LC@tempwtwo}
+
+\newcommand*{\lcroof}[1]{%
+\settoheight{\LC@temph}{\mbox{$\scriptstyle\overline{#1\,}$}}
+{\mbox{$\scriptstyle\overline{#1\,}$\kern-0.1pt
+\rule[-0.35pt]{.3pt}{\LC@temph}}} }
+
+%\DeclareRobustCommand{\lcroof}[1]{%
+%\def\arraystretch{0}%
+%\setlength\arraycolsep{1pt}% adjust these
+%\setlength\arrayrulewidth{.3pt}% two settings
+%\begin{array}[b]{@{}c|}\hline
+%\\[\arraycolsep]%
+%\scriptstyle #1%
+%\end{array}%
+%}
+
+\newcommand*{\lcterm}[3]{%
+\settoheight{\LC@temph}{\mbox{$\scriptstyle\overline{#3\,}$}}
+\settowidth{\LC@tempw}{$\scriptstyle #2$}
+{#1}{}_{#2:\lcroof{#3}}^{\makebox[\LC@tempw]{\hfill$\scriptstyle 1$\hfill}}
+}
+
+\newcommand*{\lctermadj}[3]{%
+\settoheight{\LC@temph}{\mbox{$\scriptstyle\overline{#3\,}$}}
+\settowidth{\LC@tempw}{$\scriptstyle #2$}
+{#1}{}_{#2:\lcroof{#3}}^{\makebox[\LC@tempw]{\hfill$\scriptstyle%
+A$\hfill}} }
+
+\newcommand*{\lcend}[3]{%
+\settoheight{\LC@temph}{\mbox{$\scriptstyle\overline{#3\,}$}}
+\settowidth{\LC@tempw}{$\scriptstyle #3$}
+\settowidth{\LC@templ}{$\scriptstyle #2$:}
+{#1}{}_{#2:\lcroof{#3}}^{\hspace{\LC@templ}\makebox[\LC@tempw]{\hfill$\scriptstyle 1$\hfill}}
+}
+
+\newcommand*{\lcfirst}[4][1]{%
+\settowidth{\LC@tempw}{$\scriptstyle #3$}
+{#2}{}_{{#3}{#4}}^{\makebox[\LC@tempw]{\hfill$\scriptstyle #1$\hfill}}
+}
+
+\newcommand*{\lcsecond}[4][2]{%
+\settowidth{\LC@tempw}{$\scriptstyle #4$}
+\settowidth{\LC@templ}{$\scriptstyle #3$}
+{#2}{}_{{#3}{#4}}^{\hspace{\LC@templ}\makebox[\LC@tempw]{\hfill$\scriptstyle #1$\hfill}}
+}
+
+\newcommand*{\surstat}[3]{%
+\settowidth{\LC@tempw}{$#2_{1}#2_{2}\dots$}
+\dfrac{\hspace{\LC@tempw}#1}{#2_{1}#2_{2}\dots#2_{#3}}
+}
+
+\newcommand*{\defsurstat}[3]{%
+\settowidth{\LC@tempw}{$#2_{1}#2_{2}\dots$}
+\dfrac{\hspace{\LC@tempw}[#1]}{#2_{1}#2_{2}\dots#2_{#3}}
+}
+
+\newcommand*{\lccomptwo}[4]{%
+\settowidth{\LC@tempw}{$\scriptstyle #2$}%
+\settowidth{\LC@templ}{$\scriptstyle #3 #4$}%
+{#1}{}_{\substack{#2 #3 #4\\\makebox[\LC@tempw]{\hfill$\scriptstyle1$\hfill}
+\hspace{\LC@templ}}}^{\hspace{\LC@tempw}\scriptstyle2}%
+}
+
+\newcommand*{\lccompthree}[5]{%
+\settowidth{\LC@temph}{$\scriptstyle #2$}
+\settowidth{\LC@tempw}{$\scriptstyle #3$}
+\settowidth{\LC@tempwtwo}{$\scriptstyle #3$}
+\settowidth{\LC@templ}{$\scriptstyle #4 #5$}
+{#1}{}_{\substack{#2 #3 #4 #5\\\makebox[\LC@temph]{\hfill$\scriptstyle 1$\hfill}%
+\makebox[\LC@tempw]{\hfill$\scriptstyle 2$\hfill}%
+\hspace{\LC@templ}%
+}}^{\hspace{\LC@temph}\hspace{\LC@tempw}\makebox[\LC@tempwtwo]{\hfill$\scriptstyle 3$\hfill}}
+}
+
+%% Typesetting Common Symbols in a convenient way%%
+\newcommand*{\termins}[2]{%
+\lcterm{A}{#1}{#2} }
+
+\newcommand*{\terminsc}[2]{%
+\lcterm{\bar{A}}{#1}{#2} }
+
+\newcommand*{\insend}[2]{%
+A_{#1:\lcroof{#2}} }
+
+\newcommand*{\insendc}[2]{%
+\bar{A}_{#1:\lcroof{#2}} }
+
+\newcommand*{\pureend}[2]{%
+\lcend{A}{#1}{#2} }
+
+\newcommand*{\pureendc}[2]{%
+{}_{#2}E_{#1} }
+
+\newcommand*{\anndue}[2]{%
+\ddot{a}_{#1:\lcroof{#2}} }
+
+\newcommand*{\anncon}[2]{%
+\bar{a}_{#1:\lcroof{#2}}  }
+
+\newcommand*{\annimm}[2]{%
+a_{#1:\lcroof{#2}} }

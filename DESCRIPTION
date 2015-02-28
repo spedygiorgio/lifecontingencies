@@ -1,0 +1,16 @@
+Package: lifecontingencies
+Type: Package
+Title: Financial and Actuarial Mathematics for Life Contingencies
+Version: 1.1.6
+Date: 2015-01-03
+Author: Giorgio Alfredo Spedicato with contributions from Reinhold Kainhofer and Kevin J. Owens
+Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
+Description: The package contains classes and methods that allow the user to manage life table, actuarial tables (also multiple decrement tables). Moreover, functions to easily perform demographic, financial and actuarial mathematics on life contingencies insurances calculations are contained therein.
+Depends: R (>= 2.14), methods
+Imports: parallel, utils, markovchain
+Suggests: demography, forecast, testthat
+License: GPL-2
+LazyLoad: yes
+BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
+BuildVignettes: yes
+URL: http://github.com/spedygiorgio/lifecontingencies

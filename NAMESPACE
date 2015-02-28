@@ -1,0 +1,23 @@
+import(methods)
+import(markovchain)
+#importFrom("graphics", plot)
+#importFrom("stats4",  plot, summary)
+#importFrom("utils", head, tail)
+import(parallel, utils)
+#importFrom("markovchain",rmarkovchain)
+
+#useDynLib(lifecontingencies)
+exportPattern("^[[:alpha:]]+")
+
+exportMethods(
+    "coerce",
+    "plot",
+    "print",
+    "show",
+    "summary",
+    "getOmega"
+)
+exportClasses(
+    "actuarialtable",
+     "lifetable" 
+)

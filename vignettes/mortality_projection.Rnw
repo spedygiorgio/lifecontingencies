@@ -1,0 +1,334 @@
+\documentclass[nojss]{jss}
+\usepackage{lifecon}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+% \usepackage{draftwatermark}
+% \SetWatermarkText{Draft}
+% \SetWatermarkScale{1.5}
+
+%\usepackage{myVignette}
+%\VignetteIndexEntry{Mortality projection using lifecontingencies package}
+%%\VignetteDepends{lifecontingencies}
+%%\VignetteKeywords{mortality projection, lifecontingencies, R}
+%%\VignettePackage{lifecontingencies}
+% need no \usepackage{Sweave.sty}
+%\SweaveOpts{prefix.string=Figures/fig}
+
+\author{Giorgio Alfredo Spedicato, ACAS \And 
+        Gian Paolo Clemente, Unicatt}
+
+
+\title{Mortality projection with \pkg{demography} and \pkg{lifecontingencies}
+packages}
+
+\Plainauthor{Giorgio Alfredo Spedicato, Gian Paolo Clemente}
+\Plaintitle{Mortality projection with demography and lifecontingencies packages}
+\Shorttitle{Mortality projection in \proglang{R}}
+\Keywords{mortality projection, lifecontingencies, \proglang{R}}
+\Plainkeywords{mortality projection, lifecontingencies, R}
+
+
+
+\Abstract{
+This paper applies mortality projection techniques
+(Lee Carter) to the evaluation of retirement costs. The main purpose of the
+paper is to show how R can be successfully used to perform life
+expectancy projections with practical actuarial applications for annuity
+insurances and social security issues. \pkg{demography} and
+\pkg{lifecontingencies} packages will be used. The analysis performed within
+this paper are mechanical and intended for didactic purposes.}
+
+\Keywords{annuities, Lee-Carter, mortality projection, \pkg{lifecontingencies}, \pkg{demography}}
+\Plainkeywords{annuities, Lee-Carter, mortality projection, lifecontingencies, demography} %% without formatting
+
+
+\Address{
+  Giorgio Alfredo Spedicato\\
+  Ph.D ACAS C.STAT\\
+  Via Firenze 11
+  20037 Italy\\
+  E-mail: \email{lifecontingencies@statisticaladvisor.com}\\
+  URL: \url{www.statisticaladvisor.com}
+}
+
+\Address{Gian Paolo Clemente\\
+  Catholic University of Milan\\
+  Department of Mathematics, Finance and Econometrics
+\email{gianpaolo.clemente@unicatt.it}
+}
+
+\begin{document}
+
+\SweaveOpts{eps=FALSE, keep.source=TRUE}
+<<echo=FALSE,print=FALSE,results=hide>>=
+options(width=80, prompt='R> ')
+@
+
+
+
+\section{Introduction}
+Mortality data shows that mortality is falling at all ages with a different behaviour according to different ages and country.
+Mortality across any ages is indeed showing continuous reduction across the world. \\ 
+Prospects of longer life have led to concern over their implications for public spending on old-age support. Forecasting mortality appears indeed a key issue in different field of insurance and financial markets as pricing annuity, evaluating mortality-linked securities and quantifying longevity risk. Lee-Carter proposed in 1992 a model widely used in order to forecast mortality rates.\\
+The Lee Cartel forecasts could be used to project a life table for each specific cohort (year) of birth on which pension annuities projection could be fit.\\
+
+Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated function. We will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.\\
+Finally, \textbf{lifecontingencies} (\cite{spedlifecon}) package will be used to project the cost of a pension annuity, $\ddot{a}_{x}^{(m)}$ for the cohorts of 1920, 1930, \ldots,
+2000. \\ 
+Applications have been provided by using three different data-sets regarding respectively male, female and total population.
+The use of several data-sets is usually motivated by both the need of a separate evaluation between males and females and of an analysis of models' performance when switching data. However, the change from female to male and a variation in the length of period of observation do not influence the quality of fit as much as the restriction of age range.\\
+
+Following demographic and economic assumptions will be hold:
+\begin{itemize}
+  \item $x$, the retirement age will be set equal to 65 regardless the cohort.
+  \item $m$, the number of fractional payments per year, will be equal to 12.
+  \item $\ddot{a}_{x}^{(m)}$ to be the actuarial present value of a yearly annuity of 1 monetary unit. The annuity will be evaluated assuming an interest rate of 4\% and an inflation rate of 2\%.
+\end{itemize}
+
+The projection has been performed using a mechanical approach, since the purpose of this paper lies in showing the procedure instead of providing sensible results.\\
+Most of this paper is based on the examples provided in \cite{rmetrics1} and \cite{charpentierDutang} online manual.
+
+\section{Fitting Lee Carter model}
+
+Lee Carter original model, \cite{Lee1992}, focuses, as main forecasting methodologies, on the central mortality rates $m(x,t)$ for age $x$ in year $t$ defined as the ratio between the number of deaths $D(x,t)$, recorded during the calendar year $t$ for people aged $x$, and the exposure to risk $E(x,t)$ obtained as the average number of people living during the calendar year $t$.
+
+Starting by this sample notation, Lee and Carter (1992) proposed to describe the logarithm of central mortality rates as a linear combination of parameters as expressed by Equation~(\ref{eq:LeeCarter}):
+
+\begin{equation}
+\ln m_{x,t} = a_{x} + b_{x} k_{t} + \varepsilon_{x,t}
+\label{eq:LeeCarter}
+\end{equation}
+
+where $a_{x}$ describes the general shape of mortality according to different ages and it represents the logarithm of the geometric mean of empirical mortality rates, averaged over historical years. $e^{a_{x}}$ mesaure indeed the general shape across age of the mortality schedule. \\
+Furthermore, $k_{t}$ reproduces the underlying time trend, while a term $b_{x}$ is considered in order to take into account the different effect of time $t$ at each age. 
+$b_{x}$ is assumed to be invariant over time and it explains how rates decline rapidly or slowly in response to change in $k_{t}$. \\  
+Finally, $\varepsilon_{x,t}$ are independent and identical distributed random variables $N(0,\sigma^{2})$ taking into account the age and time specific trends not fully captured by the model. \\
+
+In the original version, parameters have been estimated by a two-stage process where Singular Value Decomposition (SVD) of the matrix of centered age profiles $ln(m_{x,t})-\hat{a}_{x}$, allows a first estimation of parameters $b_{x}$ and $k_{t}$. \\
+In order to assure a unique solution for the system of equation of the model, Lee and Carter proposed the following constraints:$\sum_{t}k_{t}=0$ and $\sum_{x}b_{x}=1$. \\
+
+A second step, based on a refitting of $\hat{k}_{t}$ on the number of deaths, is usually suggested in order to assure a better convergence bewteen estimated and observed deaths. The aim is to find the $\hat{k}_{t}$ such that $D(x,t)=E(x,t)exp(\hat{a}_{x}+\hat{b}_{x}\cdot\hat{k}_{t})$.\\
+
+Alternative frameworks have been proposed over the years in order to improve some drawbacks of original Lee-Carter model (in particular see \cite{Al},\cite{LM}, \cite{BMS}, \cite{BDV}, \cite{RH}, \cite{CBD}, \cite{Plat})
+
+The one - year survival probability at age $x$ during calendar year $t$ is
+expressed by Equation~(\ref{eq:Probability}). Equation~(\ref{eq:Probability})
+assumes constant force of mortality to hold between $\left[ x , x + t \right)$
+and that $\mu_x \sim m_{x}$, that is the force of mortality to be approximated by the
+central rate of mortality\footnote{If $p_{x,t}$ were assumed linear between the two consecutive integer ages, 
+we could write $m_{x} = \frac {q_{x}}{1 - \frac{1}{2} q_{x}}$.}:
+
+\begin{equation}
+p_{x,t} = \exp \left(  - \mu _{x,t} \right) \sim \exp \left(  - m _{x,t} \right).
+\label{eq:Probability}
+\end{equation}
+
+A longitudinal life table for the
+cohort of born in calendar year YYYY can be created selecting all $p_{x,t}$ for
+which $t-x=YYYY$. 
+
+We will perform such exercise on Italy HMD data and by applying the original version of Lee-Carter.
+
+<<load, keep.source=TRUE>>=
+library(demography)
+library(forecast)
+library(lifecontingencies)
+@
+
+Following code import data from the Human mortality Database and it creates a \code{demogdata} object from HMD data structure.
+The hmd.mx function downloads all available annual data by single years of age, but for the application we will use the already saved data.
+<<createDemogData, keep.source=TRUE>>=
+#italyDemo<-hmd.mx(country="ITA", username="username@email.domain", 
+#password="password", label="Italy")
+load(file="mortalityDatasets.RData")
+@
+
+Plot method is available on \code{demogdata}. Following figures report for the Italian Population the pattern of logarithm of death rates according to age and time. Several behaviour are shown respectively for male, female and total population. 
+
+<<italyDemoFig,fig=TRUE>>=
+par(mfrow=c(1,3))
+plot(italyDemo,series="male",datatype="rate", main="Male rates")
+plot(italyDemo,series="female",datatype="rate", main="Female rates")
+plot(italyDemo,"total",datatype="rate", main="Total rates")
+@
+<<italyDemoFigTime,fig=TRUE>>=
+par(mfrow=c(1,3))
+plot(italyDemo,series="male",datatype="rate",
+     plot.type="time", main="Male rates",xlab="Years")
+plot(italyDemo,series="female",datatype="rate",
+     plot.type="time", main="Female rates",xlab="Years")
+plot(italyDemo,series="total",datatype="rate",
+     plot.type="time", main="Total rates",xlab="Years")
+@
+
+Italian data confirms that mortality is falling at all ages with a different behaviour according to different ages
+
+To fit Lee - Carter model (without going through logaritms) lca function can be used. Lee-Carter is here applied separately between male, female and total population and by considering a maximum age equal to 100.
+
+<<fitLeeCarter, keep.source=TRUE>>=
+italyLcaM<-lca(italyDemo,series="male",max.age=100)
+italyLcaF<-lca(italyDemo,series="female",max.age=100)
+italyLcaT<-lca(italyDemo,series="total",max.age=100)
+@
+%italyLcaT1<-lca(italyDemo,series="total",max#.age=100,adjust="dxt")
+%italyLcaT2<-lca(italyDemo,series="total",max.age=100,adjust="none")
+
+\textbf{lca} returned object allows us to inspect $a_x$, $b_x$ and $k_t$. Figures represent the values of the estimated parameters. 
+
+<<leeCarterResultsFig, fig=TRUE>>=
+  par(mfrow=c(1,3))
+  plot(italyLcaT$ax, main="ax", xlab="Age",ylab="ax",type="l")
+  lines(x=italyLcaF$age, y=italyLcaF$ax, main="ax", col="red")
+  lines(x=italyLcaM$age, y=italyLcaM$ax, main="ax", col="blue")
+  legend("topleft" , c("Male","Female","Total"),
+  cex=0.8,col=c("blue","red","black"),lty=1);
+  plot(italyLcaT$bx, main="bx", xlab="Age",ylab="bx",type="l")
+  lines(x=italyLcaF$age, y=italyLcaF$bx, main="bx", col="red")
+  lines(x=italyLcaM$age, y=italyLcaM$bx, main="bx", col="blue")
+  legend("topright" , c("Male","Female","Total"),
+  cex=0.8,col=c("blue","red","black"),lty=1);
+  plot(italyLcaT$kt, main="kt", xlab="Year",ylab="kt",type="l")
+  lines(x=italyLcaF$year, y=italyLcaF$kt, main="kt", col="red")
+  lines(x=italyLcaM$year, y=italyLcaM$kt, main="kt", col="blue")
+  legend("topright" , c("Male","Female","Total"),
+  cex=0.8,col=c("blue","red","black"),lty=1);
+@
+
+A similar behaviour of parameters is observed according to different data-sets. As expected the average mortality grows when age increases (see $\hat{a}_{x}$ pattern).Furthermore it is clearly visible the young mortality hump for males in the age-range (20,30) due to accidental deaths. $\hat{b}_{x}$ shows instead a greater value for younger ages and a greatest improvement for females in the age range (60-80).
+Finally, as expected, $\hat{k}_{t}$ has a decreasing trend with the increment of time. \\
+
+We can therefore use \pkg{forecast} package to project the future $k_{t}$s (up to 110). Projection is based on ARIMA extrapolation.
+%ktTSeries<-italyLcaT$kt
+%ktTArima<-auto.arima(ktTSeries,allowdrift=TRUE,max.order=20)
+%ktTArimaForecasts<-forecast(ktTArima, h=110)
+%fullKtT<-ts(c(ktTArimaForecasts$fitted, ktTArimaForecasts$mean),start=1872)  
+
+<<ktProjections, keep.source=TRUE>>=
+fM<-forecast(italyLcaM,h=110)
+fF<-forecast(italyLcaF,h=110)
+fT<-forecast(italyLcaT,h=110)
+@
+%plot(forecast(italyLcaT,h=110))
+
+The predicted values of $k_{t}$ rescaled to zero in the last observed year (2009) are here reported.
+
+<<ktProjectionFig, fig=TRUE>>=
+par(mfrow=c(1,3))
+plot(fM$kt.f,main="Male")
+plot(fF$kt.f,main="Female",)
+plot(fT$kt.f,main="Total")
+@
+
+Finally, it's easy to derive the full pattern of rates. Past and forecasted rates are here binded in the same matrix.
+
+<<ktrates, keep.source=TRUE>>=
+ratesM<-cbind(italyDemo$rate$male[1:100,],fM$rate$male[1:100,])
+ratesF<-cbind(italyDemo$rate$female[1:100,],fF$rate$female[1:100,])
+ratesT<-cbind(italyDemo$rate$total[1:100,],fT$rate$total[1:100,])
+@
+%plot(italyDemo,series="total",main="Total: observed and forecasted rates",ylim=c(-20,2),lty=2)
+%lines(fT,lty=2)
+%max(unlist(fT$rate))
+We report here the pattern of past and forecasted rates according to different population for people aged $65$. The expected improvement is clearly visible in the Figure.
+
+<<ktratesFig, fig=TRUE>>=
+par(mfrow=c(1,1))
+plot(seq(min(italyDemo$year),max(italyDemo$year)+110),ratesF[65,],
+     col="red",xlab="Years",ylab="Death Rates",type="l")
+lines(seq(min(italyDemo$year),max(italyDemo$year)+110),ratesM[65,],
+      col="blue",xlab="Years",ylab="Death Rates")
+lines(seq(min(italyDemo$year),max(italyDemo$year)+110),ratesT[65,],
+      col="black",xlab="Years",ylab="Death Rates")
+legend("topright" , c("Male","Female","Total"),
+       cex=0.8,col=c("blue","red","black"),lty=1);
+@
+
+We have applied here the original version of Lee-Carter in order to obtain a forecast of mortality rates.
+Alternative estimates can be derived by using \textbf{lca} function through the \pkg{demography} package (as Lee-Miller (\cite{LM}), Booth-Maindonald-Smith (\cite{BMS}) and Hyndman-Ullah (\cite{Hyn}) methods).
+Finally Lifemetrics package allows to fit  \cite{BDV}, \cite{RH} and \cite{CBD} models.
+
+\section{Perform actuarial projections}
+Our aim is to create a function to project life table depending by year of birth,
+using results from Lee - Carter model. 
+In particular, for ages $0, 1, \ldots, \tau$ on which Lee-Carter model has been fit Equation~\ref{eq:fit1} apply, while for extreme
+ages, $\tau + 1, \ldots, \omega$ on which no data were provided, it has been
+assumed that on year probability decreases evenly in 20 steps.
+
+\begin{equation}
+\begin{array}{l}
+\ln {\hat{\mu_{x,t}}} = \hat{a}_{x} + \hat{b}_{x}\hat{k}_{t}\\
+\hat{p}_{x,t} = \exp \left(- \hat {\mu }_{x,t} \right)
+\end{array}
+\label{eq:fit1}
+\end{equation}
+
+
+
+<<lifeTableProject, keep.source=TRUE>>=
+
+createActuarialTable<-function(yearOfBirth,rate){
+
+  mxcoh <- rate[1:nrow(rate),(yearOfBirth-min(italyDemo$year)+1):ncol(rate)]
+  cohort.mx <- diag(mxcoh)
+  cohort.px=exp(-cohort.mx)
+  #get projected Px
+  fittedPx=cohort.px #add px to table
+	px4Completion=seq(from=cohort.px[length(fittedPx)], to=0, length=20)
+	totalPx=c(fittedPx,px4Completion[2:length(px4Completion)])
+	#create life table
+	irate=1.04/1.02-1
+
+	cohortLt=probs2lifetable(probs=totalPx, radix=100000,type="px", 
+  name=paste("Cohort",yearOfBirth))
+	cohortAct=new("actuarialtable",x=cohortLt@x, lx=cohortLt@lx, 
+	interest=irate, name=cohortLt@name)
+	return(cohortAct)
+	}
+
+
+@
+
+We can therefore calculate the APV of $\ddot{a}_{65}^{(12)}$ for the selected cohorts.
+Values have been derived separately between males and females and by using directly the total population.
+
+<<annuityAPV, keep.source=TRUE>>=
+	getAnnuityAPV<-function(yearOfBirth,rate) {
+		actuarialTable<-createActuarialTable(yearOfBirth,rate)
+		out=axn(actuarialTable,x=65,m=12)
+		return(out)
+	}
+rate<-ratesM
+for(i in seq(1920,2000,by=10)) {
+		cat("For cohort ",i, "of males the e0 is",
+		round(exn(createActuarialTable(i,rate)),2),
+		" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
+		
+	}
+rate<-ratesF
+for(i in seq(1920,2000,by=10)) {
+  	cat("For cohort ",i, "of females the e0 at birth is",
+	round(exn(createActuarialTable(i,rate)),2),
+	" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
+		
+	}
+rate<-ratesT
+for(i in seq(1920,2000,by=10)) {
+    cat("For cohort ",i, "of total population the e0 is",
+		round(exn(createActuarialTable(i,rate)),2),
+		" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
+		
+	}
+@
+
+
+\section*{Acknowledgments}\label{sec:acknowledgments}
+
+The authors are deeply indebited with Prof. Rob J. Hyndman for his suggestions on these vignettes and to all people that contributed to \pkg{lifecontingencies} package.
+
+
+\bibliography{lifecontingenciesBiblio}
+
+
+\end{document}
