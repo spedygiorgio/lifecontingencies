@@ -10,6 +10,6 @@
 	packageStartupMessage(
 			'Version:  ', desc$Version, '\n', 
 			'Date:     ', desc$Date, '\n',
-			'Author:   ', 'Giorgio Alfredo Spedicato Ph.D C.Stat ACAS \n With significant contributions from Reinhold Kainhofer and Kevin J. Owens'
+			'Author:   ', 'Giorgio Alfredo Spedicato Ph.D C.Stat ACAS \n with significant contributions from Reinhold Kainhofer and Kevin J. Owens'
 	)
 }

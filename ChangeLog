@@ -1,6 +1,7 @@
 ChangeLog
 -Version 1.1.6
 * Add GitHub subdirectory.
+* Initial Rcpp support
 -Version 1.1.5
 * Numerical tests vignette replaced with Unit Root testing.
 * Replaced incoherencies within the manual on lifetable and actuarialtable method.

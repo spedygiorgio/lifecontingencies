@@ -1816,8 +1816,8 @@ analyses with interest rate modeling packages like \pkg{termstrc}.
 Finally, code optimization and improvement is carried out
 continuously. The extension of parallel computation features, memory
 usage profiling, and the use of \proglang{C} or \proglang{C++} code
-fragments in select parts of the code have been planned for the near
-future.
+fragments in select parts of the code have begun (for \pkg{Rcpp} package, \cite{RcppR} usage) or bein 
+planned for the near future.
 
 \subsection{Accuracy}\label{sec:disclaimer}
 

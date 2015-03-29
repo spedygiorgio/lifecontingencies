@@ -2,16 +2,16 @@
 #TO DO: add k to increasing and decreasing annuities function
 #function to evaluate the present value of a series of cash flows
 
-presentValue=function(cashFlows, timeIds,interestRates, probabilities, power=1)
+presentValue<-function(cashFlows, timeIds,interestRates, probabilities, power=1)
 {
-	out=0
+	out<-0
 	if(missing(timeIds)) #check coherence on time id vector
 	{	warning("Warning: missing time vector")
 		timeIds=1
 	}
 	if(missing(probabilities)) #if no probabilities given than prob=1
 	{
-		probabilities=rep(1,length(cashFlows))
+		probabilities <- rep(1,length(cashFlows))
 	} else {
 		if(length(cashFlows)!=length(probabilities)) stop("Error! Probabilities must have same length of cash flows")
 	}
@@ -19,10 +19,13 @@ presentValue=function(cashFlows, timeIds,interestRates, probabilities, power=1)
 	if(!(length(cashFlows)==length(timeIds))) stop("Error! check dimensionality of cash flow and time ids vectors") #check dimensionality of cash flows
 	if((length(interestRates)>1)&(length(interestRates)!=length(timeIds))) warning("Interest rates incoherent with time ids") #check dimensioanlity of time ids
 	
-	interestRates=rep(interestRates,length.out=length(timeIds))
-	v=(1+interestRates)^-timeIds
-	out=sum(((cashFlows^power)*(v^power))*probabilities) #power used for APV, usually=1
-	#out=.C("add3", x=as.double(cashFlows), y=as.double(v),z=as.double(probabilities),n=as.integer(length(probabilities)),out=numeric(1))$out
+	interestRates <- rep(interestRates,length.out=length(timeIds))
+	v <- (1+interestRates)^-timeIds
+	out <- sum(((cashFlows^power)*(v^power))*probabilities) #power used for APV, usually=1
+  #using Rcpp code seems inefficient
+# 	out<-switch(calculation,
+#               R=sum(((cashFlows^power)*(v^power))*probabilities),
+#               Rcpp=.mult3sum(x=(cashFlows^power),y=(v^power),z=probabilities))
 	return(out)
 }
 
@@ -98,7 +101,7 @@ annuity=function(i, n,m=0,k=1, type="immediate")
 	} 
 	
 	if(n==0) return(0)
-	ieff=i #i è il tasso effettivo
+	ieff=i #i ? il tasso effettivo
 	if(type=="immediate") timeIds=seq(from=1/k, to=n, by=1/k)+m
 	else timeIds=seq(from=0, to=n-1/k, by=1/k)+m #due
 	iRate=rep(ieff,length.out=n*k)

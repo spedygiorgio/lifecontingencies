@@ -3,6 +3,13 @@
 # Author: Giorgio Spedicato
 ###############################################################################
 
+# need to set up Rcpp calls
+
+#' @useDynLib lifecontingencies
+#' @importFrom Rcpp sourceCpp
+
+
+
 #CLASSES DEFINITIONS
 
 
