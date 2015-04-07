@@ -9,3 +9,11 @@
     .Call('lifecontingencies_mult2sum', PACKAGE = 'lifecontingencies', x, y)
 }
 
+.fExnCpp <- function(T, y, n, i) {
+    .Call('lifecontingencies_fExnCpp', PACKAGE = 'lifecontingencies', T, y, n, i)
+}
+
+.fAxnCpp <- function(T, y, n, i, m, k) {
+    .Call('lifecontingencies_fAxnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, m, k)
+}
+

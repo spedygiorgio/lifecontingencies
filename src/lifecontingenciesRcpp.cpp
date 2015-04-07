@@ -30,16 +30,8 @@ double mult2sum(NumericVector x, NumericVector y)
 }
 
 
-//pure endowment function
-//.fExn<-function(T,y,n, i)
-//{
-//  out=ifelse(T<y+n,0,(1+i)^(-n))
-//	return(out)
-//}
-
-
 // [[Rcpp::export(.fExnCpp)]]
-double fExn(double T, double y, double n, double i)
+double fExnCpp(double T, double y, double n, double i)
 {
   double out;
   if(T<y+n)
@@ -50,16 +42,8 @@ double fExn(double T, double y, double n, double i)
 }
 
 
-//.fAxn<-function(T,y,n, i, m, k)
-//{
-//  out=numeric(1)
-//	out=ifelse(((T>=y+m) && (T<=y+m+n-1/k)),(1+i)^-(T-y+1/k),0)
-//	return(out)
-//}
-
-
 // [[Rcpp::export(.fAxnCpp)]]
-double fExn(double T, double y, double n, double i, double m, double k)
+double fAxnCpp(double T, double y, double n, double i, double m, double k)
 {
   double out;
   if ((T>=y+m) && (T<=y+m+n-1/k))
@@ -68,17 +52,4 @@ double fExn(double T, double y, double n, double i, double m, double k)
     out=0;
   return out;
 }
-
-//.fAxyzn<-function(T,y,n, i, m, k, status)
-//{
-//  out=numeric(1)
-//	temp=T-y
-//	T=ifelse(status=="joint",min(temp),max(temp)) #redefines T
-//	out=ifelse(((T>=m) && (T<=m+n-1/k)),(1+i)^-(T+1/k),0)
-//	return(out)
-//}
-
-
-// [[Rcpp::export(.fAxyznCpp)]]
-
 
