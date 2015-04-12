@@ -1,0 +1,338 @@
+---
+title: "Intro to the lifecontingencies R package"
+author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
+date: "19th April 2015"
+output:
+  beamer_presentation:
+    incremental: yes
+    keep_tex: yes
+    toc: yes
+  ioslides_presentation:
+    incremental: yes
+header-includes:
+- \usepackage{lifecon}
+- \usepackage{url}
+bibliography: lifecontingenciesBiblio.bib
+---
+
+#Intro
+
+- The lifecontingencies package [@spedLifecon] will be introduced.
+- As first half 2015 it is the first R [@RSoftware] package merging demographic and financial mathematics function in order to perform actuarial evaluation of life contingent insurances (annuities, life insurances, endowments, etc).
+- The applied examples will shown: how to load the R package, how to perform basic financial mathematics and demographic calculations, how to price and reserve financial products.
+
+---
+
+- The final example will show how to mix lifecontingencies and demography [@demographyR] function to assess the mortality development impact on annuities.
+- The interested readers are suggested to look to the package's vignettes (also appeared in the Journal of Statistical Sofware) for a broader overview. [@dickson2009actuarial; and @mazzoleni2000appunti] provide and introduction of Actuarial Mathematics theory.
+- Also [@rmetrics1] and [@charpentierCAS] discuss the software. 
+
+#First moves into the lifecontingecies package
+
+##Loading the package
+- The package is loaded using 
+
+```{r load, echo=TRUE, warning=FALSE, message=FALSE}
+library(lifecontingencies) #load the package
+```
+
+- It requires a recent version of R (>=3.0) and the markovchain package [@markovchainR].
+
+---
+
+##Financial mathematics
+
+- Actuarial mathematics calculation applies probability to quantify uncertainty on
+present values calculation.
+- Certain present value calculations can be directly evaluated by the package
+
+```{r finmat1, echo=TRUE, warning=FALSE, message=FALSE}
+capitals <- c(-1000,200,500,700)
+times <- c(0,1,2,5)
+#calculate a present value
+presentValue(cashFlows=capitals, timeIds=times, 
+             interestRates=0.03)
+```
+
+---
+
+- The presentValue function is the kernel of functions that are used to
+calculate annuities and accumulated values, also paid in fractional $k$ payments.
+
+```{r finmat2, echo=TRUE, warning=FALSE, message=FALSE}
+ann1 <- annuity(i=0.03, n=5, k=1, type="immediate")
+ann2 <- annuity(i=0.03, n=5, k=12, type="due")
+c(ann1,ann2)
+```
+
+---
+
+- Such functions can be combined to price bonds and other classical financial products.
+
+- The following code exemplifies the calculation of a 5\% coupon bond at 3\% yield rate when the term is ten year.
+
+```{r finmat3, echo=TRUE, warning=FALSE, message=FALSE}
+bondPrice<-5*annuity(i=0.03,n=10)+100*1.03^-10
+bondPrice
+```
+
+---
+
+#Managing lifetables and actuarial tables
+
+- A lifetable object is an S4 class comprised by three slots: the age (from 0 to $\omega$), the people at risk at beginning 
+of age x and the table name.
+
+```{r demo1}
+#create an demo lifetable
+xDemo<-seq(from=0,to=5,by=1)
+lxDemo<-c(100,95,90,60,30,5)
+lifetableDemo<-new("lifetable",x=xDemo,
+                   lx=lxDemo,name="Demo")
+```
+
+---
+
+- In practice, it is often more convenient to load an existing table from a CSV or XLS source. Some common tables have been bundled as data.frames within the package. 
+- The example that follows creates the Italian IPS55 life table.
+
+```{r demo2}
+data(demoIta) #using the internal Italian LT data set
+lxIPS55M <- with(demoIta, IPS55M)
+#performing some fixings
+pos2Remove <- which(lxIPS55M %in% c(0,NA))
+lxIPS55M <-lxIPS55M[-pos2Remove]
+xIPS55M <-seq(0,length(lxIPS55M)-1,1)
+#creating the table
+ips55M <- new("lifetable",x=xIPS55M, 
+lx=lxIPS55M,name="IPS 55 Males")
+```
+
+---
+
+- It is therefore easy to perform standard demographic calculations with the aid of package functions.
+
+```{r demo3, tidy=TRUE}
+#decrements between age 65 and 70
+dxt(ips55M, x=65, t = 5)
+#probabilities of death between age 80 and 85
+qxt(ips55M, x=80, t=2)
+#expected curtate lifetime
+exn(ips55M, x=65) 
+```
+
+---
+
+#Pricing and reserving Life Contingent insurances
+
+- The pricing and reserving of pure endowments $\pureend{x}{n}$, term insurances, $\termins{x}{n}$,
+annuities $\ddot{a}_{x}^{\{m\}}$, endowments $\pureend{x}{n}$ can be easily handled within the package.
+- Performing such actuarial calculations requires to create an actuarial table (similar to a lifetable but with one more slot for the interest rate) that can be create as it is shown below.
+
+```{r createacttable, tidy=TRUE}
+#creates a new actuarial table
+ips55Act<-new("actuarialtable",
+x=ips55M@x,lx=ips55M@lx,
+interest=0.02,name="IPS55M")
+```
+
+
+---
+
+- The example that follows computes the yearly premium $P=50000*\frac{\pureendc{30}{35}}{\anndue{30}{35}}$ for a pure endowment on 50K capital.
+
+```{r pureend, tidy=TRUE}
+#compute APV
+APV=50e3*Exn(actuarialtable = 
+ips55Act,x=30,n=35)
+#compute Premium
+P=APV/axn(actuarialtable =
+ips55Act,x=30,n=35)
+c(APV,P)
+```
+
+
+---
+
+- The package allows to easily perform sensitivities on the financials changing key parameters like term, interest, etc as we can see on a endowment purchased by a 30 years old policyholder for 30 years.
+
+```{r endowmentcalcs, tidy=TRUE}
+#defining the ranges
+interest.range<-seq(from=0.015, to=0.035,
+by=0.001)
+term.range<-seq(from=20, to=40,by=1)
+#computing APV sensitivities
+apv.interest.sensitivity<-sapply(interest.range
+,FUN = "AExn",actuarialtable=ips55Act,x=30,n=30)
+apv.term.sensitivity<-sapply(term.range,
+FUN = "AExn",actuarialtable=ips55Act,x=30)
+```
+
+---
+
+- The graph below displays sensitivities on APV varying interest rate and insurance term.
+
+```{r endowmentplot, tidy=TRUE, echo=FALSE,fig.width=5, fig.height=5}
+par(mfrow=c(1,2))
+plot(x=interest.range, y=apv.interest.sensitivity,type="l",xlab="interest rate",ylab="APV",main="APV by Interest Rate")
+plot(x=term.range, y=apv.term.sensitivity,type="l",xlab="term",ylab="APV",main="APV by term")
+```
+
+---
+
+- Also, calculation of outstanding reserves is made easy as the following example, applied on a 100K
+face value 40 year term term life insurance with payments made yearly on a policyholder aged 25, shows.
+
+```{r reserves, tidy=TRUE}
+#compute the apv and premium
+APV=100e3*Axn(actuarialtable = ips55Act,x=25,n=40) 
+P=APV/axn(actuarialtable = ips55Act,x=25,n=40)
+#define a reserve function
+reserveFunction<-function(t) 
+  100e3*Axn(actuarialtable = ips55Act,x=25+t,n=40-t) - P *axn(actuarialtable = ips55Act,x=25+t,n=40-t)
+reserve<-sapply(0:40,reserveFunction)
+
+```
+
+---
+
+```{r reserves2, tidy=TRUE, echo=FALSE}
+plot(x=0:40,y=reserve,main="Reserve",xlab="Policy Age",ylab="Reserve outstanding",type="l")
+```
+
+
+
+---
+
+
+#Stochastic evalutation
+
+- The APV of a life contingent insurance is the expected value of a function of a random variable (the residual life time). Knowing the interest rate and the underlying life table it is possible both to compute the APV and to assess the distribution of the 
+underlying life insurance. 
+
+```{r AEXn1 , tidy=TRUE}
+#analyzing and Endowment of 100K on x=40, n=25
+APV=AExn(actuarialtable = ips55Act,x=40,n=25) #compute APV
+#sampling
+AEXnDistr<-rLifeContingencies(n=10e3,lifecontingency = "AExn",x = 40,t=25,object = ips55Act)
+#assess if the expected value match the theoretical one
+t.test(x=AEXnDistr,mu = APV)
+```
+
+---
+
+```{r AEXn2, tidy=TRUE, echo=FALSE}
+hist(AEXnDistr, main="Endowment Actuarial Value Distribution",probability = TRUE, col="steelblue")
+```
+
+---
+
+#Assessing longevity impact on annuities using lifecontingencies and demography
+
+- This part of the presentation will make use of the demography package to calibrate Lee Carter [@Lee1992] model, $log\left(\mu_{x,t} \right) =a_{x}+b_{x}*k_{t}\rightarrow p_{x,t}=exp^{-\mu_{x,t}}$ ,projecting mortality and implicit life tables.
+
+
+```{r leecarter0, tidy=TRUE, warning=FALSE, message=FALSE}
+library(demography) #load the package and the italian tables
+#italy.demo<-hmd.mx("ITA", username="spedicato_giorgio@yahoo.it", password="mortality")
+load(file="mortalityDatasets.RData") #load the dataset
+```
+
+---
+
+- Lee Carter model is calibrated using lca function.
+- Then an arima model is used to project (extrapolate) the underlying $k_t$ over the historical period.
+
+
+```{r leecarter1, tidy=TRUE, warning=FALSE}
+#calibrate lee carter
+italy.leecarter<-lca(data=italyDemo,series="total",max.age=103,adjust = "none")
+#perform modeling of kt series
+kt.model<-auto.arima(italy.leecarter$kt)
+kt.forecast<-forecast(kt.model,h=100) #projecting the kt
+```
+
+
+---
+
+
+-The code below generates the matrix of prospective life tables
+
+```{r leecarter2, tidy=TRUE}
+kt.full<-ts(union(italy.leecarter$kt, kt.forecast$mean),start=1872)  #indexing the kt
+mortalityTable<-exp(italy.leecarter$ax+italy.leecarter$bx%*%t(kt.full)) #getting the life tables matrix
+rownames(mortalityTable)<-seq(from=0, to=103)
+colnames(mortalityTable)<-seq(from=1872, to=1872+dim(mortalityTable)[2]-1)
+```
+
+
+---
+
+
+```{r leecarter2plot, tidy=TRUE, echo=FALSE}
+plot.ts(kt.full, main="historical and projected KT",xlab="year",
+        ylab="kt",col="steelblue")
+abline(v=2009,col="darkred",lwd=2.5)
+```
+
+---
+
+
+- now we need a function that returns the one-year death probabilities
+given a year of birth (cohort.
+
+
+```{r leecarter3, tidy=TRUE}
+getCohortQx<-function(yearOfBirth)
+{
+  colIndex<-which(colnames(mortalityTable)
+                  ==yearOfBirth) #identify 
+  #the column corresponding to the cohort 
+  #definex the probabilities from which 
+  #the projection is to be taken
+  maxLength<-min(nrow(mortalityTable)-1,
+                 ncol(mortalityTable)-colIndex)
+  qxOut<-numeric(maxLength+1)
+  for(i in 0:maxLength)
+    qxOut[i+1]<-mortalityTable[i+1,colIndex+i]
+  #fix: we add a fictional omega age where 
+  #death probability = 1
+  qxOut<-c(qxOut,1)
+  return(qxOut)
+}
+```
+
+---
+
+- Now we use such function to obtain prospective life tables and to perform 
+actuarial calculations. For example, we can compute the APV of an annuity on a 
+workers' retiring at 65 assuming he were born in 1920, in 1950 and in 1980.
+- The first step is to generate the life and actuarial tables
+
+```{r leecarter4, tidy=TRUE}
+#generate the life tables
+qx1920<-getCohortQx(yearOfBirth = 1920)
+lt1920<-probs2lifetable(probs=qx1920,type="qx",name="Table 1920")
+at1920<-new("actuarialtable",x=lt1920@x,lx=lt1920@lx,interest=0.025)
+qx1950<-getCohortQx(yearOfBirth = 1950)
+lt1950<-probs2lifetable(probs=qx1950,type="qx",name="Table 1950")
+at1950<-new("actuarialtable",x=lt1950@x,lx=lt1950@lx,interest=0.025)
+qx1980<-getCohortQx(yearOfBirth = 1980)
+lt1980<-probs2lifetable(probs=qx1980,type="qx",name="Table 1980")
+at1980<-new("actuarialtable",x=lt1980@x,lx=lt1980@lx,interest=0.025)
+```
+
+---
+
+- Now we can evaluate $\ddot{a}_{65}$ and $\mathring{e}_{65}$ for workers born in 1920, 1950 and 1980 respectively.
+
+
+```{r leecarter5, tidy=TRUE}
+c(exn(at1920,x=65),axn(at1920,x=65))
+c(exn(at1950,x=65),axn(at1950,x=65))
+c(exn(at1980,x=65),axn(at1980,x=65))
+```
+
+---
+
+#Bibliography {.allowframebreaks}
