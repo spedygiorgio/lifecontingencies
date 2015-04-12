@@ -160,8 +160,6 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 }
 
 
-
-
 #increasing life insurance function
 
 .fIAxn<-function(T,y,n, i, m, k=1)
