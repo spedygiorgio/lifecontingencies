@@ -1,2 +1,4 @@
 -Version 1.1.6
-* Add GitHub subdirectory.
+* Add GitHub repository.
+* hidden Rcpp code. 
+* Newvignette for a quick introduction to the package. 

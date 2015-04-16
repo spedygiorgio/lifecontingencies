@@ -2,8 +2,8 @@ Package: lifecontingencies
 Type: Package
 Title: Financial and Actuarial Mathematics for Life Contingencies
 Version: 1.1.6
-Date: 2015-03-29
-Author: Giorgio Alfredo Spedicato with contributions from Reinhold Kainhofer and Kevin J. Owens
+Date: 2015-04-15
+Author: Giorgio Alfredo Spedicato [cre,aut], Reinhold Kainhofer [ctb] and Kevin J. Owens [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: The package contains classes and methods that allow the user to manage life table, actuarial tables (also multiple decrement tables). Moreover, functions to easily perform demographic, financial and actuarial mathematics on life contingencies insurances calculations are contained therein.
 Depends: R (>= 3.0.0), methods
