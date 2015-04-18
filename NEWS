@@ -1,4 +1,4 @@
 -Version 1.1.6
 * Add GitHub repository.
-* hidden Rcpp code. 
-* Newvignette for a quick introduction to the package. 
+* first usage of Rcpp (hidden code). 
+* New vignette for a quick introduction to the package. 

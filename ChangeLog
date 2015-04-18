@@ -1,15 +1,16 @@
 ChangeLog
 -Version 1.1.6
-* Add GitHub subdirectory.
-* Initial Rcpp support
+* Add GitHub repository.
+* first usage of Rcpp (hidden code). 
+* New vignette for a quick introduction to the package. 
 -Version 1.1.5
 * Numerical tests vignette replaced with Unit Root testing.
 * Replaced incoherencies within the manual on lifetable and actuarialtable method.
 * Added rmdt to sample from multiple contingencies object
 * Fixed description and namespace
 -Version 1.1
-Multiple decrements officially introduced in the package (various methods added, as well as a vignette)
-An introductory vignette for multiple decrements
+* Multiple decrements officially introduced in the package (various methods added, as well as a vignette)
+* An introductory vignette for multiple decrements
 -Version 1.0.6
  Changed vignettes removing parallel function to cope with CRAN policies
  Added SoA illustrative service table in data
