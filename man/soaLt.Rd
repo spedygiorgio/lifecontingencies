@@ -18,9 +18,6 @@ This table has been used by the classical book Actuarial Mathematics and by the 
 \details{
 Early ages are miss.
 }
-\source{
-\url{http://www.soa.org/files/pdf/edu-2008-spring-mlc-tables.pdf}
-}
 \references{
 Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 }

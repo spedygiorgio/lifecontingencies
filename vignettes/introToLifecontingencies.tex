@@ -94,6 +94,12 @@
 \tableofcontents[hideallsubsections]
 \end{frame}
 
+\begin{frame}
+
+\%\VignetteEngine{knitr::knitr}
+
+\end{frame}
+
 \begin{frame}{Intro}
 
 \begin{itemize}[<+->]
@@ -153,7 +159,7 @@
 \item
   It requires a recent version of R (\textgreater{}=3.0) and the
   markovchain package (Spedicato 2015). The development version of the
-  package requires also (Eddelbuettel 2013).
+  package requires also Rcpp package (Eddelbuettel 2013).
 \end{itemize}
 
 \end{block}
@@ -471,7 +477,8 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{#analyzing and Endowment of 100K on x=40, n=25}
-\NormalTok{APV=}\KeywordTok{AExn}\NormalTok{(}\DataTypeTok{actuarialtable =} \NormalTok{ips55Act,}\DataTypeTok{x=}\DecValTok{40}\NormalTok{,}\DataTypeTok{n=}\DecValTok{25}\NormalTok{) }\CommentTok{#compute APV}
+\CommentTok{#compute APV}
+\NormalTok{APV=}\KeywordTok{AExn}\NormalTok{(}\DataTypeTok{actuarialtable =} \NormalTok{ips55Act,}\DataTypeTok{x=}\DecValTok{40}\NormalTok{,}\DataTypeTok{n=}\DecValTok{25}\NormalTok{) }
 \CommentTok{#sampling}
 \NormalTok{AEXnDistr<-}\KeywordTok{rLifeContingencies}\NormalTok{(}\DataTypeTok{n=}\FloatTok{10e3}\NormalTok{,}
 \DataTypeTok{lifecontingency =} \StringTok{"AExn"}\NormalTok{,}\DataTypeTok{x =} \DecValTok{40}\NormalTok{,}
@@ -502,13 +509,13 @@
 ##  One Sample t-test
 ## 
 ## data:  AEXnDistr
-## t = 0.2316, df = 9999, p-value = 0.8169
+## t = -0.1688, df = 9999, p-value = 0.866
 ## alternative hypothesis: true mean is not equal to 0.6148635
 ## 95 percent confidence interval:
-##  0.6142976 0.6155811
+##  0.6141982 0.6154234
 ## sample estimates:
 ## mean of x 
-## 0.6149393
+## 0.6148108
 \end{verbatim}
 
 \end{frame}

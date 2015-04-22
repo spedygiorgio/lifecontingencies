@@ -1,6 +1,6 @@
 # The lifecontingencies package
 
-Classes and methods for managing life tables, actuarial tables (also multiple decrement ones). Moreover, functions to easily perform demographic, financial and actuarial mathematics on life contingencies insurances calculations are contained therein.
+Classes and methods for managing life tables (for single and multiple decrements) and actuarial tables. Moreover, functions to easily perform demographic, financial and actuarial mathematics on life contingencies insurances calculations are contained therein.
 
 ## Install the current release from CRAN:
 ```r

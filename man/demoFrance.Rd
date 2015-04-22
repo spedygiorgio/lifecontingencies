@@ -23,11 +23,7 @@ These tables are real French population life tables. They regard
 88 - 90 and 00 - 02 experience.
 }
 \source{
-	\url{http://www.actuaris.com/fr/infotech/actuariat/tables_de_mortalit-/table_tv_88-90.html}
-	\url{http://www.winter-associes.fr/ressources/TM-INSEE-TH00-02-TF00-02}
-}
-\references{
-\url{http://www.winter-associes.fr/ressources/TM-INSEE-TH00-02-TF00-02}
+Actuaris - Winter Associes
 }
 \examples{
 data(demoFrance)

@@ -25,9 +25,6 @@ straight interpolation.
 \note{
 This table is based on US 1990 general population mortality.
 }
-\source{
-\url{http://www.soa.org/files/pdf/edu-2008-spring-mlc-tables.pdf}
-}
 \references{
 Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 }

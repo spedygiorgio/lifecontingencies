@@ -37,7 +37,7 @@ bibliography: lifecontingenciesBiblio.bib
 library(lifecontingencies) #load the package
 ```
 
-- It requires a recent version of R (>=3.0) and the markovchain package [@markovchainR]. The development version of the package requires also [@RcppR].
+- It requires a recent version of R (>=3.0) and the markovchain package [@markovchainR]. The development version of the package requires also Rcpp package [@RcppR].
 
 ---
 
@@ -211,7 +211,8 @@ underlying life insurance.
 
 ```{r AEXn1 , tidy=FALSE, size="small"}
 #analyzing and Endowment of 100K on x=40, n=25
-APV=AExn(actuarialtable = ips55Act,x=40,n=25) #compute APV
+#compute APV
+APV=AExn(actuarialtable = ips55Act,x=40,n=25) 
 #sampling
 AEXnDistr<-rLifeContingencies(n=10e3,
 lifecontingency = "AExn",x = 40,
