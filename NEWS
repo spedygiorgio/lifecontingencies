@@ -1,4 +1,5 @@
 -Version 1.1.6
+This is a mostly mainteance version:
 * Add GitHub repository.
-* first usage of Rcpp (hidden code). 
-* New vignette for a quick introduction to the package. 
+* first usage of Rcpp (byt its functionalities are hidden in this release). 
+* New vignette (beamer coming from rmarkdown) for a quick introduction to the package. 

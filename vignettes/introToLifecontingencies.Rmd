@@ -1,6 +1,6 @@
 ---
 title: "Intro to the lifecontingencies R package"
-author: "Giorgio Alfredo Spedicato, UnipolSai R&D Ph.D C.Stat ACAS"
+author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
 date: "19th April 2015"
 output:
   beamer_presentation:
@@ -15,6 +15,14 @@ header-includes:
 bibliography: lifecontingenciesBiblio.bib
 ---
 
+```{r setup, include=FALSE}
+library(knitr)
+```
+
+<!--
+%\VignetteEngine{knitr::rmarkdown }
+%\VignetteIndexEntry{Intro to the lifecontingencies R package}
+-->
 
 #Intro
 
