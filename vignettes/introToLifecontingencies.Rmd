@@ -259,14 +259,14 @@ hist(AEXnDistr, main="Endowment Actuarial Value Distribution",
 ```{r leecarter0, tidy=FALSE, warning=FALSE, message=FALSE}
 #load the package and the italian tables
 library(demography) 
-#italy.demo<-hmd.mx("ITA", username="yourUN", 
+#italyDemo<-hmd.mx("ITA", username="yourUN", 
 #password="yourPW")
 load(file="mortalityDatasets.RData") #load the dataset
 ```
 
 ---
 
-- Lee Carter model is calibrated using lca function.
+- Lee Carter model is calibrated using lca function of demography package.
 - Then an arima model is used to project (extrapolate) the underlying $k_t$ over the historical period.
 
 

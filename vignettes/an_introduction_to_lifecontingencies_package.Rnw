@@ -834,6 +834,7 @@ and convexity will change as time goes on.
 	\code{qxyzt} & death probability for two (or more) lives, ${}_{t}q_{xy}$.\\
 	\code{Txt} & number of person-years lived after exact age $x$, ${}_{t}T_{x}$.\\
 	\code{mxt} & central death rate, ${}_{t}m_{x}$.\\
+		\code{mx2qx} & convert mortality rate into death probabilities. \\
 	\code{exn} & expected lifetime between age $x$ and age $x + n$,
 	${}_{n}e_{x}$.\\
 	\code{rLife} & sample from the time until death distribution underlying 
@@ -1082,6 +1083,14 @@ demoEx1<-pxt(ips55M,20,1)
 demoEx2<-qxt(ips55M,30,2) 
 demoEx3<-exn(ips55M, 50,20,"complete") 
 c(demoEx1,demoEx2,demoEx3)
+@
+
+Getting mortality rates and moving to death probabilities is also possible
+
+<<mxAndqx, kee.source=TRUE>>=
+mx20t1 <- mxt(ips55M,20,1)
+qx20t1 <- mx2qx(mx20t1)
+c(mx20t1,qx20t1)
 @
 
 The package allows one to calculate fractional survival

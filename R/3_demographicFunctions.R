@@ -312,3 +312,23 @@ exyzt<-function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 	if(type=="Tx") out=out+0.5
 	return(out)
 }
+
+#' @title Mortality rates to Death probabilities
+#'
+#' @details Function to convert mortality rates to probabilities of death
+#' 
+#' @param mx: mortality rates vector
+#' @param ax: the average number of years lived between ages x and x +1 by individuals who die in that interval
+#' 
+#' @return A vector of death probabilities
+#' @examples 
+#' data(soa08Act)
+#' soa08qx<-as(soa08Act,"numeric")
+#' soa08mx<-mx2qx(mx=soa08qx)
+#' @seealso \code{mxt}, \code{qxt}
+
+mx2qx<-function(mx, ax=0.5)
+{
+  out <- mx /( 1 +mx*(1-ax))
+  return(out)
+}
