@@ -7,8 +7,6 @@ output:
     incremental: yes
     keep_tex: yes
     toc: yes
-  ioslides_presentation:
-    incremental: yes
 header-includes:
 - \usepackage{lifecon}
 - \usepackage{url}
