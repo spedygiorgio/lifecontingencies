@@ -11,3 +11,5 @@ install.packages('lifecontingencies')
 ```r
 devtools::install_github('spedygiorgio/lifecontingencies')
 ```
+
+![alt tag](https://travis-ci.org/spedygiorgio/lifecontingencies.svg?branch=master)
