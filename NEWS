@@ -1,2 +1,3 @@
--Version 1.1.7
-* Added function to move from mx to qx
+-Version 1.1.8
+* Full open to Rcpp
+* add functions to move from qx to mx and vice versa

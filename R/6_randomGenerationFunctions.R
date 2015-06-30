@@ -322,17 +322,18 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
 		}
 		stopCluster(cl)
 	}
+	#not parallel
 	else {
 		if (lifecontingency == "Axn") 
-			outs = sapply(deathsTimeX, .fAxn, y = x, n = t, i = i, 
+			outs = sapply(deathsTimeX, .fAxnCpp, y = x, n = t, i = i, 
 					m = m, k = k)
 		else if (lifecontingency == "Exn") 
-			outs = sapply(deathsTimeX, .fExn, y = x, n = t, i = i)
+			outs = sapply(deathsTimeX, .fExnCpp, y = x, n = t, i = i)
 		else if (lifecontingency == "IAxn") 
-			outs = sapply(deathsTimeX, .fIAxn, y = x, n = t, 
+			outs = sapply(deathsTimeX, .fIAxnCpp, y = x, n = t, 
 					i = i, m = m, k = k)
 		else if (lifecontingency == "DAxn") 
-			outs = sapply(deathsTimeX, .fDAxn, y = x, n = t, 
+			outs = sapply(deathsTimeX, .fDAxnCpp, y = x, n = t, 
 					i = i, m = m, k = k)
 		else if (lifecontingency == "AExn") 
 			outs = sapply(deathsTimeX, .fAExn, y = x, n = t, 
@@ -347,24 +348,24 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
 	return(outs)
 }
 
-# x=40
-# t=20
-# n=500000
+# x=50
+# t=30
+# n=50e3
 # object=soa08Act
-# lifecontingency="axn"
+# lifecontingency="IAxn"
 # i=0.06
 # m=10
 # k=12
 # 
 # outs<-rLifeContingencies(n=n,lifecontingency=lifecontingency, object=object, x=x,t=t,i=i, 
-# 		m=m,k=k, parallel=TRUE)
-# APV=axn(object, x=x,n=t, k=k,m=m)
+# 		m=m,k=k, parallel=FALSE)
+# APV=IAxn(object, x=x,n=t, k=k,m=m)
 # mean(outs)
 # APV
 # t.test(x=outs, mu=APV)
-# 
-# system.time(rLifeContingencies(n,lifecontingency, object, x,t,i=i, m=m,k=k, parallel=TRUE))
-# system.time(rLifeContingencies(n,lifecontingency, object, x,t,i=i, m=m,k=k, parallel=FALSE))
+# # 
+#  system.time(rLifeContingencies(n,lifecontingency, object, x,t,i=i, m=m,k=k, parallel=FALSE))
+#  system.time(rLifeContingenciesR(n,lifecontingency, object, x,t,i=i, m=m,k=k, parallel=FALSE))
 
 
 #n=10000

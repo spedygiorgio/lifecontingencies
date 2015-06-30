@@ -313,6 +313,7 @@ exyzt<-function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 	return(out)
 }
 
+#' @name mx2qx
 #' @title Mortality rates to Death probabilities
 #'
 #' @details Function to convert mortality rates to probabilities of death
@@ -322,13 +323,35 @@ exyzt<-function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 #' 
 #' @return A vector of death probabilities
 #' @examples 
+#' 
+#' #using some recursion
+#' qx2mx(mx2qx(.2))
+#' 
+#' @seealso \code{mxt}, \code{qxt}, \code{qx2mx}
+
+mx2qx <- function(mx, ax = 0.5)
+{
+  out <- mx / (1 +  (1 - ax)*mx)
+  return(out)
+}
+
+#' @name qx2mx
+#' @title Death Probabilities to Mortality Rates
+#'
+#' @details Function to convert death probabilities to mortality rates
+#' 
+#' @param qx: death probabilities
+#' @param ax: the average number of years lived between ages x and x +1 by individuals who die in that interval
+#' 
+#' @return A vector of mortality rates
+#' @examples 
 #' data(soa08Act)
 #' soa08qx<-as(soa08Act,"numeric")
-#' soa08mx<-mx2qx(mx=soa08qx)
-#' @seealso \code{mxt}, \code{qxt}
+#' soa08mx<-qx2mx(qx=soa08qx)
+#' soa08qx2<-mx2qx(soa08mx)
+#' @seealso \code{mxt}, \code{qxt}, \code{mx2qx}
 
-mx2qx<-function(mx, ax=0.5)
-{
-  out <- mx /( 1 +mx*(1-ax))
+qx2mx <- function(qx, ax=0.5) {
+  out <- qx/(1+ax*qx-qx)
   return(out)
 }

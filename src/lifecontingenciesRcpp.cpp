@@ -42,10 +42,11 @@ double fExnCpp(double T, double y, double n, double i)
 }
 
 
+
 // [[Rcpp::export(.fAxnCpp)]]
-double fAxnCpp(double T, double y, double n, double i, double m, int k)
+double fAxnCpp(double T, double y, double n, double i, double m, double k=1)
 {
-  double out;
+  double out=0;
   if ((T>=y+m) && (T<=y+m+n-1/k))
     out=pow(1+i,-(T-y+1/k));
   else
@@ -56,7 +57,7 @@ double fAxnCpp(double T, double y, double n, double i, double m, int k)
 
 
 // [[Rcpp::export(.fIAxnCpp)]]
-double fIAxnCpp(double T, double y, double n, double i, double m, int k=1) {
+double fIAxnCpp(double T, double y, double n, double i, double m, double k=1) {
   double out;
   if ((T>=y+m) && (T<=y+m+n-1/k))
     out=(T-(y+m)+1/k)*pow(1+i,-(T-y+1/k));
@@ -67,7 +68,7 @@ double fIAxnCpp(double T, double y, double n, double i, double m, int k=1) {
 
 
 // [[Rcpp::export(.fDAxnCpp)]]
-double fDAxnCpp(double T, double y, double n, double i, double m, int k=1) {
+double fDAxnCpp(double T, double y, double n, double i, double m, double k=1) {
   double out;
   if ((T>=y+m) && (T<=y+m+n-1/k))
     out=(n-(T-(y+m)+1/k))*pow(1+i,-(T-y+1/k));
@@ -82,7 +83,7 @@ double fDAxnCpp(double T, double y, double n, double i, double m, int k=1) {
 
 // [[Rcpp::export(.fAExnCpp)]]
 
-double fAExnCpp(double T, double y, double n, double i, int k=1)
+double fAExnCpp(double T, double y, double n, double i, double k=1)
 {
   double out;
   if ((T>=y) && (T<=y+n-1/k))

@@ -1,8 +1,8 @@
 Package: lifecontingencies
 Type: Package
 Title: Financial and Actuarial Mathematics for Life Contingencies
-Version: 1.1.7
-Date: 2015-04-24
+Version: 1.1.8
+Date: 2015-07-07
 Author: Giorgio Alfredo Spedicato [cre,aut], Reinhold Kainhofer [ctb] and Kevin J. Owens [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Classes and methods that allow the user to manage life table, actuarial tables (also multiple decrement tables). Moreover, functions to easily perform demographic, financial and actuarial mathematics on life contingencies insurances calculations are contained therein.
