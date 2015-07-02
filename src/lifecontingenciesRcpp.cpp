@@ -82,7 +82,6 @@ double fDAxnCpp(double T, double y, double n, double i, double m, double k=1) {
 // TODO: move faxn
 
 // [[Rcpp::export(.fAExnCpp)]]
-
 double fAExnCpp(double T, double y, double n, double i, double k=1)
 {
   double out;

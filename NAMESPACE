@@ -6,7 +6,7 @@ import(markovchain)
 import(parallel, utils)
 #importFrom("markovchain",rmarkovchain)
 importFrom(Rcpp, evalCpp)
-#useDynLib(lifecontingencies)
+useDynLib(lifecontingencies)
 exportPattern("^[[:alpha:]]+")
 
 exportMethods(

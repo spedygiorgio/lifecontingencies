@@ -13,19 +13,19 @@
     .Call('lifecontingencies_fExnCpp', PACKAGE = 'lifecontingencies', T, y, n, i)
 }
 
-.fAxnCpp <- function(T, y, n, i, m, k) {
+.fAxnCpp <- function(T, y, n, i, m, k = 1) {
     .Call('lifecontingencies_fAxnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, m, k)
 }
 
-.fIAxnCpp <- function(T, y, n, i, m, k = 1L) {
+.fIAxnCpp <- function(T, y, n, i, m, k = 1) {
     .Call('lifecontingencies_fIAxnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, m, k)
 }
 
-.fDAxnCpp <- function(T, y, n, i, m, k = 1L) {
+.fDAxnCpp <- function(T, y, n, i, m, k = 1) {
     .Call('lifecontingencies_fDAxnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, m, k)
 }
 
-.fAExnCpp <- function(T, y, n, i, k = 1L) {
+.fAExnCpp <- function(T, y, n, i, k = 1) {
     .Call('lifecontingencies_fAExnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, k)
 }
 

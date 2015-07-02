@@ -45,7 +45,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // fAxnCpp
-double fAxnCpp(double T, double y, double n, double i, double m, int k);
+double fAxnCpp(double T, double y, double n, double i, double m, double k);
 RcppExport SEXP lifecontingencies_fAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -55,13 +55,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type i(iSEXP);
     Rcpp::traits::input_parameter< double >::type m(mSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
     __result = Rcpp::wrap(fAxnCpp(T, y, n, i, m, k));
     return __result;
 END_RCPP
 }
 // fIAxnCpp
-double fIAxnCpp(double T, double y, double n, double i, double m, int k);
+double fIAxnCpp(double T, double y, double n, double i, double m, double k);
 RcppExport SEXP lifecontingencies_fIAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -71,13 +71,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type i(iSEXP);
     Rcpp::traits::input_parameter< double >::type m(mSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
     __result = Rcpp::wrap(fIAxnCpp(T, y, n, i, m, k));
     return __result;
 END_RCPP
 }
 // fDAxnCpp
-double fDAxnCpp(double T, double y, double n, double i, double m, int k);
+double fDAxnCpp(double T, double y, double n, double i, double m, double k);
 RcppExport SEXP lifecontingencies_fDAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -87,13 +87,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type i(iSEXP);
     Rcpp::traits::input_parameter< double >::type m(mSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
     __result = Rcpp::wrap(fDAxnCpp(T, y, n, i, m, k));
     return __result;
 END_RCPP
 }
 // fAExnCpp
-double fAExnCpp(double T, double y, double n, double i, int k);
+double fAExnCpp(double T, double y, double n, double i, double k);
 RcppExport SEXP lifecontingencies_fAExnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -102,7 +102,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type y(ySEXP);
     Rcpp::traits::input_parameter< double >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type i(iSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
     __result = Rcpp::wrap(fAExnCpp(T, y, n, i, k));
     return __result;
 END_RCPP

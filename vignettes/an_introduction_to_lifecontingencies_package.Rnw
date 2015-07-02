@@ -834,6 +834,7 @@ and convexity will change as time goes on.
 	\code{qxyzt} & death probability for two (or more) lives, ${}_{t}q_{xy}$.\\
 	\code{Txt} & number of person-years lived after exact age $x$, ${}_{t}T_{x}$.\\
 	\code{mxt} & central death rate, ${}_{t}m_{x}$.\\
+		\code{qx2mx} & convert death probabilities into mortality rate.\\
 		\code{mx2qx} & convert mortality rate into death probabilities. \\
 	\code{exn} & expected lifetime between age $x$ and age $x + n$,
 	${}_{n}e_{x}$.\\
@@ -851,8 +852,7 @@ and convexity will change as time goes on.
 
 
 
-\code{lifetable} and \code{actuarialtable} classes are designed to handle demographic 
-and actuarial mathematics calculations. An \code{actuarialtable} class inherits
+\code{lifetable} and \code{actuarialtable} classes are designed to handle demographic and actuarial mathematics calculations. An \code{actuarialtable} class inherits
 from \code{lifetable} class; it adds one more slot for the rate
 of interest. Both classes have been designed using the \code{S4} \proglang{R}
 classes framework.\\
@@ -936,10 +936,6 @@ Table~\ref{tab:lifeTables} displays.
 within \pkg{lifecontingencies}.}
 \label{tab:lifeTables}
 \end{table}
-
-
-
-
 
 The following example shows how US Social Security life tables are loaded
 from the existing \code{demoUsa} data set bundled in the \pkg{lifecontingencies} package.
@@ -1832,8 +1828,8 @@ planned for the near future.
 
 The accuracy of the calculations has been verified by checking
 numerical examples reported in \cite{bowers1997actuarial} and in the
-lecture notes of ``Actuarial Mathematics'' taken by the author years
-ago at The Catholic University of Milan \citep{mazzoleni2000appunti}.
+lecture notes of "Actuarial Mathematics" taken by the author years
+ago at The Catholic University of Milan \citep{mazzoleni2000appunti}. Such test have been implemented with unit root testing in the package \pkg{testthat}, \cite{pkg:testthat}.
 The numerical results are identical to those reported in the cited
 references for most functions, with the exception of fractional
 payment annuities; for these, the answer is only reported up to the
