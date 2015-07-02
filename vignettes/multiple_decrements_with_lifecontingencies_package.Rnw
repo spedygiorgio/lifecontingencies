@@ -191,12 +191,24 @@ rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
 
 \section{Actuarial Applications}
 
-TO BE WRITTEN
+The package now offers limited capabilities to fit multiple decrement insurances, e.g. $\lcterm{A}{x}{n}^{\left( 1 \right)$
 
+The example in \cite[p. 674]{finanMLC}, cites: A 3-year term issued to (16) pays 20,000 at the end of year of death if death results from an accident. The \code{mdt} table is below created.
 
-\section*{Acknowledgments}\label{sec:acknowledgments}
+<<act1, keep.source=TRUE>>=
+myTable<-data.frame(x=c(16,17,18),
+  lx=c(20000,17600,14520),
+  da=c(1300,1870,2380),
+  doc=c(1100,1210,1331)
+)
+myMdt<-new("mdt",table=myTable,name="Sample")
+@
 
-TBD.
+The value of $\lcterm{A}{16}{3}^{\left( a \right)$ is below calculated
+
+<<act2, keep.source=TRUE>>=
+Axn.mdt(object=myMdt,x=16,i=.1,decrement="da")
+@
 
 
 \bibliography{lifecontingenciesBiblio}
