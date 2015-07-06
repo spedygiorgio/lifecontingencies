@@ -318,8 +318,8 @@ exyzt<-function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 #'
 #' @details Function to convert mortality rates to probabilities of death
 #' 
-#' @param mx: mortality rates vector
-#' @param ax: the average number of years lived between ages x and x +1 by individuals who die in that interval
+#' @param mx mortality rates vector
+#' @param ax the average number of years lived between ages x and x +1 by individuals who die in that interval
 #' 
 #' @return A vector of death probabilities
 #' @examples 
@@ -340,8 +340,8 @@ mx2qx <- function(mx, ax = 0.5)
 #'
 #' @details Function to convert death probabilities to mortality rates
 #' 
-#' @param qx: death probabilities
-#' @param ax: the average number of years lived between ages x and x +1 by individuals who die in that interval
+#' @param qx death probabilities
+#' @param ax the average number of years lived between ages x and x +1 by individuals who die in that interval
 #' 
 #' @return A vector of mortality rates
 #' @examples 

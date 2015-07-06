@@ -49,6 +49,7 @@ decrement models, lifecontingencies}
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \SweaveOpts{eps=FALSE, keep.source=TRUE}
 <<echo=FALSE,print=FALSE,results=hide>>=

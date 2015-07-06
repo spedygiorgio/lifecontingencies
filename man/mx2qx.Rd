@@ -7,9 +7,9 @@
 mx2qx(mx, ax = 0.5)
 }
 \arguments{
-\item{mx:}{mortality rates vector}
+\item{mx}{mortality rates vector}
 
-\item{ax:}{the average number of years lived between ages x and x +1 by individuals who die in that interval}
+\item{ax}{the average number of years lived between ages x and x +1 by individuals who die in that interval}
 }
 \value{
 A vector of death probabilities

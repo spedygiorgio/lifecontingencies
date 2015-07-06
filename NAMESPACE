@@ -1,13 +1,15 @@
 import(methods)
-import(markovchain)
-#importFrom("graphics", plot)
-#importFrom("stats4",  plot, summary)
-#importFrom("utils", head, tail)
+#import(markovchain)
+
+importClassesFrom("markovchain",markovchain, markovchainList)
+importFrom("markovchain",rmarkovchain)
+
 import(parallel, utils)
-#importFrom("markovchain",rmarkovchain)
 importFrom(Rcpp, evalCpp)
 useDynLib(lifecontingencies)
 exportPattern("^[[:alpha:]]+")
+
+importFrom(stats, "rbinom","complete.cases")
 
 exportMethods(
     "coerce",

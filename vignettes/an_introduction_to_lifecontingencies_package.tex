@@ -62,6 +62,7 @@
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\input{an_introduction_to_lifecontingencies_package-concordance}
 
 
 \maketitle
@@ -335,7 +336,7 @@ as follows:
 R> showClass("lifetable")
 \end{Sinput}
 \begin{Soutput}
-Class "lifetable" [in ".GlobalEnv"]
+Class "lifetable" [package "lifecontingencies"]
 
 Slots:
                                     
@@ -355,7 +356,7 @@ slot accounting for the interest rate.
 R> showClass("actuarialtable")
 \end{Sinput}
 \begin{Soutput}
-Class "actuarialtable" [in ".GlobalEnv"]
+Class "actuarialtable" [package "lifecontingencies"]
 
 Slots:
                                               
@@ -374,16 +375,19 @@ The following methods have been defined for the `\code{lifetable}' and
 R> showMethods(classes=c("actuarialtable","lifetable"))
 \end{Sinput}
 \begin{Soutput}
+Function "%&%":
+ <not an S4 generic function>
+
 Function ".DollarNames":
+ <not an S4 generic function>
+
+Function "absorbingStates":
  <not an S4 generic function>
 
 Function "AIC":
  <not an S4 generic function>
 
 Function "all.equal":
- <not an S4 generic function>
-
-Function "anova":
  <not an S4 generic function>
 
 Function "as.array":
@@ -402,6 +406,9 @@ Function "BIC":
  <not an S4 generic function>
 
 Function "BunchKaufman":
+ <not an S4 generic function>
+
+Function "canonicForm":
  <not an S4 generic function>
 
 Function "chol":
@@ -431,6 +438,9 @@ Function "colSums":
  <not an S4 generic function>
 
 Function "complete":
+ <not an S4 generic function>
+
+Function "conditionalDistribution":
  <not an S4 generic function>
 
 Function "confint":
@@ -466,12 +476,6 @@ Function "expm":
 Function "facmul":
  <not an S4 generic function>
 
-Function "fitted":
- <not an S4 generic function>
-
-Function "fitted.values":
- <not an S4 generic function>
-
 Function "fliplr":
  <not an S4 generic function>
 
@@ -489,14 +493,15 @@ Function "format":
 
 Function "functions":
  <not an S4 generic function>
+Function: getOmega (package lifecontingencies)
+object="actuarialtable"
+object="lifetable"
+
 Function: head (package utils)
 x="lifetable"
 
 
 Function "image":
- <not an S4 generic function>
-
-Function "inspect":
  <not an S4 generic function>
 
 Function "isDiagonal":
@@ -534,6 +539,9 @@ Function "padarray":
 Function: plot (package graphics)
 x="lifetable", y="ANY"
 
+
+Function "predict":
+ <not an S4 generic function>
 Function: print (package base)
 x="actuarialtable"
 x="lifetable"
@@ -572,12 +580,6 @@ Function "qr.resid":
 Function "rcond":
  <not an S4 generic function>
 
-Function "resid":
- <not an S4 generic function>
-
-Function "residuals":
- <not an S4 generic function>
-
 Function "rowMeans":
  <not an S4 generic function>
 
@@ -599,12 +601,21 @@ Function "skewpart":
 
 Function "solve":
  <not an S4 generic function>
+
+Function "states":
+ <not an S4 generic function>
+
+Function "steadyStates":
+ <not an S4 generic function>
 Function: summary (package base)
 object="actuarialtable"
 object="lifetable"
 
 
 Function "symmpart":
+ <not an S4 generic function>
+
+Function "t":
  <not an S4 generic function>
 Function: tail (package utils)
 x="lifetable"
@@ -614,6 +625,12 @@ Function "tcrossprod":
  <not an S4 generic function>
 
 Function "toeplitz":
+ <not an S4 generic function>
+
+Function "transientStates":
+ <not an S4 generic function>
+
+Function "transitionProbability":
  <not an S4 generic function>
 
 Function "tril":
@@ -1237,6 +1254,8 @@ and convexity will change as time goes on.
 	\code{qxyzt} & death probability for two (or more) lives, ${}_{t}q_{xy}$.\\
 	\code{Txt} & number of person-years lived after exact age $x$, ${}_{t}T_{x}$.\\
 	\code{mxt} & central death rate, ${}_{t}m_{x}$.\\
+		\code{qx2mx} & convert death probabilities into mortality rate.\\
+		\code{mx2qx} & convert mortality rate into death probabilities. \\
 	\code{exn} & expected lifetime between age $x$ and age $x + n$,
 	${}_{n}e_{x}$.\\
 	\code{rLife} & sample from the time until death distribution underlying 
@@ -1253,8 +1272,7 @@ and convexity will change as time goes on.
 
 
 
-\code{lifetable} and \code{actuarialtable} classes are designed to handle demographic 
-and actuarial mathematics calculations. An \code{actuarialtable} class inherits
+\code{lifetable} and \code{actuarialtable} classes are designed to handle demographic and actuarial mathematics calculations. An \code{actuarialtable} class inherits
 from \code{lifetable} class; it adds one more slot for the rate
 of interest. Both classes have been designed using the \code{S4} \proglang{R}
 classes framework.\\
@@ -1367,10 +1385,6 @@ Table~\ref{tab:lifeTables} displays.
 within \pkg{lifecontingencies}.}
 \label{tab:lifeTables}
 \end{table}
-
-
-
-
 
 The following example shows how US Social Security life tables are loaded
 from the existing \code{demoUsa} data set bundled in the \pkg{lifecontingencies} package.
@@ -1567,6 +1581,19 @@ R> c(demoEx1,demoEx2,demoEx3)
 \end{Sinput}
 \begin{Soutput}
 [1]  0.999595096  0.001332031 19.472765230
+\end{Soutput}
+\end{Schunk}
+
+Getting mortality rates and moving to death probabilities is also possible
+
+\begin{Schunk}
+\begin{Sinput}
+R> mx20t1 <- mxt(ips55M,20,1)
+R> qx20t1 <- mx2qx(mx20t1)
+R> c(mx20t1,qx20t1)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.0004049862 0.0004049042
 \end{Soutput}
 \end{Schunk}
 
@@ -2043,7 +2070,7 @@ the SOA life table.
 R> rLife(n = 5, object = soa08Act, x = 45, type = "Kx")
 \end{Sinput}
 \begin{Soutput}
-[1] 40 18 29 12 51
+[1] 18 29 12 51 35
 \end{Soutput}
 \end{Schunk}
 
@@ -2079,7 +2106,7 @@ R> futureLifetimes$widowance  <-  sapply(temp, max,0)
 R> mean(futureLifetimes$widowance)
 \end{Sinput}
 \begin{Soutput}
-[1] 7.43
+[1] 7.5
 \end{Soutput}
 \end{Schunk}
 
@@ -2211,7 +2238,7 @@ R> tt4 <-t.test(x=sampleAExn,mu=APVAExn)$p.value
 R> c(tt1, tt2,tt3, tt4)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.1157561 0.6123663 0.8523432 0.7995069
+[1] 0.07716977 0.61236632 0.85234323 0.81753278
 \end{Soutput}
 \end{Schunk}
 
@@ -2243,7 +2270,7 @@ R> tt6<-t.test(x=samplesaxyz, mu=APVaxyz)$p.value
 R> c(tt5,tt6)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.3111302 0.4808112
+[1] 0.2606326 0.4692603
 \end{Soutput}
 \end{Schunk}
 
@@ -2259,7 +2286,7 @@ direct computation of term insurance variance can be performed as follows.
 R> var(sampleAxn)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.008209687
+[1] 0.008045913
 \end{Soutput}
 \begin{Sinput}
 R> Axn(soa08Act, x=25,n=40, power=2)-Axn(soa08Act, x=25,n=40, power=1)^2
@@ -2405,19 +2432,19 @@ R> totalBookedCost <- employeeBenefit+riskMargin
 R> employeeBenefit
 \end{Sinput}
 \begin{Soutput}
-[1] 22754.51
+[1] 22370.38
 \end{Soutput}
 \begin{Sinput}
 R> riskMargin
 \end{Sinput}
 \begin{Soutput}
-[1] 22629.76
+[1] 21244.46
 \end{Soutput}
 \begin{Sinput}
 R> totalBookedCost
 \end{Sinput}
 \begin{Soutput}
-[1] 45384.26
+[1] 43614.84
 \end{Soutput}
 \end{Schunk}
 
@@ -2447,15 +2474,15 @@ analyses with interest rate modeling packages like \pkg{termstrc}.
 Finally, code optimization and improvement is carried out
 continuously. The extension of parallel computation features, memory
 usage profiling, and the use of \proglang{C} or \proglang{C++} code
-fragments in select parts of the code have been planned for the near
-future.
+fragments in select parts of the code have begun (for \pkg{Rcpp} package, \cite{RcppR} usage) or being 
+planned for the near future.
 
 \subsection{Accuracy}\label{sec:disclaimer}
 
 The accuracy of the calculations has been verified by checking
 numerical examples reported in \cite{bowers1997actuarial} and in the
-lecture notes of ``Actuarial Mathematics'' taken by the author years
-ago at The Catholic University of Milan \citep{mazzoleni2000appunti}.
+lecture notes of "Actuarial Mathematics" taken by the author years
+ago at The Catholic University of Milan \citep{mazzoleni2000appunti}. Such test have been implemented with unit root testing in the package \pkg{testthat}, \cite{pkg:testthat}.
 The numerical results are identical to those reported in the cited
 references for most functions, with the exception of fractional
 payment annuities; for these, the answer is only reported up to the

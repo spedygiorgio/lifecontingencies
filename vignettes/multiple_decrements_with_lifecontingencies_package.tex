@@ -49,6 +49,7 @@ decrement models, lifecontingencies}
 
 
 \begin{document}
+\input{multiple_decrements_with_lifecontingencies_package-concordance}
 
 
 
@@ -91,12 +92,12 @@ Then  we create a \code{mdt} class object. We can use the first example found on
 \begin{Schunk}
 \begin{Sinput}
 R> valdezDf<-data.frame(
-+  		x=c(50:54),
-+  		lx=c(4832555,4821937,4810206,4797185,4782737),
-+  		hearth=c(5168, 5363, 5618, 5929, 6277),
-+  		accidents=c(1157, 1206, 1443, 1679,2152),
-+  		other=c(4293,5162,5960,6840,7631)
-+  )
++ 		x=c(50:54),
++ 		lx=c(4832555,4821937,4810206,4797185,4782737),
++ 		hearth=c(5168, 5363, 5618, 5929, 6277),
++ 		accidents=c(1157, 1206, 1443, 1679,2152),
++ 		other=c(4293,5162,5960,6840,7631)
++ )
 R> valdezMdt<-new("mdt",name="ValdezExample",table=valdezDf)
 \end{Sinput}
 \begin{Soutput}
@@ -255,12 +256,35 @@ R> rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
 
 \section{Actuarial Applications}
 
-TO BE WRITTEN
+The package now offers limited capabilities to fit multiple decrement insurances, e.g. $\lcterm{A}{x}{n}^{\left( 1 \right)$
 
+The example in \cite[p. 674]{finanMLC}, cites: A 3-year term issued to (16) pays 20,000 at the end of year of death if death results from an accident. The \code{mdt} table is below created.
 
-\section*{Acknowledgments}\label{sec:acknowledgments}
+\begin{Schunk}
+\begin{Sinput}
+R> myTable<-data.frame(x=c(16,17,18),
++   lx=c(20000,17600,14520),
++   da=c(1300,1870,2380),
++   doc=c(1100,1210,1331)
++ )
+R> myMdt<-new("mdt",table=myTable,name="Sample")
+\end{Sinput}
+\begin{Soutput}
+Added fictional decrement below last x and completed x and lx until zero.... 
+Completed the table at top, all decrements on first cause 
+\end{Soutput}
+\end{Schunk}
 
-TBD.
+The value of $\lcterm{A}{16}{3}^{\left( a \right)$ is below calculated
+
+\begin{Schunk}
+\begin{Sinput}
+R> Axn.mdt(object=myMdt,x=16,i=.1,decrement="da")
+\end{Sinput}
+\begin{Soutput}
+[1] 0.1363636
+\end{Soutput}
+\end{Schunk}
 
 
 \bibliography{lifecontingenciesBiblio}
