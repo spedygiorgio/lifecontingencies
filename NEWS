@@ -2,4 +2,5 @@
 * Christophe Dutang added to contributors
 * Full open to Rcpp
 * add functions to move from qx to mx and vice versa
+* augmented tests
 * Added function for multiple decrement life insurance
