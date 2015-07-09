@@ -44,13 +44,14 @@ this paper are mechanical and intended for didactic purposes.}
 \Plainkeywords{annuities, Lee-Carter, mortality projection, lifecontingencies, demography} %% without formatting
 
 
+
 \Address{
   Giorgio Alfredo Spedicato\\
   Ph.D ACAS C.STAT\\
   Via Firenze 11
   20037 Italy\\
-  E-mail: \email{lifecontingencies@statisticaladvisor.com}\\
-  URL: \url{www.statisticaladvisor.com}
+  E-mail: \email{spedygiorgio@gmail.com}\\
+  URL: \url{https://github.com/spedygiorgio/lifecontingencies}
 }
 
 \Address{Gian Paolo Clemente\\

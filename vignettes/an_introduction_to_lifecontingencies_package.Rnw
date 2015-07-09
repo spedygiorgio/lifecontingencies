@@ -44,14 +44,14 @@
 
 %% The address of (at least) one author should be given
 %% in the following format:
+
 \Address{
   Giorgio Alfredo Spedicato\\
-  StatisticalAdvisor\\
+  Ph.D ACAS C.STAT\\
   Via Firenze 11
   20037 Italy\\
-  Telephone: +39/334/6634384\\
-  E-mail: \email{lifecontingencies@statisticaladvisor.com}\\
-  URL: \url{www.statisticaladvisor.com}
+  E-mail: \email{spedygiorgio@gmail.com}\\
+  URL: \url{https://github.com/spedygiorgio/lifecontingencies}
 }
 
 

@@ -44,13 +44,14 @@ this paper are mechanical and intended for didactic purposes.}
 \Plainkeywords{annuities, Lee-Carter, mortality projection, lifecontingencies, demography} %% without formatting
 
 
+
 \Address{
   Giorgio Alfredo Spedicato\\
   Ph.D ACAS C.STAT\\
   Via Firenze 11
   20037 Italy\\
-  E-mail: \email{lifecontingencies@statisticaladvisor.com}\\
-  URL: \url{www.statisticaladvisor.com}
+  E-mail: \email{spedygiorgio@gmail.com}\\
+  URL: \url{https://github.com/spedygiorgio/lifecontingencies}
 }
 
 \Address{Gian Paolo Clemente\\
@@ -161,11 +162,11 @@ R> plot(italyDemo,"total",datatype="rate", main="Total rates")
 \begin{Sinput}
 R> par(mfrow=c(1,3))
 R> plot(italyDemo,series="male",datatype="rate",
-+       plot.type="time", main="Male rates",xlab="Years")
++      plot.type="time", main="Male rates",xlab="Years")
 R> plot(italyDemo,series="female",datatype="rate",
-+       plot.type="time", main="Female rates",xlab="Years")
++      plot.type="time", main="Female rates",xlab="Years")
 R> plot(italyDemo,series="total",datatype="rate",
-+       plot.type="time", main="Total rates",xlab="Years")
++      plot.type="time", main="Total rates",xlab="Years")
 \end{Sinput}
 \end{Schunk}
 \includegraphics{mortality_projection-italyDemoFigTime}
@@ -193,17 +194,17 @@ R>   plot(italyLcaT$ax, main="ax", xlab="Age",ylab="ax",type="l")
 R>   lines(x=italyLcaF$age, y=italyLcaF$ax, main="ax", col="red")
 R>   lines(x=italyLcaM$age, y=italyLcaM$ax, main="ax", col="blue")
 R>   legend("topleft" , c("Male","Female","Total"),
-+    cex=0.8,col=c("blue","red","black"),lty=1);
++   cex=0.8,col=c("blue","red","black"),lty=1);
 R>   plot(italyLcaT$bx, main="bx", xlab="Age",ylab="bx",type="l")
 R>   lines(x=italyLcaF$age, y=italyLcaF$bx, main="bx", col="red")
 R>   lines(x=italyLcaM$age, y=italyLcaM$bx, main="bx", col="blue")
 R>   legend("topright" , c("Male","Female","Total"),
-+    cex=0.8,col=c("blue","red","black"),lty=1);
++   cex=0.8,col=c("blue","red","black"),lty=1);
 R>   plot(italyLcaT$kt, main="kt", xlab="Year",ylab="kt",type="l")
 R>   lines(x=italyLcaF$year, y=italyLcaF$kt, main="kt", col="red")
 R>   lines(x=italyLcaM$year, y=italyLcaM$kt, main="kt", col="blue")
 R>   legend("topright" , c("Male","Female","Total"),
-+    cex=0.8,col=c("blue","red","black"),lty=1);
++   cex=0.8,col=c("blue","red","black"),lty=1);
 \end{Sinput}
 \end{Schunk}
 \includegraphics{mortality_projection-leeCarterResultsFig}
@@ -256,13 +257,13 @@ We report here the pattern of past and forecasted rates according to different p
 \begin{Sinput}
 R> par(mfrow=c(1,1))
 R> plot(seq(min(italyDemo$year),max(italyDemo$year)+110),ratesF[65,],
-+       col="red",xlab="Years",ylab="Death Rates",type="l")
++      col="red",xlab="Years",ylab="Death Rates",type="l")
 R> lines(seq(min(italyDemo$year),max(italyDemo$year)+110),ratesM[65,],
-+        col="blue",xlab="Years",ylab="Death Rates")
++       col="blue",xlab="Years",ylab="Death Rates")
 R> lines(seq(min(italyDemo$year),max(italyDemo$year)+110),ratesT[65,],
-+        col="black",xlab="Years",ylab="Death Rates")
++       col="black",xlab="Years",ylab="Death Rates")
 R> legend("topright" , c("Male","Female","Total"),
-+         cex=0.8,col=c("blue","red","black"),lty=1);
++        cex=0.8,col=c("blue","red","black"),lty=1);
 \end{Sinput}
 \end{Schunk}
 \includegraphics{mortality_projection-ktratesFig}
@@ -291,23 +292,23 @@ assumed that on year probability decreases evenly in 20 steps.
 \begin{Schunk}
 \begin{Sinput}
 R> createActuarialTable<-function(yearOfBirth,rate){
-+  
-+    mxcoh <- rate[1:nrow(rate),(yearOfBirth-min(italyDemo$year)+1):ncol(rate)]
-+    cohort.mx <- diag(mxcoh)
-+    cohort.px=exp(-cohort.mx)
-+    #get projected Px
-+    fittedPx=cohort.px #add px to table
-+  	px4Completion=seq(from=cohort.px[length(fittedPx)], to=0, length=20)
-+  	totalPx=c(fittedPx,px4Completion[2:length(px4Completion)])
-+  	#create life table
-+  	irate=1.04/1.02-1
-+  
-+  	cohortLt=probs2lifetable(probs=totalPx, radix=100000,type="px", 
-+    name=paste("Cohort",yearOfBirth))
-+  	cohortAct=new("actuarialtable",x=cohortLt@x, lx=cohortLt@lx, 
-+  	interest=irate, name=cohortLt@name)
-+  	return(cohortAct)
-+  	}
++ 
++   mxcoh <- rate[1:nrow(rate),(yearOfBirth-min(italyDemo$year)+1):ncol(rate)]
++   cohort.mx <- diag(mxcoh)
++   cohort.px=exp(-cohort.mx)
++   #get projected Px
++   fittedPx=cohort.px #add px to table
++ 	px4Completion=seq(from=cohort.px[length(fittedPx)], to=0, length=20)
++ 	totalPx=c(fittedPx,px4Completion[2:length(px4Completion)])
++ 	#create life table
++ 	irate=1.04/1.02-1
++ 
++ 	cohortLt=probs2lifetable(probs=totalPx, radix=100000,type="px", 
++   name=paste("Cohort",yearOfBirth))
++ 	cohortAct=new("actuarialtable",x=cohortLt@x, lx=cohortLt@lx, 
++ 	interest=irate, name=cohortLt@name)
++ 	return(cohortAct)
++ 	}
 R> 
 R> 
 \end{Sinput}
@@ -319,17 +320,17 @@ Values have been derived separately between males and females and by using direc
 \begin{Schunk}
 \begin{Sinput}
 R> 	getAnnuityAPV<-function(yearOfBirth,rate) {
-+  		actuarialTable<-createActuarialTable(yearOfBirth,rate)
-+  		out=axn(actuarialTable,x=65,m=12)
-+  		return(out)
-+  	}
++ 		actuarialTable<-createActuarialTable(yearOfBirth,rate)
++ 		out=axn(actuarialTable,x=65,m=12)
++ 		return(out)
++ 	}
 R> rate<-ratesM
 R> for(i in seq(1920,2000,by=10)) {
-+  		cat("For cohort ",i, "of males the e0 is",
-+  		round(exn(createActuarialTable(i,rate)),2),
-+  		" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
-+  		
-+  	}
++ 		cat("For cohort ",i, "of males the e0 is",
++ 		round(exn(createActuarialTable(i,rate)),2),
++ 		" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
++ 		
++ 	}
 \end{Sinput}
 \begin{Soutput}
 For cohort  1920 of males the e0 is 48.55  and the APV is : 3.92 
@@ -345,11 +346,11 @@ For cohort  2000 of males the e0 is 83.53  and the APV is : 7.38
 \begin{Sinput}
 R> rate<-ratesF
 R> for(i in seq(1920,2000,by=10)) {
-+    	cat("For cohort ",i, "of females the e0 at birth is",
-+  	round(exn(createActuarialTable(i,rate)),2),
-+  	" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
-+  		
-+  	}
++   	cat("For cohort ",i, "of females the e0 at birth is",
++ 	round(exn(createActuarialTable(i,rate)),2),
++ 	" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
++ 		
++ 	}
 \end{Sinput}
 \begin{Soutput}
 For cohort  1920 of females the e0 at birth is 57.38  and the APV is : 6.21 
@@ -365,11 +366,11 @@ For cohort  2000 of females the e0 at birth is 89.27  and the APV is : 9.96
 \begin{Sinput}
 R> rate<-ratesT
 R> for(i in seq(1920,2000,by=10)) {
-+      cat("For cohort ",i, "of total population the e0 is",
-+  		round(exn(createActuarialTable(i,rate)),2),
-+  		" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
-+  		
-+  	}
++     cat("For cohort ",i, "of total population the e0 is",
++ 		round(exn(createActuarialTable(i,rate)),2),
++ 		" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
++ 		
++ 	}
 \end{Sinput}
 \begin{Soutput}
 For cohort  1920 of total population the e0 is 52.85  and the APV is : 5.17 
