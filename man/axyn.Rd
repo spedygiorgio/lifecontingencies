@@ -42,7 +42,7 @@ A numeric value returning APV of chosen insurance form.
 Giorgio A. Spedicato
 }
 \note{
-These functions have not been tested carefully.
+Deprecated functions. Use \code{Axyzn} and \code{axyzn} instead.
 }
 
 \section{Warning }{
@@ -55,6 +55,7 @@ These functions have not been tested carefully.
 \code{\link{pxyt}}
 }
 \examples{
+\dontrun{
 	data(soa08Act)
 	#last survival status annuity
 	axyn(tablex=soa08Act, tabley=soa08Act, x=65, y=70, 
@@ -62,4 +63,5 @@ These functions have not been tested carefully.
     #first survival status annuity
 	Axyn(tablex=soa08Act, tabley=soa08Act, x=65, y=70,
 	status = "last",type = "EV")
+	}
 }

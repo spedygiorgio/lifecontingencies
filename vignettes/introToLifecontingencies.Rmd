@@ -11,16 +11,16 @@ header-includes:
 - \usepackage{lifecon}
 - \usepackage{url}
 bibliography: lifecontingenciesBiblio.bib
+vignette: |
+  %\VignetteIndexEntry{Intro to the lifecontingencies R package} 
+  %\VignetteEngine{knitr::rmarkdown}  
+  %\usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include=FALSE}
 library(knitr)
+rm(list=ls())
 ```
-
-<!--
-%\VignetteEngine{knitr::rmarkdown }
-%\VignetteIndexEntry{Intro to the lifecontingencies R package}
--->
 
 #Intro
 

@@ -64,7 +64,7 @@ axn<-function(actuarialtable, x, n,i=actuarialtable@interest, m,k=1, type="EV",p
 #shall write the Rd file
 axyn<-function(tablex, tabley, x,y, n,i, m,k=1, status="joint", type="EV", payment="advance")
 {
-  warning("This function is deprecated and will be removed in forthcoming version of the package! Use axyzn instead!")
+  .Deprecated("axyzn")
 	out<-numeric(1)
 	if(missing(tablex)) stop("Error! Need table for X life")
 	if(missing(tabley)) stop("Error! Need table for Y life")
@@ -201,7 +201,7 @@ Axn<-function(actuarialtable, x, n,i=actuarialtable@interest, m, k=1, type="EV",
 
 Axyn<-function(tablex, x,tabley, y, n,i, m, k=1, status="joint", type="EV")
 {
-  warning("This function is deprecated and will be removed in forthcoming version of the package! Use Axyzn instead!")
+  .Deprecated("Axyzn")
 	out<-numeric(1)
 	if(any(missing(tablex),missing(tabley))) stop("Error! Need tables")
 	if(any(missing(x),missing(y))) stop("Error! Need ages!")
