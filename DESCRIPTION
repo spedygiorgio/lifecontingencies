@@ -8,7 +8,7 @@ Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Classes and methods that allow the user to manage life table, actuarial tables (also multiple decrement tables). Moreover, functions to easily perform demographic, financial and actuarial mathematics on life contingencies insurances calculations are contained therein.
 Depends: R (>= 3.0.0), methods
 Imports: parallel, utils, markovchain, Rcpp, stats
-Suggests: demography, forecast, testthat, knitr
+Suggests: demography, forecast, testthat, knitr, rmarkdown
 License: GPL-2
 LazyLoad: yes
 BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
