@@ -1,103 +1,3 @@
-\documentclass[ignorenonframetext,]{beamer}
-\setbeamertemplate{caption}[numbered]
-\setbeamertemplate{caption label separator}{:}
-\setbeamercolor{caption name}{fg=normal text.fg}
-\usepackage{amssymb,amsmath}
-\usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
-\usepackage{lmodern}
-\ifxetex
-  \usepackage{fontspec,xltxtra,xunicode}
-  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
-  \newcommand{\euro}{€}
-\else
-  \ifluatex
-    \usepackage{fontspec}
-    \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
-    \newcommand{\euro}{€}
-  \else
-    \usepackage[T1]{fontenc}
-    \usepackage[utf8]{inputenc}
-      \fi
-\fi
-% use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
-\usepackage{color}
-\usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\usepackage{framed}
-\definecolor{shadecolor}{RGB}{248,248,248}
-\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
-\newcommand{\RegionMarkerTok}[1]{{#1}}
-\newcommand{\ErrorTok}[1]{\textbf{{#1}}}
-\newcommand{\NormalTok}[1]{{#1}}
-\usepackage{url}
-\usepackage{graphicx}
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight0.8\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-
-% Comment these out if you don't want a slide with just the
-% part/section/subsection/subsubsection title:
-\AtBeginPart{
-  \let\insertpartnumber\relax
-  \let\partname\relax
-  \frame{\partpage}
-}
-\AtBeginSection{
-  \let\insertsectionnumber\relax
-  \let\sectionname\relax
-  \frame{\sectionpage}
-}
-\AtBeginSubsection{
-  \let\insertsubsectionnumber\relax
-  \let\subsectionname\relax
-  \frame{\subsectionpage}
-}
-
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\setcounter{secnumdepth}{0}
-\usepackage{lifecon}
-\usepackage{url}
-
-\title{Intro to the lifecontingencies R package}
-\author{Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS}
-\date{19th April 2015}
-
-\begin{document}
-\frame{\titlepage}
-
-\begin{frame}
-\tableofcontents[hideallsubsections]
-\end{frame}
-
-\begin{frame}
-
-\end{frame}
-
 \begin{frame}{Intro}
 
 \begin{itemize}[<+->]
@@ -156,8 +56,8 @@
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   It requires a recent version of R (\textgreater{}=3.0) and the
-  markovchain package (Spedicato 2015). The development version of the
-  package requires also Rcpp package (Eddelbuettel 2013).
+  markovchain package (Spedicato, Giorgio Alfredo 2015). The development
+  version of the package requires also Rcpp package (Eddelbuettel 2013).
 \end{itemize}
 
 \end{block}
@@ -203,7 +103,7 @@
 \item
   The presentValue function is the kernel of functions that are used to
   calculate annuities and accumulated values, also paid in fractional
-  $k$ payments.
+  \(k\) payments.
 \end{itemize}
 
 \begin{Shaded}
@@ -250,8 +150,8 @@
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   A lifetable object is an S4 class comprised by three slots: the age
-  (from 0 to $\omega$), the people at risk at beginning of age x and the
-  table name.
+  (from 0 to \(\omega\)), the people at risk at beginning of age x and
+  the table name.
 \end{itemize}
 
 \begin{Shaded}
@@ -343,9 +243,10 @@
 \begin{itemize}[<+->]
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  The pricing and reserving of pure endowments $\pureend{x}{n}$, term
-  insurances, $\termins{x}{n}$, annuities $\ddot{a}_{x}^{\{m\}}$,
-  endowments $\pureend{x}{n}$ can be easily handled within the package.
+  The pricing and reserving of pure endowments \(\pureend{x}{n}\), term
+  insurances, \(\termins{x}{n}\), annuities \(\ddot{a}_{x}^{\{m\}}\),
+  endowments \(\pureend{x}{n}\) can be easily handled within the
+  package.
 \item
   Performing such actuarial calculations requires to create an actuarial
   table (similar to a lifetable but with one more slot for the interest
@@ -369,7 +270,7 @@
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   The example that follows computes the yearly premium
-  $P=50000*\frac{\pureendc{30}{35}}{\anndue{30}{35}}$ for a pure
+  \(P=50000*\frac{\pureendc{30}{35}}{\anndue{30}{35}}\) for a pure
   endowment on 50K capital.
 \end{itemize}
 
@@ -507,13 +408,13 @@
 ##  One Sample t-test
 ## 
 ## data:  AEXnDistr
-## t = 1.3102, df = 9999, p-value = 0.1902
+## t = 1.0199, df = 9999, p-value = 0.3078
 ## alternative hypothesis: true mean is not equal to 0.6148635
 ## 95 percent confidence interval:
-##  0.6146427 0.6159746
+##  0.6145516 0.6158519
 ## sample estimates:
 ## mean of x 
-## 0.6153086
+## 0.6152018
 \end{verbatim}
 
 \end{frame}
@@ -532,7 +433,7 @@ lifecontingencies and demography}
 \item
   This part of the presentation will make use of the demography package
   to calibrate Lee Carter (Lee and Carter 1992) model,
-  $log\left(\mu_{x,t} \right) =a_{x}+b_{x}*k_{t}\rightarrow p_{x,t}=exp^{-\mu_{x,t}}$
+  \(log\left(\mu_{x,t} \right) =a_{x}+b_{x}*k_{t}\rightarrow p_{x,t}=exp^{-\mu_{x,t}}\)
   ,projecting mortality and implicit life tables.
 \end{itemize}
 
@@ -540,7 +441,7 @@ lifecontingencies and demography}
 \begin{Highlighting}[]
 \CommentTok{#load the package and the italian tables}
 \KeywordTok{library}\NormalTok{(demography) }
-\CommentTok{#italy.demo<-hmd.mx("ITA", username="yourUN", }
+\CommentTok{#italyDemo<-hmd.mx("ITA", username="yourUN", }
 \CommentTok{#password="yourPW")}
 \KeywordTok{load}\NormalTok{(}\DataTypeTok{file=}\StringTok{"mortalityDatasets.RData"}\NormalTok{) }\CommentTok{#load the dataset}
 \end{Highlighting}
@@ -553,10 +454,11 @@ lifecontingencies and demography}
 \begin{itemize}[<+->]
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  Lee Carter model is calibrated using lca function.
+  Lee Carter model is calibrated using lca function of demography
+  package.
 \item
   Then an arima model is used to project (extrapolate) the underlying
-  $k_t$ over the historical period.
+  \(k_t\) over the historical period.
 \end{itemize}
 
 \begin{Shaded}
@@ -674,7 +576,7 @@ lifecontingencies and demography}
 \begin{itemize}[<+->]
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  Now we can evaluate $\ddot{a}_{65}$ and $\mathring{e}_{65}$ for
+  Now we can evaluate \(\ddot{a}_{65}\) and \(\mathring{e}_{65}\) for
   workers born in 1920, 1950 and 1980 respectively.
 \end{itemize}
 
@@ -765,7 +667,7 @@ Mazzoleni, P. 2000. \emph{Appunti Di Matematica Attuariale}. EDUCatt
 Università Cattolica.
 
 Rob J Hyndman, Heather Booth, Leonie Tickle, and John Maindonald. 2011.
-\emph{demography: Forecasting Mortality, Fertility, Migration and
+\emph{Demography: Forecasting Mortality, Fertility, Migration and
 Population Data}. \url{http://CRAN.R-project.org/package=demography}.
 
 Spedicato, Giorgio Alfredo. 2013. ``The lifecontingencies Package:
@@ -773,13 +675,11 @@ Performing Financial and Actuarial Mathematics Calculations in R.''
 \emph{Journal of Statistical Software} 55 (10): 1--36.
 \url{http://www.jstatsoft.org/v55/i10/}.
 
----------. 2015. \emph{markovchain: discrete Time Markov Chains Made
-Easy}.
+Spedicato, Giorgio Alfredo. 2015. \emph{Markovchain: Discrete Time
+Markov Chains Made Easy}.
 
 Team, R Development Core. 2012. \emph{R: A Language and Environment for
 Statistical Computing}. Vienna, Austria: R Foundation for Statistical
 Computing. \url{http://www.R-project.org/}.
 
 \end{frame}
-
-\end{document}

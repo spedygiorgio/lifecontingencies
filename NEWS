@@ -1,6 +1,3 @@
--Version 1.1.8
-* Christophe Dutang added to contributors
-* Full open to Rcpp
-* add functions to move from qx to mx and vice versa
-* augmented tests
-* Added function for multiple decrement life insurance
+-Version 1.1.9
+* Fixed AExn=1 when n=0
+* Small changes to vignettes
