@@ -5,9 +5,9 @@
 
 #decrement specific function
 
-.dxt.mdt<-function(object=object, x=x, t=t, decrement=decrement ) {
+.dxt.mdt<-function(object=object, x=x, time=time, decrement=decrement ) {
 	out<-0
-	if (t==0) return(0) #no decrement after just 0 seconds
+	if (time==0) return(0) #no decrement after just 0 seconds
 	if(missing(decrement)) {
 		decrement.cols<-which(!(names(object@table) %in% c("lx","x")))
 	} else {
@@ -15,7 +15,7 @@
 		decrement.cols<-which(names(object@table)==decrement)
 	}
 	#have a check!!!
-		ages2consider<-x+0:(t-1)
+		ages2consider<-x+0:(time-1)
 		age.rows<-which(object@table$x %in% ages2consider)
 		out<-sum(object@table[age.rows,decrement.cols])	
 	invisible(out)
@@ -25,7 +25,7 @@
 	out<-0
 	ageIndex<-which(object@table$x==x)
 	lx<-object@table$lx[ageIndex]
-	dx<-ifelse(missing(decrement),.dxt.mdt(object=object,x=x, t=t),.dxt.mdt(object=object,x=x, t=t,decrement=decrement))
+	dx<-ifelse(missing(decrement),.dxt.mdt(object=object,x=x, time=t),.dxt.mdt(object=object,x=x, time = t,decrement=decrement))
 	out<-dx/lx
 	invisible(out)
 }

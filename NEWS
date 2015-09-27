@@ -1,3 +1,4 @@
--Version 1.1.9
+-Version 1.1.10
 * Fixed AExn=1 when n=0
+* Fixed pxt with multiple decrements when t=0
 * Small changes to vignettes
