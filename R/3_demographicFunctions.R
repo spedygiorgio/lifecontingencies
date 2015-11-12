@@ -32,7 +32,7 @@ pxt<-function(object, x, t, fractional="linear", decrement)
 	out<-NULL
 	#checks
 	if (!(class(object) %in% c("lifetable","actuarialtable","mdt"))) stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
-	if (class(object)=="mdt") { #specific function for 
+	if (class(object)=="mdt") { #specific function for multiple decrements
 		out<-ifelse(missing(decrement),1-.qxt.mdt(object=object,x=x,t=t),1-.qxt.mdt(object=object,x=x,t=t,decrement=decrement))
 		return(out)
 	}

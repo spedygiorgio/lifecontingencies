@@ -43,7 +43,7 @@ used to create life table objects and actuarial tables object.
 	the projected survival table for the 1955 born cohort.
 }
 \references{
-	\url{http://demo.istat.it/unitav/index.html?lingua=ita}
+ ISTAT, IVASS, Ordine Nazionale Attuari
 }
 \examples{
 	#load and show

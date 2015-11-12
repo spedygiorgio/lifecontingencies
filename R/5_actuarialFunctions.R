@@ -248,9 +248,10 @@ Axn <-
     if (k < 1)
       stop("Error! Periods in a year shall be no less than 1")
     if (missing(m))
-      m = 0
+      m <- 0
     if (missing(n))
-      n = getOmega(actuarialtable) - x - m - 1
+      n <- getOmega(actuarialtable) - x - m - 1
+#       n = getOmega(actuarialtable) - x - m + 1 #Rosa patch
     if (n == 0)
       return(0)
     if (any(x < 0,m < 0,n < 0))
@@ -373,6 +374,7 @@ Axyzn <-
       for (j in 1:numTables)
         n = (max(n,(getOmega(tablesList[[j]]) - x[j])))
       n = n - m - 1
+#       n = n - m + 1 #Rosa patch
     }
     
     if (!missing(i))
