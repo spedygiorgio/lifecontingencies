@@ -3,12 +3,28 @@ Type: Package
 Title: Financial and Actuarial Mathematics for Life Contingencies
 Version: 1.1.10
 Date: 2015-09-28
-Author: Giorgio Alfredo Spedicato [cre,aut], Reinhold Kainhofer [ctb], Kevin J. Owens [ctb], Christophe Dutang [ctb]
+Author: Giorgio Alfredo Spedicato [cre,aut], Reinhold Kainhofer [ctb], Kevin J.
+    Owens [ctb], Christophe Dutang [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
-Description: Classes and methods that allow the user to manage life table, actuarial tables (also multiple decrement tables). Moreover, functions to easily perform demographic, financial and actuarial mathematics on life contingencies insurances calculations are contained therein.
-Depends: R (>= 3.0.0), methods
-Imports: parallel, utils, markovchain, Rcpp, stats
-Suggests: demography, forecast, testthat, knitr, rmarkdown
+Description: Classes and methods that allow the user to manage life table,
+    actuarial tables (also multiple decrement tables). Moreover, functions to easily
+    perform demographic, financial and actuarial mathematics on life contingencies
+    insurances calculations are contained therein.
+Depends:
+    R (>= 3.0.0),
+    methods
+Imports:
+    parallel,
+    utils,
+    markovchain,
+    Rcpp,
+    stats
+Suggests:
+    demography,
+    forecast,
+    testthat,
+    knitr,
+    rmarkdown
 License: GPL-2
 LazyLoad: yes
 BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
@@ -16,3 +32,4 @@ BuildVignettes: yes
 VignetteBuilder: utils, knitr
 URL: http://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
+RoxygenNote: 5.0.1
