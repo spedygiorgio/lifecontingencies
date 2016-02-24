@@ -14,6 +14,9 @@ qx2mx(qx, ax = 0.5)
 \value{
 A vector of mortality rates
 }
+\description{
+Function to convert death probabilities to mortality rates
+}
 \details{
 Function to convert death probabilities to mortality rates
 }

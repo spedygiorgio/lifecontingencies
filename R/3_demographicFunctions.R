@@ -366,6 +366,8 @@ exyzt<-function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 
 #' @name mx2qx
 #' @title Mortality rates to Death probabilities
+#' 
+#' @description Function to convert mortality rates to probabilities of death
 #'
 #' @details Function to convert mortality rates to probabilities of death
 #' 
@@ -388,6 +390,8 @@ mx2qx <- function(mx, ax = 0.5)
 
 #' @name qx2mx
 #' @title Death Probabilities to Mortality Rates
+#' 
+#' @description Function to convert death probabilities to mortality rates
 #'
 #' @details Function to convert death probabilities to mortality rates
 #' 
