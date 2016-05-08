@@ -7,9 +7,8 @@ output:
     incremental: yes
     keep_tex: yes
     toc: yes
-header-includes:
-- \usepackage{lifecon}
-- \usepackage{url}
+    includes:
+      in_header: mystyles.sty
 bibliography: lifecontingenciesBiblio.bib
 vignette: |
   %\VignetteIndexEntry{Intro to the lifecontingencies R package} 
