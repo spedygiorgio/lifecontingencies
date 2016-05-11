@@ -13,5 +13,5 @@ devtools::install_github('spedygiorgio/lifecontingencies')
 ```
 
 ![alt tag](https://travis-ci.org/spedygiorgio/lifecontingencies.svg?branch=master)
-[![Downloads](http://cranlogs.r-pkg.org/badges/lifecontingencies)](https://cran.r-project.org/web/packages/lifecontingencies/)
- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lifecontingencies)](http://cran.r-project.org/web/packages/lifecontingencies)
+[![Downloads](http://cranlogs.r-pkg.org/badges/lifecontingencies)](https://cran.r-project.org/package=lifecontingencies)
+ [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lifecontingencies)](https://cran.r-project.org/package=lifecontingencies)
