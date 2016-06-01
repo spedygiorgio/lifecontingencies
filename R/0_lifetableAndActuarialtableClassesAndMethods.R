@@ -30,18 +30,26 @@ setClass("actuarialtable",
 
 #METHODS DEFINITIONS
 
+#constructor for lifetable object
+lifetable <- function(x = 0:3, lx = c(100,90, 50, 10), name = "Generic life table") {
+  if(length(x) != length(lx)) stop("length of x and lx must be equal")
+  
+  posToRemove <- which(lx %in% c(0,NA))
+  if(length(posToRemove) > 0) {
+    x <- x[-posToRemove]
+    lx <- lx[-posToRemove]
+  }
+  
+  out <- new("lifetable", x = x, lx = lx, name = name)
+  return(out)
+}
+
 #validity method for lifetable object
 setValidity("lifetable",
 		function(object) {
 			check<-NULL
 			if(length(object@x)!=length(object@lx)) check<-"Error! x and lx does not match" #checks length of the obj
 			if(any(diff(object@lx)>0)) check<-"Error! population at risk not decrementing" #check coherence of life table
-			if(any(object@lx %in% c(0,NA))) {
-				cat("removing NA and 0s") #removes na
-				posToRemove=which(object@lx %in% c(0,NA))
-				object@x=object@x[-posToRemove]
-				object@lx=object@lx[-posToRemove]
-			}
 			if(is.null(check)) return(TRUE) else 
 				return(check)
 		}
