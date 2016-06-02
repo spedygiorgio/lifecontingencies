@@ -40,6 +40,11 @@ lifetable <- function(x = 0:3, lx = c(100,90, 50, 10), name = "Generic life tabl
     lx <- lx[-posToRemove]
   }
   
+  # order by increasing value of x
+  o <- order(x)
+  x <- x[o]
+  lx <- lx[o]
+  
   out <- new("lifetable", x = x, lx = lx, name = name)
   return(out)
 }
@@ -47,10 +52,15 @@ lifetable <- function(x = 0:3, lx = c(100,90, 50, 10), name = "Generic life tabl
 #validity method for lifetable object
 setValidity("lifetable",
 		function(object) {
-			check<-NULL
-			if(length(object@x)!=length(object@lx)) check<-"Error! x and lx does not match" #checks length of the obj
-			if(any(diff(object@lx)>0)) check<-"Error! population at risk not decrementing" #check coherence of life table
-			if(is.null(check)) return(TRUE) else 
+			check <- character(0)
+			if(length(object@x)!=length(object@lx)) 
+			  check <- c(check, "x and lx do not match in length")
+			if(any(diff(object@lx)>0)) 
+			  check <- c(check, "lx must be non-increasing")
+			
+			if(length(check) == 0) 
+			  return(TRUE) 
+			else 
 				return(check)
 		}
 )
