@@ -57,6 +57,12 @@ setValidity("lifetable",
 			  check <- c(check, "x and lx do not match in length")
 			if(any(diff(object@lx)>0)) 
 			  check <- c(check, "lx must be non-increasing")
+			if(any(abs(object@x - floor(object@x)) > 0))
+			  check <- c(check, "x must be integral")
+			if(any(object@x < 0))
+			  check <- c(check, "x must be non-negative")
+			if(any(diff(object@x) != 1))
+			  check <- c(check, "x must be consecutive integers")
 			
 			if(length(check) == 0) 
 			  return(TRUE) 
