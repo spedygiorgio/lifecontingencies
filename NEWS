@@ -1,2 +1,3 @@
--Version 1.1.12
-* Cosmethic amendments
+-Version 1.1.14
+* Fixed small issue on remove NA for data.frame
+* Fixed medium bugs affecting Axyn and Ax (see github issues #1 and #2)
