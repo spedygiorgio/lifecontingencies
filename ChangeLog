@@ -1,4 +1,6 @@
 ChangeLog
+-Version 1.2
+* Added initialize method for actuarialtable and lifetable classes
 -Version 1.1.14
 * Fixed small issue on remove NA for data.frame
 * Fixed medium bugs affecting Axyn and Ax (see github issues #1 and #2)

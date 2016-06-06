@@ -23,31 +23,87 @@ setClass("lifetable", #classe lifetable
 )
 #actuarial classes
 setClass("actuarialtable",
-		contains="lifetable",
-		representation=representation(
-				interest="numeric")
+         representation=representation(interest="numeric"),
+         contains="lifetable",
+         prototype(x=c(0,1,2,3),
+                   lx=c(100,90,50,10),
+                   name="Generic actuarial table",
+                   interest=0.03
+         )
 )
 
 #METHODS DEFINITIONS
 
 #constructor for lifetable object
-lifetable <- function(x = 0:3, lx = c(100,90, 50, 10), name = "Generic life table") {
-  if(length(x) != length(lx)) stop("length of x and lx must be equal")
-  
-  posToRemove <- which(lx %in% c(0,NA))
-  if(length(posToRemove) > 0) {
-    x <- x[-posToRemove]
-    lx <- lx[-posToRemove]
-  }
-  
-  # order by increasing value of x
-  o <- order(x)
-  x <- x[o]
-  lx <- lx[o]
-  
-  out <- new("lifetable", x = x, lx = lx, name = name)
-  return(out)
-}
+# lifetable <- function(x = 0:3, lx = c(100,90, 50, 10), name = "Generic life table") {
+#   if(length(x) != length(lx)) stop("length of x and lx must be equal")
+#   
+#   posToRemove <- which(lx %in% c(0,NA))
+#   if(length(posToRemove) > 0) {
+#     x <- x[-posToRemove]
+#     lx <- lx[-posToRemove]
+#   }
+#   
+#   # order by increasing value of x
+#   o <- order(x)
+#   x <- x[o]
+#   lx <- lx[o]
+#   
+#   out <- new("lifetable", x = x, lx = lx, name = name)
+#   return(out)
+# }
+
+setMethod(f="initialize",
+          signature="lifetable",
+          definition=function(.Object, x = 0:3, lx=c(100,90, 50, 10), name="Generic life table") {
+            
+            if(length(x) != length(lx)) stop("length of x and lx must be equal")
+          
+            posToRemove <- which(lx %in% c(0,NA))
+            if(length(posToRemove) > 0) {
+              x <- x[-posToRemove]
+              lx <- lx[-posToRemove]
+            }
+            
+            # order by increasing value of x
+            o <- order(x)
+            x <- x[o]
+            lx <- lx[o]
+            
+            .Object@x <- x
+            .Object@lx <- lx
+            .Object@name <- name
+            validObject(.Object)
+            return(.Object)
+          }
+)
+
+
+setMethod(f="initialize",
+          signature="actuarialtable",
+          definition=function(.Object, x = 0:3, lx=c(100,90, 50, 10), name="Generic life table", interest=0.03) {
+            if(length(x) != length(lx)) stop("length of x and lx must be equal")
+            
+            posToRemove <- which(lx %in% c(0,NA))
+            if(length(posToRemove) > 0) {
+              x <- x[-posToRemove]
+              lx <- lx[-posToRemove]
+            }
+            
+            # order by increasing value of x
+            o <- order(x)
+            x <- x[o]
+            lx <- lx[o]
+            
+            .Object@x <- x
+            .Object@lx <- lx
+            .Object@name <- name
+            .Object@interest <- interest
+            validObject(.Object)
+            return(.Object)
+          }
+)
+
 
 #validity method for lifetable object
 setValidity("lifetable",

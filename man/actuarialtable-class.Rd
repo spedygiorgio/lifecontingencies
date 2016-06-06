@@ -5,6 +5,7 @@
 \alias{coerce,actuarialtable,data.frame-method}
 \alias{coerce,actuarialtable,numeric-method}
 \alias{getOmega,actuarialtable-method}
+\alias{initialize,actuarialtable-method}
 \alias{print,actuarialtable-method}
 \alias{show,actuarialtable-method}
 \alias{summary,actuarialtable-method}
