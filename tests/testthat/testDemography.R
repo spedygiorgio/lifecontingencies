@@ -35,3 +35,16 @@ test_that("pxt and pxyzt return equal results for a single table", {
   expect_equal(pxt(tbl, x = 1, t = 3.1), pxyzt(list(tbl), x = c(1), t = c(3.1)))
   expect_equal(pxt(tbl, x = 2.4, t = 5.3), pxyzt(list(tbl), x = c(2.4), t = c(5.3)))
 })
+
+test_that("Probability of death within various intervals", {
+  x <- 0:9
+  lx <- seq(100, 10, by = -10)
+  tbl <- new("lifetable",x = x, lx = lx, name = "Uniform mortality")
+
+  expect_equal(pxt(tbl, x = 7, t = 0.0) * qxt(tbl, x = 7.0, t = 0.5), 5/30)
+  expect_equal(pxt(tbl, x = 7, t = 0.5) * qxt(tbl, x = 7.5, t = 0.5), 5/30)
+  expect_equal(pxt(tbl, x = 7, t = 1.0) * qxt(tbl, x = 8.0, t = 0.5), 5/30)
+  expect_equal(pxt(tbl, x = 7, t = 1.5) * qxt(tbl, x = 8.5, t = 0.5), 5/30)
+  expect_equal(pxt(tbl, x = 7, t = 2.0) * qxt(tbl, x = 9.0, t = 0.5), 5/30)
+  expect_equal(pxt(tbl, x = 7, t = 2.5) * qxt(tbl, x = 9.5, t = 0.5), 5/30)
+})
