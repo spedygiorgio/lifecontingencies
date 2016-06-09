@@ -250,7 +250,7 @@ Axn <-
     if (missing(m))
       m <- 0
     if (missing(n))
-      n <- getOmega(actuarialtable) - x - m - 1
+      n <- getOmega(actuarialtable)+1 - x - m
 #       n = getOmega(actuarialtable) - x - m + 1 #Rosa patch
     if (n == 0)
       return(0)

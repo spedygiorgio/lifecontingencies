@@ -22,10 +22,10 @@ test_that("Single life annuities are calculated correctly", {
   lx <- seq(100, 10, by = -10)
   tbl <- new("actuarialtable", x = x, lx = lx, interest = 0.04, name = "Linear table")
   v <- (1 + 0.04)^(-1)
-  
+
   ans <- sum((lx[6:10] * v^(0:4))/lx[6])
   expect_equal(axn(tbl, x = 5), ans)
-  
+
   ans <- sum((lx[6:8] * v^(0:2))/lx[6])
   expect_equal(axn(tbl, x = 5, n = 3), ans)
 })
@@ -34,7 +34,7 @@ test_that("axn and axyzn return equal values for single mortality table", {
   x <- 0:9
   lx <- seq(100, 10, by = -10)
   tbl <- new("actuarialtable", x = x, lx = lx, interest = 0.04, name = "Linear table")
-  
+
   expect_equal(axn(tbl, x = 5, n = 1), axyzn(list(tbl), x = 5, n = 1))
   expect_equal(axn(tbl, x = 5, n = 2), axyzn(list(tbl), x = 5, n = 2))
   expect_equal(axn(tbl, x = 5, n = 3), axyzn(list(tbl), x = 5, n = 3))
@@ -42,7 +42,7 @@ test_that("axn and axyzn return equal values for single mortality table", {
   expect_equal(axn(tbl, x = 5, n = 5), axyzn(list(tbl), x = 5, n = 5))
   expect_equal(axn(tbl, x = 5, n = 6), axyzn(list(tbl), x = 5, n = 6))
   expect_equal(axn(tbl, x = 5), axyzn(list(tbl), x = 5))
-  
+
   expect_equal(axn(tbl, x = 0), axyzn(list(tbl), x = 0))
   expect_equal(axn(tbl, x = 1), axyzn(list(tbl), x = 1))
   expect_equal(axn(tbl, x = 2), axyzn(list(tbl), x = 2))
@@ -74,9 +74,36 @@ test_that("Example from Wolfgang Abele on April 27, 2015",{
           33755.47658,26522.3193,20688.28429,16029.96538)
   male <- new("actuarialtable", x = 0:111, lx = lx, interest = 0.04, name = "Males")
   female <- new("actuarialtable", x = 0:111, lx = ly, interest = 0.04, name = "Females")
-  
+
   expect_equal(axn(male, x = 100) + axn(female, x = 102) - 
                  axyzn(list(male, female), x = c(100, 102), status = "joint"), 
                axyzn(list(male, female), x = c(100, 102), status = "last"))
-  
+})
+
+test_that("Life insurance with uniformly decreasing population at risk", {
+  x <- 0:9
+  lx <- seq(100, 10, by = -10)
+  tbl <- new("actuarialtable", x = x, lx = lx, interest = 0, name = "Uniformly decreasing lx")
+
+  expect_equal(Axn(tbl, x = 0), 1)
+  expect_equal(Axn(tbl, x = 1), 1)
+  expect_equal(Axn(tbl, x = 2), 1)
+  expect_equal(Axn(tbl, x = 3), 1)
+  expect_equal(Axn(tbl, x = 4), 1)
+  expect_equal(Axn(tbl, x = 5), 1)
+  expect_equal(Axn(tbl, x = 6), 1)
+  expect_equal(Axn(tbl, x = 7), 1)
+  expect_equal(Axn(tbl, x = 8), 1)
+  expect_equal(Axn(tbl, x = 9), 1)
+
+  expect_equal(Axn(tbl, x = 7.0, k = 2), 1)
+  expect_equal(Axn(tbl, x = 3.0, k = 2), 1)
+  expect_equal(Axn(tbl, x = 3.5, k = 2), 1)
+
+  pmts <- rep(1,6)
+  time <- seq(0.5, 3.0, by = 0.5)
+  prob <- rep(5/30, 6)
+  disc <- (1.06)^(-time)
+  ans  <- sum(pmts * disc * prob)
+  expect_equal(Axn(tbl, x = 7, k = 2, i = 0.06), ans)
 })

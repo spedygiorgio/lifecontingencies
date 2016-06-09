@@ -82,37 +82,57 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
   #  out <- 1 / object@lx[which(object@x == x)]
   #} else {
     #before x+t>=omega
-    if ((x + t) > omega)
-      out <- 0
-    else
-      #fractional ages
-    {
-      if ((t %% 1) == 0)
+    if ((x + t) >= omega + 1)
+      return(0)
+
+  if((x + t) > omega){ # x + t is between last lx > 0 and 0
+
+    z <- t %% 1 #the fraction of year
+    #linearly interpolates if fractional age
+    pl <-
+      object@lx[which(object@x == floor(t + x))] / object@lx[which(object@x ==
+                                                                     x)] # Kevin Owens: fix on this line, moving it out of the linear if statement so it can be used in other assumptions
+    if (fractional == "linear") {
+      ph <- 0
+      out <- z * ph + (1 - z) * pl
+    } else if (fractional == "constant force") {
+      out <- pl * pxt(object = object, x = (x + floor(t)),t = 1) ^ z # fix on this line
+    } else if (fractional == "hyperbolic") {
+      out <-
+        pl * pxt(object = object, x = (x + floor(t)),t = 1) / (1 - (1 - z) * qxt(
+          object = object, x = (x + floor(t)),t = 1
+        )) # Kevin Owens: fix on this line
+    }
+  }
+  else # x + t is less that or equal to omega
+    #fractional ages
+  {
+    if ((t %% 1) == 0)
+      out <-
+        object@lx[which(object@x == t + x)] / object@lx[which(object@x == x)]
+    else {
+      z <- t %% 1 #the fraction of year
+      #linearly interpolates if fractional age
+      pl <-
+        object@lx[which(object@x == floor(t + x))] / object@lx[which(object@x ==
+                                                                       x)] # Kevin Owens: fix on this line, moving it out of the linear if statement so it can be used in other assumptions
+      if (fractional == "linear") {
+        ph <-
+          object@lx[which(object@x == ceiling(t + x))] / object@lx[which(object@x ==
+                                                                           x)]
+        out <- z * ph + (1 - z) * pl
+      } else if (fractional == "constant force") {
+        out <- pl * pxt(object = object, x = (x + floor(t)),t = 1) ^ z # fix on this line
+      } else if (fractional == "hyperbolic") {
         out <-
-          object@lx[which(object@x == t + x)] / object@lx[which(object@x == x)]
-      else {
-        z <- t %% 1 #the fraction of year
-        #linearly interpolates if fractional age
-        pl <-
-          object@lx[which(object@x == floor(t + x))] / object@lx[which(object@x ==
-                                                                         x)] # Kevin Owens: fix on this line, moving it out of the linear if statement so it can be used in other assumptions
-        if (fractional == "linear") {
-          ph <-
-            object@lx[which(object@x == ceiling(t + x))] / object@lx[which(object@x ==
-                                                                             x)]
-          out <- z * ph + (1 - z) * pl
-        } else if (fractional == "constant force") {
-          out <- pl * pxt(object = object, x = (x + floor(t)),t = 1) ^ z # fix on this line
-        } else if (fractional == "hyperbolic") {
-          out <-
-            pl * pxt(object = object, x = (x + floor(t)),t = 1) / (1 - (1 - z) * qxt(
-              object = object, x = (x + floor(t)),t = 1
-            )) # Kevin Owens: fix on this line
-        }
+          pl * pxt(object = object, x = (x + floor(t)),t = 1) / (1 - (1 - z) * qxt(
+            object = object, x = (x + floor(t)),t = 1
+          )) # Kevin Owens: fix on this line
       }
     }
-    
-#  }
+  }
+
+  #  }
   return(out)
 }
 
