@@ -107,3 +107,22 @@ test_that("Life insurance with uniformly decreasing population at risk", {
   ans  <- sum(pmts * disc * prob)
   expect_equal(Axn(tbl, x = 7, k = 2, i = 0.06), ans)
 })
+
+test_that("Whole life insurance with fractional starting age", {
+  x <- 0:9
+  lx <- seq(100, 10, by = -10)
+  tbl <- new("actuarialtable", x = x, lx = lx, interest = 0, name = "Uniformly decreasing lx")
+
+  expect_equal(Axn(tbl, x = 8.3, k = 2), 1)
+  expect_equal(Axn(tbl, x = 8.7, k = 2), 1)
+
+  v <- 1.06^(-seq(0.5, 2.0, by = 0.5))
+  p <- c(rep(5/17,3), 2/17)
+  ans <- sum(p * v)
+  expect_equal(Axn(tbl, x = 8.3, k = 2, i = 0.06), ans)
+
+  v <- 1.06^(-seq(0.5, 1.5, by = 0.5))
+  p <- c(rep(5/13,2), 3/13)
+  ans <- sum(p * v)
+  expect_equal(Axn(tbl, x = 8.7, k = 2, i = 0.06), ans)
+})

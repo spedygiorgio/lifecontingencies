@@ -250,7 +250,7 @@ Axn <-
     if (missing(m))
       m <- 0
     if (missing(n))
-      n <- getOmega(actuarialtable)+1 - x - m
+      n <- ceiling((getOmega(actuarialtable)+1 - x - m) * k) / k  # want n to be a multiple of 1/k
 #       n = getOmega(actuarialtable) - x - m + 1 #Rosa patch
     if (n == 0)
       return(0)
