@@ -46,6 +46,11 @@ test_that("axn and axyzn return equal values for single mortality table", {
   expect_equal(axn(tbl, x = 0), axyzn(list(tbl), x = 0))
   expect_equal(axn(tbl, x = 1), axyzn(list(tbl), x = 1))
   expect_equal(axn(tbl, x = 2), axyzn(list(tbl), x = 2))
+
+  expect_equal(axn(tbl, x = 6.2, k = 4), axyzn(list(tbl), x = 6.2, k = 4))
+  expect_equal(axn(tbl, x = 6.9, k = 4), axyzn(list(tbl), x = 6.9, k = 4))
+  expect_equal(axn(tbl, x = 7.3, k = 2), axyzn(list(tbl), x = 7.3, k = 2))
+  expect_equal(axn(tbl, x = 8.7, k = 2), axyzn(list(tbl), x = 8.7, k = 2))
 })
 
 test_that("Example from Wolfgang Abele on April 27, 2015",{

@@ -171,7 +171,7 @@ axyzn <-
       n = 0
       for (j in 1:numTables)
         n = (max(n,(getOmega(tablesList[[j]]) - x[j])))
-      n = n+1 - m
+      n = ceiling((n+1 - m)*k)/k
       #n=n-m-1 patch by Reinhold
     }
     
