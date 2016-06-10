@@ -48,7 +48,7 @@ axn <-
     if (missing(m))
       m = 0
     if (missing(n))
-      n = getOmega(actuarialtable) + 1 - x - m #n=getOmega(actuarialtable)-x-m Patch by Reinhold
+      n = ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k #n=getOmega(actuarialtable)-x-m Patch by Reinhold
     if (n == 0) {
       out = 0
       return(out)

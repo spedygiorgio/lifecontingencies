@@ -126,3 +126,35 @@ test_that("Whole life insurance with fractional starting age", {
   ans <- sum(p * v)
   expect_equal(Axn(tbl, x = 8.7, k = 2, i = 0.06), ans)
 })
+
+test_that("Annuities with fractional starting age and k > 1", {
+  x <- 0:9
+  lx <- seq(100, 10, by = -10)
+  tbl <- new("actuarialtable", x = x, lx = lx, interest = 0.04, name = "Uniformly decreasing lx")
+
+  v <- 1.04^(-seq(0, 3.75, by = 0.25))
+  p <- (100 - 10 * seq(6.2, 9.95, by = 0.25))/38
+  ans <- sum(v * p)/4
+  expect_equal(axn(tbl, x = 6.2, k = 4), ans)
+
+  v <- 1.04^(-seq(0, 2, by = 0.25))
+  p <- (100 - 10 * seq(7.9, 9.9, by = 0.25))/21
+  ans <- sum(v * p)/4
+  expect_equal(axn(tbl, x = 7.9, k = 4), ans)
+})
+
+test_that("Annuities with fractional age x, k > 1, and m > 0", {
+  x <- 0:9
+  lx <- seq(100, 10, by = -10)
+  tbl <- new("actuarialtable", x = x, lx = lx, interest = 0.04, name = "Uniformly decreasing lx")
+
+  v <- 1.04^(-(0.6+seq(0, by = 0.25, length = 13)))
+  p <- (100 - 10 * seq(6.8, 9.80, by = 0.25))/38
+  ans <- sum(v * p)/4
+  expect_equal(axn(tbl, x = 6.2, k = 4, m = 0.6), ans)
+
+  v <- 1.04^(-(1.4+seq(0, 0.5, by = 0.25)))
+  p <- (100 - 10 * seq(9.3, 9.8, by = 0.25))/21
+  ans <- sum(v * p)/4
+  expect_equal(axn(tbl, x = 7.9, k = 4, m = 1.4), ans)
+})
