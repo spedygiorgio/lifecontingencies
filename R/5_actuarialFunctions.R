@@ -48,7 +48,7 @@ axn <-
     if (missing(m))
       m = 0
     if (missing(n))
-      n = getOmega(actuarialtable) + 1 - x - m #n=getOmega(actuarialtable)-x-m Patch by Reinhold
+      n = ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k #n=getOmega(actuarialtable)-x-m Patch by Reinhold
     if (n == 0) {
       out = 0
       return(out)
@@ -171,7 +171,7 @@ axyzn <-
       n = 0
       for (j in 1:numTables)
         n = (max(n,(getOmega(tablesList[[j]]) - x[j])))
-      n = n+1 - m
+      n = ceiling((n+1 - m)*k)/k
       #n=n-m-1 patch by Reinhold
     }
     
@@ -250,7 +250,7 @@ Axn <-
     if (missing(m))
       m <- 0
     if (missing(n))
-      n <- getOmega(actuarialtable)+1 - x - m
+      n <- ceiling((getOmega(actuarialtable)+1 - x - m) * k) / k  # want n to be a multiple of 1/k
 #       n = getOmega(actuarialtable) - x - m + 1 #Rosa patch
     if (n == 0)
       return(0)
