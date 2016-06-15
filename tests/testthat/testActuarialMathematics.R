@@ -163,3 +163,26 @@ test_that("Annuities with fractional age x, k > 1, and m > 0", {
   ans <- sum(v * p)/4
   expect_equal(axn(tbl, x = 7.9, k = 4, m = 1.4), ans)
 })
+
+test_that("SOA Illustrative Table", {
+  data("soa08Act")
+  f <- function(x) return(c(axn(soa08Act, x = x),
+                            Axn(soa08Act, x = x)*1000,
+                            Axn(soa08Act, x = x, power = 2)*1000))
+
+  expect_equal(f(  0), c(16.80096,  49.0025,  25.9210), tolerance = 0.00001)
+  expect_equal(f(  1), c(17.09819,  32.1781,   8.8845), tolerance = 0.00001)
+  expect_equal(f(  2), c(17.08703,  32.8097,   8.6512), tolerance = 0.00001)
+  expect_equal(f( 12), c(16.84807,  46.3359,  10.0460), tolerance = 0.00001)
+  expect_equal(f( 26), c(16.15740,  85.4300,  19.8657), tolerance = 0.00001)
+  expect_equal(f( 39), c(14.94161, 154.2484,  45.4833), tolerance = 0.00001)
+  expect_equal(f( 43), c(14.41022, 184.3271,  59.4833), tolerance = 0.00001)
+  expect_equal(f( 55), c(12.27581, 305.1431, 130.6687), tolerance = 0.00001)
+  expect_equal(f( 62), c(10.65836, 396.6965, 199.4077), tolerance = 0.00001)
+  expect_equal(f( 77), c( 6.68364, 621.6808, 421.0184), tolerance = 0.00001)
+  expect_equal(f( 83), c( 5.16446, 707.6723, 526.6012), tolerance = 0.00001)
+  expect_equal(f( 99), c( 2.24265, 873.0577, 768.1330), tolerance = 0.00001)
+  expect_equal(f(103), c( 1.81639, 897.1852, 808.4054), tolerance = 0.00001)
+  expect_equal(f(109), c( 1.37553, 922.1396, 851.6944), tolerance = 0.00001)
+  expect_equal(f(110), c( 1.32234, 925.1507, 857.0377), tolerance = 0.00001)
+})
