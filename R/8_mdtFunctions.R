@@ -30,6 +30,38 @@
 	invisible(out)
 }
 
+
+#' Return Associated single decrement from absolute rate of decrement
+#'
+#' @param object a life table 
+#' @param x age
+#' @param t period (usually 1)
+#' @param decrement 
+#'
+#' @return a single value (AST)
+.qxt.ard.asd<-function(object, x, t=1, decrement) {
+  out <- NA
+  if (missing(decrement)) stop("Error! decrement must be specified");
+  out<-1-(1-qxt(object = object,x = x,t=t))^(qxt(object = object,x = x,t=t,decrement = decrement)/qxt(object = object,x = x,t=t))
+  return(out)
+}
+
+.getFunctionIns<-function(qxVector) {
+  myFun<-function(s) {
+    temp<-qxVector*rep(s,length(qxVector))
+    out<-prod(1-temp)
+    return(out)
+  }
+  return(myFun)
+}
+
+.qxt.asd.2.ard <-function(qxDecrement, qxOtherAsds) {
+  function2Integrate<-.getFunctionIns(qxOtherAsds)
+  myOut<-seq(from=0, to=1, length.out = 1000)
+  temp<-sapply(myOut, function2Integrate)
+  out<-qxDecrement*sum(temp)
+}
+
 #MDT ACTUARIAL FUNCTIONS
 
 #' @title Multiple decrement life insurance
