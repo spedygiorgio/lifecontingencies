@@ -64,6 +64,7 @@
 \begin{document}
 
 
+
 \maketitle
 
 \section{Introduction}
@@ -395,9 +396,6 @@ Function "as.array":
 Function "as.matrix":
  <not an S4 generic function>
 
-Function "as.vector":
- <not an S4 generic function>
-
 Function "band":
  <not an S4 generic function>
 
@@ -502,6 +500,10 @@ x="lifetable"
 
 Function "image":
  <not an S4 generic function>
+Function: initialize (package methods)
+.Object="actuarialtable"
+.Object="lifetable"
+
 
 Function "isDiagonal":
  <not an S4 generic function>
@@ -519,6 +521,12 @@ Function "lu":
  <not an S4 generic function>
 
 Function "mean":
+ <not an S4 generic function>
+
+Function "name":
+ <not an S4 generic function>
+
+Function "name<-":
  <not an S4 generic function>
 
 Function "nnzero":
@@ -1441,11 +1449,6 @@ R> data("demoIta")
 R> itaM2002 <- demoIta[,c("X","SIM92")]
 R> names(itaM2002) <- c("x","lx")
 R> itaM2002Lt <- as(itaM2002,"lifetable")
-\end{Sinput}
-\begin{Soutput}
-removing NA and 0s
-\end{Soutput}
-\begin{Sinput}
 R> itaM2002Lt@name <- "IT 2002 Males"
 R> itaM2002 <- as(itaM2002Lt,"data.frame")
 R> itaM2002$qx <- 1-itaM2002$px
@@ -1609,7 +1612,7 @@ R> pxtHyph <- pxt(soa08Act,80,0.5,"hyperbolic")
 R> c(pxtLin,pxtCnst,pxtHyph)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.9598496 0.9590094 0.9581701
+[1] 0.9598496 0.9590095 0.9581701
 \end{Soutput}
 \end{Schunk}
 
@@ -1767,7 +1770,7 @@ R> UCpt <- ((soa08ActDf$Mx[26]-soa08ActDf$Mx[66])/soa08ActDf$Dx[26]) *
 R> c(UComm, UCpt)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.04927622 0.04927622
+[1] 0.0492762 0.0492762
 \end{Soutput}
 \end{Schunk}
 
@@ -1779,7 +1782,7 @@ R> P <- UCpt/axn(actuarialtable=soa08Act,x=25,n=10)
 R> P
 \end{Sinput}
 \begin{Soutput}
-[1] 0.006351049
+[1] 0.006351046
 \end{Soutput}
 \end{Schunk}
 
@@ -1797,14 +1800,14 @@ Equation~\ref{eq:decreaseIncrease} in a computational context.
 R> (10 + 1 ) * Axn(actuarialtable=soa08Act, x=25, n=10) 
 \end{Sinput}
 \begin{Soutput}
-[1] 0.1194393
+[1] 0.1194392
 \end{Soutput}
 \begin{Sinput}
 R> DAxn(actuarialtable = soa08Act, x=25, n=10) + 
 +  IAxn(actuarialtable = soa08Act, x=25, n=10)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.1194393
+[1] 0.1194392
 \end{Soutput}
 \end{Schunk}
 
@@ -1847,7 +1850,7 @@ R> P=axn(actuarialtable=soa08Act, x=75, m=10) /
 R> P
 \end{Sinput}
 \begin{Soutput}
-[1] 0.2854726
+[1] 0.2854727
 \end{Soutput}
 \begin{Sinput}
 R> PComm <- with(soa08ActDf,(Nx[86]/Dx[76]) / 
@@ -1855,7 +1858,7 @@ R> PComm <- with(soa08ActDf,(Nx[86]/Dx[76]) /
 R> PComm
 \end{Sinput}
 \begin{Soutput}
-[1] 0.2854726
+[1] 0.2854727
 \end{Soutput}
 \end{Schunk}
 
@@ -1873,7 +1876,7 @@ R> P <- axn(actuarialtable=soa08Act, x=75, m=10, k=12) /
 R> c(U,P)
 \end{Sinput}
 \begin{Soutput}
-[1] 1.0325685 0.2571079
+[1] 1.0325687 0.2571079
 \end{Soutput}
 \end{Schunk}
 
@@ -1915,13 +1918,13 @@ R> for(t in 0:40) {if(t%%5==0) cat("At time ",t,
 \end{Sinput}
 \begin{Soutput}
 At time  0  benefit reserve is  0 
-At time  5  benefit reserve is  1109.885 
+At time  5  benefit reserve is  1109.887 
 At time  10  benefit reserve is  2401.368 
-At time  15  benefit reserve is  3825.879 
-At time  20  benefit reserve is  5256.249 
-At time  25  benefit reserve is  6421.796 
+At time  15  benefit reserve is  3825.877 
+At time  20  benefit reserve is  5256.254 
+At time  25  benefit reserve is  6421.799 
 At time  30  benefit reserve is  6789.186 
-At time  35  benefit reserve is  5328.029 
+At time  35  benefit reserve is  5328.03 
 At time  40  benefit reserve is  0 
 \end{Soutput}
 \end{Schunk}
@@ -2017,7 +2020,7 @@ expressed by Equation~\ref{eq:annJoinLast}.
 \begin{Sinput}
 R> twoLifeTables <- list(maleTable=soa08Act, femaleTable=soa08Act)
 R> axn(soa08Act, x=65,m=1)+axn(soa08Act, x=70,m=1)-
-+  axyn(soa08Act,soa08Act,	x=65,y=70,status="joint",m=1) 
++  axyzn(tablesList=twoLifeTables,	x=c(65,y=70),status="joint",m=1) 
 \end{Sinput}
 \begin{Soutput}
 [1] 10.35704
@@ -2198,7 +2201,7 @@ R> APVAxn <- Axn(soa08Act,x=25,n=40,type="EV")
 R> APVAxn
 \end{Sinput}
 \begin{Soutput}
-[1] 0.0479709
+[1] 0.04797088
 \end{Soutput}
 \begin{Sinput}
 R> sampleAxn <- rLifeContingencies(n=numSim, lifecontingency="Axn",
@@ -2228,7 +2231,7 @@ R> APVAExn <- AExn(soa08Act,x=25,n=40,type="EV")
 R> APVAExn
 \end{Sinput}
 \begin{Soutput}
-[1] 0.1245488
+[1] 0.1245487
 \end{Soutput}
 \begin{Sinput}
 R> sampleAExn <- rLifeContingencies(n=numSim, lifecontingency="AExn",
@@ -2237,7 +2240,7 @@ R> tt4 <-t.test(x=sampleAExn,mu=APVAExn)$p.value
 R> c(tt1, tt2,tt3, tt4)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.07716977 0.61236632 0.85234323 0.81753278
+[1] 0.07717016 0.61236679 0.85234207 0.81753453
 \end{Soutput}
 \end{Schunk}
 
@@ -2269,7 +2272,7 @@ R> tt6<-t.test(x=samplesaxyz, mu=APVaxyz)$p.value
 R> c(tt5,tt6)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.2606326 0.4692603
+[1] 0.2606324 0.4692605
 \end{Soutput}
 \end{Schunk}
 
@@ -2291,7 +2294,7 @@ R> var(sampleAxn)
 R> Axn(soa08Act, x=25,n=40, power=2)-Axn(soa08Act, x=25,n=40, power=1)^2
 \end{Sinput}
 \begin{Soutput}
-[1] 0.01468878
+[1] 0.01468876
 \end{Soutput}
 \end{Schunk}
 
@@ -2314,7 +2317,7 @@ R> APV <- Axn(actuarialtable = soa08Act, x=25, n=40)
 R> APV
 \end{Sinput}
 \begin{Soutput}
-[1] 0.0479709
+[1] 0.04797088
 \end{Soutput}
 \end{Schunk}
 
@@ -2347,7 +2350,7 @@ R> pct90Pr2 <- qnorm(p=0.90,mean=APV, sd=sd(samples)/sqrt(1000))
 R> pct90Pr2
 \end{Sinput}
 \begin{Soutput}
-[1] 0.05307157
+[1] 0.05307155
 \end{Soutput}
 \end{Schunk}
 
@@ -2431,21 +2434,242 @@ R> totalBookedCost <- employeeBenefit+riskMargin
 R> employeeBenefit
 \end{Sinput}
 \begin{Soutput}
-[1] 22370.38
+[1] 22370.4
 \end{Soutput}
 \begin{Sinput}
 R> riskMargin
 \end{Sinput}
 \begin{Soutput}
-[1] 21957.49
+[1] 25166.63
 \end{Soutput}
 \begin{Sinput}
 R> totalBookedCost
 \end{Sinput}
 \begin{Soutput}
-[1] 44327.88
+[1] 47537.03
 \end{Soutput}
 \end{Schunk}
+
+
+\subsection{Multiple Decrement Models within lifecontingencies Package}
+
+Until now no \proglang{R} package provides a good tool to manage multiple decrement tables, even if \cite{deshmukh2012multiple} provides an \proglang{R} based focus on multiple decrement tables with applications in R. The topic is deeply related to multistate analysis of life histories on which \cite{willekens2014multistate} provide a very good introduction. The \pkg{lifecontingencies} package's \code{mdt} class that has been specifically engineered to manage multiple decrements models with R. Applied examples will follows.\\
+
+Following notation in \cite{finanMLC}, we provide definitions of the key quantities that allow to understand the main concepts regarding Multiple Decrement (MD) theory. Be $l_x^{(\tau )} = \sum\limits_{j = 1 \ldots m} {l_x^{(j)}}$ survivors to age $x$ that will, at future ages, be fully depleted by $m$ causes of decrement. $d_{x}^{(j)}=l_{x}^{(j)}-l_{x+1}^{(j)}$ represents the expected number of lives exiting from the population between ages $x$ and $x + 1$ due to decrement $j$. Therefore it follows that $_nd_x^{(j)} = \sum\limits_{t = 0 \ldots n - 1} {d_{x + t}^{(j)}}$.\\
+The probability that a life $x$ will leave the group within one year as a result of decrement $j$ is $_nq_x^{(j)} = \frac{{_nd_x^{(j)}}}{{l_x^{(\tau )}}}$. It follows that $q_x^{(\tau )} = \sum\limits_{j = 1}^m {q_x^{(j)}}$ and that $_tq_x^{(\tau )} = 1{ - _t}p_x^{(\tau )} = \sum\limits_j {_tq_x^{(\tau )}}$.
+
+
+\subsubsection{The mdt class}
+
+Examples in this paper are worked on slides provided in \cite{valdezSlides}.
+First of all, we load the R package.
+
+\begin{Schunk}
+\begin{Sinput}
+R> library(lifecontingencies)
+\end{Sinput}
+\end{Schunk}
+
+Then  we create a \code{mdt} class object. We can use the first example found on
+\cite[p. 4]{valdezSlide}.
+
+\begin{Schunk}
+\begin{Sinput}
+R> valdezDf<-data.frame(
++  		x=c(50:54),
++  		lx=c(4832555,4821937,4810206,4797185,4782737),
++  		hearth=c(5168, 5363, 5618, 5929, 6277),
++  		accidents=c(1157, 1206, 1443, 1679,2152),
++  		other=c(4293,5162,5960,6840,7631)
++  )
+R> valdezMdt<-new("mdt",name="ValdezExample",table=valdezDf)
+\end{Sinput}
+\begin{Soutput}
+Added fictional decrement below last x and completed x and lx until zero.... 
+Completed the table at top, all decrements on first cause 
+\end{Soutput}
+\end{Schunk}
+
+The \code{mdt} class is an S4 class object \citep{chambers2008software}
+comprised by a character slot \code{name} and a \code{data.frame} slot
+\code{table} that is composed by following columns:
+\begin{enumerate}
+  \item \code{x}: the age, from 0 to $\omega$.
+  \item \code{lx}: the subject living (at risk) at the beginning of age.
+  \item one or more colums for different causes of decrements.
+ \end{enumerate}
+ 
+ Values within \code{table} item represents absolute number of subjects at risk at the beginning of age $x$ and dying for cause $j$ during period $x$ - $x+1$.\\
+
+Within the various methods defined within the \code{mdt} class,
+\code{setValidity} performs consistency checks to properly create the \code{mdt}
+object. In particular, it verifies whether:
+\begin{enumerate}
+  \item \code{x} and \code{lx} exist and that they are consistent. \code{x}
+  should start from 0 and flows by increments of one. The first \code{lx} value should be
+  equal to the sum of all decrements and that $l_{x}=l_{x-1}-\left( d_{x-1,1} +
+  d_{x-1,2} + \ldots + d_{x-1,k} \right)$ for any $x$.
+  \item If the decrements (or x and lx) have been provided only for partial
+  ages, the table is completed below (from 0 to $l_{x-1}$) assuming a decrement
+  rate of 0.01 for the first cause of death.
+  \item if the decrements at last provided age, $\omega$, do not sum to
+  $l_{\omega}$, the table is incremented by one row such as $lx_{\omega+1}=lx_{\omega}-\left( d_{\omega,1} + d_{\omega,2} + 
+  \ldots + d_{\omega,j} \right)$.
+ \end{enumerate}
+
+As shown, when the table is sanitized the operations performed are reported on
+logs.
+
+ An internal function, \code{.tableSanitizer} tries to fix the limitations on
+ the input table in order it to meet the class definition requirements.
+ 
+ Table can be viewed thanks to a \code{print} and \code{show} method (output omitted for simplicity). Similarly, it is possible to export a \code{mdt} to a \code{data.frame} or to a \code{markovchainList} object (from \pkg{markovchain} package).
+ 
+\begin{Schunk}
+\begin{Sinput}
+R> print(valdezMdt)
+\end{Sinput}
+\end{Schunk}
+
+ 
+\begin{Schunk}
+\begin{Sinput}
+R> valdezDf<-as(valdezMdt,"data.frame")
+R> require(markovchain)
+R> valdezMarkovChainList<-as(valdezMdt,"markovchainList")
+\end{Sinput}
+\end{Schunk}
+
+Two specific methods have been defined for \code{mdt} class objects:
+\code{getOmega}, that returns the maximum attainable age (similar to the one of
+\code{lifetable} class), and \code{getDecrements}, that returns the decrements (by means of the names within table 
+slot different from x and lx).
+
+\begin{Schunk}
+\begin{Sinput}
+R> getOmega(valdezMdt)
+\end{Sinput}
+\begin{Soutput}
+[1] 55
+\end{Soutput}
+\begin{Sinput}
+R> getDecrements(valdezMdt)
+\end{Sinput}
+\begin{Soutput}
+[1] "hearth"    "accidents" "other"    
+\end{Soutput}
+\end{Schunk}
+
+A \code{summary} method is available as well.
+
+\begin{Schunk}
+\begin{Sinput}
+R> summary(valdezMdt)
+\end{Sinput}
+\begin{Soutput}
+This is Multiple Decrements Table:  ValdezExample 
+ Omega age is:  55 
+ Stored decrements are:  hearth accidents other
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{Decrement probabilities calculation}
+
+
+The \pkg{lifecontingencies} package makes easy to compute $d_{x}^{(j)}$,
+${}_{n}d_{x}^{(j)}$ as well as ${}_{n}d_{x}^{(\tau)}$ quantities thanks to
+\code{dxt} function.
+
+\begin{Schunk}
+\begin{Sinput}
+R> dxt(valdezMdt,x=51,decrement="other")
+\end{Sinput}
+\begin{Soutput}
+[1] 5162
+\end{Soutput}
+\begin{Sinput}
+R> dxt(valdezMdt,x=51,t=2, decrement="other")
+\end{Sinput}
+\begin{Soutput}
+[1] 11122
+\end{Soutput}
+\begin{Sinput}
+R> dxt(valdezMdt,x=51)
+\end{Sinput}
+\begin{Soutput}
+[1] 11731
+\end{Soutput}
+\end{Schunk}
+
+Probabilities could be computed as well.
+
+\begin{Schunk}
+\begin{Sinput}
+R> dxt(valdezMdt,x=51,t=2, decrement="other")
+\end{Sinput}
+\begin{Soutput}
+[1] 11122
+\end{Soutput}
+\begin{Sinput}
+R> pxt(valdezMdt,x=50,t=3)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.9926809
+\end{Soutput}
+\begin{Sinput}
+R> qxt(valdezMdt,x=53,t=2,decrement=1)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.002544409
+\end{Soutput}
+\end{Schunk}
+
+It is possible to generate random traiectories of a life subject to multiple cause of decrements as the following code shows.
+
+\begin{Schunk}
+\begin{Sinput}
+R> rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
+\end{Sinput}
+\begin{Soutput}
+   1       2      
+50 "alive" "alive"
+51 "alive" "alive"
+52 "alive" "alive"
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{Actuarial Applications}
+
+The package now offers limited capabilities to fit multiple decrement insurances, e.g. $(\lcterm{A}{x}{n})^{ (1)}$
+
+The example in \cite[p. 674]{finanMLC}, cites: A 3-year term issued to (16) pays 20,000 at the end of year of death if death results from an accident. The \code{mdt} table is below created.
+
+\begin{Schunk}
+\begin{Sinput}
+R> myTable<-data.frame(x=c(16,17,18),
++    lx=c(20000,17600,14520),
++    da=c(1300,1870,2380),
++    doc=c(1100,1210,1331)
++  )
+R> myMdt<-new("mdt",table=myTable,name="Sample")
+\end{Sinput}
+\begin{Soutput}
+Added fictional decrement below last x and completed x and lx until zero.... 
+Completed the table at top, all decrements on first cause 
+\end{Soutput}
+\end{Schunk}
+
+The value of $(\lcterm{A}{16}{3})^{( a )}$ is below calculated
+
+\begin{Schunk}
+\begin{Sinput}
+R> Axn.mdt(object=myMdt,x=16,i=.1,decrement="da")
+\end{Sinput}
+\begin{Soutput}
+[1] 0.1363636
+\end{Soutput}
+\end{Schunk}
+
 
 
 \section{Discussion}\label{sec:discussion}
