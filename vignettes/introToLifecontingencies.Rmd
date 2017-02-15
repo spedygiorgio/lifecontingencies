@@ -4,11 +4,14 @@ author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   beamer_presentation:
-    incremental: yes
+    incremental: no
     keep_tex: yes
-    toc: yes
-    includes:
-      in_header: mystyles.sty
+    theme: "CambridgeUS"
+header-includes:
+- \usepackage{lifecon}
+- \usepackage{longtable}
+- \usepackage{graphicx}
+- \usepackage{mystyles}
 bibliography: lifecontingenciesBiblio.bib
 vignette: |
   %\VignetteIndexEntry{Intro to the lifecontingencies R package} 
@@ -24,7 +27,7 @@ rm(list=ls())
 #Intro
 
 - The lifecontingencies package [@spedLifecon] will be introduced.
-- As first half 2015 it is the first R [@rSoftware] package merging demographic and financial mathematics function in order to perform actuarial evaluation of life contingent insurances (annuities, life insurances, endowments, etc).
+- As first half 2017 it is the first R [@rSoftware] package merging demographic and financial mathematics function in order to perform actuarial evaluation of life contingent insurances (annuities, life insurances, endowments, etc).
 - The applied examples will shown: how to load the R package, how to perform basic financial mathematics and demographic calculations, how to price and reserve financial products.
 
 ---
@@ -33,9 +36,8 @@ rm(list=ls())
 - The interested readers are suggested to look to the package's vignettes (also appeared in the Journal of Statistical Sofware) for a broader overview. [@dickson2009actuarial; and @mazzoleni2000appunti] provide and introduction of Actuarial Mathematics theory.
 - Also [@rmetrics1] and [@charpentierCAS] discuss the software. 
 
-#First moves into the lifecontingecies package
 
-##Loading the package
+#Loading the package
 - The package is loaded using 
 
 ```{r load, echo=TRUE, warning=FALSE, message=FALSE}
@@ -46,202 +48,175 @@ library(lifecontingencies) #load the package
 
 ---
 
-##Financial mathematics
+# Package's Financial Mathematics Functions
+# Interest functions
 
-- Actuarial mathematics calculation applies probability to quantify uncertainty on
-present values calculation.
-- Certain present value calculations can be directly evaluated by the package
-
-```{r finmat1, echo=TRUE, warning=FALSE, message=FALSE}
-capitals <- c(-1000,200,500,700)
-times <- c(0,1,2,5)
-#calculate a present value
-presentValue(cashFlows=capitals, timeIds=times, 
-             interestRates=0.03)
-```
+- interest2Discount, discount2Interest: from interest to discount and reverse;
+- interest2Intensity, intensity2Interest: from intensity to interest and reverse;
+- convertible2Effective, effective2Convertible: from convertible interest rate to effective one.
 
 ---
 
-- The presentValue function is the kernel of functions that are used to
-calculate annuities and accumulated values, also paid in fractional $k$ payments.
-
-```{r finmat2, echo=TRUE, warning=FALSE, message=FALSE}
-ann1 <- annuity(i=0.03, n=5, k=1, type="immediate")
-ann2 <- annuity(i=0.03, n=5, k=12, type="due")
-c(ann1,ann2)
-```
+- $(1+i)=\left(1+{\frac{i^{{(m)}}}{m}}\right)^{{m}}=e^{\delta}$
+- $e^{{\delta }}=\left(1-{\frac{d^{{(m)}}}{m}}\right)^{{-m}}=(1-d)^{{-1}}$
 
 ---
 
-- Such functions can be combined to price bonds and other classical financial products.
-
-- The following code exemplifies the calculation of a 5\% coupon bond at 3\% yield rate when the term is ten year.
-
-```{r finmat3, echo=TRUE, warning=FALSE, message=FALSE}
-bondPrice<-5*annuity(i=0.03,n=10)+100*1.03^-10
-bondPrice
-```
-
----
-
-#Managing lifetables and actuarial tables
-
-- A lifetable object is an S4 class comprised by three slots: the age (from 0 to $\omega$), the people at risk at beginning 
-of age x and the table name.
-
-```{r demo1}
-#create an demo lifetable
-xDemo<-seq(from=0,to=5,by=1)
-lxDemo<-c(100,95,90,60,30,5)
-lifetableDemo<-new("lifetable",x=xDemo,
-                   lx=lxDemo,name="Demo")
-```
-
----
-
-- In practice, it is often more convenient to load an existing table from a CSV or XLS source. Some common tables have been bundled as data.frames within the package. 
-- The example that follows creates the Italian IPS55 life table.
-
-```{r demo2}
-data(demoIta) #using the internal Italian LT data set
-lxIPS55M <- with(demoIta, IPS55M)
-#performing some fixings
-pos2Remove <- which(lxIPS55M %in% c(0,NA))
-lxIPS55M <-lxIPS55M[-pos2Remove]
-xIPS55M <-seq(0,length(lxIPS55M)-1,1)
-#creating the table
-ips55M <- new("lifetable",x=xIPS55M, 
-lx=lxIPS55M,name="IPS 55 Males")
-```
-
----
-
-- It is therefore easy to perform standard demographic calculations with the aid of package functions.
-
-```{r demo3, tidy=TRUE}
-#decrements between age 65 and 70
-dxt(ips55M, x=65, t = 5)
-#probabilities of death between age 80 and 85
-qxt(ips55M, x=80, t=2)
-#expected curtate lifetime
-exn(ips55M, x=65) 
-```
-
----
-
-#Pricing and reserving Life Contingent insurances
-
-- The pricing and reserving of pure endowments $\pureend{x}{n}$, term insurances, $\termins{x}{n}$,
-annuities $\ddot{a}_{x}^{\{m\}}$, endowments $\pureend{x}{n}$ can be easily handled within the package.
-- Performing such actuarial calculations requires to create an actuarial table (similar to a lifetable but with one more slot for the interest rate) that can be create as it is shown below.
-
-```{r createacttable, tidy=FALSE}
-#creates a new actuarial table
-ips55Act<-new("actuarialtable",
-x=ips55M@x,lx=ips55M@lx,
-interest=0.02,name="IPS55M")
-```
-
-
----
-
-- The example that follows computes the yearly premium $P=50000*\frac{\pureendc{30}{35}}{\anndue{30}{35}}$ for a pure endowment on 50K capital.
-
-```{r pureend, tidy=FALSE}
-#compute APV
-APV=50e3*Exn(actuarialtable = 
-ips55Act,x=30,n=35)
-#compute Premium
-P=APV/axn(actuarialtable =
-ips55Act,x=30,n=35)
-c(APV,P)
-```
-
-
----
-
-- The package allows to easily perform sensitivities on the financials changing key parameters like term, interest, etc as we can see on a endowment purchased by a 30 years old policyholder for 30 years.
-
-```{r endowmentcalcs, tidy=FALSE}
-#defining the ranges
-interest.range<-seq(from=0.015, to=0.035,by=0.001)
-term.range<-seq(from=20, to=40,by=1)
-#computing APV sensitivities
-apv.interest.sensitivity<-sapply(interest.range,
-FUN = "AExn",actuarialtable=ips55Act,x=30,n=30)
-apv.term.sensitivity<-sapply(term.range,FUN = "AExn",
-                             actuarialtable=ips55Act,x=30)
-```
-
----
-
-- The graph below displays sensitivities on APV varying interest rate and insurance term.
-
-```{r endowmentplot, tidy=FALSE, echo=FALSE,fig.width=5, fig.height=5,fig.align='center'}
-par(mfrow=c(1,2))
-plot(x=interest.range, y=apv.interest.sensitivity,type="l",xlab="interest rate",ylab="APV",main="APV by Interest Rate")
-plot(x=term.range, y=apv.term.sensitivity,type="l",xlab="term",ylab="APV",main="APV by term")
-```
-
----
-
-- Also, calculation of outstanding reserves is made easy as the following example, applied on a 100K
-face value 40 year term term life insurance with payments made yearly on a policyholder aged 25, shows.
-
-```{r reserves, tidy=FALSE}
-#compute the APV and premium
-APV=100e3*Axn(actuarialtable = ips55Act,x=25,n=40) 
-P=APV/axn(actuarialtable = ips55Act,x=25,n=40)
-#define a reserve function
-reserveFunction<-function(t) 
-  100e3*Axn(actuarialtable = ips55Act,x=25+t,n=40-t) - 
-  P *axn(actuarialtable = ips55Act,x=25+t,n=40-t)
-reserve<-sapply(0:40,reserveFunction)
-```
-
----
-
-```{r reserves2, tidy=FALSE, echo=FALSE, fig.align='center'}
-plot(x=0:40,y=reserve,main="Reserve",
-     xlab="Policy Age",ylab="Reserve outstanding",type="l")
+```{r finmat.1}
+#interest and discount rates
+interest2Discount(i=0.03)
+discount2Interest(interest2Discount(i=0.03))
+#convertible and effective interest rates
+convertible2Effective(i=0.10,k=4)
 ```
 
 ---
 
 
-#Stochastic evalutation
+# Annuities and future values
 
-- The APV of a life contingent insurance is the expected value of a function of a random variable (the residual life time). Knowing the interest rate and the underlying life table it is possible both to compute the APV and to assess the distribution of the 
-underlying life insurance. 
+- annuity: present value (PV) of an annuity;
+- accumulatedValue: future value of constant cash flows;
+- decreasingAnnuity, increasingAnnuity: increasing and decreasing annuities.
 
-```{r AEXn1 , tidy=FALSE, size="small"}
-#analyzing and Endowment of 100K on x=40, n=25
-#compute APV
-APV=AExn(actuarialtable = ips55Act,x=40,n=25) 
-#sampling
-AEXnDistr<-rLifeContingencies(n=10e3,
-lifecontingency = "AExn",x = 40,
-t=25,object = ips55Act)
+---
+
+- $a_{\lcroof{n}}={\frac  {1-\left(1+i\right)^{{-n}}}{i}}$ 
+- $s_{\lcroof{n}}=a_{\lcroof{n}}*(1+i)^n=\frac{(1+i)^n-1}{i}$
+- $\ddot{a}_{\lcroof{n}}=a_{\lcroof{n}}*(1+i)$
+
+
+---
+```{r finmat.2}
+annuity(i=0.05,n=5) #due
+annuity(i=0.05,n=5,m=1) #immediate
+annuity(i=0.05,n=5,k=12) #due, with 
+# fractional payemnts
 ```
 
 ---
 
-- In order to assess if the distribution is unbiased we use a classical one sample t - test.
+- $\frac{\ddot{a}_{\lcroof{n}} - n*v^n}{i}=\left( Ia \right)$ 
+- $\frac{n-a_{\lcroof{n}}}{i}=\left( Da \right)$ 
+- $\left( Ia_{n} \right) +\left( Da_{n} \right) = \left( n+1 \right)*a_{\lcroof{n}}$ 
 
-```{r AExn1, tidy=FALSE, size="small"}
-#assess if the expected value match the theoretical one
-t.test(x=AEXnDistr,mu = APV)
+---
+```{r finmat.3}
+irate=0.04; term=10
+increasingAnnuity(i=irate,n=term)+decreasingAnnuity(i=irate,
+n=term)-(term+1)*annuity(i=irate,n=term)
+```
+
+---
+
+# Other functions
+
+- presentValue: PV of possible varying CFs. 
+- duration, convexity: calculate duration and convexity of any stream of CFs. 
+
+---
+
+- $PV=\sum_{t \in T} CF_t*\left(1+i_t \right )^{-t}$
+- $D={\frac{1}{P(0)}}\sum _{t=\tau }^{T}t{\frac{c_t}{(1+r)^{t}}}$
+- $C=\frac{1}{P(1+r)^{2}} \sum _{i=1}^{n}{\frac {t_{i}(t_{i}+1)F_{i}}{\left(1+r\right)^{t_{i}}}}$
+
+---
+
+```{r finma.3}
+#bond analysis
+irate=0.03
+cfs=c(10,10,10,100)
+times=1:4
+#compute PV, Duration and Convexity
+presentValue(cashFlows = cfs, 
+timeIds = times, 
+interestRates = irate)
+duration(cashFlows = cfs, 
+timeIds = times, i = irate)
+convexity(cashFlows = cfs,
+timeIds = times, i = irate)
+```
+
+
+# Intro
+
+
+- Lifecontingencies offers a wide set of functions for demographic analysis;
+- Survival and death probabilities, expected residual lifetimes and other function can be easily modeled with
+the R package;
+- Creation and manipulation of life table is easy as well.
+
+---
+
+# Package's demographic functions
+# Table creation and manipulation
+
+- new lifetable or actuarialtable methods.
+- print, plot show methods.
+- probs2lifetable function to create tables from probabilities
+
+---
+
+- $\{ l_0, l_1, l_2, \ldots, l_{\omega} \}$
+- $L_{x}=\frac{l_{x}+l_{x+1}}{2}$
+- $q_{x,t} = \frac{d_{x+t}}{l_{x}}$
+
+---
+
+
+```{r demo.1}
+data("demoIta")
+sim92<-new("lifetable",x=demoIta$X, 
+           lx=demoIta$SIM92, name='SIM92')
+getOmega(sim92)
+tail(sim92)
+```
+
+---
+
+
+
+# Life tables' functions
+
+- dxt, deaths between age x and x + t, tdx
+- pxt, survival probability between age x and x + t, tpx
+- pxyzt, survival probability for two (or more) lives, tpxy
+- qxt, death probability between age x and x + t, tqx
+- qxyzt, death probability for two (or more) lives, tqxy
+- Txt, number of person-years lived after exact age x, tTx
+- mxt, central death rate, tmx
+- exn, expected lifetime between age x and age x + n, nex
+- exyz, n-year curtate lifetime of the joint-life status
+
+---
+
+- $p_{x,t} = 1 - q_{x,t} = \frac{l_{x+t}}{l_{x}}$
+- $e_{x,n}=\sum_{t=1}^{n}p_{x,t}$
+
+---
+
+```{r demo.2}
+#two years death rate
+qxt(sim92, x=65,2)
+#expected residual lifetime between x and x+n
+exn(sim92, x=25,n = 40)
 ```
 
 
 ---
 
-```{r AEXn2, tidy=FALSE, echo=FALSE}
-hist(AEXnDistr, main="Endowment Actuarial Value Distribution",
-     probability = TRUE, col="steelblue")
-```
+# Simulation
+
+- rLife, sample from the time until death distribution underlying a life table
+- rLifexyz, sample from the time until death distribution underlying two or more lives
 
 ---
+```{r demo.3}
+#simulate 1000 samples of residual life time
+res_lt<-rLife(n=1000,object = sim92,x=65)
+hist(res_lt,xlab="Residual Life Time")
+```
+
 
 #Assessing longevity impact on annuities using lifecontingencies and demography
 
@@ -373,5 +348,107 @@ c(exn(at1980,x=65),axn(at1980,x=65))
 ```
 
 ---
+
+
+# Intro on Actuarial Mathematics Funcs
+
+
+- The lifecontingencies package allows to compute all classical life contingent insurances. 
+- Stochastic calculation varying expected lifetimes are possible as well. 
+- This makes the lifecontingencies package a nice tool to perform actuarial computation at command line on life insurance tasks. 
+
+---
+
+
+# Creating actuarial tables
+
+- Actuarial tables are stored as S4 object. 
+- The $l_x$, $x$, interest rate and a name are required.
+- The print method return a classical actuarial table (commutation functions)
+
+
+---
+
+```{r actmat.1}
+data("demoIta")
+sim92Act<-new("actuarialtable",x=demoIta$X, 
+lx=demoIta$SIM92, name='SIM92')
+sif92Act<-new("actuarialtable",x=demoIta$X,
+lx=demoIta$SIF92, name='SIF92')
+head(sim92Act)
+```
+
+---
+
+
+# Life insurances functions
+## Classical life contingent insurances
+
+- Exn, pure endowment: $\pureendc{x}{n}=v^2*p_{x,n}$
+- axn, annuity: $\ddot{a}_{x} = \sum_{k=0}^{\omega-x} v^{k} * p_{x,k}=\sum_{k=0}^{\omega-x} \ddot{a}_{\lcroof{K+1}} p_{x,k} q_{x+k,1}$
+- Axn, life insurance: $\termins{x}{n}=\sum_{k=0}^{n-1} v^{k-1} * p_{x,k} * q_{x+k,1}$
+- AExn, endowment: $\insend{x}{n}=\pureendc{x}{n}+\termins{x}{n}$
+
+---
+
+```{r actmat.2, echo=TRUE}
+100000*Exn(sim92Act,x=25,n=40)
+100000*AExn(sim92Act,x=25,n=40)
+1000*12*axn(sim92Act,x=65,k=12)
+100000*Axn(sim92Act,x=25,n=40)
+```
+---
+
+## Additional life contingent insurances
+
+
+- Increasing and decreasing term insurances and annuities 
+- $\left(n-1\right) * \termins{x}{n} = \lcterm{(IA)}{x}{n} + \lcterm{(DA)}{x}{n}$
+
+---
+
+```{r actmat.3, echo=TRUE}
+IAxn(sim92Act,x=40,n=10)+DAxn(sim92Act,x=40,n=10)
+(10+1)*Axn(sim92Act,x=40,n=10)
+```
+---
+
+
+## Insurances on multiple lifes
+
+- First survival and last survival status, both for insurances and annuities
+- $A_{xy}$+$A_{\overline{xy}}$=$A_x$+$A_y$
+- $a_{xy}$+$a_{\overline{xy}}$=$a_x$+$a_y$
+
+
+---
+```{r actmat.5, echo=TRUE}
+fr_pay=12
+1000*fr_pay*axyzn(tablesList = list(sim92Act,sif92Act),
+x = c(64,67),status="last",k=fr_pay)
+1000*fr_pay*(axn(sim92Act,x=64,k=fr_pay)+axn(sif92Act,
+x=67,k=fr_pay)-axyzn(tablesList = list(sim92Act,sif92Act),
+x = c(64,67),status="joint",k=fr_pay))
+```
+
+
+---
+
+
+# Simulation
+
+- It is possible to simulate the PV of insured benefit distributions. 
+- The rLifeContingencies function is used for single life benefit insurance. 
+- The rLifeContingenciesXyz function is used for multiple lifes benefits. 
+
+---
+```{r act.sim, echo=TRUE}
+hist(rLifeContingencies(n = 1000,lifecontingency = "Axn",
+x = 40,object = sim92Act,getOmega(sim92Act)-40),
+main="Life Insurance on 40 PV distribution")
+```
+---
+
+
 
 #Bibliography {.allowframebreaks}
