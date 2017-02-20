@@ -1,8 +1,8 @@
 Package: lifecontingencies
 Type: Package
 Title: Financial and Actuarial Mathematics for Life Contingencies
-Version: 1.2.1
-Date: 2016-07-07
+Version: 1.2.2
+Date: 2017-02-21
 Author: Giorgio Alfredo Spedicato [cre,aut], Reinhold Kainhofer [ctb], Kevin J.
     Owens [ctb], Christophe Dutang [ctb], Ernesto Schirmacher[ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
