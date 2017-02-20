@@ -29,4 +29,3 @@ soa08qx2<-mx2qx(soa08mx)
 \seealso{
 \code{mxt}, \code{qxt}, \code{mx2qx}
 }
-

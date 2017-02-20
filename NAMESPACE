@@ -6,7 +6,7 @@ importFrom("markovchain",rmarkovchain)
 
 import(parallel, utils)
 importFrom(Rcpp, evalCpp)
-useDynLib(lifecontingencies)
+useDynLib(lifecontingencies, .registration=TRUE)
 exportPattern("^[[:alpha:]]+")
 
 importFrom(stats, "rbinom","complete.cases")

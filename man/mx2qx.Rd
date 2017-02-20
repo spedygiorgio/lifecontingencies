@@ -29,4 +29,3 @@ qx2mx(mx2qx(.2))
 \seealso{
 \code{mxt}, \code{qxt}, \code{qx2mx}
 }
-
