@@ -1,9 +1,7 @@
 import(methods)
-#import(markovchain)
 
 importClassesFrom("markovchain",markovchain, markovchainList)
 importFrom("markovchain",rmarkovchain)
-
 import(parallel, utils)
 importFrom(Rcpp, evalCpp)
 useDynLib(lifecontingencies, .registration=TRUE)
