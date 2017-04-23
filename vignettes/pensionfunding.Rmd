@@ -2,7 +2,9 @@
 title: "Pension Funding with lifecontingencies"
 author: "Gian Paolo Clemente, Ph.D"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output:
+  pdf_document: default
+
 bibliography: lifecontingenciesBiblio.bib
 vignette: |
   %\VignetteIndexEntry{Pension Funding with lifecontingencies} 
