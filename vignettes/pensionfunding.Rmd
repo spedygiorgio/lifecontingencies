@@ -1,6 +1,6 @@
 ---
 title: "Pension Funding with lifecontingencies"
-author: "Gian Paolo Clemente, Ph.D"
+author: "Gian Paolo Clemente, Catholic University, Milan"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
@@ -26,6 +26,32 @@ lt=new("lifetable",x=xTAB,lx=lxTAB)
 
 ## Theory
 
+This report focuses on several funding and actuarial costing methods in occupational pension funds where the benefits are defined. As well-known, a defined benefit (DB) pension plan is a type of pension plan in which an employer/sponsor promises a specified pension payment, lump-sum (or combination thereof) on retirement that is predetermined by a formula based on the employee's history (earnings, tenure of service and age, etc.) rather than depending directly on individual investment returns. The first consideration is what constitutes the “retirement provision”. We could argue that provisions regard any savings or investments made by an individual for later life.  For the sake of brevity, we only focus here on the actuarial involvement in the provision of retirement benefits by employers, groups of employers and professions for their members (i.e the so called “second pillar” of retirement provisions).  This provision is usually designed to supplement and in some cases replace (“contracted out” pension schemes in the United Kingdom) the compulsory state pension arrangements.  The main benefits are usually at least both a pension payable for life from the attainment of a specified retirement age and a pension payable to the widow/er on the death of the employee/member, according to the death of either the active member or the retired member. These core benefits are found in almost every pension funds, albeit in differing forms.  Also additional benefits are usually provided in variable frameworks (e.g. disability for instance). 
+In the next, we focus on a specific defined benefit pension fund by considering only the retirement benefit for the sake of simplicity. We present some well-known funding methods (INSERT CITATIONS) and we show how to evaluate both premium rate and technical reserve via life contingencies package dedicated functions. \\
+To this aim we follow a cohort approach by considering a group of people who share the same characteristic in terms of age of affiliation $\alpha$ with the pension plan, sex, age of retirement $\beta$ and initial salary ($s_\alpha$). We consider a DB scheme where  the  pension  on  retirement  is  fixed in  advance as a proportion of the member’s salary in their last year of service. So the level of the pension at the time of benefit
+entitlement is based on a proportional-earnings related formula and benefit is expressed as a pension annuity $b_{x}$, starting at age $\beta$, increasing annualy at the revaualion rate $\delta$ and payable until death:
+\begin{equation}
+b_{x}=(1+\delta)^{x-\beta}\left(\frac{\beta-\alpha}{k}\right)s_{\beta}
+\end{equation}
+In particular, we are assuming that:
+\begin{itemize}
+\item the date of award of retirement benefits coincide with the date when the first payment is due (i.e. no time lag due to administrative procedures)
+\item reference earnings is the member's salary at the last year of service (i.e. $\beta-1$). An alternative is usually based on an average of earnings over a given period preceding retirement and may include a formula to ensure pre-retirement indexing. They are implicitly capped by the ceiling on contributory earnings, if applicable.
+\item No maximum ceiling is placed on the amount of pension
+\item No minimum benefit is provided
+\item $\frac{1}{k}$ represents the annual percentage of earnings recognized by the pension plan.
+\end{itemize}
+
+In other words, we are assuming a replacement ratio equal to:
+\begin{equation}
+RR_{\beta}=\frac{s_{\beta}}{b_{\beta}}=\left(\frac{\beta-\alpha}{k}\right)
+\end{equation}
+
+
+First aim is to quantify the level of contribution to be set at a level to produce the targeted pension on retirement. 
+
+
+
 Brief introduction to the theory and formulas
 
 
@@ -34,7 +60,8 @@ Brief introduction to the theory and formulas
 The CUM is defined by following function
 
 ```{r cumdef, echo=TRUE}
-CUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+CUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
+              k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
 
     out <- numeric(1)
     if (missing(acttableAccPeriod)) 
@@ -66,7 +93,8 @@ The PUM is defined by the following function:
 
 ```{r pumdef, echo=TRUE}
 #Projected Unit Method
-PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
+              k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
   
   out <- numeric(1)
   if (missing(acttableAccPeriod)) 
@@ -89,7 +117,6 @@ PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payme
     stop("Error! Need average salary increase rate")
   if (any(x < 0, beta < 0, t < 0)) 
     stop("Error! Negative parameters")
-  #out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i))*((1/t)+((seq(x,beta-1,1)-x)/t*(j/1+j)))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)
   out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i))*1/t*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-seq(x,beta-1,1)-1)
   return(out)
 }
@@ -98,7 +125,8 @@ PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payme
 The IEAM is defined as follows:
 
 ```{r ieamdef}
-IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
+IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
+               k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
   
   out <- numeric(1)
   if (missing(acttableAccPeriod)) 
