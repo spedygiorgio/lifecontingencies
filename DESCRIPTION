@@ -26,6 +26,7 @@ Suggests:
     knitr,
     rmarkdown
 License: GPL-2
+Encoding: latin1
 LazyLoad: yes
 BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
 BuildVignettes: yes
@@ -33,3 +34,4 @@ VignetteBuilder: utils, knitr
 URL: http://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
 RoxygenNote: 6.0.1
+
