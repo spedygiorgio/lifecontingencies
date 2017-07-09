@@ -28,7 +28,6 @@ Suggests:
 License: GPL-2
 Encoding: latin1
 LazyLoad: yes
-LazyData: true
 BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
 BuildVignettes: yes
 VignetteBuilder: utils, knitr
