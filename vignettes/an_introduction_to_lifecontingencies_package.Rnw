@@ -1992,6 +1992,7 @@ Data and examples are taken from \cite{de2016assicurazioni}
 
 <<deadifalco.1b, keep.source=TRUE>>=
 data("de_angelis_di_falco")
+HealthyMaleTable2013 <- de_angelis_di_falco$HealthyMaleTable2013
 DAT<-new("actuarialtable", x=de_angelis_di_falco$DisabledMaleLifeTable$age, lx=de_angelis_di_falco$DisabledMaleLifeTable$'2013',name="DisabledTable",i=0.03)
 axnmdt.firsttype(HealthyMaleTable2013,x=65,n=10,i=0.03,payment="arrears",delta=0.02)
 axnmdt.firsttype(DAT,65,10,payment="arrears",delta=0.02)

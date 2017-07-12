@@ -4,6 +4,6 @@
 #' Transitions are split by males and females, and show probabilities of survival, death 
 #' and transitions from Healty to Disabled
 #' 
-#' @format a list containing ten items (data.frames)
+#' @format a list containing elevent items (data.frames), and an mdt data object (HealthyMaleTable2013)
 #' @source PAOLO DE ANGELIS, LUIGI DI FALCO (a cura di). Assicurazioni sulla salute: caratteristiche, modelli attuariali e basi tecniche
 "de_angelis_di_falco"
