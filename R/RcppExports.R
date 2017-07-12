@@ -2,30 +2,30 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .mult3sum <- function(x, y, z) {
-    .Call('lifecontingencies_mult3sum', PACKAGE = 'lifecontingencies', x, y, z)
+    .Call(lifecontingencies_mult3sum, x, y, z)
 }
 
 .mult2sum <- function(x, y) {
-    .Call('lifecontingencies_mult2sum', PACKAGE = 'lifecontingencies', x, y)
+    .Call(lifecontingencies_mult2sum, x, y)
 }
 
 .fExnCpp <- function(T, y, n, i) {
-    .Call('lifecontingencies_fExnCpp', PACKAGE = 'lifecontingencies', T, y, n, i)
+    .Call(lifecontingencies_fExnCpp, T, y, n, i)
 }
 
 .fAxnCpp <- function(T, y, n, i, m, k = 1) {
-    .Call('lifecontingencies_fAxnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, m, k)
+    .Call(lifecontingencies_fAxnCpp, T, y, n, i, m, k)
 }
 
 .fIAxnCpp <- function(T, y, n, i, m, k = 1) {
-    .Call('lifecontingencies_fIAxnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, m, k)
+    .Call(lifecontingencies_fIAxnCpp, T, y, n, i, m, k)
 }
 
 .fDAxnCpp <- function(T, y, n, i, m, k = 1) {
-    .Call('lifecontingencies_fDAxnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, m, k)
+    .Call(lifecontingencies_fDAxnCpp, T, y, n, i, m, k)
 }
 
 .fAExnCpp <- function(T, y, n, i, k = 1) {
-    .Call('lifecontingencies_fAExnCpp', PACKAGE = 'lifecontingencies', T, y, n, i, k)
+    .Call(lifecontingencies_fAExnCpp, T, y, n, i, k)
 }
 

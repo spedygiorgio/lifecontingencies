@@ -1,6 +1,6 @@
-#' Italian Health Insurance Data
+#' @title Italian Health Insurance Data
 #' 
-#' A list of data.frames containing transition probabilities by age (row) and year of projections
+#' @description A list of data.frames containing transition probabilities by age (row) and year of projections
 #' Transitions are split by males and females, and show probabilities of survival, death 
 #' and transitions from Healty to Disabled
 #' 

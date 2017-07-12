@@ -4,6 +4,7 @@
 ###############################################################################
 
 
+
 # loading the markovchain package
 
 .onAttach <- function(libname, pkgname) {
@@ -26,3 +27,7 @@
 #   tools::vignetteEngine("rmarkdown", weave = vweave, tangle = vtangle,
 #                         pattern = "[.]Rmd$", package = "knitr")
 # }
+
+#' @useDynLib lifecontingencies
+#' @importFrom Rcpp sourceCpp
+NULL
