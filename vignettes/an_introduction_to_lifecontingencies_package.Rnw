@@ -1,7 +1,7 @@
 %\documentclass{jss}
 \documentclass[nojss]{jss}
 \usepackage[OT1]{fontenc}
-\usepackage{amsmath,lifecon,thumbpdf}
+\usepackage{amsmath,lifecon,thumbpdf,actuarialsymbol}
 %\usepackage{myVignette}
 %\VignetteIndexEntry{An introduction to lifecontingencies package}
 %\VignetteKeywords{vig1}
@@ -1919,6 +1919,24 @@ It is possible to generate random traiectories of a life subject to multiple cau
 rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
 @
 
+\subsubsection{Associated Single Decrement Table calculation}
+
+For each force of decrement $\mu_j \left(x+t\right)$ the Associated Single Decrement Table is a decrement models that assumes survivoship depends only from $j$. The following functions are therefore defined:
+
+\begin{equation}
+\begin{array}
+
+\px[t]{x}[\prime (j)] = \exp{\int_{a}^{b} \mu_j\left(x+s\right)ds} \\ 
+\qx[t]{x}[\prime (j)] = 1-\px[t]{x}[\prime (j)] \\
+\px[t]{x}[(\tau)] = \prod_{j=1}^m \px[t]{x}[\prime (j)]
+
+\end{array}
+\label{eq:ast1}
+\end{equation}
+
+
+
+
 \subsubsection{Actuarial Applications}
 
 The package now offers limited capabilities to fit multiple decrement insurances, e.g. $(\lcterm{A}{x}{n})^{ (1)}$
@@ -2082,7 +2100,7 @@ future life time and the underlying stochastic distributions of life
 contingent insurances.
 
 One of the most significant limitations of the most recent
-(version~1.0) \pkg{lifecontingenciess} package release is that few functions are available 
+package release is that few functions are available 
 to model multiple decrements tables.  In addition, continuous-time
 life contingent models are currently not handled explicitly.
 
@@ -2115,7 +2133,7 @@ obtained by closed formulas.
 Finally, it is worth noting that the package and functions herein are
 provided as is without any guarantee regarding the accuracy of
 calculations. The author disclaims any liability arising from
-potential losses due to direct or indirect use of this package.
+potential losses due to direct or indirect use of this package. Users are invited to notice the author any potential bug from the github package site \url{https://github.com/spedygiorgio/lifecontingencies}.
 
 
 \section*{Acknowledgments}\label{sec:acknowledgments}
