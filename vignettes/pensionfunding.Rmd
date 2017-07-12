@@ -197,7 +197,7 @@ PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
 
 
 while the mathematical reserve is
-```{r cummr, echo=TRUE}
+```{r res, echo=TRUE}
 PUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
   
   out <- numeric(1)
