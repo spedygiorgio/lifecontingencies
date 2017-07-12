@@ -25,8 +25,8 @@ lt=new("lifetable",x=xTAB,lx=lxTAB)
 
 ## Introduction and some general settings
 
-This report focuses on several funding and actuarial costing methods in occupational pension funds where the benefits are defined. As well-known, a defined benefit (DB) pension plan is a type of pension plan in which an employer/sponsor promises a specified pension payment, lump-sum (or combination thereof) on retirement that is predetermined by a formula based on the employee's history (earnings, tenure of service and age, etc.) rather than depending directly on individual investment returns. The first consideration is what constitutes the "retirement provision". We could argue that provisions regard any savings or investments made by an individual for later life.  For the sake of brevity, we only focus here on the actuarial involvement in the provision of retirement benefits by employers, groups of employers and professions for their members (i.e the so called "second pillar" of retirement provisions).  This provision is usually designed to supplement and in some cases replace ("contracted out" pension schemes in the United Kingdom) the compulsory state pension arrangements.  The main benefits are usually at least both a pension payable for life from the attainment of a specified retirement age and a pension payable to the widow/er on the death of the employee/member, according to the death of either the active member or the retired member. These core benefits are found in almost every pension funds, albeit in differing forms.  Also additional benefits are usually provided in variable frameworks (e.g. disability for instance). 
-In the next, we focus on a specific defined benefit pension fund by considering only the retirement benefit for the sake of simplicity. We present some well-known funding methods (INSERT CITATIONS) and we show how to evaluate both premium rate and technical reserve via life contingencies package dedicated functions. \\
+This report focuses on several funding and actuarial costing methods in occupational pension funds where the benefits are defined. As well-known, a defined benefit (DB) pension plan is a type of pension plan in which an employer/sponsor promises a specified pension payment, lump-sum (or combination thereof) on retirement that is predetermined by a formula based on the employee's history (earnings, tenure of service and age, etc.) rather than depending directly on individual investment returns. The first consideration is what constitutes the "retirement provision". We could argue that provisions regard any savings or investments made by an individual for later life.  For the sake of brevity, we only focus here on the actuarial involvement in the provision of retirement benefits by employers, groups of employers and professions for their members (i.e the so called "second pillar" of retirement provisions).  This provision is usually designed to supplement and in some cases replace ("contracted out" pension schemes in the United Kingdom) the compulsory state pension arrangements.  The main benefits are usually at least both a pension payable for life from the attainment of a specified retirement age and a pension payable to the widow/er on the death of the employee/member, according to the death of either the active member or the retired member. These core benefits are found in almost every pension funds, albeit in differing forms.  Also additional benefits are usually provided in variable frameworks (e.g. disability for instance).  
+In the next, we focus on a specific defined benefit pension fund by considering only the retirement benefit for the sake of simplicity. We present some well-known funding methods and we show how to evaluate both premium rate and technical reserve via life contingencies package dedicated functions. 
 To this aim we follow a cohort approach by considering a group of people who share the same characteristic in terms of age of affiliation $\alpha$ with the pension plan, sex, age of retirement $\beta$ and initial salary ($s_\alpha$). We consider a DB scheme where  the  pension  on  retirement  is  fixed in  advance as a proportion of the member's salary in their last year of service. So the level of the pension at the time of benefit
 entitlement is based on a proportional-earnings related formula and benefit is expressed as a pension annuity $b_{x}$, starting at age $\beta$, increasing annualy at the revaualion rate $\delta$ and payable until death:
 \begin{equation}
@@ -125,13 +125,43 @@ CUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
     stop("Error! Need average salary increase rate")
   if (any(x < 0, beta < 0, t < 0)) 
       stop("Error! Negative parameters")
-    out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i))*((1/t)+ 
-    (seq(x,beta-1,1)-x)/t*(j/(1+j)))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)
+    out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((1/t)+(h-x)/t*(j/(1+j)))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1))
     return(out)
   }
 ```
 
-The PUM is defined by the following function:
+The mathematical reserve is instead equal to:
+```{r cummr, echo=TRUE}
+CUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+  
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
+  out=c(sapply(seq(x,beta,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((h-x)/t*(1+j)^(h-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)),sapply(seq(beta+1,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  return(out)
+}
+```
+
+
+The PUM contribution rate is defined by the following function:
 
 ```{r pumdef, echo=TRUE}
 #Projected Unit Method
@@ -159,17 +189,16 @@ PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
     stop("Error! Need average salary increase rate")
   if (any(x < 0, beta < 0, t < 0)) 
     stop("Error! Negative parameters")
-  out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i))*1/t*
-    axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-seq(x,beta-1,1)-1)
+  out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*1/t*
+    axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-h-1))
   return(out)
 }
 ```
 
-The IEAM is defined as follows:
 
-```{r ieamdef}
-IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
-               k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
+while the mathematical reserve is
+```{r cummr, echo=TRUE}
+PUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
   
   out <- numeric(1)
   if (missing(acttableAccPeriod)) 
@@ -192,15 +221,43 @@ IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
     stop("Error! Need average salary increase rate")
   if (any(x < 0, beta < 0, t < 0)) 
     stop("Error! Negative parameters")
+  out=c(sapply(seq(x,beta,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((h-x)/t*(1+j)^(beta-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)),sapply(seq(beta+1,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  return(out)
+}
+```
+
+The IEAM is defined as follows:
+
+```{r ieamdef}
+IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
+               k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
+
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
   if(type==0){
-  out=(Exn(acttableAccPeriod,x,beta-x,i=i)*(beta-x)/t*axn(acttablePaymPeriod,beta,
-      i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-x-1))/(axn(acttablePaymPeriod,x,beta-x,
-                                            i = (1+i)/(1+j)-1,k=1,payment="advance"))
+  out=(Exn(acttableAccPeriod,x,beta-x,i=i)*(beta-x)/t*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-x-1))/(axn(acttablePaymPeriod,x,beta-x,i = (1+i)/(1+j)-1,k=1,payment="advance"))
   }
   else{
-    out=(Exn(acttableAccPeriod,x,beta-x,i=i)*(beta-x)/t*axn(acttablePaymPeriod,beta,
-     i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-x-1))/(axn(acttablePaymPeriod,x,beta-x,i ,
-                                                        k=1,payment="advance"))
+    out=((Exn(acttableAccPeriod,x,beta-x,i=i)*(beta-x)/t*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-x-1))/(axn(acttablePaymPeriod,x,beta-x,i ,k=1,payment="advance")))/(1+j)^seq(0,beta-x-1,1)
   }
   return(out)
 }
@@ -232,5 +289,10 @@ IEAM(lt,x,beta,i,j,t,k,delta=0.03,type=0)
 plot(seq(x,beta-1,1),CUM(lt,x,beta,i,j,t,k,delta=0.03),xlab="age",ylab="Contribution rate")
 lines(seq(x,beta-1,1),PUM(lt,x,beta,i,j,t,k,delta=0.03),type="p",col="red")
 lines(seq(x,beta-1,1),rep(IEAM(lt,x,beta,i,j,t,k,delta=0.03),beta-x),type="p",col="blue")
+
+CUMmr(lt,x,beta,i,j,t,k,delta=0.03)
+PUMmr(lt,x,beta,i,j,t,k,delta=0.03)
+plot(seq(x,getOmega(lt)+1,1),CUMmr(lt,x,beta,i,j,t,k,delta=0.03),xlab="age",ylab="Mathematical reserve")
+lines(seq(x,getOmega(lt)+1,1),PUMmr(lt,x,beta,i,j,t,k,delta=0.03),type="p",col="red")
 ```
 
