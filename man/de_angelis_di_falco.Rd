@@ -4,7 +4,7 @@
 \name{de_angelis_di_falco}
 \alias{de_angelis_di_falco}
 \title{Italian Health Insurance Data}
-\format{a list containing ten items (data.frames)}
+\format{a list containing elevent items (data.frames), and an mdt data object (HealthyMaleTable2013)}
 \source{
 PAOLO DE ANGELIS, LUIGI DI FALCO (a cura di). Assicurazioni sulla salute: caratteristiche, modelli attuariali e basi tecniche
 }

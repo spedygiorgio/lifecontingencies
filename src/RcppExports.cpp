@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // mult3sum
 double mult3sum(NumericVector x, NumericVector y, NumericVector z);
-RcppExport SEXP lifecontingencies_mult3sum(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
+RcppExport SEXP _lifecontingencies_mult3sum(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // mult2sum
 double mult2sum(NumericVector x, NumericVector y);
-RcppExport SEXP lifecontingencies_mult2sum(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _lifecontingencies_mult2sum(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -32,7 +32,7 @@ END_RCPP
 }
 // fExnCpp
 double fExnCpp(double T, double y, double n, double i);
-RcppExport SEXP lifecontingencies_fExnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP) {
+RcppExport SEXP _lifecontingencies_fExnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -46,7 +46,7 @@ END_RCPP
 }
 // fAxnCpp
 double fAxnCpp(double T, double y, double n, double i, double m, double k);
-RcppExport SEXP lifecontingencies_fAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
+RcppExport SEXP _lifecontingencies_fAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -62,7 +62,7 @@ END_RCPP
 }
 // fIAxnCpp
 double fIAxnCpp(double T, double y, double n, double i, double m, double k);
-RcppExport SEXP lifecontingencies_fIAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
+RcppExport SEXP _lifecontingencies_fIAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -78,7 +78,7 @@ END_RCPP
 }
 // fDAxnCpp
 double fDAxnCpp(double T, double y, double n, double i, double m, double k);
-RcppExport SEXP lifecontingencies_fDAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
+RcppExport SEXP _lifecontingencies_fDAxnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -94,7 +94,7 @@ END_RCPP
 }
 // fAExnCpp
 double fAExnCpp(double T, double y, double n, double i, double k);
-RcppExport SEXP lifecontingencies_fAExnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP kSEXP) {
+RcppExport SEXP _lifecontingencies_fAExnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -106,4 +106,20 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(fAExnCpp(T, y, n, i, k));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_lifecontingencies_mult3sum", (DL_FUNC) &_lifecontingencies_mult3sum, 3},
+    {"_lifecontingencies_mult2sum", (DL_FUNC) &_lifecontingencies_mult2sum, 2},
+    {"_lifecontingencies_fExnCpp", (DL_FUNC) &_lifecontingencies_fExnCpp, 4},
+    {"_lifecontingencies_fAxnCpp", (DL_FUNC) &_lifecontingencies_fAxnCpp, 6},
+    {"_lifecontingencies_fIAxnCpp", (DL_FUNC) &_lifecontingencies_fIAxnCpp, 6},
+    {"_lifecontingencies_fDAxnCpp", (DL_FUNC) &_lifecontingencies_fDAxnCpp, 6},
+    {"_lifecontingencies_fAExnCpp", (DL_FUNC) &_lifecontingencies_fAExnCpp, 5},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_lifecontingencies(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

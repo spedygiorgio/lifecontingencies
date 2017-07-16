@@ -3,7 +3,7 @@
 using namespace Rcpp;
 
 
-// [[Rcpp::export(.mult3sum)]]
+// [[Rcpp::export(name=".mult3sum")]]
 double mult3sum(NumericVector x, NumericVector y, NumericVector z)
 {
   double total=0;
@@ -16,7 +16,7 @@ double mult3sum(NumericVector x, NumericVector y, NumericVector z)
   return total;
 }
 
-// [[Rcpp::export(.mult2sum)]]
+// [[Rcpp::export(name=".mult2sum")]]
 double mult2sum(NumericVector x, NumericVector y)
 {
   double total=0;
@@ -30,7 +30,7 @@ double mult2sum(NumericVector x, NumericVector y)
 }
 
 
-// [[Rcpp::export(.fExnCpp)]]
+// [[Rcpp::export(name=".fExnCpp")]]
 double fExnCpp(double T, double y, double n, double i)
 {
   double out;
@@ -43,7 +43,7 @@ double fExnCpp(double T, double y, double n, double i)
 
 
 
-// [[Rcpp::export(.fAxnCpp)]]
+// [[Rcpp::export(name=".fAxnCpp")]]
 double fAxnCpp(double T, double y, double n, double i, double m, double k=1)
 {
   double out=0;
@@ -56,7 +56,7 @@ double fAxnCpp(double T, double y, double n, double i, double m, double k=1)
 
 
 
-// [[Rcpp::export(.fIAxnCpp)]]
+// [[Rcpp::export(name=".fIAxnCpp")]]
 double fIAxnCpp(double T, double y, double n, double i, double m, double k=1) {
   double out;
   if ((T>=y+m) && (T<=y+m+n-1/k))
@@ -67,7 +67,7 @@ double fIAxnCpp(double T, double y, double n, double i, double m, double k=1) {
 
 
 
-// [[Rcpp::export(.fDAxnCpp)]]
+// [[Rcpp::export(name=".fDAxnCpp")]]
 double fDAxnCpp(double T, double y, double n, double i, double m, double k=1) {
   double out;
   if ((T>=y+m) && (T<=y+m+n-1/k))
@@ -81,7 +81,7 @@ double fDAxnCpp(double T, double y, double n, double i, double m, double k=1) {
 
 // TODO: move faxn
 
-// [[Rcpp::export(.fAExnCpp)]]
+// [[Rcpp::export(name=".fAExnCpp")]]
 double fAExnCpp(double T, double y, double n, double i, double k=1)
 {
   double out;

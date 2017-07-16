@@ -1,7 +1,9 @@
 import(methods)
+#import(markovchain)
 
 importClassesFrom("markovchain",markovchain, markovchainList)
 importFrom("markovchain",rmarkovchain)
+
 import(parallel, utils)
 importFrom(Rcpp, evalCpp)
 useDynLib(lifecontingencies, .registration=TRUE)
@@ -11,7 +13,6 @@ discount2Interest,duration,dxt,effective2Convertible,exn,Exn,exyt,exyzt,getDecre
 getOmega,head,Iaxn,IAxn,increasingAnnuity,intensity2Interest,interest2Discount,interest2Intensity,Isn,Lxt,
 mx2qx,mxt,nominal2Real,plot,presentValue,print,probs2lifetable,pxt,pxyt,pxyzt,
 qx2mx,qxt,qxyt,qxyzt,real2Nominal,rLife,rLifeContingencies,rLifeContingenciesXyz,rLifexyz,rmdt,summary,tail,Tx )
-
 
 importFrom(stats, "rbinom","complete.cases")
 

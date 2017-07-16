@@ -1923,16 +1923,7 @@ rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
 
 For each force of decrement $\mu_j \left(x+t\right)$ the Associated Single Decrement Table is a decrement models that assumes survivoship depends only from $j$. The following functions are therefore defined:
 
-\begin{equation}
-\begin{array}
 
-\px[t]{x}[\prime (j)] = \exp{\int_{a}^{b} \mu_j\left(x+s\right)ds} \\ 
-\qx[t]{x}[\prime (j)] = 1-\px[t]{x}[\prime (j)] \\
-\px[t]{x}[(\tau)] = \prod_{j=1}^m \px[t]{x}[\prime (j)]
-
-\end{array}
-\label{eq:ast1}
-\end{equation}
 
 
 
