@@ -41,7 +41,7 @@
 #' @return a single value (AST)
 #' 
 #' @examples 
-#' Creating the valdez mdf
+#' #Creating the valdez mdf
 #' 
 #'  valdezDf<-data.frame(
 #' x=c(50:54),

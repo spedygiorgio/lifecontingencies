@@ -22,7 +22,7 @@ a single value (AST)
 Return Associated single decrement from absolute rate of decrement
 }
 \examples{
-Creating the valdez mdf
+#Creating the valdez mdf
 
  valdezDf<-data.frame(
 x=c(50:54),
