@@ -1810,13 +1810,8 @@ The probability that a life $x$ will leave the group within one year as a result
 \subsubsection{The mdt class}
 
 Examples in this paper are worked on slides provided in \cite{valdezSlides}.
-First of all, we load the R package.
 
-<<load.mdt, keep.source=TRUE>>=
-library(lifecontingencies)
-@
-
-Then  we create a \code{mdt} class object. We can use the first example found on
+We create a \code{mdt} class object. We can use the first example found on
 \cite[p. 4]{valdezSlide}.
 
 <<mdt1,  keep.source=TRUE>>=
@@ -1921,9 +1916,38 @@ rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
 
 \subsubsection{Associated Single Decrement Table calculation}
 
-For each force of decrement $\mu_j \left(x+t\right)$ the Associated Single Decrement Table is a decrement models that assumes survivoship depends only from $j$. The following functions are therefore defined:
+For each force of decrement $\mu_j \left(x+t\right)$ the Associated Single Decrement Table (ASDT) is a decrement models that assumes survivoship depends only from $j$. Within ASDT the equations shown in Equation~\ref{eq:asdt1} are true :
+
+\begin{equation}
+\begin{matrix}
+\px[t]{x}[\prime (j)] = \exp{\int_{a}^{b} \mu_j\left(x+s\right)ds} \\ 
+\qx[t]{x}[\prime (j)] = 1-\px[t]{x}[\prime (j)] \\ 
+\px[t]{x}[(\tau)] = \prod_{j=1}^m \px[t]{x}[\prime (j)]
+\end{matrix}
+\label{eq:asdt1}
+\end{equation}
+
+Assuming uniform distribution of decrements (UDD), that is $\qx[t]{x}[(j)] = t * \qx{x}[(j)], t \in \left[ 0, 1 \right]$, then Equation~\ref{eq:asdt2} is valid:
 
 
+\begin{equation}
+\px{x}[\prime (j)]  =  \left( 1 -  t*\qx{x}[(\tau)]  \right)^{ \frac{ \qx{x}[(j)] }{ \qx{x}[ (\tau) ] } } = 1 - \qx{x}[\prime (j)]
+\label{eq:asdt2}
+\end{equation}
+
+This has been implemented in the \code{qxt.prime.fromMdt} function:
+
+<<mdt.udd1, keep.source=TRUE>>=
+qxt.prime.fromMdt(object = valdezMdt,x=53, decrement="accidents")
+@
+
+
+If UDD holds also for each associated single decrement Equation~\ref{eq:asdt3} is also valid:
+
+\begin{equation}
+\qx[t]{x}[(j)] = \qx[t]{x}[\prime (j)] * \int_{0}^{t} \prod_{i \ne j}\left( 1 - s*\qx{x}[\prime (t)]  \right)
+\label{eq:asdt3}
+\end{equation}
 
 
 
@@ -2002,78 +2026,15 @@ Data and examples are taken from \cite{de2016assicurazioni}
 <<deadifalco.1b, keep.source=TRUE>>=
 data("de_angelis_di_falco")
 HealthyMaleTable2013 <- de_angelis_di_falco$HealthyMaleTable2013
-DAT<-new("actuarialtable", x=de_angelis_di_falco$DisabledMaleLifeTable$age, lx=de_angelis_di_falco$DisabledMaleLifeTable$'2013',name="DisabledTable",i=0.03)
-axnmdt.firsttype(HealthyMaleTable2013,x=65,n=10,i=0.03,payment="arrears",delta=0.02)
+DAT<-new("actuarialtable", x=de_angelis_di_falco$DisabledMaleLifeTable$age, lx=de_angelis_di_falco$DisabledMaleLifeTable$'2013',
+         name="DisabledTable",i=0.03)
+axnmdt.firsttype(DAT,x=65,n=10,i=0.03,payment="arrears",delta=0.02)
 axnmdt.firsttype(DAT,65,10,payment="arrears",delta=0.02)
 axnmdt.firsttype(DAT,65,10,payment="arrears",i=0.03,delta=0.02)
-axnmdt.firsttype(DAT,65,10,payment="arrears",i=0.02,delta=0.02)
 #Last case equal to axn
 axnmdt.firsttype(DAT,65,10,payment="arrears",delta=0)
 axn(DAT,65,10,payment="arrears")
 @
-
-The second type of annuity pays benefits after the policyholder moves in a specific state and cease upon transition to another state.
-
-<<deadifalco.2a, keep.source=TRUE>>=
-axnmdt.secondtype<-function (mdttable, mdttable2, decrement, x, n, i, payment="advance", delta=0) {
-  out <- numeric(1)
-  if (missing(mdttable)) 
-    stop("Error! Need a Multiple decrement table for occurring probabilities in the current state and transition probabilities")
-  if (class(mdttable) != "mdt") 
-    stop("Error! Needed Mdt")
-  if (missing(decrement)) 
-    stop("Error! Need to define the type of decrement that entitles to the benefit")
-  if (!(decrement %in% getDecrements(mdttable))) 
-    stop("Error! Not recognized decrement type")
-  if (missing(mdttable2)) 
-    stop("Error! Need a Multiple decrement table or an actuarial table for occurring probabilities in the second state")
-  if (!(class(mdttable2) %in% c("actuarialtable", "mdt"))) 
-    stop("Error! Only lactuarialtable or mdt classes are accepted as second table")
-  if (missing(x)) 
-    stop("Error! Need age!")
-  if (x > getOmega(mdttable) | x > getOmega(mdttable2)) ! {
-    stop("Age greater than Omega")
-  }
-  if (x < min(mdttable@table$x)) {
-    stop("Age lower than minimum age")
-  }
-  if (missing(n)) {
-    n = (getOmega(mdttable)  - x)
-    n2 = (getOmega(mdttable2)  - x)
-    n=min(n,n2)
-  }else{ 
-    n2=n
-  }
-  if (n == 0) {
-    stop("Contract duration equal to zero")
-  }
-  if(!(missing(i))){
-    interest=i
-  }else{
-    if(class(mdttable2)=="actuarialtable"){
-      interest=mdttable2@interest
-    }else{
-      stop("Needed Interest Rate ")
-    }
-  }
-
-  ai=sapply(1:(n-1),function(j)axnmdt.firsttype(mdttable2, x=x+j, n=n2-j, i=interest, payment,delta))
-  probs = numeric(n-1)
-  times = seq(from = 0, to = n-2, by = 1)
-    for (j in 1:length(times)) probs[j] = pxt(mdttable, x, times[j])
-  age=x:(x+n-2)
-  out<-sum(apply(cbind(probs,sapply(age,function(age)(1-pxt(HealthyMaleTable2013,age,1,decrement=decrement))),ai,(1 + interest)^-times),1,prod))
-  return(out)
-}
-@
-
-<<deadifalco.2b, keep.source=TRUE>>=
-axnmdt.secondtype(HealthyMaleTable2013,DAT,decrement='TransitionHealthtoDisability',x=65,n=10,i=0.03,delta=0.03)
-axnmdt.secondtype(HealthyMaleTable2013,DAT,decrement='TransitionHealthtoDisability',x=65,n=10,delta=0.03)
-axnmdt.secondtype(HealthyMaleTable2013,DAT,decrement='TransitionHealthtoDisability',x=65,delta=0.03)
-axnmdt.secondtype(HealthyMaleTable2013,DAT,decrement='TransitionHealthtoDisability',x=65,delta=0.03,payment="arrears")
-@
-
 
 
 
