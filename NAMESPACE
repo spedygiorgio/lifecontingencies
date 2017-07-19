@@ -11,7 +11,7 @@ useDynLib(lifecontingencies, .registration=TRUE)
 export(accumulatedValue,AExn,annuity,axn,Axn,Axn.mdt,axyn,Axyn,axyzn,Axyzn,convertible2Effective,convexity,DAxn,decreasingAnnuity,
 discount2Interest,duration,dxt,effective2Convertible,exn,Exn,exyt,exyzt,getDecrements,getLifecontingencyPv,getLifecontingencyPvXyz,
 getOmega,head,Iaxn,IAxn,increasingAnnuity,intensity2Interest,interest2Discount,interest2Intensity,Isn,Lxt,
-mx2qx,mxt,nominal2Real,plot,presentValue,print,probs2lifetable,pxt,pxyt,pxyzt,qxt.prime.fromMdt,
+mx2qx,mxt,nominal2Real,plot,presentValue,print,probs2lifetable,pxt,pxyt,pxyzt,qxt.prime.fromMdt,qxt.fromQxprime,
 qx2mx,qxt,qxyt,qxyzt,real2Nominal,rLife,rLifeContingencies,rLifeContingenciesXyz,rLifexyz,rmdt,summary,tail,Tx )
 
 importFrom(stats, "rbinom","complete.cases")

@@ -46,7 +46,7 @@ valdezMdt<-new("mdt",name="ValdezExample",table=valdezDf)
 
 qxt.prime.fromMdt(object=valdezMdt,x=53,decrement="other")
 
-Finan example 67.2
+#Finan example 67.2
 
 qxt.fromQxprime(qx.prime = 0.01,other.qx.prime = c(0.03,0.06))
 
