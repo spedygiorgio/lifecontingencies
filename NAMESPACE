@@ -3,7 +3,7 @@ import(methods)
 
 importClassesFrom("markovchain",markovchain, markovchainList)
 importFrom("markovchain",rmarkovchain)
-importFrom(stats, "rbinom","complete.cases")
+importFrom(stats, "rbinom","complete.cases","integrate")
 
 import(parallel, utils)
 importFrom(Rcpp, evalCpp)
