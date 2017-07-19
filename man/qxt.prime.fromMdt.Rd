@@ -2,9 +2,12 @@
 % Please edit documentation in R/8_mdtFunctions.R
 \name{qxt.prime.fromMdt}
 \alias{qxt.prime.fromMdt}
+\alias{qxt.fromQxprime}
 \title{Return Associated single decrement from absolute rate of decrement}
 \usage{
 qxt.prime.fromMdt(object, x, t = 1, decrement)
+
+qxt.fromQxprime(qx.prime, other.qx.prime, t = 1, subdivisions = 1000L)
 }
 \arguments{
 \item{object}{a mdj object}
@@ -14,6 +17,10 @@ qxt.prime.fromMdt(object, x, t = 1, decrement)
 \item{t}{period (default 1)}
 
 \item{decrement}{type (necessary)}
+
+\item{qx.prime}{single ASDT decrement of which corresponding decrement is desired}
+
+\item{other.qx.prime}{ASDT decrements other than \code{qx.prime}}
 }
 \value{
 a single value (AST)
@@ -21,10 +28,15 @@ a single value (AST)
 \description{
 Return Associated single decrement from absolute rate of decrement
 }
+\section{Functions}{
+\itemize{
+\item \code{qxt.fromQxprime}: Obtain decrement from single decrements
+}}
+
 \examples{
 #Creating the valdez mdf
 
- valdezDf<-data.frame(
+valdezDf<-data.frame(
 x=c(50:54),
 lx=c(4832555,4821937,4810206,4797185,4782737),
 hearth=c(5168, 5363, 5618, 5929, 6277),
@@ -33,5 +45,9 @@ other=c(4293,5162,5960,6840,7631))
 valdezMdt<-new("mdt",name="ValdezExample",table=valdezDf) 
 
 qxt.prime.fromMdt(object=valdezMdt,x=53,decrement="other")
+
+Finan example 67.2
+
+qxt.fromQxprime(qx.prime = 0.01,other.qx.prime = c(0.03,0.06))
 
 }

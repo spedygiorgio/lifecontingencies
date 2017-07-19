@@ -1956,6 +1956,14 @@ The Equation~\ref{eq:asdt4} is a particular case ($m=2$ and $t=1$) case of the E
 \label{eq:asdt3}
 \end{equation}
 
+The \code{qxt.fromQxprime} helps in computing the Equation~\ref{eq:asdt3}. In particular, the following example replicates \cite[Example 67.2]{finanMLC}:
+
+
+<<mdt.udd2, keep.source=TRUE>>=
+qxt.fromQxprime(qx.prime = 0.01,other.qx.prime = c(0.03,0.06))
+@
+
+
 
 \subsubsection{Actuarial Applications}
 

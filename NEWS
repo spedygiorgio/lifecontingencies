@@ -1,5 +1,3 @@
--Version 1.2.5
-* New vignette on pension funding
-* add associated single decrement table section
-* added function to compute associated single decrement rate from multiple decrement table
-* Various fixing
+-Version 1.3
+* Added qxt.fromQxprime to get decrement from ASDT decrements
+* Updated vignette on pension funding
