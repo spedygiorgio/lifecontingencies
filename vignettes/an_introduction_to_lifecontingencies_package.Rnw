@@ -1945,11 +1945,16 @@ qxt.prime.fromMdt(object = valdezMdt,x=53, decrement="accidents")
 If UDD holds also for each associated single decrement Equation~\ref{eq:asdt3} is also valid:
 
 \begin{equation}
-\qx[t]{x}[(j)] = \qx[t]{x}[\prime (j)] * \int_{0}^{t} \prod_{i \ne j}\left( 1 - s*\qx{x}[\prime (t)]  \right)
+\qx[t]{x}[(j)] = \qx[t]{x}[\prime (j)] * \int_{0}^{t} \prod_{i \ne j}\left( 1 - s*\qx{x}[\prime (t)]  \right) ds
 \label{eq:asdt3}
 \end{equation}
 
+The Equation~\ref{eq:asdt4} is a particular case ($m=2$ and $t=1$) case of the Equation~\ref{eq:asdt3}
 
+\begin{equation}
+\qx{x}[(2)] = \qx{x}[\prime (2)]\left( 1 - 0.5* \qx{x}[\prime (1)] \right)
+\label{eq:asdt3}
+\end{equation}
 
 
 \subsubsection{Actuarial Applications}
