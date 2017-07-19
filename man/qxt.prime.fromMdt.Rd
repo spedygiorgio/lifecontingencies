@@ -7,7 +7,7 @@
 \usage{
 qxt.prime.fromMdt(object, x, t = 1, decrement)
 
-qxt.fromQxprime(qx.prime, other.qx.prime, t = 1, subdivisions = 1000L)
+qxt.fromQxprime(qx.prime, other.qx.prime, t = 1)
 }
 \arguments{
 \item{object}{a mdj object}

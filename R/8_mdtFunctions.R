@@ -39,7 +39,6 @@
 #' @param decrement type (necessary)
 #' @param qx.prime single ASDT decrement of which corresponding decrement is desired
 #' @param other.qx.prime ASDT decrements other than \code{qx.prime}
-#' @param subdivisions number of subintervals from which evaluate the integral
 #' 
 #'
 #' @return a single value (AST)
@@ -81,12 +80,14 @@ qxt.prime.fromMdt<-function(object, x, t=1, decrement) {
 }
 
 #' @describeIn qxt.prime.fromMdt Obtain decrement from single decrements
-qxt.fromQxprime <-function(qx.prime, other.qx.prime, t=1,subdivisions=1000L) {
+qxt.fromQxprime <-function(qx.prime, other.qx.prime, t=1) {
   function2Integrate<-.getFunctionIns(qxVector=other.qx.prime)
   #manually compute the integral
-  myOut<-seq(from=0, to=t, length.out = subdivisions)
-  temp<-sapply(myOut, function2Integrate)/subdivisions
-  integral<-sum(temp)
+  #subdivisions=1000L
+  #myOut<-seq(from=0, to=t, length.out = subdivisions)
+  #temp<-sapply(myOut, function2Integrate)/subdivisions
+  #integral<-sum(temp)
+  integral<-integrate(f = Vectorize(function2Integrate),lower = 0,upper = t)$value
   out<-qx.prime*integral
   return(out)
 }

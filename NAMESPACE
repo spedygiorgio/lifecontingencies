@@ -3,6 +3,7 @@ import(methods)
 
 importClassesFrom("markovchain",markovchain, markovchainList)
 importFrom("markovchain",rmarkovchain)
+importFrom(stats, "rbinom","complete.cases")
 
 import(parallel, utils)
 importFrom(Rcpp, evalCpp)
@@ -14,7 +15,7 @@ getOmega,head,Iaxn,IAxn,increasingAnnuity,intensity2Interest,interest2Discount,i
 mx2qx,mxt,nominal2Real,plot,presentValue,print,probs2lifetable,pxt,pxyt,pxyzt,qxt.prime.fromMdt,qxt.fromQxprime,
 qx2mx,qxt,qxyt,qxyzt,real2Nominal,rLife,rLifeContingencies,rLifeContingenciesXyz,rLifexyz,rmdt,summary,tail,Tx )
 
-importFrom(stats, "rbinom","complete.cases")
+
 
 exportMethods(
     "coerce",
