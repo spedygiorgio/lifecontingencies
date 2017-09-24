@@ -234,7 +234,9 @@ exn<-function(object,x,n,type="curtate") {
 
 pxyt<-function(objectx, objecty,x,y,t, status="joint")
 {
-	out<-NULL
+  .Deprecated("pxyzt")
+  out<-NULL
+	
 	#checks
 	if(!is(objectx, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
 	if(!is(objecty, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
@@ -251,7 +253,8 @@ pxyt<-function(objectx, objecty,x,y,t, status="joint")
 
 qxyt<-function(objectx, objecty,x,y,t, status="joint")
 {
-	out<-NULL
+  .Deprecated("qxyzt")
+  out<-NULL
 	#checks
 	if(!is(objectx, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
 	if(!is(objecty, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
@@ -267,7 +270,8 @@ qxyt<-function(objectx, objecty,x,y,t, status="joint")
 
 exyt<-function(objectx, objecty,x,y,t,status="joint")
 {
-	out<-NULL
+  .Deprecated("exyzt")
+  out<-NULL
 	#checks
 	if(!is(objectx, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
 	if(!is(objecty, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")

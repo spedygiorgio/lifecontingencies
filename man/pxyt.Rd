@@ -56,15 +56,17 @@ These functions are used to evaluate two or more life contingencies.
 \section{Warning }{
 	The function is provided as is, without any warranty regarding the accuracy of calculations. The author disclaims any liability for eventual 
 	losses arising from direct or indirect use of this software.
+	Also it is being Deprecated and asap removed from the package.
 }
 
 \seealso{
 \code{\link{exyt}}
 }
 \examples{
+\dontrun{
 data(soa08Act)
 pxyt(soa08Act, soa08Act, 65, 70,10)
 pxyt(soa08Act, soa08Act, 65, 70,10, "last")
-
+}
 }
 
