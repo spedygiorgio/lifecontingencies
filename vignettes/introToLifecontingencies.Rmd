@@ -8,7 +8,7 @@ output:
     keep_tex: yes
     theme: "CambridgeUS"
 header-includes:
-- \usepackage{lifecon}
+- \usepackage{actuarialsymbol}
 - \usepackage{longtable}
 - \usepackage{graphicx}
 - \usepackage{mystyles}
@@ -384,10 +384,10 @@ head(sim92Act)
 # Life insurances functions
 ## Classical life contingent insurances
 
-- Exn, pure endowment: $\pureendc{x}{n}=v^2*p_{x,n}$
+- Exn, pure endowment: $\Ax{\pureendow{x}{n}}$
 - axn, annuity: $\ddot{a}_{x} = \sum_{k=0}^{\omega-x} v^{k} * p_{x,k}=\sum_{k=0}^{\omega-x} \ddot{a}_{\lcroof{K+1}} p_{x,k} q_{x+k,1}$
-- Axn, life insurance: $\termins{x}{n}=\sum_{k=0}^{n-1} v^{k-1} * p_{x,k} * q_{x+k,1}$
-- AExn, endowment: $\insend{x}{n}=\pureendc{x}{n}+\termins{x}{n}$
+- Axn, life insurance: $\Ax{\termxn}=\sum_{k=0}^{n-1} v^{k-1} * p_{x,k} * q_{x+k,1}$
+- AExn, endowment: $\Ax{\endowxn}=\Ax{\pureendow{x}{n}}+\Ax{\termxn}$
 
 ---
 
@@ -403,7 +403,7 @@ head(sim92Act)
 
 
 - Increasing and decreasing term insurances and annuities 
-- $\left(n-1\right) * \termins{x}{n} = \lcterm{(IA)}{x}{n} + \lcterm{(DA)}{x}{n}$
+- $\left(n-1\right) * \Ax{\termxn} = \IA_{\termxn} + \DA_{\termxn}$
 
 ---
 
