@@ -1818,7 +1818,7 @@ We create a \code{mdt} class object. We can use the first example found on
 valdezDf<-data.frame(
 		x=c(50:54),
 		lx=c(4832555,4821937,4810206,4797185,4782737),
-		hearth=c(5168, 5363, 5618, 5929, 6277),
+		heart=c(5168, 5363, 5618, 5929, 6277),
 		accidents=c(1157, 1206, 1443, 1679,2152),
 		other=c(4293,5162,5960,6840,7631)
 )
