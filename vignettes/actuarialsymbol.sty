@@ -1,0 +1,227 @@
+%%
+%% This is file `actuarialsymbol.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% actuarialsymbol.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2017 David Beauchemin, Vincent Goulet
+%% 
+%% This file may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, either version 1.3c of this
+%% license or (at your option) any later version. The latest version
+%% of this license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.3c or later is part of all distributions of LaTeX
+%% version 2006/05/20 or later.
+%% 
+%% This work has the LPPL maintenance status `maintained'.
+%% 
+%% The Current Maintainer of this work is Vincent Goulet
+%% <vincent.goulet@act.ulaval.ca>.
+%% 
+%% This work consists of actuarialsymbol.dtx and the derived files.
+%% 
+\NeedsTeXFormat{LaTeX2e}[2009/09/24]
+\ProvidesPackage{actuarialsymbol}[2017/06/14 v1.0a Actuarial symbols]
+\RequirePackage{amsmath}
+\RequirePackage{actuarialangle}
+\newif\ifacts@alignpreced   \acts@alignprecedfalse
+\newif\ifacts@compactpreced \acts@compactprecedfalse
+\DeclareOption{alignpreced}{\acts@alignprecedtrue}
+\DeclareOption{compactpreced}{\acts@compactprecedtrue}
+\ProcessOptions
+\DeclareRobustCommand{\actsymb}{\acts@actsymb}
+\newcommand\acts@actsymb{%
+  \@ifnextchar[{\acts@@actsymb}%
+               {\acts@@actsymb[]}}
+\newcommand\acts@@actsymb{}
+\def\acts@@actsymb[#1]{%
+  \@ifnextchar[{\acts@@@actsymb[#1]}%
+               {\acts@@@actsymb[#1][]}}
+\newcommand\acts@@@actsymb{}
+\def\acts@@@actsymb[#1][#2]{%
+  \@ifnextchar[{\acts@@@@actsymb[#1][#2]}%
+               {\acts@@@@actsymb[#1][#2][]}}
+\newcommand\acts@@@@actsymb{}
+\def\acts@@@@actsymb[#1][#2][#3]#4#5{%
+  \@ifnextchar[{\@actsymbol[#1][#2][#3]{#4}{#5}}%
+               {\@actsymbol[#1][#2][#3]{#4}{#5}[]}}
+\def\@actsymbol[#1][#2][#3]#4#5[#6]{
+  \@mathmeasure\z@\displaystyle{#3}
+  \@mathmeasure\@ne\scriptstyle{#1}
+  \@mathmeasure\tw@\scriptstyle{#2}
+  \@mathmeasure\thr@@\scriptstyle{#5}
+  \@mathmeasure4\scriptstyle{#6}
+  \mathord{}
+  \ifdim \wd\tw@>\z@ \ifdim \wd\tw@>\wd\@ne
+    \setbox\@ne\hbox to\wd\tw@{\hfil\unhbox\@ne}
+  \else
+    \setbox\tw@\hbox to\wd\@ne{\hfil\unhbox\tw@}
+  \fi\fi
+  \ifdim \ht\@ne>\ht\thr@@
+    \ht\thr@@=\ht\@ne
+  \else
+    \ht\@ne=\ht\thr@@
+  \fi
+  \ifnum\ifdim \wd\tw@>\z@ 1\else\ifdim \wd4>\z@ 1\else 0\fi\fi
+    =1
+    \ifdim \dp\tw@>\dp4 \dp4=\dp\tw@\else \dp\tw@=\dp4\fi
+    \mathopen{\vphantom{\textstyle #4}^{\box\tw@}\sb{\box\@ne}}%
+    \ifdim\wd\z@=\z@
+      #4^{\box4}\sb{\box\thr@@}%
+    \else
+      #3^{\box4}\sb{\vphantom{\copy\thr@@}}(#4\sb{\box\thr@@})%
+    \fi
+  \else
+    \mathopen{\vphantom{\textstyle #4}\sb{\box\@ne}}%
+    \ifdim\wd\z@=\z@
+      #4\sb{\box\thr@@}%
+    \else
+      #3(#4\sb{\box\thr@@})%
+    \fi
+  \fi
+}
+\newcommand\@actinssc[1]{%
+  \@ifstar{\acts@actsc{\bar{#1}}}%
+          {\acts@actsc{#1}}}
+\newcommand\@actannsc[1]{%
+  \@ifstar{\@ifstar{\acts@actsc{\ddot{#1}}}%
+                   {\acts@actsc{\bar{#1}}}}
+          {\acts@actsc{#1}}}
+\newcommand\acts@actsc[1]{%
+  \@ifnextchar[{\acts@@actsc{#1}}%
+               {\acts@@actsc{#1}[]}}
+\let\@actothersc\acts@actsc
+\newcommand\acts@@actsc{}
+\def\acts@@actsc#1[#2]{%
+  \@ifnextchar[{\acts@@@actsc{#1}[#2]}%
+               {\acts@@@actsc{#1}[#2][]}}
+\newcommand\acts@@@actsc{}
+\def\acts@@@actsc#1[#2][#3]#4{%
+  \@ifnextchar[{\@actsymbol[#2][#3][]{#1}{#4}}%
+               {\@actsymbol[#2][#3][]{#1}{#4}[]}}
+\DeclareRobustCommand{\lx}{\@actothersc {\ell}}
+\DeclareRobustCommand{\Lx}{\@actothersc {\mathcal{L}}}
+\DeclareRobustCommand{\dx}{\@actothersc d}
+\DeclareRobustCommand{\Dx}{\@actothersc{\mathcal{D}}}
+\DeclareRobustCommand{\px}{\@actothersc p}
+\DeclareRobustCommand{\qx}{\@actothersc q}
+\DeclareRobustCommand{\Ax}{\@actinssc A}
+\DeclareRobustCommand{\Ex}{\@actinssc E}
+\DeclareRobustCommand{\ax}{\@actannsc a}
+\DeclareRobustCommand{\sx}{\@actannsc s}
+\DeclareRobustCommand{\aringx}{\@actothersc{\mathring{a}}}
+\DeclareRobustCommand{\eringx}{\@actothersc{\mathring{e}}}
+\newcommand\@actpremres[1]{%
+  \@ifstar{\acts@actpremres{\bar{#1}}}%
+          {\acts@actpremres{#1}}}
+\newcommand\acts@actpremres[1]{%
+  \@ifnextchar[{\acts@@actpremres{#1}}%
+               {\acts@@actpremres{#1}[]}}
+\newcommand\acts@@actpremres{}
+\def\acts@@actpremres#1[#2]{%
+  \@ifnextchar[{\acts@@@actpremres{#1}[#2]}%
+               {\acts@@@actpremres{#1}[#2][]}}
+\newcommand\acts@@@actpremres{}
+\def\acts@@@actpremres#1[#2][#3]#4{%
+  \@ifnextchar[{\@actsymbol[#2][#3][#1]{{#4}}{}}%
+               {\@actsymbol[#2][#3][#1]{{#4}}{}[]}}
+\DeclareRobustCommand{\Px}{\@actothersc P}
+\DeclareRobustCommand{\Vx}{\@actothersc V}
+\DeclareRobustCommand{\Wx}{\@actothersc W}
+\DeclareRobustCommand{\premium}{\@actpremres P}
+\DeclareRobustCommand{\reserve}{\@actpremres V}
+\DeclareRobustCommand{\paidup}{\@actpremres W}
+\DeclareRobustCommand{\term}[2]{\itop{#1}:\angl{#2}}
+\DeclareRobustCommand{\termxn}{{\itop{x}:\angln}}
+\DeclareRobustCommand{\pureendow}[2]{#1:\itop{\angl{#2}}}
+\DeclareRobustCommand{\pureendowxn}{{x:\itop{\angln}}}
+\DeclareRobustCommand{\endow}[2]{#1:\angl{#2}}
+\DeclareRobustCommand{\endowxn}{{x:\angln}}
+\let\joint\overline
+\newlength{\twoletkern}
+\setlength{\twoletkern}{1.2pt}
+\DeclareRobustCommand{\twoletsymb}[3][\twoletkern]{(#2\kern-#1#3)}
+\newcommand\@twoletinssc[3][\twoletkern]{%
+  \@ifstar{\twoletsymb[#1]{#2}{\bar{#3}}}%
+          {\twoletsymb[#1]{#2}{#3}}}
+\newcommand\@twoletannsc[3][\twoletkern]{%
+  \@ifstar{\@ifstar{\twoletsymb[#1]{#2}{\ddot{#3}}}%
+                   {\twoletsymb[#1]{#2}{\bar{#3}}}}%
+          {\twoletsymb[#1]{#2}{#3}}}
+\newcommand{\IA}{\@twoletinssc IA}
+\newcommand{\IbA}{\@twoletinssc{\bar{I}}A}
+\newcommand{\ImA}{\@twoletinssc{I^{(m)}}A}
+\newcommand{\DA}{\@twoletinssc DA}
+\newcommand{\DbA}{\@twoletinssc{\bar{D}}A}
+\newcommand{\DmA}{\@twoletinssc{D^{(m)}}A}
+\newcommand{\Ia}{\@twoletannsc[0.5\twoletkern]Ia}
+\newcommand{\Is}{\@twoletannsc[0.5\twoletkern]Is}
+\newcommand{\Da}{\@twoletannsc[0.5\twoletkern]Da}
+\newcommand{\Ds}{\@twoletannsc[0.5\twoletkern]Ds}
+\newlength{\nthtopsep}
+\setlength{\nthtopsep}{2\p@}
+\newlength{\nthtopskip}
+\setlength{\nthtopskip}{7\p@}
+\newlength{\nthbottomsep}
+\setlength{\nthbottomsep}{2\p@}
+\newlength{\nthbottomskip}
+\setlength{\nthbottomskip}{9\p@}
+\DeclareRobustCommand{\nthtop}{\@ifstar\@varnthtop\@nthtop}
+\DeclareRobustCommand{\nthbottom}{\@ifstar\@varnthbottom\@nthbottom}
+\newcommand{\@nthtop}[3][\nthtopsep]{%
+  \mathpalette{\@precedence t\z@{#1}{#2}}{#3}}
+\newcommand{\@varnthtop}[3][\nthtopskip]{%
+  \mathpalette{\@precedence t{#1}\z@{#2}}{#3}}
+\newcommand{\@nthbottom}[3][\nthbottomsep]{%
+  \mathpalette{\@precedence b\z@{#1}{#2}}{#3}}
+\newcommand{\@varnthbottom}[3][\nthbottomskip]{%
+  \mathpalette{\@precedence b{#1}\z@{#2}}{#3}}
+\ifacts@alignpreced
+  \let\@nthtop\@varnthtop
+  \let\@nthbottom\@varnthbottom
+\fi
+\ifacts@compactpreced
+  \let\@varnthtop\nthtop
+  \let\@varnthbottom\nthbottom
+\fi
+\def\@precedence#1#2#3#4#5#6{%
+  \setbox\tw@\hbox{$\m@th#5#4$}%
+  \setbox\z@\hbox{$\m@th#5#6$}
+  \dimen@\wd\z@
+  \vbox to\ht\z@{%
+    \baselineskip=#2
+    \lineskip=#3
+    \lineskiplimit\lineskip
+    \if b#1\relax\box\z@\else\vss\fi
+    \hbox to\dimen@{\hss\unhbox\tw@\hss}%
+    \if t#1\relax\box\z@\else\vss\fi
+  }
+}
+\DeclareRobustCommand{\firsttop}{%
+  \@ifstar{\@varnthtop{1}}{\@nthtop{1}}}
+\DeclareRobustCommand{\secondtop}{%
+  \@ifstar{\@varnthtop{2}}{\@nthtop{2}}}
+\DeclareRobustCommand{\thirdtop}{%
+  \@ifstar{\@varnthtop{3}}{\@nthtop{3}}}
+\DeclareRobustCommand{\firstbottom}{%
+  \@ifstar{\@varnthbottom{1}}{\@nthbottom{1}}}
+\DeclareRobustCommand{\secondbottom}{%
+  \@ifstar{\@varnthbottom{2}}{\@nthbottom{2}}}
+\DeclareRobustCommand{\thirdbottom}{%
+  \@ifstar{\@varnthbottom{3}}{\@nthbottom{3}}}
+\let\itop\firsttop
+\let\iitop\secondtop
+\let\iiitop\thirdtop
+\let\ibottom\firstbottom
+\let\iibottom\secondbottom
+\let\iiibottom\thirdbottom
+\endinput
+%%
+%% End of file `actuarialsymbol.sty'.
