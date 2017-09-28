@@ -1,0 +1,1935 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2017 David Beauchemin, Vincent Goulet
+%
+% This file may be distributed and/or modified under the conditions
+% of the LaTeX Project Public License, either version 1.3c of this
+% license or (at your option) any later version. The latest version
+% of this license is in:
+%
+%   http://www.latex-project.org/lppl.txt
+%
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2006/05/20 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Vincent Goulet
+% <vincent.goulet@act.ulaval.ca>.
+%
+% This work consists of the files actuarialsymbol.dtx and the derived
+% files.
+%
+% \fi
+%
+% \iffalse
+%<*dtx>
+          \ProvidesFile{actuarialsymbol.dtx}
+%</dtx>
+%<package>\NeedsTeXFormat{LaTeX2e}[2009/09/24]
+%<package>\ProvidesPackage{actuarialsymbol}[2017/06/14 v1.0a Actuarial symbols]
+%<*batchfile>
+\begingroup
+\input docstrip.tex
+\keepsilent
+\askforoverwritefalse
+
+\preamble
+
+This is a generated file.
+
+Copyright (C) 2017 David Beauchemin, Vincent Goulet
+
+This file may be distributed and/or modified under the conditions
+of the LaTeX Project Public License, either version 1.3c of this
+license or (at your option) any later version. The latest version
+of this license is in:
+
+   http://www.latex-project.org/lppl.txt
+
+and version 1.3c or later is part of all distributions of LaTeX
+version 2006/05/20 or later.
+
+This work has the LPPL maintenance status `maintained'.
+
+The Current Maintainer of this work is Vincent Goulet
+<vincent.goulet@act.ulaval.ca>.
+
+This work consists of actuarialsymbol.dtx and the derived files.
+
+\endpreamble
+\generate{\file{actuarialsymbol.sty}{\from{actuarialsymbol.dtx}{package}}}
+\endgroup
+%</batchfile>
+%<*driver>
+\documentclass[11pt,x11names]{ltxdoc}
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{natbib}
+  \usepackage{microtype}
+  \usepackage[scaled=0.90]{helvet}
+  \usepackage[scaled=1.02]{inconsolata}
+  \usepackage[sc]{mathpazo}
+  \usepackage{rsfso}            % \mathcal variants
+  \usepackage{actuarialsymbol}[2017/04/10]
+  \usepackage{framed}           % environment snugshade*
+  \usepackage{metalogo}         % XeTeX logo
+  \usepackage{graphicx}
+  \usepackage{longtable,booktabs}
+  \DisableCrossrefs
+  \CodelineNumbered
+  \RecordChanges
+  \GlossaryPrologue{\section*{Version history}%
+    \addcontentsline{toc}{section}{Version history}}
+
+  %% colors
+  \usepackage{xcolor}
+  \definecolor{link}{rgb}{0,0.4,0.6}   % ~dvips RoyalBlue
+  \definecolor{url}{rgb}{0.6,0,0}      % dark red
+  \definecolor{citation}{rgb}{0,0.5,0} % dark green
+  \colorlet{shadecolor}{LightYellow1}
+
+  %% left aligned description list
+  \usepackage{enumitem}
+  \setlist[description]{leftmargin=*,align=left}
+
+  %% environment for remarks
+  \usepackage{amsthm}
+  \theoremstyle{definition}
+  \newtheorem*{rem}{Remark}
+
+  %% single entry for symbol and shortcut lists
+  %% http://tex.stackexchange.com/a/128441
+  \usepackage{xparse}
+  \ExplSyntaxOn
+  \NewDocumentCommand{\showcase}{v} { \tl_rescan:nn { } { $#1$ } & \texttt{#1} }
+  \NewDocumentCommand{\rshowcase}{v} { \texttt{#1} & \tl_rescan:nn { } { $#1$ } }
+  \ExplSyntaxOff
+
+  %% environments for demo code; 'texample' mostly lifted from
+  %% documentation of amsmath
+  \newenvironment{demo}{\begin{trivlist}\item}{\end{trivlist}}
+  \newenvironment{texample}[1][0.5]{%
+    \noindent\begin{minipage}{#1\linewidth}\begin{snugshade*}%
+      \def\producing{\end{snugshade*}\end{minipage}\hfill\begin{minipage}{\dimexpr0.97\linewidth-#1\linewidth}%
+        \hbox\bgroup\kern-.2pt%
+        \vbox\bgroup\parindent0pt\relax
+        % The 3pt is to cancel the -\lineskip from \displ@y
+        \abovedisplayskip3pt \abovedisplayshortskip\abovedisplayskip
+        \belowdisplayskip0pt \belowdisplayshortskip\belowdisplayskip
+        \noindent}
+    }{%
+      \par
+      % Ensure that a lonely \[\] structure doesn't take up width less than
+      % \hsize.
+      \hrule height0pt width\hsize
+      \egroup\kern-.2pt\egroup
+    \end{minipage}%
+    \par
+  }
+
+  %% utility macro
+  \newcommand{\pkg}[1]{\textsf{#1}}
+
+  %% increase row height in tables
+  \renewcommand{\arraystretch}{1.2}
+
+  %% hyperlinks
+  \usepackage{hyperref}
+  \hypersetup{colorlinks, linktocpage,
+    urlcolor=url, linkcolor=link, citecolor=citation,
+    bookmarksopen, bookmarksnumbered, bookmarksdepth=subsection,
+    pdftitle={actuarialsymbol User Guide},
+    pdfauthor={David Beauchemin, Vincent Goulet}}
+
+  %% autoref labels
+  \let\subsectionautorefname\sectionautorefname
+  \let\subsubsectionautorefname\sectionautorefname
+
+\begin{document}
+  \DocInput{actuarialsymbol.dtx}
+\end{document}
+%</driver>
+% \fi
+% \CheckSum{537}
+% \changes{1.0}{2017-04-11}{Initial release.}
+%
+% \GetFileInfo{actuarialsymbol.sty}
+%
+% \title{Actuarial symbols of life contingencies \\
+%   and financial mathematics%
+%   \thanks{This document corresponds to
+%   \pkg{actuarialsymbol}~\fileversion, dated~\filedate.}}
+% \author{David Beauchemin \\
+%   \url{david.beauchemin.5@ulaval.ca}
+%   \and
+%   Vincent Goulet\thanks{%
+%     École d'actuariat, Université Laval} \\
+%   \url{vincent.goulet@act.ulaval.ca}}
+% \maketitle
+%
+% \begin{abstract}
+%   Package \pkg{actuarialsymbol} provides facilities to compose
+%   actuarial symbols of life contingencies and financial mathematics
+%   characterized by subscripts and superscripts on both sides of a
+%   principal symbol. The package also features commands to easily and
+%   consistently position precedence numbers above or below statuses
+%   in symbols for multiple lives contracts.
+%
+%   Since actuarial notation can get quite involved, the package
+%   defines a number of shortcut macros to ease entry of the most
+%   common elements. \autoref{sec:comprehensive} lists the commands to
+%   typeset a large selection of life contingencies symbols.
+% \end{abstract}
+%
+% \tableofcontents
+%
+% \section{Introduction}
+% \label{sec:introduction}
+%
+% Actuaries denote various quantities of life contingencies like
+% present values of life insurances and life annuities, annual
+% premiums, or reserves using a whole array of symbols. The highly
+% descriptive, yet compact, notation was standardized as far back as
+% in 1898 \citep{Wolthuis:notation:2004}. \autoref{fig:mosaic} shows a
+% creative use of the notation by the graduating class of 1972 in
+% Actuarial Science at Université Laval.
+%
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\linewidth]{mosaic}
+%   \caption{``Actuariat'' (French for Actuarial Science) written
+%     using actuarial symbols on the 1972 graduating class mosaic at
+%     Université Laval}
+%   \label{fig:mosaic}
+% \end{figure}
+%
+% \citet[Appendix~4]{Bowers:2e:1997} offer an excellent overview of
+% the composition rules for symbols of actuarial functions. In a
+% nutshell, a principal symbol, say $S$, is combined with auxiliary
+% symbols positioned in subscript or in superscript, to the left or to
+% the right. Schematically, we thus have:
+% \begin{equation}
+%   \label{schema1}
+%   \actsymb[\fbox{\scriptsize I}\!\;][\fbox{\scriptsize II}\!\;]%
+%      {\framebox[5ex]{$S$}}{\,\fbox{\scriptsize III}}%
+%      [\,\fbox{\scriptsize IV}]
+% \end{equation}
+%
+% The principal symbol is in general a single letter. The letter may
+% be ``accented'' with a bar ($\bar{A}$), double dots ($\ddot{a}$) or
+% a circle ($\mathring{e}$). When the principal symbol consists of two
+% letters, they are grouped between parentheses, as in $\IA$ or
+% $\DA*$. Most commonly, there are alphanumeric statuses in the
+% lower-right position \fbox{\small III}. Numerals can be placed above
+% or below the individual statuses to show the order of failure; we
+% will refer to these numerals as \emph{precedence numbers}. Otherwise,
+% auxiliary symbols appear lower-left \fbox{\small I}, upper-left
+% \fbox{\small II} and upper-right \fbox{\small IV}, in that order of
+% frequency.
+%
+% Principle symbols for benefit premiums, reserves and amount of
+% reduced paid-up insurance, $P$, $V$ and $W$, are combined with
+% benefit symbols unless the benefit is a level unit insurance payable
+% at the end of the year of death. In such cases, we have the
+% following symbol structure (replace $P$ by $V$ or $W$ as needed):
+% \begin{equation}
+%   \label{schema2}
+%   \actsymb[\fbox{\scriptsize I}\!\;][\fbox{\scriptsize II}\!\;]%
+%      {\framebox[5ex]{$P$}}{}[\,\fbox{\scriptsize IV}]%
+%   \bigl(\actsymb{\framebox[5ex]{$S$}}{\,\fbox{\scriptsize III}}\bigr)%
+% \end{equation}
+%
+% Perhaps the most commonly used auxiliary symbol not readily
+% available in {\LaTeX} is the ``angle'' denoting a duration $n$, as
+% in $\angln$. Package \pkg{actuarialangle} \citep{actuarialangle}
+% provides commands to create this symbol, as well as an overhead
+% angle bracket\footnote{Starting with version 2.0 dated 2017/04/10.}
+% (or ``roof'') used to emphasize joint status when ambiguity is
+% possible: $\group{xy}$. This package is imported at load time by
+% \pkg{actuarialsymbol}.
+%
+% Package \pkg{actuarialsymbol} provides a generic command to position
+% all subscripts and superscripts easily and consistently around a
+% principal symbol; a command to create two-letter symbols; and two
+% commands to position precedence numbers above and below statuses.
+% Since entering actuarial symbols can get quite involved, the package
+% also defines a number of shortcuts to create the most common
+% actuarial functions of financial mathematics and life contingencies.
+%
+% \section{For the impatient}
+% \label{sec:actuarialsymbol:quickstart}
+%
+% The hurried reader may jump to \autoref{sec:shortcuts} for tables of
+% shortcut macros defined by the package, and to
+% \autoref{sec:comprehensive} for a comprehensive list of symbols of
+% life contingencies along with the {\LaTeX} code to compose them with
+% \pkg{actuarialsymbol} loaded. That said, in our highly biased view,
+% it remains worth reading along the fine documentation below.
+%
+% \section{Package features}
+% \label{sec:features}
+%
+% This section describes the generic commands provided by the package
+% to compose actuarial symbols. On a daily basis, one should use the
+% shortcuts of \autoref{sec:shortcuts} to ease entry of symbols.
+%
+% \subsection{Actuarial symbol}
+% \label{sec:features:actsymb}
+%
+% \begin{DescribeMacro}{\actsymb}
+%   The generic command \cmd{\actsymb} typesets a principal symbol with
+%   surrounding subscripts and superscripts. Its syntax is somewhat
+%   unusual for {\LaTeX}, but it serves well the natural order of the
+%   building blocks of a symbol and their relative prevalence:
+%   \begin{quote}
+%     \cmd{\actsymb}\oarg{ll}\oarg{ul}\marg{symbol}\marg{lr}\oarg{ur}
+%   \end{quote}
+%   Above, \meta{ll} identifies the auxiliary symbol in the lower left
+%   subscript position \fbox{\small I} (following the notation in the
+%   schematic representation \eqref{schema1}); \meta{ul} is the upper
+%   left superscript \fbox{\small II}; \meta{symbol} is the principal
+%   symbol $S$; \meta{lr} is the lower right subscript \fbox{\small
+%   III}; \meta{ur} is the upper right superscript $\fbox{\small IV}$.
+%   The principal symbol and the right subscript are required, the
+%   other arguments are optional.
+%   \begin{demo}
+%     \begin{texample}
+%       |\actsymb{A}{x}|
+%       \producing
+%       $\actsymb{A}{x}$
+%     \end{texample}
+%     \begin{texample}
+%       |\actsymb[n]{A}{x}|
+%       \producing
+%       $\actsymb[n]{A}{x}$
+%     \end{texample}
+%     \begin{texample}
+%       |\actsymb[n][2]{A}{x}|
+%       \producing
+%       $\actsymb[n][2]{A}{x}$
+%     \end{texample}
+%     \begin{texample}
+%       |\actsymb[n][2]{A}{x}[(m)]|
+%       \producing
+%       $\actsymb[n][2]{A}{x}[(m)]$
+%     \end{texample}
+%   \end{demo}
+%
+%   The command actually admits one more optional argument to compose
+%   symbols for premiums, reserves and paid-up insurance. The extended
+%   command
+%   \begin{quote}
+%     \cmd{\actsymb}\oarg{ll}\oarg{ul}\oarg{principle}\marg{symbol}\marg{lr}\oarg{ur}
+%   \end{quote}
+%   puts symbol \meta{principle} outside the parentheses in the
+%   schematic representation \eqref{schema2}.
+%   \begin{demo}
+%     \begin{texample}[0.7]
+%       |\actsymb[][][P]{\bar{A}}{x:\angln}|
+%       \producing
+%       $\actsymb[][][P]{\bar{A}}{x:\angln}$
+%     \end{texample}
+%     \begin{texample}[0.7]
+%       |\actsymb[k][][V]{\bar{A}}{x}[\{1\}]|
+%       \producing
+%       $\actsymb[k][][V]{\bar{A}}{x}[\{1\}]$
+%     \end{texample}
+%     \begin{texample}[0.7]
+%       |\actsymb[k][][\bar{W}]{\bar{A}}{x}|
+%       \producing
+%       $\actsymb[k][][\bar{W}]{\bar{A}}{x}$
+%     \end{texample}
+%   \end{demo}
+% \end{DescribeMacro}
+%
+% \begin{rem}
+%   {\TeX} adjusts the position of a subscript downward when a
+%   superscript is present:
+%   \begin{displaymath}
+%     A_x \quad A_x^2.
+%   \end{displaymath}
+%   The package maintains this behaviour. Therefore, entering the
+%   symbols above using the standard operators |^| and |_| or with
+%   \cmd{\actsymb} yields the same result.
+%   \begin{demo}
+%     \begin{texample}[0.7]
+%       |A_x \quad A_x^2|
+%       \producing
+%       $A_x \quad A_x^2$
+%     \end{texample}
+%     \begin{texample}[0.7]
+%       |\actsymb{A}{x} \quad \actsymb{A}{x}[2]|
+%       \producing
+%       $\actsymb{A}{x} \quad \actsymb{A}{x}[2]$
+%     \end{texample}
+%   \end{demo}
+%   Furthermore, the package also ensures that the left and right
+%   subscripts, when both present, are at the same level, something
+%   popular ad~hoc constructions do not provide.
+%   \begin{demo}
+%     \begin{texample}[0.7]
+%       |{}_tA_x \quad {}_tA_x^2|
+%       \producing
+%       ${}_tA_x \quad {}_tA_x^2$
+%     \end{texample}
+%     \begin{texample}[0.7]
+%       |\actsymb[t]{A}{x} \quad \actsymb[t]{A}{x}[2]|
+%       \producing
+%       $\actsymb[t]{A}{x} \quad \actsymb[t]{A}{x}[2]$
+%     \end{texample}
+%   \end{demo}
+%   In symbols for premiums, reserves and paid-up insurance,
+%   subscripts and superscripts are aligned only around the principle
+%   symbol. Authors who would prefer a uniform subscript position
+%   \emph{throughout their document} should load package
+%   \pkg{subdepth} \citep{subdepth}.
+% \end{rem}
+%
+% \subsection{Two-letter principal symbols}
+% \label{sec:features:twoletsymb}
+%
+% \begin{DescribeMacro}{\twoletsymb}
+%   Entering two-letter principal symbols like $\DA$ as |$(DA)$| results in
+%   letters that are too distant from one another: $(DA)$. To unify
+%   presentation, the package provides the command
+%   \begin{quote}
+%     \cmd{\twoletsymb}\oarg{length}\marg{symbol\_1}\marg{symbol\_2}
+%   \end{quote}
+%   to group \meta{symbol\_1} and \meta{symbol\_2} between parentheses
+%   with kerning\footnote{Spacing adjustment between the characters}
+%   reduced by length \cmd{\twoletkern} (see below). One can also
+%   reduce spacing by \meta{length} for a specific symbol.
+%   \begin{demo}
+%     \begin{texample}
+%       |\twoletsymb{\bar{D}}{\bar{A}}|
+%       \producing
+%       $\twoletsymb{\bar{D}}{\bar{A}}$
+%     \end{texample}
+%     \begin{texample}
+%       |\twoletsymb{I}{\ddot{a}}|
+%       \producing
+%       $\twoletsymb{I}{\ddot{a}}$
+%     \end{texample}
+%     \begin{texample}
+%       |\twoletsymb[0.8pt]{I}{\ddot{a}}|
+%       \producing
+%       $\twoletsymb[0.8pt]{I}{\ddot{a}}$
+%     \end{texample}
+%   \end{demo}
+%
+%   We expect authors to use \cmd{\twoletsymb} to define commands, not
+%   directly in equations. The package already defines a number of
+%   shortcuts for the main two-letter actuarial symbols; see
+%   \autoref{sec:shortcuts}.
+% \end{DescribeMacro}
+%
+% \begin{DescribeMacro}{\twoletkern}
+%   The standard kerning between mathematical symbols defined with
+%   \cmd{\twoletsymb} is \emph{reduced} by the length
+%   \cmd{\twoletkern}, by default \the\twoletkern. This value can be
+%   changed as usual using \cmd{\setlength}.
+% \end{DescribeMacro}
+%
+% \subsection{Precedence numbers}
+% \label{sec:features:precedence}
+%
+% \begin{DescribeMacro}{\nthtop}
+% \begin{DescribeMacro}{\nthtop*}
+%   Precedence numbers appear above or below individual statuses in
+%   the right subscript \fbox{\small III} of a symbol. Commands
+%   \begin{quote}
+%     \cmd{\nthtop}\oarg{length}\marg{number}\marg{status} \\
+%     \cmd{\nthtop*}\oarg{length}\marg{number}\marg{status}
+%   \end{quote}
+%   put a precedence \meta{number} above a \meta{status}, smashed so
+%   that the apparent height of the status is its normal height. This is
+%   normally used in the right subscript \fbox{\small III} of a symbol. With
+%   \cmd{\nthtop}, the spacing between the precedence number and the
+%   status is a constant \cmd{\nthtopsep} (see below). This can result
+%   in precedence numbers placed at different heights if one status
+%   contains an horizontal rule.
+%   \begin{demo}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{\nthtop{1}{x}:\angln}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{\nthtop{1}{x}:\angln}$
+%     \end{texample}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{x:\nthtop{1}{\angln}}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{x:\nthtop{1}{\angln}}$
+%     \end{texample}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{\nthtop{1}{x}y:\nthtop{2}{\angln}}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{\nthtop{1}{x}y:\nthtop{2}{\angln}}$
+%     \end{texample}
+%   \end{demo}
+%   Conversely, \cmd{\nthtop*} always leaves enough space
+%   \cmd{\nthtopskip} for intervening horizontal rules, resulting
+%   in vertically aligned precedence numbers.
+%   \begin{demo}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{\nthtop*{1}{x}:\angln}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{\nthtop*{1}{x}:\angln}$
+%     \end{texample}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{x:\nthtop*{1}{\angln}}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{x:\nthtop*{1}{\angln}}$
+%     \end{texample}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{\nthtop*{1}{x}y:\nthtop*{2}{\angln}}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{\nthtop*{1}{x}y:\nthtop*{2}{\angln}}$
+%     \end{texample}
+%   \end{demo}
+%   The optional argument \meta{length} changes the default spacing
+%   for one symbol. The package also defines shortcuts for first,
+%   second and third top precedence; see \autoref{sec:shortcuts}.
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+%
+% \begin{DescribeMacro}{\nthbottom}
+% \begin{DescribeMacro}{\nthbottom*}
+%   In the same vein as the above two commands,
+%   \begin{quote}
+%     \cmd{\nthbottom}\oarg{length}\marg{number}\marg{status} \\
+%     \cmd{\nthbottom*}\oarg{length}\marg{number}\marg{status}
+%   \end{quote}
+%   put a precedence \meta{number} below a \meta{status}. With
+%   \cmd{\nthbottom} the spacing between the status and the number is
+%   a constant \cmd{\nthbottomsep}, whereas with \cmd{\nthbottom*}
+%   enough spacing \cmd{\nthbottomskip} is left to bottom align the
+%   precedence numbers. The |*| variant is most useful in cases
+%   involving more than one bottom precedence numbers and statuses
+%   with descenders.
+%   \begin{demo}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{\nthtop{3}{x}%| \\
+%       |            \nthbottom{1}{y}\nthbottom{2}{z}}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{\nthtop{3}{x}\nthbottom{1}{y}\nthbottom{2}{z}}$
+%     \end{texample}
+%     \begin{texample}[0.85]
+%       |\actsymb{A}{\nthtop{3}{x}%| \\
+%       |            \nthbottom*{1}{y}\nthbottom*{2}{z}}|
+%       \producing
+%       \rule{0pt}{12pt}$\actsymb{A}{\nthtop{3}{x}\nthbottom*{1}{y}\nthbottom*{2}{z}}$
+%     \end{texample}
+%   \end{demo}
+%   The optional argument \meta{length} changes the default spacing
+%   for one symbol. The package also defines shortcuts for first,
+%   second and third bottom precedence; see \autoref{sec:shortcuts}.
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+%
+% \begin{rem}
+%   The fact that top precedence numbers have zero height means they
+%   will clash with a right superscript \fbox{\small IV}:
+%   \begin{demo}
+%     \begin{texample}[0.7]
+%       |\actsymb{A}{\nthtop{1}{x}:\angln}[(m)]|
+%       \producing
+%       $\actsymb{A}{\nthtop{1}{x}:\angln}[(m)]$
+%     \end{texample}
+%   \end{demo}
+%   In such rare circumstances, one needs to insert a \emph{strut} (an
+%   invisible vertical rule) in the subscript to push it downward as
+%   needed:
+%   \begin{demo}
+%     \begin{texample}[0.7]
+%       |\actsymb{A}{\rule{0pt}{2.3ex}%| \\
+%       |            \nthtop{1}{x}:\angln}[(m)]|
+%       \producing
+%       $\actsymb{A}{\rule{0pt}{2.3ex}\nthtop{1}{x}:\angln}[(m)]$
+%     \end{texample}
+%   \end{demo}
+%   This remark also applies to bottom precedence numbers in inline
+%   formulas or multiline equations.
+% \end{rem}
+%
+% \begin{DescribeMacro}{\nthtopsep}
+% \begin{DescribeMacro}{\nthtopskip}
+% \begin{DescribeMacro}{\nthbottomsep}
+% \begin{DescribeMacro}{\nthbottomskip}
+%   The constant spacing between a top precedence number and the status
+%   underneath when using \cmd{\nthtop} is \cmd{\nthtopsep}, by
+%   default \the\nthtopsep. The constant height of top precedence
+%   numbers when using \cmd{\nthtop*} is achieved by setting the
+%   baseline skip to \cmd{\nthtopskip}, by default
+%   \the\nthtopskip.
+%
+%   Similarly, the constant spacing between a bottom precedence number
+%   and the status above when using \cmd{\nthbottom} is
+%   \cmd{\nthbottomsep}, by default \the\nthbottomsep, and the
+%   constant height of bottom precedence numbers when using
+%   \cmd{\nthbottom*} is achieved by setting the baseline skip to
+%   \cmd{\nthbottomskip}, by default \the\nthbottomskip.
+%
+%   These values can be changed as usual using \cmd{\setlength}.
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+%
+% \section{Shortcuts}
+% \label{sec:shortcuts}
+%
+% Composing actuarial symbols from scratch using \cmd{\actsymb} can
+% easily get quite involved. For this reason, the package defines a
+% large number of shortcut macros to ease entry of the most common
+% symbols. We encourage authors to define their own shortcuts for
+% cases we did not consider. The package provides powerful facilities
+% to define shortcuts.
+%
+% \subsection{Basic symbols of life tables, insurance and annuities}
+% \label{sec:shortcuts:principal}
+%
+% \autoref{tab:principal} lists shortcuts to compose complete symbols
+% of life tables and benefits of insurance and annuities. For space
+% considerations only the mandatory arguments are given, but it should
+% be noted that all commands of \autoref*{tab:principal} accept the
+% optional arguments \meta{ll}, \meta{ul} and \meta{ur} of
+% \cmd{\actsymb}.
+%
+% \begin{table}[t]
+%   \centering
+%   \caption{Shortcuts for life table, insurance and annuity
+%     symbols. All commands accept the optional arguments
+%     \meta{ll}, \meta{ul} and \meta{ur} of \cmd{\actsymb}.}
+%   \label{tab:principal}
+%   \begin{tabular}{lll}
+%       \toprule
+%       Definition & Example & Output \\
+%       \midrule
+%       \cmd{\lx}\marg{age} & \rshowcase{\lx{x}} \\
+%       \cmd{\Lx}\marg{age} & \rshowcase{\Lx{x}}$^\dagger$ \\
+%       \cmd{\dx}\marg{age} & \rshowcase{\dx[n]{x}} \\
+%       \cmd{\Dx}\marg{age} & \rshowcase{\Dx[n]{x}}$^\dagger$ \\
+%       \cmd{\px}\marg{age} & \rshowcase{\px[t]{x}} \\
+%       \cmd{\qx}\marg{age} & \rshowcase{\qx[t]{x}} \\
+%       \cmd{\eringx}\marg{lr} & \rshowcase{\eringx{x:\angln}} \\
+%       \addlinespace
+%       \cmd{\Ax}\marg{lr}   & \rshowcase{\Ax{x:\angln}} \\
+%       \cmd{\Ax*}\marg{lr}  & \rshowcase{\Ax*{x:\angln}} \\
+%       \cmd{\Ex}\marg{lr}   & \rshowcase{\Ex[n]{x}} \\
+%       \addlinespace
+%       \cmd{\ax}\marg{lr}   & \rshowcase{\ax{x:\angln}} \\
+%       \cmd{\ax*}\marg{lr}  & \rshowcase{\ax*{x:\angln}} \\
+%       \cmd{\ax**}\marg{lr} & \rshowcase{\ax**{x:\angln}} \\
+%       \cmd{\sx}\marg{lr}   & \rshowcase{\sx{x:\angln}} \\
+%       \cmd{\sx*}\marg{lr}  & \rshowcase{\sx*{x:\angln}} \\
+%       \cmd{\sx**}\marg{lr} & \rshowcase{\sx**{x:\angln}} \\
+%       \cmd{\aringx}\marg{lr} & \rshowcase{\aringx{x:\angln}} \\
+%       \bottomrule
+%   \end{tabular} \\
+%     \raggedright
+%     \hspace*{1em}{\footnotesize $^\dagger$ Calligraphic letters
+%     obtained using \cmd{\mathcal}. These specific versions of
+%     $\mathcal{L}$ and $\mathcal{D}$ require package \pkg{rsfso}
+%     \citep{rsfso}. Standard versions are
+%     $\text{\usefont{OMS}{zplm}{m}{n} L}$ and
+%     $\text{\usefont{OMS}{zplm}{m}{n} D}$.}
+% \end{table}
+%
+% One will note that shortcuts for insurance benefits come in two
+% variants: one for the benefit payable at the end of the year of
+% death (standard shortcut) and one for the benefit payable at the
+% time of death (|*| variant). Shortcuts for annuity benefits have
+% three variants: payable at the end of the period (standard),
+% continuously (|*| variant) and at the beginning of the period (|**|
+% variant).
+%
+% \begin{DescribeMacro}{\@actinssc}
+% \begin{DescribeMacro}{\@actannsc}
+% \begin{DescribeMacro}{\@actothersc}
+%   One may define additional shortcut macros similar to those of
+%   \autoref{tab:principal} using the internal commands
+%   \begin{quote}
+%     |\@actinssc|\marg{symbol} \\
+%     |\@actannsc|\marg{symbol} \\
+%     |\@actothersc|\marg{symbol}
+%   \end{quote}
+%   Command |\@actinssc| automatically provides the two shortcuts for
+%   insurance benefits, command |\@actannsc| provides the three
+%   shortcuts for annuity benefits and command |\@actothersc|
+%   provides a single shortcut for \meta{symbol}.
+%
+%   For example, the package defines the shortcut \cmd{\px} with the
+%   equivalent of %
+%   ^^A below we abuse the texample environment to avoid defining
+%   ^^A another environment just for this purpose
+%   \begin{demo}
+%     \begin{texample}[1]
+%       |\newcommand{\px}{\@actothersc{p}}| \producing
+%     \end{texample}
+%   \end{demo}
+%   shortcuts \cmd{\Ax} and \cmd{\Ax*} with
+%   \begin{demo}
+%     \begin{texample}[1]
+%       |\newcommand{\Ax}{\@actinssc{A}}| \producing
+%     \end{texample}
+%   \end{demo}
+%   and shortcuts \cmd{\ax}, \cmd{\ax*} and \cmd{\ax**} with
+%   \begin{demo}
+%     \begin{texample}[1]
+%       |\newcommand{\ax}{\@actannsc{a}}| \producing
+%     \end{texample}
+%   \end{demo}
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+%
+% \begin{rem}
+%   When used in the preamble of a document, the above commands need
+%   to be protected by a |\makeatletter| \dots\ |\makeatother| pair
+%   since they make use of the reserved character |@|. Therefore, to
+%   define shortcuts, say, \cmd{\Bx} and \cmd{\Bx*} to the imaginary
+%   benefits $B$ and $\bar{B}$, one would write in the preamble
+%   \begin{demo}
+%     \begin{texample}[1]
+%       |\makatletter| \\
+%       |\newcommand{\Bx}{\@actinssc{B}}| \\
+%       |\makeatother| \producing
+%     \end{texample}
+%   \end{demo}
+% \end{rem}
+%
+% \subsection{Symbols for premiums, reserves and paid-up insurance}
+% \label{sec:shortcuts:premres}
+%
+% Symbols for premiums, reserves and paid-up insurance come in two
+% main variants: without an explicit benefit between parentheses for
+% insurances payable at the end of the year of death, and with the
+% type of benefit specified for all other insurances and annuities.
+%
+% \autoref{tab:premres} lists two sets of shortcuts to compose symbols
+% for premiums, reserves and paid-up insurance. Shortcuts from the
+% first set take in mandatory argument the content of the \meta{lr}
+% subscript of actuarial symbols. Those from the second set require a
+% complete benefit symbol in argument. One may use the shortcuts of
+% \autoref{tab:principal} to this effect. Again, only the mandatory
+% arguments are given in the table, but all commands accept the
+% optional arguments \meta{ll}, \meta{ul} and \meta{ur} of
+% \cmd{\actsymb}.
+%
+% \begin{table}[t]
+%   \centering
+%   \caption{Shortcuts for premiums, reserves and paid-up insurance. All
+%     commands accept the optional arguments \meta{ll},
+%     \meta{ul} and \meta{ur} of \cmd{\actsymb}.}
+%   \label{tab:premres}
+%   \begin{tabular*}{1.0\linewidth}{lll}
+%       \toprule
+%       Definition & Example & Output \\
+%       \midrule
+%       \cmd{\Px}\marg{lr}  & \rshowcase{\Px[h]{x}} \\
+%       \cmd{\Vx}\marg{lr}  & \rshowcase{\Vx[k]{x}} \\
+%       \cmd{\Wx}\marg{lr}  & \rshowcase{\Wx[k]{x}} \\
+%       \addlinespace
+%       \cmd{\premium}\marg{benefit}  & \rshowcase{\premium[t]{\Ax*{x}}} \\
+%       \cmd{\premium*}\marg{benefit} & \rshowcase{\premium*[t]{\Ax*{x:\angln}}} \\
+%       \cmd{\reserve}\marg{benefit}  & \rshowcase{\reserve[t]{\ax**{x}}} \\
+%       \cmd{\reserve*}\marg{benefit} & \rshowcase{\reserve*[t]{\ax*{x}}} \\
+%       \cmd{\paidup}\marg{benefit}   & \rshowcase{\paidup[k]{\Ax*{x}}} \\
+%       \cmd{\paidup*}\marg{benefit}  & \rshowcase{\paidup*[k][h]{\Ax*{x}}} \\
+%       \bottomrule
+%   \end{tabular*}
+% \end{table}
+%
+% \begin{DescribeMacro}{\@actpremres}
+%   The package eases definition of additional shortcut macros similar
+%   to the second set of \autoref{tab:premres} using the internal
+%   command
+%   \begin{quote}
+%     |\@actpremres|\marg{principle}
+%   \end{quote}
+%   It defines shortcuts for discrete (default) or continuous (|*|
+%   variant) premiums, reserves and paid-up insurance. For example,
+%   the package defines shortcuts \cmd{\premium} and \cmd{\premium*}
+%   with
+%   \begin{demo}
+%     \begin{texample}[1]
+%       |\newcommand{\premium}{\@actpremres{P}}| \producing
+%     \end{texample}
+%   \end{demo}
+%   The remark at the end of \autoref{sec:shortcuts:principal} also
+%   applies here.
+% \end{DescribeMacro}
+%
+% \subsection{Auxiliary symbols}
+% \label{sec:shortcuts:aux}
+%
+% \autoref{tab:aux} lists shortcuts for a few common auxiliary symbols
+% used in the lower right subscript \fbox{\small III}.
+%
+% \begin{table}
+%   \centering
+%   \caption{Shortcuts for auxiliary symbols}
+%   \label{tab:aux}
+%   \begin{tabular*}{1.0\linewidth}{lll}
+%       \toprule
+%       Definition & Example & Output \\
+%       \midrule
+%       \cmd{\term}\marg{age}\marg{duration}      & \rshowcase{\Ax{\term{x}{n}}} \\
+%       \cmd{\termxn}                             & \rshowcase{\Ax{\termxn}} \\
+%       \cmd{\pureendow}\marg{age}\marg{duration} & \rshowcase{\Ax{\pureendow{x}{n}}} \\
+%       \cmd{\pureendowxn}                        & \rshowcase{\Ax{\pureendowxn}} \\
+%       \cmd{\endow}\marg{age}\marg{duration}     & \rshowcase{\ax**{\endow{x}{n}}} \\
+%       \cmd{\endowxn}                            & \rshowcase{\ax**{\endowxn}} \\
+%       \cmd{\joint}\marg{ages}$^\dagger$         & \rshowcase{\Ax*{\joint{xy}z}} \\
+%       \bottomrule
+%   \end{tabular*} \\
+%   \raggedright
+%   \hspace*{1em}{\footnotesize $^\dagger$ alias for \cmd{\overline}}
+% \end{table}
+%
+% \subsection{Symbols for varying benefit insurance and annuities}
+% \label{sec:shortcuts:twoletsymb}
+%
+% \autoref{tab:twoletsymb} lists shortcuts for common two-letter
+% symbols of varying benefit insurance and annuities. These shortcuts
+% can be used as principal symbol in \cmd{\actsymb} or in the commands
+% of \autoref{tab:principal}.
+%
+% \begin{table}
+%   \centering
+%   \caption{Shortcuts for varying benefit insurance and annuities}
+%   \label{tab:twoletsymb}
+%   \begin{tabular}{ll@{\hspace{15mm}}ll}
+%       \toprule
+%       Definition & Output & Definition & Output \\
+%       \midrule
+%       \cmd{\IA}   & $\IA$   & \cmd{\DA}   & $\DA$ \\
+%       \cmd{\IA*}  & $\IA*$  & \cmd{\DA*}  & $\DA*$ \\
+%       \addlinespace[6pt]
+%       \cmd{\IbA}   & $\IbA$   & \cmd{\DbA}   & $\DbA$ \\
+%       \cmd{\IbA*}  & $\IbA*$  & \cmd{\DbA*}  & $\DbA*$ \\
+%       \addlinespace[6pt]
+%       \cmd{\ImA}   & $\ImA$   & \cmd{\DmA}   & $\DmA$ \\
+%       \cmd{\ImA*}  & $\ImA*$  & \cmd{\DmA*}  & $\DmA*$ \\
+%       \addlinespace[6pt]
+%       \cmd{\Ia}   & $\Ia$   & \cmd{\Da}   & $\Da$ \\
+%       \cmd{\Ia*}  & $\Ia*$  & \cmd{\Da*}  & $\Da*$ \\
+%       \cmd{\Ia**} & $\Ia**$ & \cmd{\Da**} & $\Da**$ \\
+%       \addlinespace[6pt]
+%       \cmd{\Is}   & $\Is$   & \cmd{\Ds}   & $\Ds$ \\
+%       \cmd{\Is*}  & $\Is*$  & \cmd{\Ds*}  & $\Ds*$ \\
+%       \cmd{\Is**} & $\Is**$ & \cmd{\Ds**} & $\Ds**$ \\
+%       \bottomrule
+%   \end{tabular}
+% \end{table}
+%
+% \begin{DescribeMacro}{\@twoletinssc}
+% \begin{DescribeMacro}{\@twoletannsc}
+%   One may define additional shortcuts for two-letter insurance and
+%   annuity benefit symbols using the internal commands
+%   \begin{quote}
+%     |\@twoletinssc|\oarg{length}\marg{symbol\_1}\marg{symbol\_2} \\
+%     |\@twoletannsc|\oarg{length}\marg{symbol\_1}\marg{symbol\_2}
+%   \end{quote}
+%   These commands are similar to those of
+%   \autoref{sec:shortcuts:principal}: |\@twoletinssc| provides two
+%   shortcuts (standard and |*| variant), whereas |\@twoletannsc|
+%   provides three (standard, |*| and |**| variants).
+% \end{DescribeMacro}
+% \end{DescribeMacro}
+%
+% \subsection{First, second and third precedence}
+% \label{sec:shortcuts:preced}
+%
+% \autoref{tab:preced} lists shortcuts and aliases for the first,
+% second and third precedence numbers, top and bottom. These shortcuts
+% can be used in auxiliary symbols in \cmd{\actsymb} or in the
+% commands of \autoref{tab:principal}.
+%
+% \begin{table}[t]
+%   \centering
+%   \caption{Shortcuts and aliases for precedence numbers}
+%   \label{tab:preced}
+%   \begin{tabular}{lll}
+%       \toprule
+%       Definition & Alias & Output \\
+%       \midrule
+%       \cmd{\firsttop}\marg{status}  & \cmd{\itop}\marg{status}   & $\Ax{\itop{x}:\angln}$ \\
+%       \cmd{\secondtop}\marg{status} & \cmd{\iitop}\marg{status}  & $\Ax{x\iitop{y}z}$ \\
+%       \cmd{\thirdtop}\marg{status}  & \cmd{\iiitop}\marg{status} & $\Ax{xy\iiitop{z}}$ \\
+%       \addlinespace[6pt]
+%       \cmd{\firsttop*}\marg{status}  & \cmd{\itop*}\marg{status}   & $\Ax{\itop*{x}:\angln}$ \\
+%       \cmd{\secondtop*}\marg{status} & \cmd{\iitop*}\marg{status}  & $\Ax{x\iitop*{y}z}$ \\
+%       \cmd{\thirdtop*}\marg{status}  & \cmd{\iiitop*}\marg{status} & $\Ax{xy\iiitop*{z}}$ \\
+%       \addlinespace[6pt]
+%       \cmd{\firstbottom}\marg{status}  & \cmd{\ibottom}\marg{status}   & $\Ax{\ibottom{x}yz}$ \\
+%       \addlinespace[3pt]
+%       \cmd{\secondbottom}\marg{status} & \cmd{\iibottom}\marg{status}  & $\Ax{\iibottom{x}yz}$ \\
+%       \addlinespace[3pt]
+%       \cmd{\thirdbottom}\marg{status}  & \cmd{\iiibottom}\marg{status} & $\Ax{xy\iiibottom{z}}$ \\
+%       \addlinespace[6pt]
+%       \cmd{\firstbottom*}\marg{status}  & \cmd{\ibottom*}\marg{status}   & $\Ax{\ibottom*{x}yz}$ \\
+%       \addlinespace[3pt]
+%       \cmd{\secondbottom*}\marg{status} & \cmd{\iibottom*}\marg{status}  & $\Ax{\iibottom*{x}yz}$ \\
+%       \addlinespace[3pt]
+%       \cmd{\thirdbottom*}\marg{status}  & \cmd{\iiibottom*}\marg{status} & $\Ax{xy\iiibottom*{z}}$ \\
+%       \addlinespace[6pt]
+%       \bottomrule
+%   \end{tabular}
+% \end{table}
+%
+% \section{Package options}
+% \label{sec:options}
+%
+% The package offers two options to control the placement of
+% precedence numbers:
+% \begin{description}
+% \item[\mdseries\ttfamily alignpreced] always align top and bottom
+%   precedence numbers; makes \cmd{\nthtop} and \cmd{\nthbottom}
+%   equivalent to \cmd{\nthtop*} and \cmd{\nthbottom*},
+%   respectively;
+% \item[\mdseries\ttfamily compactpreced] always put precedence
+%   numbers close to the corresponding status; makes \cmd{\nthtop*}
+%   and \cmd{\nthbottom*} equivalent to \cmd{\nthtop} and
+%   \cmd{\nthbottom}, respectively.
+% \end{description}
+% Option |alignpreced| can be useful to simplify entry of uniformly
+% positioned precedence numbers. On the other hand, option
+% |compactpreced| is merely included as a complement to |alignpreced|.
+% We do not recommended --- nor see a reason --- to use it as it
+% basically renders inoperative commands \cmd{\nthtop*} and
+% \cmd{\nthbottom*}.
+%
+% \appendix
+%
+% \newpage
+% \section{Comprehensive life contingencies symbol list}
+% \label{sec:comprehensive}
+%
+% This appendix was inspired by \citet{Trivedi:lifecon:2004}. The
+% title is a nod to the immensely useful \emph{Comprehensive
+% {\LaTeX} Symbol List} of \citet{comprehensive}.
+%
+% The table below contains all the life contingencies symbols listed
+% in Appendix~3 of \citet{Bowers:2e:1997} along with the code to
+% compose them with \pkg{actuarialsymbol} (and therefore
+% \pkg{actuarialangle}) loaded. Often times there are various ways to
+% obtain a symbol; we tried to always present the most compact and
+% legible option. Not all symbols require features of
+% \pkg{actuarialsymbol}.
+%
+% Calligraphic letters are typeset using \cmd{\mathcal}. The specific
+% versions of $\mathcal{L}$ and $\mathcal{D}$ that appear in this
+% table require package \pkg{rsfso} \citep{rsfso}, which is \emph{not}
+% loaded by \pkg{actuarialsymbol}. Standard versions of the
+% calligraphic letters are $\text{\usefont{OMS}{zplm}{m}{n} L}$ and
+% $\text{\usefont{OMS}{zplm}{m}{n} D}$. See Table~299 of
+% \citet{comprehensive} for other options.
+%
+% %
+% \begingroup
+% \catcode`\|=12 ^^A to use | in math, disable as verbatim delimiter
+% \begin{longtable}{ll}
+%   \toprule
+%   Symbol & Code to compose the symbol \\
+%   \midrule
+%   \endfirsthead
+%   \toprule
+%   Symbol & Code to compose the symbol \\
+%   \midrule
+%   \endhead
+%   \midrule
+%   \endfoot
+%   \bottomrule
+%   \endlastfoot
+%   \showcase{a} \\
+%   \showcase{a(x)} \\
+%   \showcase{a_x} \\
+%   \showcase{\ax{\angl{K}}} \\
+%   \showcase{\ax*{\angln}} \\
+%   \showcase{\ax*{P_t}} \\
+%   \showcase{\ax*{\angl{T}}} \\
+%   \showcase{\ax*{x}} \\
+%   \showcase{\ax*{r}[h]} \\
+%   \showcase{\ax*{x + t}[i]} \\
+%   \showcase{\ax*{x + t}[r]} \\
+%   \showcase{\ax**{\angl{K + 1}}} \\
+%   \showcase{\ax**{x}[(m)]} \\
+%   \showcase{\aringx{x}[(m)]} \\
+%   \showcase{\ax**{x}[\{m\}]} \\
+%   \showcase{\ax**[j]{x}} \\
+%   \showcase{\ax**[*]{x}} \\
+%   \showcase{\ax{\endowxn}} \\
+%   \showcase{\ax*{\endowxn}} \\
+%   \showcase{\ax**{\endowxn}} \\
+%   \showcase{\ax**{\endowxn}[(m)]} \\
+%   \showcase{\aringx{\endowxn}[(m)]} \\
+%   \showcase{\ax**{\endowxn}[\{m\}]} \\
+%   \showcase{\ax*{\joint\endowxn}} \\
+%   \showcase{\ax*[][2]{\endowxn}} \\
+%   \showcase{\ax[n|]{x}} \\
+%   \showcase{\ax*[n|]{x}} \\
+%   \showcase{\ax**[n|]{x}} \\
+%   \showcase{\ax**[n|]{x}[(m)]} \\
+%   \showcase{\ax*{xy|z}[1]} \\
+%   \showcase{\ax**{xy}[(m)]} \\
+%   \showcase{\ax**{xy:\angln}} \\
+%   \showcase{\ax**[][2]{xy:\angln}} \\
+%   \showcase{\ax*{x|y}} \\
+%   \showcase{\ax*{\joint{x_1 x_2 x_3}}} \\
+%   \showcase{\twoletsymb[0.6pt]{a}{A}(x)} \\
+%   \showcase{\twoletsymb[0.6pt]{a}{A}_t} \\
+%   \showcase{\twoletsymb[0.3pt]{a}{C}_t} \\
+%   \showcase{\twoletsymb[0.6pt]{a}{F}_t} \\
+%   \showcase{\twoletsymb[0.6pt]{a}{U}_t} \\
+%   \showcase{\twoletsymb[0.6pt]{a}{V}(x)} \\
+%   \showcase{\twoletsymb[0.6pt]{a}{V}_t} \\
+%   \showcase{A(h)} \\
+%   \showcase{A_t} \\
+%   \showcase{\Ax{x}} \\
+%   \showcase{\Ax*{x}} \\
+%   \showcase{\Ax{x}[(m)]} \\
+%   \showcase{\Ax*{x}[\text{PR}]} \\
+%   \showcase{\Ax{\termxn}} \\
+%   \showcase{\Ax{\endowxn}} \\
+%   \showcase{\Ax*{\endowxn}} \\
+%   \showcase{\Ax{\pureendowxn}} \\
+%   \showcase{\Ax[j]{x}} \\
+%   \showcase{\Ax[*]{x}} \\
+%   \showcase{\Ax*{\termxn}} \\
+%   \showcase{\actsymb{\tilde{A}}{\termxn}} \\
+%   \showcase{\Ax[][2]{\pureendowxn}} \\
+%   \showcase{\Ax[][2]{\termxn}} \\
+%   \showcase{\Ax*[m|]{x}} \\
+%   \showcase{\Ax*[m|n]{x}} \\
+%   \showcase{\Ax{xy}} \\
+%   \showcase{\Ax{\joint{xy}}} \\
+%   \showcase{\Ax{xy}[(m)]} \\
+%   \showcase{\Ax*{x\iitop{y}}} \\
+%   \showcase{\Ax*{\itop{x}y}} \\
+%   \showcase{\Ax{xy:\angln}} \\
+%   \showcase{\Ax*{\itop{\joint{xy}}:\angln}} \\
+%   \showcase{\Ax[][2]{xy:\angln}} \\
+%   \showcase{\Ax*{wx\iitop{y}}} \\
+%   \showcase{\Ax*{\joint{x_1 x_2 x_3}}} \\
+%   \showcase{\actsymb[k]{\mathit{AS}}{}} \\
+%   \showcase{\actsymb[k]{\widehat{\mathit{AS}}}{}} \\
+%   \showcase{\twoletsymb[0pt]{A}{S}_{x + h}} \\
+%   \showcase{(\mathit{AAI})} \\
+%   \addlinespace
+%   \showcase{\beta} \\
+%   \showcase{\bar{\beta}} \\
+%   \showcase{\Gamma(\alpha)} \\
+%   \showcase{b(u)} \\
+%   \showcase{b_j} \\
+%   \showcase{b_t} \\
+%   \showcase{b_f(t)} \\
+%   \showcase{B_t} \\
+%   \showcase{\hat{B}_{x + k}} \\
+%   \showcase{\hat{B}_{x + t}^{(3)}} \\
+%   \showcase{\hat{B}_{x + t}^{(j)}} \\
+%   \showcase{\actsymb[h]{\mathit{BP}}{}} \\
+%   \addlinespace
+%   \showcase{c} \\
+%   \showcase{c_k} \\
+%   \showcase{\hat{c}_k} \\
+%   \showcase{c(t)} \\
+%   \showcase{C_1} \\
+%   \showcase{C_2} \\
+%   \showcase{C_3} \\
+%   \showcase{C_h} \\
+%   \showcase{\actsymb[k]{\mathit{CV}}{}} \\
+%   \addlinespace
+%   \showcase{\dx{x}[(j)]} \\
+%   \showcase{\dx[n]{x}} \\
+%   \showcase{\dx[n]{x}[(j)]} \\
+%   \showcase{\dx[n]{x}[(\tau)]} \\
+%   \showcase{\actsymb[t]{D}{j}} \\
+%   \showcase{\actsymb[k + 1]{D}{}} \\
+%   \showcase{\DA_{\termxn}} \\
+%   \showcase{\DA*_{\termxn}} \\
+%   \showcase{\Dx[n]{x}} \\
+%   \showcase{\Dx[n]{x}[(j)]} \\
+%   \showcase{\Dx[n]{x}[(\tau)]} \\
+%   \addlinespace
+%   \showcase{e} \\
+%   \showcase{e_{h - 1}} \\
+%   \showcase{e_x} \\
+%   \showcase{\eringx{x}} \\
+%   \showcase{\hat{e}_k} \\
+%   \showcase{\eringx{\endowxn}} \\
+%   \showcase{e_{xy}} \\
+%   \showcase{e_{\joint{xy}}} \\
+%   \showcase{\mathrm{E}} \\
+%   \showcase{E} \\
+%   \showcase{E_0} \\
+%   \showcase{\Ex[n]{x}} \\
+%   \showcase{\twoletsymb[0.6pt]{E}{S}_{x + h + t}} \\
+%   \showcase{\mathit{ELRA}} \\
+%   \addlinespace
+%   \showcase{f} \\
+%   \showcase{f(u, t)} \\
+%   \showcase{f_S(s)} \\
+%   \showcase{F_X(x)} \\
+%   \showcase{F_t} \\
+%   \showcase{F^{(k)}} \\
+%   \showcase{F_S(s)} \\
+%   \showcase{\actsymb[k]{F}{}} \\
+%   \addlinespace
+%   \showcase{G} \\
+%   \showcase{\hat{G}} \\
+%   \showcase{G(b)} \\
+%   \showcase{G(b)} \\
+%   \showcase{G(x; \alpha, \beta)} \\
+%   \addlinespace
+%   \showcase{h(x)} \\
+%   \showcase{H(r)} \\
+%   \showcase{H(x; \alpha, \beta, x_0)} \\
+%   \showcase{\actsymb[u]{\twoletsymb{h}{p}}{x + t}[(\tau)]} \\
+%   \showcase{\actsymb{\twoletsymb{h}{\mu}}{x + t}[(j)](u)} \\
+%   \addlinespace
+%   \showcase{i'_{k + 1}} \\
+%   \showcase{\hat{\imath}_{k + 1}} \\
+%   \showcase{i(s, s + t)} \\
+%   \showcase{I_k} \\
+%   \showcase{I_d} \\
+%   \showcase{I_d(x)} \\
+%   \showcase{\actsymb[j]{i}{k}} \\
+%   \showcase{\IA_x} \\
+%   \showcase{\IA*_x} \\
+%   \showcase{\IbA*_x} \\
+%   \showcase{\ImA*_x} \\
+%   \showcase{\IA_{\termxn}} \\
+%   \addlinespace
+%   \showcase{J} \\
+%   \showcase{j(s, s + t, s + u)} \\
+%   \addlinespace
+%   \showcase{\actsymb[t]{\bar{k}}{x}} \\
+%   \showcase{K} \\
+%   \showcase{K(x)} \\
+%   \showcase{K(xy)} \\
+%   \showcase{K(\joint{xy})} \\
+%   \addlinespace
+%   \showcase{\lx{x}} \\
+%   \showcase{\lx{[x] + k}} \\
+%   \showcase{\lx{x}[(\tau)]} \\
+%   \showcase{l(x, u)} \\
+%   \showcase{l_f(x, u)} \\
+%   \showcase{L} \\
+%   \showcase{L_1} \\
+%   \showcase{L_x} \\
+%   \showcase{L(h)} \\
+%   \showcase{\actsymb[t]{L}{}} \\
+%   \showcase{\actsymb[t]{L}{}[\underline{2}]} \\
+%   \showcase{\actsymb[t]{L}{e}} \\
+%   \showcase{\actsymb[t]{L}{e}[\underline{2}]} \\
+%   \showcase{\mathcal{L}(x)} \\
+%   \showcase{\Lx{x}[(\tau)]} \\
+%   \addlinespace
+%   \showcase{m(x)} \\
+%   \showcase{m_x} \\
+%   \showcase{m_x^{(j)}} \\
+%   \showcase{m_x^{(\tau)}} \\
+%   \showcase{m_x^{\prime (j)}} \\
+%   \showcase{\mathrm{M}_X(t)} \\
+%   \showcase{M(x)} \\
+%   \addlinespace
+%   \showcase{n(u)} \\
+%   \showcase{N} \\
+%   \showcase{N(t)} \\
+%   \addlinespace
+%   \showcase{p(j)} \\
+%   \showcase{p(x)} \\
+%   \showcase{p_k} \\
+%   \showcase{\px{[x] + r}} \\
+%   \showcase{p^{*n}(x)} \\
+%   \showcase{\px[t]{x}} \\
+%   \showcase{\px[t]{x}[(\tau)]} \\
+%   \showcase{\px[t]{x}[\prime (j)]} \\
+%   \showcase{\px[t]{xy}} \\
+%   \showcase{\px[t]{\joint{xy}}} \\
+%   \showcase{\px[u]{\joint{xy} + t}} \\
+%   \showcase{\px[t]{\joint{x_1 x_2}\nthtop{k}{\joint{x_3}}}} \\
+%   \showcase{P(x)} \\
+%   \showcase{P(s, t)} \\
+%   \showcase{P_t} \\
+%   \showcase{\actsymb[][T]{P}{t}} \\
+%   \showcase{P^a} \\
+%   \showcase{P_x} \\
+%   \showcase{\Px[j]{x}} \\
+%   \showcase{\Px[*]{x}} \\
+%   \showcase{\Px{\endowxn}[A]} \\
+%   \showcase{\Px{\endowxn}} \\
+%   \showcase{\Px{\joint{xy}}} \\
+%   \showcase{\Px{\:\termxn}} \\
+%   \showcase{\Px{\pureendowxn}} \\
+%   \showcase{P^{*n}(x)} \\
+%   \showcase{\Px[h]{x}} \\
+%   \showcase{\Px[h]{\endowxn}} \\
+%   \showcase{\twoletsymb[0.6pt]{P}{a}(x)} \\
+%   \showcase{\twoletsymb[0.6pt]{P}{a}_t} \\
+%   \showcase{\premium{\Ax*{\endowxn}}} \\
+%   \showcase{\premium{\ax**[n|]{x}}} \\
+%   \showcase{\premium{\ax*[n|]{x}}} \\
+%   \showcase{\premium{\Ax*{x}}[(m)]} \\
+%   \showcase{\premium{\Ax*{x}}[\{m\}]} \\
+%   \showcase{\premium{\Ax*{x}[\text{PR}]}} \\
+%   \showcase{\premium*{\Ax*{\endowxn}}} \\
+%   \showcase{\premium*{\Ax*{\termxn}}} \\
+%   \showcase{\premium*{\Ax*{\pureendowxn}}} \\
+%   \showcase{\premium{\Ax*{\endowxn}}[(m)]} \\
+%   \showcase{\premium{\Ax*{\termxn}}[(m)]} \\
+%   \showcase{\premium*[h]{\Ax*{x}}} \\
+%   \showcase{\premium*[h]{\Ax*{\endowxn}}} \\
+%   \showcase{\premium[h]{\Ax*{x}}[(m)]} \\
+%   \showcase{\premium[h]{\Ax*{\endowxn}}[(m)]} \\
+%   \showcase{\premium[h]{\Ax*{\endowxn}}[\{m\}]} \\
+%   \addlinespace[3pt]
+%   \showcase{\premium{\Ax*{\joint{xy}\iitop{\joint{z}}}}} \\
+%   \showcase{\premium{\Ax*{\ibottom{x}\iitop{y}z}}} \\
+%   \addlinespace[3pt]
+%   \showcase{\tilde{P}_{\:\termxn}} \\
+%   \addlinespace
+%   \showcase{\qx{[x] + r}} \\
+%   \showcase{\qx{x}[(d)]} \\
+%   \showcase{\qx{x}[(i)]} \\
+%   \showcase{\qx{x}[(r)]} \\
+%   \showcase{\qx{x}[(w)]} \\
+%   \showcase{\actsymb{\hat{q}}{x + k}[(j)]} \\
+%   \showcase{\qx{xy}} \\
+%   \showcase{\qx[k|]{x}} \\
+%   \showcase{\qx[t]{x}} \\
+%   \showcase{\qx[t]{x}[(j)]} \\
+%   \showcase{\qx[t]{x}[(\tau)]} \\
+%   \showcase{\qx[t]{x}[\prime (j)]} \\
+%   \showcase{\qx[t|u]{x}} \\
+%   \showcase{\qx[n]{\itop{x}y}} \\
+%   \showcase{\qx[n]{x\iitop{y}}} \\
+%   \showcase{\qx[k|]{xy}} \\
+%   \addlinespace[3pt]
+%   \showcase{\qx[n]{\ibottom{x}\iitop{y}z}} \\
+%   \addlinespace[3pt]
+%   \showcase{\qx[\infty]{\ibottom*{x}\iibottom*{y}\iiitop{z}}} \\
+%   \addlinespace
+%   \showcase{r} \\
+%   \showcase{r_C} \\
+%   \showcase{r_F} \\
+%   \showcase{r_N} \\
+%   \showcase{\twoletsymb[0.6pt]{r}{A}_t} \\
+%   \showcase{\twoletsymb[0.6pt]{r}{F}_t} \\
+%   \showcase{\twoletsymb[0.6pt]{r}{V}_t} \\
+%   \showcase{R} \\
+%   \showcase{\tilde{R}} \\
+%   \showcase{R(x, h, y)} \\
+%   \addlinespace
+%   \showcase{s(x)} \\
+%   \showcase{\sx**{\angln}} \\
+%   \showcase{s(x,u)} \\
+%   \showcase{\sx*{\endowxn}} \\
+%   \showcase{\sx**{\endowxn}} \\
+%   \showcase{S} \\
+%   \showcase{S(t)} \\
+%   \showcase{S_y} \\
+%   \showcase{\actsymb[k]{\mathit{SC}}{}} \\
+%   \addlinespace
+%   \showcase{T} \\
+%   \showcase{\tilde{T}} \\
+%   \showcase{T_x} \\
+%   \showcase{T_{xy}} \\
+%   \showcase{T_{\joint{xy}}} \\
+%   \addlinespace
+%   \showcase{U(t)} \\
+%   \showcase{U_t} \\
+%   \showcase{\hat{U}{t}} \\
+%   \addlinespace
+%   \showcase{v_t} \\
+%   \showcase{\tilde{v}_n} \\
+%   \showcase{V_i} \\
+%   \showcase{V_t} \\
+%   \showcase{\Vx[k]{x}} \\
+%   \showcase{\Vx[k]{\endowxn}} \\
+%   \showcase{\Vx[k]{\:\termxn}} \\
+%   \showcase{\Vx[k]{\pureendowxn}} \\
+%   \showcase{\Vx[k]{x}[\text{FPT}]} \\
+%   \showcase{\Vx[t]{\itop{\group{xy}}:\angln}} \\
+%   \showcase{\Vx[k][h]{x}} \\
+%   \showcase{\Vx[k][h]{\endowxn}} \\
+%   \showcase{\Vx[k][h]{\endowxn}[(m)]} \\
+%   \showcase{\Vx[k][h]{\endowxn}[\text{Mod}]} \\
+%   \showcase{\reserve[k]{\ax**[n|]{x}}} \\
+%   \showcase{\reserve*[t]{\ax*[n|]{x}}} \\
+%   \showcase{\reserve*[t]{\Ax*{x}}} \\
+%   \showcase{\reserve*[t]{\Ax*{\endowxn}}} \\
+%   \showcase{\reserve*[t]{\Ax*{\termxn}}} \\
+%   \showcase{\reserve*[t]{\Ax*{\pureendowxn}}} \\
+%   \showcase{\reserve*[t]{\Ax*{x}}^{\text{Mod}}} \\
+%   \showcase{\reserve[t]{\Ax*{\joint{xy}}}} \\
+%   \showcase{\reserve[t]{\Ax*{x}}[\{1\}]} \\
+%   \showcase{\reserve[k]{\Ax*{x}[\text{PR}]}} \\
+%   \showcase{\reserve[k][h]{\Ax{\termxn}}} \\
+%   \showcase{\reserve*[t][h]{\Ax*{x}}} \\
+%   \showcase{\reserve*[t][h]{\Ax*{\endowxn}}} \\
+%   \showcase{\reserve*[t][h]{\Ax*{\endowxn}}[(m)]} \\
+%   \addlinespace
+%   \showcase{w(x)} \\
+%   \showcase{W_i} \\
+%   \showcase{W_t} \\
+%   \showcase{\Wx[k]{}} \\
+%   \showcase{\Wx[k]{x}} \\
+%   \showcase{\Wx[k]{\endowxn}} \\
+%   \showcase{\Wx[k][h]{x}} \\
+%   \showcase{\twoletsymb{W}{a}_t} \\
+%   \showcase{\paidup*[k]{\Ax{x}}} \\
+%   \showcase{\paidup*[k]{\Ax{\endowxn}}} \\
+%   \showcase{\paidup*[k][h]{\Ax{x}}} \\
+%   \addlinespace
+%   \showcase{(x)} \\
+%   \showcase{(x_1 x_2 \dotsm x_m)} \\
+%   \showcase{(\joint{x_1 x_2 \dotsm x_m})} \\
+%   \addlinespace[9pt]
+%   \showcase{\joint{x_1x_2 \dotsm}\nthtop{k}{\joint{x_m}}} \\
+%   \addlinespace[9pt]
+%   \showcase{\joint{x_1x_2 \dotsm}\nthtop{[k]}{\joint{x_m}}} \\
+%   \showcase{X_i} \\
+%   \showcase{X(\theta)} \\
+%   \addlinespace
+%   \showcase{Y} \\
+%   \showcase{y(s, s + m)} \\
+%   \showcase{Y(t, n)} \\
+%   \addlinespace
+%   \showcase{z_t}\\
+%   \showcase{Z}\\
+%   \showcase{\actsymb[m]{Z}{t}}\\
+%   \addlinespace
+%   \showcase{\alpha} \\
+%   \showcase{\alpha(m)} \\
+%   \showcase{\bar{\alpha}} \\
+%   \showcase{\alpha^{\text{CRVM}}} \\
+%   \addlinespace
+%   \showcase{\beta} \\
+%   \showcase{\beta(m)} \\
+%   \showcase{\bar{\beta}} \\
+%   \showcase{\beta^{\text{CRVM}}} \\
+%   \showcase{\beta(x, u)} \\
+%   \addlinespace
+%   \showcase{\Gamma(\alpha)} \\
+%   \addlinespace
+%   \showcase{\delta} \\
+%   \showcase{\delta_t} \\
+%   \addlinespace
+%   \showcase{\theta} \\
+%   \addlinespace
+%   \showcase{\lambda(t)} \\
+%   \showcase{\lambda(t, n)} \\
+%   \showcase{\Lambda} \\
+%   \showcase{\Lambda_h} \\
+%   \addlinespace
+%   \showcase{\mu(x)} \\
+%   \showcase{\mu_x(t)} \\
+%   \showcase{\mu_x^{(d)}}\\
+%   \showcase{\mu_x^{(i)}}\\
+%   \showcase{\mu_x^{(w)}}\\
+%   \showcase{\mu_x^{(j)}(t)}\\
+%   \showcase{\mu_x^{(\tau)}(t)}\\
+%   \showcase{\mu_{xy}(t)}\\
+%   \showcase{\mu_{\joint{xy}}(t)} \\
+%   \showcase{\mu(x, u)} \\
+%   \addlinespace
+%   \showcase{\pi_h} \\
+%   \showcase{\pi_t} \\
+%   \addlinespace
+%   \showcase{\rho} \\
+%   \addlinespace
+%   \showcase{\tau} \\
+%   \addlinespace
+%   \showcase{\phi(x)} \\
+%   \showcase{\phi(x, u)} \\
+%   \addlinespace
+%   \showcase{\Psi(u)} \\
+%   \showcase{\tilde{\Psi}(u)} \\
+%   \showcase{\Psi(u, t)} \\
+%   \showcase{\Psi(u; w)} \\
+%   \showcase{\tilde{\Psi}(u; w)} \\
+%   \addlinespace
+%   \showcase{\omega}\\
+% \end{longtable}
+% \endgroup
+%
+% \StopEventually{
+% \newpage
+% \begin{thebibliography}{9}
+%   \addcontentsline{toc}{section}{References}
+%   \bibitem[{A}merican~{M}athematical {S}ociety(2002)]{amsmath}
+%     {A}merican~{M}athematical {S}ociety.
+%     \newblock \emph{User’s Guide for the amsmath Package}, 2002.
+%     \newblock URL \url{http://www.ctan.org/pkg/amsmath/}.
+%
+%   \bibitem[Bowers et~al.(1997)Bowers, Gerber, Hickman, Jones, and
+%     Nesbitt]{Bowers:2e:1997}
+%     N.~L. Bowers, H.~U. Gerber, J.~C. Hickman, D.~A. Jones, and C.~J. Nesbitt.
+%     \newblock \emph{Actuarial Mathematics}.
+%     \newblock Society of Actuaries, Shaumburg, IL, second edition, 1997.
+%     \newblock ISBN 0-9389594-6-8.
+%
+%   \bibitem[Goulet(2017)]{actuarialangle}
+%     V. Goulet.
+%     \newblock \emph{Actuarial angle symbol for life contingencies and financial
+%       mathematics}, 2017.
+%     \newblock URL \url{http://www.ctan.org/pkg/actuarialangle/}.
+%
+%   \bibitem[Høgholm and Madsen(2015)]{mathtools}
+%     M. Høgholm and L. Madsen.
+%     \newblock \emph{The mathtools package}, 2015.
+%     \newblock URL \url{http://www.ctan.org/pkg/mathtools/}.
+%
+%   \bibitem[Pakin(2015)]{comprehensive}
+%     S. Pakin.
+%     \newblock \emph{The Comprehensive {\LaTeX} Symbol List}, 2015.
+%     \newblock URL \url{http://www.ctan.org/pkg/comprehensive/}.
+%
+%   \bibitem[Robertson(2007)]{subdepth}
+%     W. Robertson.
+%     \newblock \emph{Unify subscript depths}, 2007.
+%     \newblock URL \url{http://www.ctan.org/pkg/subdepth/}.
+%
+%   \bibitem[Sharpe(2015)]{rsfso}
+%     M. Sharpe.
+%     \newblock \emph{An acute script font based on {rsfs}}, 2015.
+%     \newblock URL \url{http://www.ctan.org/pkg/rsfso/}.
+%
+%   \bibitem[Trivedi(2004)]{Trivedi:lifecon:2004}
+%     E. Trivedi.
+%     \newblock \emph{Life Contingencies' Symbols}, 2004.
+%     \newblock \texttt{lifecon} 2.1 User Guide.
+%
+%   \bibitem[Wolthuis(2004)]{Wolthuis:notation:2004}
+%     H. Wolthuis.
+%     \newblock International actuarial notation.
+%     \newblock In Jozef Teugels and Bj{\o}rn Sundt, editors, \emph{Encyclopedia of
+%     Actuarial Science}. Wiley, 2004.
+%     \newblock ISBN 978-0-47001250-5.
+%     \newblock URL \url{http://onlinelibrary.wiley.com/book/10.1002/9780470012505}.
+%   \end{thebibliography}
+%   \PrintChanges
+% }
+%
+% \newpage
+% \section{Implementation}
+% \label{sec:implementation}
+%
+% This appendix contains the annotated source code of the package.
+% Most readers can stop reading here.
+%\iffalse
+%<*package>
+%\fi
+%
+% \subsection{Required packages}
+% \label{sec:implementation:packages}
+%
+% \begin{macro}{RequirePackage}
+%   The package depends on packages \pkg{amsmath} \citep{amsmath} and
+%   \pkg{actuarialangle} \citep{actuarialangle}.
+%    \begin{macrocode}
+\RequirePackage{amsmath}
+\RequirePackage{actuarialangle}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Package options}
+% \label{sec:implementation:options}
+%
+% \begin{macro}{\ifacts@alignpreced}
+% \begin{macro}{\ifacts@acompactpreced}
+%   We define two flags to keep track of the type of alignment for
+%   precedence numbers. Both are false by default.
+%    \begin{macrocode}
+\newif\ifacts@alignpreced   \acts@alignprecedfalse
+\newif\ifacts@compactpreced \acts@compactprecedfalse
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\DeclareOption}
+%   Declaration of the package options and processing.
+%    \begin{macrocode}
+\DeclareOption{alignpreced}{\acts@alignprecedtrue}
+\DeclareOption{compactpreced}{\acts@compactprecedtrue}
+\ProcessOptions
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Actuarial symbol}
+% \label{sec:implementation:actsymb}
+%
+% We face three main challenges when trying to compose actuarial
+% symbols: position a subscript and a superscipt to the left of a main
+% symbol; ensure that the left and right subscripts and superscripts
+% are vertically aligned; maintain consistency with the placement of
+% subscripts and superscripts elsewhere in the document.
+%
+% \subsubsection{User level and parsing commands}
+% \label{sec:implementation:actsymb:user}
+%
+% \begin{macro}{actsymb}
+%   We first define the user level command.
+%    \begin{macrocode}
+\DeclareRobustCommand{\actsymb}{\acts@actsymb}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\acts@actsymb}
+% \begin{macro}{\acts@@actsymb}
+% \begin{macro}{\acts@@@actsymb}
+% \begin{macro}{\acts@@@@actsymb}
+%   With its unusual syntax, \cmd{\actsymb} requires four parsing
+%   macros to pass the arguments to the actual workhorse
+%   \cmd{\@actsymbol}.
+%    \begin{macrocode}
+\newcommand\acts@actsymb{%
+  \@ifnextchar[{\acts@@actsymb}%
+               {\acts@@actsymb[]}}
+\newcommand\acts@@actsymb{}
+\def\acts@@actsymb[#1]{%
+  \@ifnextchar[{\acts@@@actsymb[#1]}%
+               {\acts@@@actsymb[#1][]}}
+\newcommand\acts@@@actsymb{}
+\def\acts@@@actsymb[#1][#2]{%
+  \@ifnextchar[{\acts@@@@actsymb[#1][#2]}%
+               {\acts@@@@actsymb[#1][#2][]}}
+\newcommand\acts@@@@actsymb{}
+\def\acts@@@@actsymb[#1][#2][#3]#4#5{%
+  \@ifnextchar[{\@actsymbol[#1][#2][#3]{#4}{#5}}%
+               {\@actsymbol[#1][#2][#3]{#4}{#5}[]}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \subsubsection{Symbol construction}
+% \label{sec:implementation:actsymb:workhorse}
+%
+% \begin{macro}{\@actsymbol}
+%   We now define the workhorse to compose an actuarial symbol
+%   allowing for auxiliary symbols on all four corners around a
+%   principal symbol. The macro \cmd{\@actsymbol} has the following
+%   six arguments, using the notation from of the schematics
+%   representations \eqref{schema1} and \eqref{schema2}:
+%   \begin{enumerate}[nosep]
+%   \item lower left subscript \fbox{\small I}; may be empty;
+%   \item upper left superscript \fbox{\small II}; may be empty;
+%   \item principle symbol $P$; when empty a standard symbol is
+%     typeset;
+%   \item principal symbol $S$; assumed present;
+%   \item lower right subscript \fbox{\small III}; assumed present;
+%   \item upper right superscript \fbox{\small IV}; may be empty.
+%   \end{enumerate}
+%   The definition below is heavily inspired by the code of
+%   \cmd{\prescript} from package \pkg{mathtools} \citep{mathtools}
+%   which, as reported by the author, is itself based on a posting to
+%   |comp.text.tex| by Michael J.~Downes. Some of the comments below
+%   are still his.
+%    \begin{macrocode}
+\def\@actsymbol[#1][#2][#3]#4#5[#6]{
+%    \end{macrocode}
+%   We put the principle symbol and all subscripts and superscript into
+%   horizontal boxes using \cmd{\@mathmeasure} of package \pkg{amsmath}.
+%    \begin{macrocode}
+  \@mathmeasure\z@\displaystyle{#3}
+  \@mathmeasure\@ne\scriptstyle{#1}
+  \@mathmeasure\tw@\scriptstyle{#2}
+  \@mathmeasure\thr@@\scriptstyle{#5}
+  \@mathmeasure4\scriptstyle{#6}
+%    \end{macrocode}
+%   Do not let a preceding mathord symbol approach without any
+%   intervening space.
+%    \begin{macrocode}
+  \mathord{}
+%    \end{macrocode}
+%   Right align the left subscript and superscript (if there is a
+%   superscript) by adjusting the width of their horizontal boxes.
+%    \begin{macrocode}
+  \ifdim \wd\tw@>\z@ \ifdim \wd\tw@>\wd\@ne
+    \setbox\@ne\hbox to\wd\tw@{\hfil\unhbox\@ne}
+  \else
+    \setbox\tw@\hbox to\wd\@ne{\hfil\unhbox\tw@}
+  \fi\fi
+%    \end{macrocode}
+%   Bottom align the left and right subscripts by making their heights
+%   equal.
+%    \begin{macrocode}
+  \ifdim \ht\@ne>\ht\thr@@
+    \ht\thr@@=\ht\@ne
+  \else
+    \ht\@ne=\ht\thr@@
+  \fi
+%    \end{macrocode}
+%   Actual symbol construction. First the case where there is at least
+%   one superscript (the nested conditionals emulate an OR condition).
+%    \begin{macrocode}
+  \ifnum\ifdim \wd\tw@>\z@ 1\else\ifdim \wd4>\z@ 1\else 0\fi\fi
+    =1
+%    \end{macrocode}
+%   To ensure equal spacing with the subscripts on both sides of the
+%   principal symbol, make the depths of the left and right
+%   supercripts equal.
+%    \begin{macrocode}
+    \ifdim \dp\tw@>\dp4 \dp4=\dp\tw@\else \dp\tw@=\dp4\fi
+%    \end{macrocode}
+%   Typesetting of the left subscript and superscript. Use
+%   \cmd{\mathopen} to suppress space between those and the principal
+%   symbol even when the latter is not of type ord. (We use
+%   |\textstyle| inside |\vphantom| to avoid bad positioning of
+%   subscripts with \XeTeX; see
+%   \href{https://tex.stackexchange.com/q/374771/24355}{^^A
+%     the discussion} on StackExchange for details.)
+%   \changes{1.0a}{2017-06-14}{Fix left subscript positioning with xetex.}
+%    \begin{macrocode}
+    \mathopen{\vphantom{\textstyle #4}^{\box\tw@}\sb{\box\@ne}}%
+%    \end{macrocode}
+%   Typesetting of the principal symbol and the right subscript and
+%   superscript. The principal symbol is either a principal symbol alone
+%   or a principle symbol and a benefit symbol between parentheses. In
+%   the latter case, we make sure to align the subscripts and
+%   superscripts only around the principle symbol.
+%    \begin{macrocode}
+    \ifdim\wd\z@=\z@
+      #4^{\box4}\sb{\box\thr@@}%
+    \else
+      #3^{\box4}\sb{\vphantom{\copy\thr@@}}(#4\sb{\box\thr@@})%
+    \fi
+  \else
+%    \end{macrocode}
+%   Same ideas as above in the simpler case without superscripts. That
+%   way, {\TeX}'s default placement of subscripts and superscripts is
+%   maintained.
+%    \begin{macrocode}
+    \mathopen{\vphantom{\textstyle #4}\sb{\box\@ne}}%
+    \ifdim\wd\z@=\z@
+      #4\sb{\box\thr@@}%
+    \else
+      #3(#4\sb{\box\thr@@})%
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{Shortcuts for basic symbols of life tables, insurance and annuities}
+% \label{sec:implementation:actsymb:principalsc}
+%
+% \begin{macro}{\@actinssc}
+% \begin{macro}{\@actannsc}
+% \begin{macro}{\@actothersc}
+%   We first define the internal macros and parsing macros used to
+%   define shortcuts for insurance benefits (\cmd{\@actinssc}),
+%   annuity benefits (\cmd{\@actannsc}) and simple symbols
+%   (\cmd{\@actothersc}).
+%    \begin{macrocode}
+\newcommand\@actinssc[1]{%
+  \@ifstar{\acts@actsc{\bar{#1}}}%
+          {\acts@actsc{#1}}}
+\newcommand\@actannsc[1]{%
+  \@ifstar{\@ifstar{\acts@actsc{\ddot{#1}}}%
+                   {\acts@actsc{\bar{#1}}}}
+          {\acts@actsc{#1}}}
+\newcommand\acts@actsc[1]{%
+  \@ifnextchar[{\acts@@actsc{#1}}%
+               {\acts@@actsc{#1}[]}}
+\let\@actothersc\acts@actsc
+\newcommand\acts@@actsc{}
+\def\acts@@actsc#1[#2]{%
+  \@ifnextchar[{\acts@@@actsc{#1}[#2]}%
+               {\acts@@@actsc{#1}[#2][]}}
+\newcommand\acts@@@actsc{}
+\def\acts@@@actsc#1[#2][#3]#4{%
+  \@ifnextchar[{\@actsymbol[#2][#3][]{#1}{#4}}%
+               {\@actsymbol[#2][#3][]{#1}{#4}[]}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\DeclareRobustCommand}
+%   We can now define all the shortcuts of \autoref{tab:principal}.
+%    \begin{macrocode}
+\DeclareRobustCommand{\lx}{\@actothersc {\ell}}
+\DeclareRobustCommand{\Lx}{\@actothersc {\mathcal{L}}}
+\DeclareRobustCommand{\dx}{\@actothersc d}
+\DeclareRobustCommand{\Dx}{\@actothersc{\mathcal{D}}}
+\DeclareRobustCommand{\px}{\@actothersc p}
+\DeclareRobustCommand{\qx}{\@actothersc q}
+\DeclareRobustCommand{\Ax}{\@actinssc A}
+\DeclareRobustCommand{\Ex}{\@actinssc E}
+\DeclareRobustCommand{\ax}{\@actannsc a}
+\DeclareRobustCommand{\sx}{\@actannsc s}
+\DeclareRobustCommand{\aringx}{\@actothersc{\mathring{a}}}
+\DeclareRobustCommand{\eringx}{\@actothersc{\mathring{e}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{Shortcuts for premiums, reserves and paid-up insurance}
+% \label{sec:implementation:actsymb:premressc}
+%
+% \begin{macro}{\@actpremres}
+%   Not unlike above, we first define the internal and parsing macros
+%   used to create shortcut for premiums, reserves and paid-up insurance
+%   symbols.
+%    \begin{macrocode}
+\newcommand\@actpremres[1]{%
+  \@ifstar{\acts@actpremres{\bar{#1}}}%
+          {\acts@actpremres{#1}}}
+\newcommand\acts@actpremres[1]{%
+  \@ifnextchar[{\acts@@actpremres{#1}}%
+               {\acts@@actpremres{#1}[]}}
+\newcommand\acts@@actpremres{}
+\def\acts@@actpremres#1[#2]{%
+  \@ifnextchar[{\acts@@@actpremres{#1}[#2]}%
+               {\acts@@@actpremres{#1}[#2][]}}
+\newcommand\acts@@@actpremres{}
+\def\acts@@@actpremres#1[#2][#3]#4{%
+  \@ifnextchar[{\@actsymbol[#2][#3][#1]{{#4}}{}}%
+               {\@actsymbol[#2][#3][#1]{{#4}}{}[]}}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\DeclareRobustCommand}
+%   Then we can define the shortcuts of \autoref{tab:premres}.
+%    \begin{macrocode}
+\DeclareRobustCommand{\Px}{\@actothersc P}
+\DeclareRobustCommand{\Vx}{\@actothersc V}
+\DeclareRobustCommand{\Wx}{\@actothersc W}
+\DeclareRobustCommand{\premium}{\@actpremres P}
+\DeclareRobustCommand{\reserve}{\@actpremres V}
+\DeclareRobustCommand{\paidup}{\@actpremres W}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{Shortcuts for auxiliary symbols}
+% \label{sec:implementation:actsymb:auxsc}
+%
+% \begin{macro}{\DeclareRobustCommand}
+%   Here we define the shortcuts for common auxiliary symbols listed in
+%   \autoref{tab:aux}. Command \cmd{\joint} is simply defined as an
+%   alias of \cmd{\overline}.
+%    \begin{macrocode}
+\DeclareRobustCommand{\term}[2]{\itop{#1}:\angl{#2}}
+\DeclareRobustCommand{\termxn}{{\itop{x}:\angln}}
+\DeclareRobustCommand{\pureendow}[2]{#1:\itop{\angl{#2}}}
+\DeclareRobustCommand{\pureendowxn}{{x:\itop{\angln}}}
+\DeclareRobustCommand{\endow}[2]{#1:\angl{#2}}
+\DeclareRobustCommand{\endowxn}{{x:\angln}}
+\let\joint\overline
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Two-letter symbols}
+% \label{sec:implementation:twoletsymb}
+%
+% \begin{macro}{\twoletkern}
+% \begin{macro}{\twoletsymb}
+%   The definition of the user level command \cmd{\twoletsymb} is
+%   pretty straighforward.
+%    \begin{macrocode}
+\newlength{\twoletkern}
+\setlength{\twoletkern}{1.2pt}
+\DeclareRobustCommand{\twoletsymb}[3][\twoletkern]{(#2\kern-#1#3)}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\@twoletinssc}
+% \begin{macro}{\@twoletannsc}
+%   Following the same lines as above, we define two internal macros
+%   to create shortcuts for two-letter insurance and annuity benefit
+%   symbols.
+%    \begin{macrocode}
+\newcommand\@twoletinssc[3][\twoletkern]{%
+  \@ifstar{\twoletsymb[#1]{#2}{\bar{#3}}}%
+          {\twoletsymb[#1]{#2}{#3}}}
+\newcommand\@twoletannsc[3][\twoletkern]{%
+  \@ifstar{\@ifstar{\twoletsymb[#1]{#2}{\ddot{#3}}}%
+                   {\twoletsymb[#1]{#2}{\bar{#3}}}}%
+          {\twoletsymb[#1]{#2}{#3}}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\newcommand}
+%   Follow the shortcuts of \autoref{tab:twoletsymb}. Note that we
+%   used a smaller negative kerning adjustment for symbols annuity
+%   symbols.
+%    \begin{macrocode}
+\newcommand{\IA}{\@twoletinssc IA}
+\newcommand{\IbA}{\@twoletinssc{\bar{I}}A}
+\newcommand{\ImA}{\@twoletinssc{I^{(m)}}A}
+\newcommand{\DA}{\@twoletinssc DA}
+\newcommand{\DbA}{\@twoletinssc{\bar{D}}A}
+\newcommand{\DmA}{\@twoletinssc{D^{(m)}}A}
+\newcommand{\Ia}{\@twoletannsc[0.5\twoletkern]Ia}
+\newcommand{\Is}{\@twoletannsc[0.5\twoletkern]Is}
+\newcommand{\Da}{\@twoletannsc[0.5\twoletkern]Da}
+\newcommand{\Ds}{\@twoletannsc[0.5\twoletkern]Ds}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Precedence numbers}
+% \label{sec:implementation:preced}
+%
+% The system of precedence numbers builds on a backbone that used to
+% be part of package \pkg{actuarialangle}. The author of the code is
+% unknown. Some of the comments on \cmd{\@precendence}, below, are his
+% or hers.
+%
+% \subsubsection{User level lengths and commands}
+% \label{sec:implementation:preced:user}
+%
+% \begin{macro}{\nthtopsep}
+% \begin{macro}{\nthtopskip}
+% \begin{macro}{\nthbottomsep}
+% \begin{macro}{\nthbottomskip}
+%   Let us start by defining the lengths needed to position the
+%   precedence numbers above or below the statuses.
+%    \begin{macrocode}
+\newlength{\nthtopsep}
+\setlength{\nthtopsep}{2\p@}
+\newlength{\nthtopskip}
+\setlength{\nthtopskip}{7\p@}
+\newlength{\nthbottomsep}
+\setlength{\nthbottomsep}{2\p@}
+\newlength{\nthbottomskip}
+\setlength{\nthbottomskip}{9\p@}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\nthtop}
+% \begin{macro}{\nthbottom}
+%   Next up are the two user level commands and the internal commands
+%   that call the workhorse \cmd{\@precedence}.
+%    \begin{macrocode}
+\DeclareRobustCommand{\nthtop}{\@ifstar\@varnthtop\@nthtop}
+\DeclareRobustCommand{\nthbottom}{\@ifstar\@varnthbottom\@nthbottom}
+\newcommand{\@nthtop}[3][\nthtopsep]{%
+  \mathpalette{\@precedence t\z@{#1}{#2}}{#3}}
+\newcommand{\@varnthtop}[3][\nthtopskip]{%
+  \mathpalette{\@precedence t{#1}\z@{#2}}{#3}}
+\newcommand{\@nthbottom}[3][\nthbottomsep]{%
+  \mathpalette{\@precedence b\z@{#1}{#2}}{#3}}
+\newcommand{\@varnthbottom}[3][\nthbottomskip]{%
+  \mathpalette{\@precedence b{#1}\z@{#2}}{#3}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\@nthtop}
+% \begin{macro}{\@nthbottom}
+%   With the internal commands defined we can now process the package
+%   options. Option |alignpreced| makes the internal macros
+%   \cmd{\@nthtop} and \cmd{\@nthbottom} equivalent to
+%   \cmd{\@varnthtop} and \cmd{\@varnthbottom}, respectively.
+%    \begin{macrocode}
+\ifacts@alignpreced
+  \let\@nthtop\@varnthtop
+  \let\@nthbottom\@varnthbottom
+\fi
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\@varnthtop}
+% \begin{macro}{\@varnthbottom}
+%   Option |compactpreced| does the opposite.
+%    \begin{macrocode}
+\ifacts@compactpreced
+  \let\@varnthtop\nthtop
+  \let\@varnthbottom\nthbottom
+\fi
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \subsubsection{Number and status positioning}
+% \label{sec:implementation:preced:workhorse}
+%
+% \begin{macro}{\@precedence}
+%   We now define the workhorse to position precedence numbers above
+%   or below statuses, smashed so that the height of the auxiliary
+%   symbol containing the call remains unaffected. The macro
+%   \cmd{\@precedence} has the following six arguments:
+%   \begin{enumerate}[nosep]
+%   \item |t| for top or |b| for bottom;
+%   \item baseline skip between the top and bottom symbols;
+%   \item spacing between the top and bottom symbols;
+%   \item first argument from the user;
+%   \item one of math style selecting commands (\cmd{\displaystyle},
+%     \cmd{\textstyle}, \cmd{\scriptstyle}, \cmd{\scriptscriptstyle})
+%     from \cmd{\mathpalette};
+%   \item second argument given by the user.
+%   \end{enumerate}
+%   This peculiar ordering of the arguments is done to work around the
+%   restriction of \cmd{\mathpalette} that it only reads two
+%   arguments.
+%    \begin{macrocode}
+\def\@precedence#1#2#3#4#5#6{%
+  \setbox\tw@\hbox{$\m@th#5#4$}%
+  \setbox\z@\hbox{$\m@th#5#6$}
+  \dimen@\wd\z@
+  \vbox to\ht\z@{%
+    \baselineskip=#2
+    \lineskip=#3
+    \lineskiplimit\lineskip
+    \if b#1\relax\box\z@\else\vss\fi
+    \hbox to\dimen@{\hss\unhbox\tw@\hss}%
+    \if t#1\relax\box\z@\else\vss\fi
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{Shortcuts and aliases}
+% \label{sec:implementation:preced:shortcuts}
+%
+% \begin{macro}{\DeclareRobustCommand}
+%   We finish off by defining the shortcuts and aliases of
+%   \autoref{tab:preced}.
+%    \begin{macrocode}
+\DeclareRobustCommand{\firsttop}{%
+  \@ifstar{\@varnthtop{1}}{\@nthtop{1}}}
+\DeclareRobustCommand{\secondtop}{%
+  \@ifstar{\@varnthtop{2}}{\@nthtop{2}}}
+\DeclareRobustCommand{\thirdtop}{%
+  \@ifstar{\@varnthtop{3}}{\@nthtop{3}}}
+\DeclareRobustCommand{\firstbottom}{%
+  \@ifstar{\@varnthbottom{1}}{\@nthbottom{1}}}
+\DeclareRobustCommand{\secondbottom}{%
+  \@ifstar{\@varnthbottom{2}}{\@nthbottom{2}}}
+\DeclareRobustCommand{\thirdbottom}{%
+  \@ifstar{\@varnthbottom{3}}{\@nthbottom{3}}}
+\let\itop\firsttop
+\let\iitop\secondtop
+\let\iiitop\thirdtop
+\let\ibottom\firstbottom
+\let\iibottom\secondbottom
+\let\iiibottom\thirdbottom
+%    \end{macrocode}
+% \end{macro}
+% \iffalse
+%</package>
+%\fi
+%
+% \Finale
+% \obeyspaces
+% \typeout{*************************************************************}
+% \typeout{*                                                           *}
+% \typeout{* To finish the installation you have to move the following *}
+% \typeout{* file into a directory searched by TeX:                    *}
+% \typeout{*                                                           *}
+% \typeout{*  actuarialsymbol.sty                                      *}
+% \typeout{*                                                           *}
+% \typeout{* To produce the documentation, run actuarialsymbol.dtx     *}
+% \typeout{* through LaTeX.                                            *}
+% \typeout{*                                                           *}
+% \typeout{* Happy actuarial TeXing!                                   *}
+% \typeout{*                                                           *}
+% \typeout{*************************************************************}
+%
+% ^^A Local Variables:
+% ^^A mode: doctex
+% ^^A TeX-master: t
+% ^^A End:
+\endinput
