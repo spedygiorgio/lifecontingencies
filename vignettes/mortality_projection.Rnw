@@ -1,8 +1,5 @@
 \documentclass[nojss]{jss}
-\usepackage{lifecon}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{hyperref}
+\usepackage{lifecon,actuarialsymbol,graphicx,amsmath,hyperref}
 \usepackage[utf8]{inputenc}
 % \usepackage{draftwatermark}
 % \SetWatermarkText{Draft}
@@ -16,7 +13,7 @@
 % need no \usepackage{Sweave.sty}
 %\SweaveOpts{prefix.string=Figures/fig}
 
-\author{Giorgio Alfredo Spedicato, ACAS \And 
+\author{Giorgio Alfredo Spedicato, FCAS, FSA, Ph.D, C.Stat \And 
         Gian Paolo Clemente, Unicatt}
 
 
@@ -61,6 +58,7 @@ this paper are mechanical and intended for didactic purposes.}
 }
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \SweaveOpts{eps=FALSE, keep.source=TRUE}
 <<echo=FALSE,print=FALSE,results=hide>>=
