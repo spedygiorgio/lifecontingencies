@@ -4,11 +4,10 @@ author: "Gian Paolo Clemente, Catholic University, Milan"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
+  html_document: default
 bibliography: lifecontingenciesBiblio.bib
-vignette: |
-  %\VignetteIndexEntry{Pension Funding with lifecontingencies} 
-  %\VignetteEngine{knitr::rmarkdown}  
-  %\usepackage[latin1]{inputenc}
+vignette: "%\\VignetteIndexEntry{Pension Funding with lifecontingencies} \n%\\VignetteEngine{knitr::rmarkdown}
+  \ \n%\\usepackage[latin1]{inputenc}\n"
 ---
 
 ```{r setup, include=FALSE}
@@ -100,9 +99,8 @@ V_{x}={}_{\beta-x}E^{p^{ap},i^{ap}}_{x}\left(\frac{\beta-\alpha}{t}s_{\beta-1}\r
 
 The CUM contribution rate is defined by following function:
 
-```{r cumdef, echo=TRUE}
-CUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
-              k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+```{r cumdef, echo=TRUE, tidy=TRUE}
+CUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
 
     out <- numeric(1)
     if (missing(acttableAccPeriod)) 
@@ -131,7 +129,7 @@ CUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
 ```
 
 The mathematical reserve is instead equal to:
-```{r cummr, echo=TRUE}
+```{r cummr, echo=TRUE, tidy=TRUE}
 CUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
   
   out <- numeric(1)
@@ -163,10 +161,9 @@ CUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,pay
 
 The PUM contribution rate is defined by the following function:
 
-```{r pumdef, echo=TRUE}
+```{r pumdef, echo=TRUE, tidy=TRUE}
 #Projected Unit Method
-PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
-              k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
   
   out <- numeric(1)
   if (missing(acttableAccPeriod)) 
@@ -189,15 +186,14 @@ PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
     stop("Error! Need average salary increase rate")
   if (any(x < 0, beta < 0, t < 0)) 
     stop("Error! Negative parameters")
-  out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*1/t*
-    axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-h-1))
+  out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*1/t*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-h-1))
   return(out)
 }
 ```
 
 
 while the mathematical reserve is
-```{r res, echo=TRUE}
+```{r pummr, echo=TRUE, tidy=TRUE}
 PUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
   
   out <- numeric(1)
@@ -228,10 +224,11 @@ PUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,pay
 
 The IEAM is defined as follows:
 
-```{r ieamdef}
-IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
-               k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
-
+```{r ieamdef, echo=TRUE, tidy=TRUE}
+#Individual Entry-Age Unit Method
+#Type: 0 constant contribution rate, 1 # Constant Contribution amount (Default is 0)
+IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
+  
   out <- numeric(1)
   if (missing(acttableAccPeriod)) 
     stop("Error! Need an actuarial actuarialtable")
@@ -263,12 +260,47 @@ IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,
 }
 ```
 
+while the reserve is:
 
+```{r ieammr, echo=TRUE, tidy=TRUE}
+IEAMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
+  
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
+  al=IEAM(acttableAccPeriod,x,beta,i,j,t,k=1,payment,acttablePaymPeriod,i2,delta,type)
+    if(type==0){
+    out=c(sapply(seq(x,beta,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((beta-x)/t*(1+j)^(beta-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)-al*(1+j)^(h-x)*axn(acttableAccPeriod,h,beta-h,i = (1+i)/(1+j)-1,k=1)),sapply(seq(beta+1,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  }
+  else{
+    out=c(sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((beta-x)/t*(1+j)^(beta-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)-al[h-x+1]*(1+j)^(h-x)*axn(acttableAccPeriod,h,beta-h,i ,k=1)),sapply(seq(beta,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  }
+    return(out)
+}
+```
 
 
 ## An applied example
 
-The following assumptions hold:
+We consider a pension fund based on a single cohort of age $x=25$. Furthermore, we assume that the DB pension fund has based the quantification of the contribution rate on the following assumptions:
 
 ```{r assumptions}
 #Current Unit Method
@@ -280,19 +312,29 @@ j=0.06 #  average salary increases (for both growth in wages and promotional sal
 delta=0.03 #Increase of retirement pension
 ```
 
-Therefore 
+Therefore, the following Figure shows the pattern of the contribution rates according to the three methods. As expected, Current Unit Method, being based on the current salary, shows a very increasing tendency over time. Differences with respect to PUM depends on the value of $j$. It is indeed easy to prove that both methods lead to the same rates when $j=0$.
 
-```{r calcandshow}
+```{r calcandshow, tidy=TRUE}
 CUM(lt,x,beta,i,j,t,k,delta=0.03)
 PUM(lt,x,beta,i,j,t,k,delta=0.03)
 IEAM(lt,x,beta,i,j,t,k,delta=0.03,type=0)
 plot(seq(x,beta-1,1),CUM(lt,x,beta,i,j,t,k,delta=0.03),xlab="age",ylab="Contribution rate")
 lines(seq(x,beta-1,1),PUM(lt,x,beta,i,j,t,k,delta=0.03),type="p",col="red")
 lines(seq(x,beta-1,1),rep(IEAM(lt,x,beta,i,j,t,k,delta=0.03),beta-x),type="p",col="blue")
+lines(seq(x,beta-1,1),IEAM(lt,x,beta,i,j,t,k,delta=0.03,type=1),type="p",col="green")
+legend("topleft",c("CUM","PUM","IEAM (constant rate)","IEAM (constant premium)"),col=c("black","red","blue","green"),pch=c(1,1,1,1),cex=0.6)
+```
+According to the mathematical reserve, we observe in the following figure the different behaviour in the accumulation period.
 
+```{r calc2andshow, tidy=TRUE}
 CUMmr(lt,x,beta,i,j,t,k,delta=0.03)
 PUMmr(lt,x,beta,i,j,t,k,delta=0.03)
-plot(seq(x,getOmega(lt)+1,1),CUMmr(lt,x,beta,i,j,t,k,delta=0.03),xlab="age",ylab="Mathematical reserve")
+IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=0)
+IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=1)
+plot(seq(x,getOmega(lt)+1,1),CUMmr(lt,x,beta,i,j,t,k,delta=0.03),xlab="age",ylab="",main="Mathematical reserve")
 lines(seq(x,getOmega(lt)+1,1),PUMmr(lt,x,beta,i,j,t,k,delta=0.03),type="p",col="red")
+lines(seq(x,getOmega(lt)+1,1),IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=0),type="p",col="blue")
+lines(seq(x,getOmega(lt)+1,1),IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=1),type="p",col="green")
+legend("topleft",c("CUM","PUM","IEAM (constant rate)","IEAM (constant premium)"),col=c("black","red","blue","green"),pch=c(1,1,1,1),cex=0.6)
 ```
 
