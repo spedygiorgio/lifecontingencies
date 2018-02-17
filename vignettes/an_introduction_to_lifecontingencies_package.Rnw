@@ -562,7 +562,9 @@ c(incrAnn, decrAnn)
 @
 
 The last example within this section displays the calculation of the present
-value of a geometrically increasing annuity. If payment amounts increase by
+value of a geometrically increasing annuity. As known by classical financial and actuarial mathematic, geometric 
+annuities are priced using a synthetic discount rate $j=i-g$ being $g$ the geometric growth rate and 
+$i$ the interest rate used to discount future payments. So, if payment amounts increase by
 3\%, the interest rate is 4\%, and its term is 10 years, the implied present
 value is:
 <<ann6, keep.source=TRUE>>=
