@@ -34,9 +34,9 @@ Age of life Y.
 Time until survival has to be evaluated.
 }
 
-  \item{status}{
-Either "joint" or "last".
-}
+\item{status}{Either \code{"joint"} for the joint-life status model or \code{"last"}
+for the last-survivor status model (can be abbreviated).}
+
 }
 
 \value{

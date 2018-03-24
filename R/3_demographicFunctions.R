@@ -22,8 +22,8 @@ teststatusarg <- function(x)
 }
 testtypelifearg <- function(x)
 {
-  x <- match.arg(x, c("Tx", "Kx", "continous", "curtate"))
-  if(x == "continuous")
+  x <- match.arg(x, c("Tx", "Kx", "continuous", "curtate", "complete"))
+  if(x %in% c("continuous", "complete"))
     x <- "Tx"
   if(x == "curtate")
     x <- "Kx"
@@ -256,7 +256,9 @@ exn<-function(object,x,n,type="curtate") {
 	if(missing(n)) n=getOmega(object)-x +1 #to avoid errors
 	if(n==0) return(0)
 	probs=numeric(n)
-	if(type=="curtate"){
+	type <- testtypelifearg(type)
+	
+	if(type=="Kx"){
 	for(i in 1:n) probs[i]=pxt(object,x,i)
 	out=sum(probs)
 	} else {

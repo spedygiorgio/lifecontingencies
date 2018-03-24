@@ -32,8 +32,10 @@ The deferring period. If missing, m is set as 0.
   Number of fractional payments per period. Assumed to be 1 whether missing.
 }
   \item{type}{
-Default value is "EV", where APV is returned. "ST" returns a sample from the underlying 
-present value of benefits distribution.
+	A string, either \code{"EV"} for expected value of the actuarial present value (default) or 
+	\code{"ST"} for one stochastic realization of the underlying present value of benefits.
+	Alternatively, one can use \code{"expected"} or \code{"stochastic"}
+	respectively (can be abbreviated).
 }
   \item{power}{
 The power of the APV. Default is 1 (mean).

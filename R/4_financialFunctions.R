@@ -1,8 +1,18 @@
 #TO DO: check here http://www.mysmu.edu/faculty/yktse/FMA/S_FMA_1.pdf
 #TO DO: add k to increasing and decreasing annuities function
-#function to evaluate the present value of a series of cash flows
 
-presentValue<-function(cashFlows, timeIds,interestRates, probabilities, power=1)
+testpaymentarg2 <- function(x)
+{
+  x <- match.arg(x, c("advance", "due", "immediate", "arrears"))
+  if(x == "advance")
+    x <- "due"
+  if(x == "arrears")
+    x <- "immediate"
+  x
+}
+
+#function to evaluate the present value of a series of cash flows
+presentValue<-function(cashFlows, timeIds, interestRates, probabilities, power=1)
 {
 	out<-0
 	if(missing(timeIds)) #check coherence on time id vector
@@ -94,6 +104,7 @@ annuity=function(i, n,m=0,k=1, type="immediate")
 	if(missing(n)) stop("Error! Missing periods")
 	if(m<0) stop("Error! Negative deferring period") 
 	if(k<1) stop("Error! Payment frequency must be greater or equal than 1") 
+  type <- testpaymentarg2(type)
 	
 	if(is.infinite(n)) {
 		out=ifelse(type=="immediate",1/i,1/interest2Discount(i))
@@ -104,6 +115,7 @@ annuity=function(i, n,m=0,k=1, type="immediate")
 	ieff=i #i ? il tasso effettivo
 	if(type=="immediate") timeIds=seq(from=1/k, to=n, by=1/k)+m
 	else timeIds=seq(from=0, to=n-1/k, by=1/k)+m #due
+	
 	iRate=rep(ieff,length.out=n*k)
 	out=presentValue(cashFlows=rep(1/k,length.out=n*k),interestRates = iRate, 
 			timeIds=timeIds)
@@ -116,7 +128,8 @@ decreasingAnnuity=function(i, n,type="immediate")
 	out=NULL
 	if(missing(n)) stop("Error! Need number of periods")
 	if(missing(i)) stop("Error! Need interest rate")
-	out=(n-annuity(i=i, n=n, type="immediate"))/n
+	type <- testpaymentarg2(type)
+	
 	paymentsSeq=numeric(n)
 	timeIds=numeric(n)
 	paymentsSeq=seq(from=n, to=1,by=-1)
@@ -126,6 +139,7 @@ decreasingAnnuity=function(i, n,type="immediate")
 		timeIds=seq(from=0, to=n-1,by=1)
 	}
 	out=presentValue(cashFlows=paymentsSeq, timeIds=timeIds, interestRates=i)
+	
 	return(out)
 }
 #increasing annuity
@@ -134,6 +148,8 @@ increasingAnnuity=function(i, n,type="immediate")
 	out=NULL
 	if(missing(n)) stop("Error! Need periods")
 	if(missing(i)) stop("Error! Need interest rate")
+	type <- testpaymentarg2(type)
+	
 	paymentsSeq=numeric(n)
 	paymentsSeq=seq(from=1, to=n,by=1)
 	timeIds=seq(from=1, to=n, by=1)
@@ -157,6 +173,8 @@ accumulatedValue=function(i, n, m=0,k=1, type="immediate")
 {
 	if(is.infinite(n)) return(1/i)
 	if(missing(i)) stop("Error! Missing interest rates")
+  type <- testpaymentarg2(type)
+  
 #	if(type=="immediate") timeIds=seq(from=1, to=n, by=1)
 #	else timeIds=seq(from=0, to=n-1, by=1) #due
 #	timeIds=-timeIds

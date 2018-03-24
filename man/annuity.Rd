@@ -25,8 +25,11 @@ annuity(i, n,m=0, k=1,type = "immediate")
 	Yearly payments frequency. A payment of \eqn{k^-1} is 
 	supposed to be performed at the end of each year.
 }
-\item{type}{
-	A string, either "immediate" or "due".
+  \item{type}{
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
 }
 }
 \details{

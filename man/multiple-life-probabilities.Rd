@@ -26,7 +26,8 @@ rLifexyz(n, tablesList, x, k = 1, type = "Tx")
 \item{x}{A vector of the same size of tableList that contains the initial ages.}
 \item{t}{The duration.}
 \item{n}{The size of sampled life duration matrix.}
-\item{status}{Either \code{"joint"} (for the joint-life status model) or \code{"last"}.}
+\item{status}{Either \code{"joint"} for the joint-life status model or \code{"last"}
+for the last-survivor status model (can be abbreviated).}
 \item{type}{Either \code{"Tx"} for continuous future lifetime, \code{"Kx"} for 
 curtate furture lifetime (can be abbreviated).}
 \item{fractional}{Assumptions for fractional age. One of \code{"linear"}, 

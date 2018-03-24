@@ -33,17 +33,23 @@ Deferring period.
   \item{k}{
 Fractional payment frequency.
 }
-  \item{status}{
-Either "joint" (for the joint-life status model) or "last".
-}
+  \item{status}{Either \code{"joint"} for the joint-life status model or \code{"last"}
+for the last-survivor status model (can be abbreviated).}
+
   \item{type}{
-"EV", for expected value. "ST" for stochastic value.
+	A string, either \code{"EV"} for expected value of the actuarial present value (default) or 
+	\code{"ST"} for one stochastic realization of the underlying present value of benefits.
+	Alternatively, one can use \code{"expected"} or \code{"stochastic"}
+	respectively (can be abbreviated).
 }
   \item{power}{
 The power of the APV. Default is 1 (mean).
 }
   \item{payment}{
-Payment type: "advance" default is the annuity due, otherwise annuity due.
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
 }
 }
 \details{

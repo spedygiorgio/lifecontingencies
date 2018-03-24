@@ -19,7 +19,10 @@
 	The number of periods.
 }
   \item{type}{
-	Type of annuity. Either "immediate" or "due".
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
 }
 }
 \details{

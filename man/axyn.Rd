@@ -23,9 +23,18 @@ Axyn(tablex, x, tabley, y, n, i, m, k = 1, status = "joint", type = "EV")
   \item{m}{Deferring period. Default value is zero.}
   \item{k}{Fractional payments or periods where insurance is payable.}
   \item{status}{Either "joint" or "last" survival status.}
-  \item{type}{"EV" (expected value) or "ST" (stochastic)}
-  \item{payment}{Payment type: "advance" default is the annuity due, 
-  otherwise annuity immediate.}
+    \item{type}{
+	A string, either \code{"EV"} for expected value of the actuarial present value (default) or 
+	\code{"ST"} for one stochastic realization of the underlying present value of benefits.
+	Alternatively, one can use \code{"expected"} or \code{"stochastic"}
+	respectively (can be abbreviated).
+}
+  \item{payment}{
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
+}
 }
 
 \details{

@@ -19,8 +19,10 @@ decreasingAnnuity(i, n,type="immediate")
 	The number of periods.
 }
   \item{type}{
-	A character value, specifying the annuity type. Either "immediate" or "due". Default 
-	value is "immediate".
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
 }
 }
 \details{
@@ -53,5 +55,7 @@ Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
 	#for 10 years is
 	decreasingAnnuity(i=0.03, n=10)
 	#assuming a 3% interest rate
+	#should be
+	sum((10:1)/(1+.03)^(1:10))
 }
 

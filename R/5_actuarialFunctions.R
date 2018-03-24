@@ -4,15 +4,43 @@
 # Author: Giorgio Spedicato
 ###############################################################################
 
+
+testtyperesarg <- function(x)
+{
+  x <- match.arg(x, c("EV", "ST", "expected", "stochastic"))
+  if(x == "expected")
+    x <- "EV"
+  if(x == "stochastic")
+    x <- "ST"
+  x
+}
+testpaymentarg <- function(x)
+{
+  x <- match.arg(x, c("advance", "due", "immediate", "arrears"))
+  if(x == "due")
+    x <- "advance"
+  if(x == "arrears")
+    x <- "immediate"
+  x
+}
+teststatusarg <- function(x)
+{
+  x <- match.arg(x, c("last", "joint", "Joint-Life", "Last-Survivor"))
+  if(x == "Joint-Life")
+    x <- "joint"
+  if(x == "Last-Survivor")
+    x <- "last"
+  x
+}
+
 #function to obtain the endowment
-Exn <-
-  function(actuarialtable, x, n, i = actuarialtable@interest,type = "EV",power =
-             1)
+Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", power = 1)
   {
     interest <- i
     out <- numeric(1)
     if (missing(actuarialtable))
       stop("Error! Need an actuarial actuarialtable") #request an actuarial actuarialtable
+    type <- testtyperesarg(type)
     prob = pxt(actuarialtable,x,n)
     discount = (1 + interest) ^ (-n)
     #defines the outputs
@@ -30,14 +58,15 @@ Exn <-
     return(out)
   }
 #function to obtain the annuity
-axn <-
-  function(actuarialtable, x, n,i = actuarialtable@interest, m,k = 1, type =
+axn <- function(actuarialtable, x, n,i = actuarialtable@interest, m,k = 1, type =
              "EV",power = 1,payment = "advance")
   {
     interest <- i
     out <- numeric(1)
     if (missing(actuarialtable))
       stop("Error! Need an actuarial actuarialtable")
+    type <- testtyperesarg(type)
+    payment <- testpaymentarg(payment)
     if (missing(x))
       stop("Error! Need age!")
     
@@ -88,8 +117,7 @@ axn <-
 
 
 #shall write the Rd file
-axyn <-
-  function(tablex, tabley, x,y, n,i, m,k = 1, status = "joint", type = "EV", payment =
+axyn <- function(tablex, tabley, x,y, n,i, m,k = 1, status = "joint", type = "EV", payment =
              "advance")
   {
     .Deprecated("axyzn")
@@ -102,6 +130,9 @@ axyn <-
       stop("Error! Need age for X!")
     if (missing(y))
       stop("Error! Need age for Y!")
+    type <- testtyperesarg(type)
+    payment <- testpaymentarg(payment)
+    status <- teststatusarg(status)
     if (missing(m))
       m = 0
     if (missing(n))
@@ -148,8 +179,7 @@ axyn <-
   }
 
 
-axyzn <-
-  function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",power =
+axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",power =
              1, payment = "advance")
   {
     out <- numeric(1)
@@ -161,6 +191,9 @@ axyzn <-
       if (!(class(tablesList[[j]]) %in% c("lifetable", "actuarialtable")))
         stop("Error! A list of lifetable objects is required")
     }
+    type <- testtyperesarg(type)
+    payment <- testpaymentarg(payment)
+    status <- teststatusarg(status)
     
     if (k < 1)
       stop("Error! Periods in a year shall be no less than 1")
@@ -235,14 +268,15 @@ axyzn <-
 #x: beginnin life age
 #m: deferring term
 #type: output requested: default expected value
-Axn <-
-  function(actuarialtable, x, n,i = actuarialtable@interest, m, k = 1, type =
+Axn <- function(actuarialtable, x, n,i = actuarialtable@interest, m, k = 1, type =
              "EV",power = 1)
   {
     out <- numeric(1)
     interest <- i
     if (missing(actuarialtable))
       stop("Error! Need an actuarial actuarialtable")
+    type <- testtyperesarg(type)
+    
     if (missing(x))
       stop("Error! Need age!")
     if (k < 1)
@@ -289,8 +323,7 @@ Axn <-
 
 #Axn(soa08Act,65,k=12, n=12) # 0.2483798
 
-Axyn <-
-  function(tablex, x,tabley, y, n,i, m, k = 1, status = "joint", type = "EV")
+Axyn <- function(tablex, x,tabley, y, n,i, m, k = 1, status = "joint", type = "EV")
   {
     .Deprecated("Axyzn")
     out <- numeric(1)
@@ -298,6 +331,9 @@ Axyn <-
       stop("Error! Need tables")
     if (any(missing(x),missing(y)))
       stop("Error! Need ages!")
+    type <- testtyperesarg(type)
+    status <- teststatusarg(status)
+    
     if (k < 1)
       stop("Error! Periods in a year shall be no less than 1")
     if (missing(m))
@@ -350,8 +386,7 @@ Axyn <-
   }
 
 
-Axyzn <-
-  function(tablesList, x, n,i, m, k = 1, status = "joint", type = "EV",power =
+Axyzn <- function(tablesList, x, n,i, m, k = 1, status = "joint", type = "EV",power =
              1)
   {
     out = numeric(1)
@@ -363,6 +398,8 @@ Axyzn <-
       if (!(class(tablesList[[j]]) %in% c("lifetable", "actuarialtable")))
         stop("Error! A list of lifetable objects is required")
     }
+    type <- testtyperesarg(type)
+    status <- teststatusarg(status)
     
     if (k < 1)
       stop("Error! Periods in a year shall be no less than 1")
@@ -446,8 +483,7 @@ Axyzn <-
 # m=0
 # k=2
 
-IAxn <-
-  function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1, type =
+IAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1, type =
              "EV",power = 1)
   {
     out <- numeric(1)
@@ -458,6 +494,7 @@ IAxn <-
       m = 0
     if (missing(x))
       stop("Error! Need age!")
+    type <- testtyperesarg(type)
     
     if (missing(n))
       n = getOmega(actuarialtable) - x - m #n=getOmega(actuarialtable)-x-m-1
@@ -515,8 +552,7 @@ IAxn <-
 # IAxn(soa08Act, x=50,n=10,k=2,type="EV")
 # IAxn(soa08Act, x=50,n=10,k=2,type="ST")
 
-DAxn <-
-  function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1, type =
+DAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1, type =
              "EV",power = 1)
   {
     out <- numeric(1)
@@ -525,6 +561,7 @@ DAxn <-
       stop("Error! Need an actuarial actuarialtable")
     if (missing(x))
       stop("Error! Need age!")
+    type <- testtyperesarg(type)
     if (missing(m))
       m = 0
     if (missing(n))
@@ -576,14 +613,14 @@ DAxn <-
 
 #n-year increasing
 #recursive function
-Iaxn <-
-  function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, type =
-             "EV",power = 1)
+Iaxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, type =
+             "EV", power = 1)
   {
     out <- numeric(1)
     interest <- i
     if (missing(actuarialtable))
       stop("Error! Need an actuarial actuarialtable")
+    type <- testtyperesarg(type)
     if (missing(m))
       m = 0
     if (missing(x))
@@ -611,8 +648,7 @@ Iaxn <-
 
 
 #pure endowment function
-AExn <-
-  function(actuarialtable, x, n,i = actuarialtable@interest, k = 1, type =
+AExn <- function(actuarialtable, x, n,i = actuarialtable@interest, k = 1, type =
              "EV",power = 1)
   {
     out <- numeric(1)
@@ -621,6 +657,7 @@ AExn <-
       stop("Error! Need an actuarial actuarialtable")
     if (missing(x))
       stop("Error! Need age!")
+    type <- testtyperesarg(type)
     if (k < 1)
       stop("Error! Periods in a year shall be no less than 1")
     if (missing(n))

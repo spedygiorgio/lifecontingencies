@@ -24,8 +24,11 @@
 \item{k}{
 	Frequency of payment.
 }
-\item{type}{
-	A string, either "immediate" or "due".
+  \item{type}{
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
 }
 }
 \details{

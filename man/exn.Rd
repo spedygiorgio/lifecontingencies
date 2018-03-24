@@ -21,9 +21,8 @@ Age from which the life span should be calculated.
   \item{n}{
 Time until which the expected life should be calculated. Assumed omega - x whether missing.
 }
-\item{type}{
-Either complete or curtate
-}
+\item{type}{Either \code{"Tx"}, \code{"complete"} or \code{"continuous"} for continuous future lifetime, 
+\code{"Kx"} or \code{"curtate"} for curtate furture lifetime (can be abbreviated).}
 }
 \value{
 A numeric value representing the expected life span.

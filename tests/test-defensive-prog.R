@@ -23,6 +23,13 @@ qxt(object=soa08Act, x=90, t=3/2, frac="hyp")
 qxt(object=soa08Act, x=90, t=3/2, frac="Bal")
 qxt(object=soa08Act, x=90, t=3/2, frac="harm")
 
+exn(object=soa08Act, x=90, type="cur")
+exn(object=soa08Act, x=90, type="Kx")
+
+exn(object=soa08Act, x=90, type="con")
+exn(object=soa08Act, x=90, type="Tx")
+
+
 pxyzt(list(soa08Act, soa08Act), x=c(55, 50), t=10.33, frac="lin")
 pxyzt(list(soa08Act, soa08Act, soa08Act), x=c(55, 50, 45), t=10.33, frac=c("unif", "Bal", "exp"))
 pxyzt(list(soa08Act, soa08Act), x=c(55, 50), t=10.33, status="jo")
@@ -47,6 +54,10 @@ try(
 try(
   qxt(object=soa08Act, x=90, t=2, frac=TRUE)
 )
+try(
+  exn(object=soa08Act, x=90, type="foo3")
+)
+
 try(
   pxyzt(list(soa08Act, soa08Act, soa08Act), x=c(55, 50, 45), t=10.33, frac=c("foo1", "Bal", "exp"))
 )
