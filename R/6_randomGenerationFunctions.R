@@ -4,6 +4,18 @@
 # Author: Giorgio A. Spedicato
 ###############################################################################
 
+
+testtypelifearg <- function(x)
+{
+  x <- match.arg(x, c("Tx", "Kx", "continuous", "curtate", "complete"))
+  if(x %in% c("continuous", "complete"))
+    x <- "Tx"
+  if(x == "curtate")
+    x <- "Kx"
+  x
+}
+
+
 ##########random variables Tx and Kx generators 
 
 #
@@ -29,6 +41,8 @@ rLife<-function(n,object, x=0,k=1, type="Tx")
 	if(missing(n)) stop("Error! Needing the n number of variates to return")
 	if((class(object) %in% c("lifetable", "actuarialtable"))==FALSE) stop("Error! Objectx needs be lifetable or actuarialtable objects")
 	if(x>getOmega(object)) stop("Error! x > maximum attainable age")
+  type <- testtypelifearg(type)
+  
 	out=numeric(n)
 	const2Add=0
 	if(type=="Tx") const2Add=0.5/k # the continuous future lifetime 
@@ -64,6 +78,8 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 	for(i in 1:numTables) {
 		if(!(class(tablesList[[i]]) %in% c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
 	}	
+	type <- testtypelifearg(type)
+	
 	outVec=numeric(0)
 	for(i in 1:numTables)
 	{
