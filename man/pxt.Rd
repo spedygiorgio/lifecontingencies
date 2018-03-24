@@ -10,18 +10,24 @@ pxt(object, x, t, fractional = "linear", decrement)
 qxt(object, x, t, fractional = "linear", decrement)
 }
 \arguments{
-\item{object}{A \code{lifetable} object.}
+  \item{object}{A \code{lifetable} object.}
   \item{x}{Age of life \code{x}.}
   \item{t}{Period until which the age shall be evaluated. Default value is 1.}
-  \item{fractional}{Assumptions for fractional age. One of "linear", "hyperbolic", "constant force".}
+  \item{fractional}{Assumptions for fractional age. One of \code{"linear"}, 
+  \code{"hyperbolic"}, \code{"constant force"} (can be abbreviated).}
   \item{decrement}{The reason of decrement (only for \code{mdt} class objects). Can be either an ordinal number or the
   name of decrement}
  }
 \details{
 	Fractional assumptions are:
-		-linear: linear interpolation between consecutive ages.
-		-constant force of mortality: constant force of mortality.
-		-hyperbolic: Balducci assumptions. See references for details.
+	\itemize{
+		\item linear: linear interpolation between consecutive ages, i.e. assume uniform distribution.
+		\item constant force of mortality : constant force of mortality, also known as exponential interpolation.
+		\item hyperbolic: Balducci assumption, also known as harmonic interpolation. 
+		}
+	Note that \code{fractional="uniform"}, \code{"exponential"}, \code{"harmonic"} or \code{"Balducci"}
+	is also authorized.
+	See references for details.
 }
 \value{A numeric value representing requested probability.}
 \references{

@@ -1,3 +1,37 @@
+
+#see page 74 of Actuarial Mathematics
+testfractionnalarg <- function(x)
+{
+  x <- match.arg(x, c("linear", "uniform", "hyperbolic", "constant force", "exponential", "harmonic", "Balducci"))
+  if(x == "uniform")
+    x <- "linear"
+  if(x == "exponential")
+    x <- "constant force"
+  if(x %in% c("harmonic", "Balducci"))
+    x <- "hyperbolic"
+  x
+}
+teststatusarg <- function(x)
+{
+  x <- match.arg(x, c("last", "joint", "Joint-Life", "Last-Survivor"))
+  if(x == "Joint-Life")
+    x <- "joint"
+  if(x == "Last-Survivor")
+    x <- "last"
+  x
+}
+testtypelifearg <- function(x)
+{
+  x <- match.arg(x, c("Tx", "Kx", "continous", "curtate"))
+  if(x == "continuous")
+    x <- "Tx"
+  if(x == "curtate")
+    x <- "Kx"
+  x
+}
+
+
+
 #number of deaths between age x and x+t
 dxt <- function(object, x, t, decrement) {
   #checks
@@ -48,6 +82,9 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
   #checks
   if (!(class(object) %in% c("lifetable","actuarialtable","mdt")))
     stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
+  
+  fractional <- testfractionnalarg(fractional)
+  
   if (class(object) == "mdt") {
     #specific function for multiple decrements
     out <-
@@ -245,6 +282,7 @@ pxyt<-function(objectx, objecty,x,y,t, status="joint")
 	if(missing(t)) t=1 #default 1
 	if(any(x<0,y<0,t<0)) stop("Check x, y and t domain")
 	#joint survival status
+  status <- teststatusarg(status)
 
 	pxy=pxt(objectx, x,t)*pxt(objecty,y,t)
 	if(status=="joint") out=pxy else out=pxt(objectx, x,t)+pxt(objecty,y,t)-pxy 
@@ -311,6 +349,10 @@ pxyzt<-function(tablesList,x,t, status="joint",fractional=rep("linear",length(ta
 	out=1
 	#fractional list can be either missing or a string length of character one
 	if(length(fractional)==1) {temp<-fractional;fractional=rep(temp,length(tablesList))}
+	
+	fractional <- sapply(fractional, testfractionnalarg)
+	status <- teststatusarg(status)
+	
 	#initial checkings
 	
 	numTables=length(tablesList)
@@ -371,6 +413,9 @@ exyzt<-function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 	for(i in 1:numTables) {
 	if(!(class(tablesList[[i]]) %in% c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
 	}
+	type <- testtypelifearg(type)
+	status <- teststatusarg(status)
+	
 	#get the max omega
 	maxAge=0 
 	for(i in 1:numTables)

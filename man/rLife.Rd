@@ -24,8 +24,10 @@ The attained age of subject x. Default value is 0.
   \item{k}{
 Number of periods within the year when it is possible death to happen. Default value is 1.
 }
-  \item{type}{Either "Tx" for continuous future lifetime or "Kx" for curtate future lifetime
-}
+  \item{type}{Either \code{"Tx"} for continuous future lifetime, \code{"Kx"} for 
+curtate furture lifetime (can be abbreviated).}
+
+  
 }
 \details{
 Following relation holds for the future life time: \eqn{T_x=K_x+0.5}.
