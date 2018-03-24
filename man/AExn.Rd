@@ -27,9 +27,11 @@ Rate of interest. When missing the one included in the actuarialtable object is 
 Frequency of benefit payment.
 }
   \item{type}{
-Character value, either "EV" or "ST". EV is the default value.
+	A string, either \code{"EV"} for expected value of the actuarial present value (default) or 
+	\code{"ST"} for one stochastic realization of the underlying present value of benefits.
+	Alternatively, one can use \code{"expected"} or \code{"stochastic"}
+	respectively (can be abbreviated).
 }
-
   \item{power}{
 The power of the APV. Default is 1 (mean)
 }

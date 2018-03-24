@@ -10,16 +10,22 @@ k = 1, status = "joint", parallel = FALSE,payment = "advance")
 }
 \arguments{
   \item{n}{Sample size}
-  \item{lifecontingency}{Either "Axyz" or "axyz"}
+  \item{lifecontingency}{Either \code{"Axyz"} or \code{"axyz"}}
   \item{tablesList}{List of tables}
   \item{x}{Ages vector}
   \item{t}{Term}
   \item{i}{Interest rate}
   \item{m}{Deferral period}
   \item{k}{Frequency of payments}
-  \item{status}{Either "joint" (default) or "last"}
+  \item{status}{Either \code{"joint"} for the joint-life status model or \code{"last"}
+for the last-survivor status model (can be abbreviated).}
   \item{parallel}{Use parallel computation}
-  \item{payment}{Payment type: "advance" default is the annuity due, otherwise annuity immediate.}
+  \item{payment}{
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
+}
 }
 \details{This function should return samples from multiple life contingent insurances.}
 \value{A matrix of variates

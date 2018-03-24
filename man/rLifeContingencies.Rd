@@ -10,7 +10,8 @@ i = object@interest, m=0, k = 1 , parallel=FALSE, payment="advance")
 
 \arguments{
 \item{n}{Size of sample}
-\item{lifecontingency}{A character string, either "Exn" or "Axn" or "axn" or "IAxn" or "DAxn".}
+\item{lifecontingency}{A character string, either \code{"Exn"}, \code{"Axn"}, 
+\code{"axn"}, \code{"IAxn"} or \code{"DAxn"}.}
 \item{object}{An \code{actuarialtable} object.}
 \item{x}{Policyholder's age at issue time.}
 \item{t}{The lenght of the insurance. Must be specified according to the present 
@@ -19,7 +20,12 @@ value of benefits definition.}
 \item{m}{Deferring period, default value is zero.}
 \item{k}{Fractional payment, default value is 1.}
 \item{parallel}{Uses the parallel computation facility.}
-\item{payment}{Payment type: "advance" default is the annuity due, otherwise annuity due.}
+\item{payment}{
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
+}
 }
 \details{
 This function is a wrapper for internal function that returns the present value of insured 

@@ -14,6 +14,34 @@ testtypelifearg <- function(x)
     x <- "Kx"
   x
 }
+testpaymentarg <- function(x)
+{
+  x <- match.arg(x, c("advance", "due", "immediate", "arrears"))
+  if(x == "due")
+    x <- "advance"
+  if(x == "arrears")
+    x <- "immediate"
+  x
+}
+testlifecontarg <- function(x)
+{
+  x <- match.arg(x, c("Axn", "axn", "Exn", "IAxn", "DAxn", "AExn"))
+  x
+}
+testlifecontarg2 <- function(x)
+{
+  x <- match.arg(x, c("Axyz", "axyz"))
+  x
+}
+teststatusarg <- function(x)
+{
+  x <- match.arg(x, c("last", "joint", "Joint-Life", "Last-Survivor"))
+  if(x == "Joint-Life")
+    x <- "joint"
+  if(x == "Last-Survivor")
+    x <- "last"
+  x
+}
 
 
 ##########random variables Tx and Kx generators 
@@ -168,6 +196,7 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 #seems to work
 .fAxyzn<-function(T,y,n, i, m, k, status)
 {
+  status <- teststatusarg(status)
 	out=numeric(1)
 	temp=T-y
 	T=ifelse(status=="joint",min(temp),max(temp)) #redefines T
@@ -221,6 +250,7 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 .faxn<-function(T,y,n, i, m, k=1, payment="advance")
 {
 	out=numeric(1)
+	payment <- testpaymentarg(payment)
 	K=T-y #number of years to live
 		if(K<m) { #if policyholder dies before inception of the annuity
 			out=0 #no payment is due
@@ -254,6 +284,9 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 .faxyzn<-function(T,y,n, i, m, k=1,status, payment="advance")
 {
 	out=numeric(1)
+	payment <- testpaymentarg(payment)
+	status <- teststatusarg(status)
+	
 	temp=T-y
 	K=ifelse(status=="joint",min(temp),max(temp))
 	if(K<m) { #if policyholder dies before inception of the annuity
@@ -300,6 +333,9 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@interest, 
 		m = 0, k = 1, parallel = FALSE, payment="advance") 
 {
+  payment <- testpaymentarg(payment)
+  lifecontingency <- testlifecontarg(lifecontingency)
+  
 	deathsTimeX = numeric(n)
 	outs = numeric(n)
 	if (k == 1) 
@@ -403,6 +439,10 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
 rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i, 
 		m=0,k=1, status="joint", parallel=FALSE, payment="advance")
 {
+  payment <- testpaymentarg(payment)
+  lifecontingency <- testlifecontarg2(lifecontingency)
+  status <- teststatusarg(status)
+  
 	numTables=length(tablesList)
 	#gets the missing i
 	if(missing(i)) {
@@ -463,6 +503,8 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
 getLifecontingencyPv<-function (deathsTimeX, lifecontingency, object, x, t, i = object@interest, 
 		m = 0, k = 1,  payment="advance") 
 {
+  payment <- testpaymentarg(payment)
+  
 	outs = numeric(length(deathsTimeX))
 	if (lifecontingency == "Axn") 
 		outs = sapply(deathsTimeX, .fAxn, y = x, n = t, i = i, 
@@ -491,8 +533,11 @@ getLifecontingencyPv<-function (deathsTimeX, lifecontingency, object, x, t, i = 
 
 
 getLifecontingencyPvXyz<-function(deathsTimeXyz,lifecontingency, tablesList, x,t,i, 
-		m=0,k=1, status="joint",  payment="advance")
+		m=0,k=1, status="joint", payment="advance")
 {
+  payment <- testpaymentarg(payment)
+  status <- teststatusarg(status)
+  
 	numTables=length(tablesList)
 	if(ncol(deathsTimeXyz)!=numTables) stop("Error! deathTimeXyz columns should match the number of life tables!")
 	#gets the missing i

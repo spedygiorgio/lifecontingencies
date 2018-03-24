@@ -23,10 +23,16 @@ k = 1, status = "joint", payment = "advance")
   \item{i}{interest rate}
   \item{m}{deferrement}
   \item{k}{fractional payments}
-  \item{payment}{either "advance" or "deferred"}
+  \item{payment}{
+The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
+	respectively (can be abbreviated).
+}
   \item{deathsTimeXyz}{matrix of death times from birth}
   \item{tablesList}{list of table of the same size of num column of deathTimeXyz.}
-  \item{status}{"joint" or "last" survivor.}
+  \item{status}{Either \code{"joint"} for the joint-life status model or \code{"last"}
+for the last-survivor status model (can be abbreviated).}
 }
 \details{This function is a wrapper to the many internal functions that give the PV
  known the age of death.}
