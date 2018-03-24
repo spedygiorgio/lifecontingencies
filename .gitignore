@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .log
+*.Rproj
+.DS_Store
