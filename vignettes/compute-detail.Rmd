@@ -1,0 +1,75 @@
+---
+title: "Computational details of demographic functions"
+author: "C. Dutang and G.A. Spedicato"
+date: "2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Survival probabilities
+
+For notation details, see Actuarial Mathematics by Nesbitt et al.
+
+We compute ${}_tp_{x}$ as for all $x,t\in\mathbb R_+$
+$$
+{}_tp_{x} = \frac{{}_{t+\epsilon_x}p_{\lfloor x\rfloor}}{{}_{\epsilon_x}p_{x}}
+\text{ and } 
+{}_{u}p_{\lfloor x\rfloor} = {}_{\lfloor u\rfloor}p_{\lfloor x\rfloor} \times {}_{\epsilon_u}p_{\lfloor x+u\rfloor},
+$$
+with $\epsilon_x=x - \lfloor x\rfloor$, $u=t+\epsilon_x$ and $\epsilon_u=u-\lfloor u\rfloor$
+
+
+We estimate ${}_np_{m}$ as for all $n,m\in\mathbb N$
+$$
+{}_np_{m} = \frac{l_{n+m}}{l_m}.
+$$
+
+We interpolate fractional age probabilities ${}_yp_{\lfloor x\rfloor}$ by three classical assumptions
+for all $y \in [0,1), m\in\mathbb N$
+$$
+{}_{y}p_{m} =
+\left\{
+\begin{array}{ll}
+1 - y (1-p_{m}) & \text{if uniform distribution} \\
+(p_{m})^y & \text{if constant force} \\
+\frac{p_{m}}{1-(1-t)(1-p_{m})} & \text{if hyperbolic distribution} \\
+\end{array}
+\right. 
+$$
+
+# Examples of non-integer times
+```{r}
+library(lifecontingencies)
+data("soa08Act")
+pXt <- Vectorize(pxt, "x")
+pxT <- Vectorize(pxt, "t")
+pxtvect <- lifecontingencies:::pxtvect
+
+z <- 1:6/3
+#non integer time
+cbind(t=z, pxtvect(soa08Act, x=100, t=z, fractional = "lin"), pxT(object=soa08Act, x=100, t=z, fractional = "lin"))
+cbind(t=z, pxtvect(soa08Act, x=100, t=z, fractional = "hyp"), pxT(object=soa08Act, x=100, t=z, fractional = "hyp"))
+cbind(t=z, pxtvect(soa08Act, x=100, t=z, fractional = "exp"), pxT(object=soa08Act, x=100, t=z, fractional = "exp"))
+```
+
+
+# Examples of non-integer ages
+
+```{r}
+x <- 50+0:6/6
+#non-integer age
+cbind(x=x, pxtvect(soa08Act, x=x, t=1, fractional = "lin"), pXt(object=soa08Act, x=x, t=1, fractional = "lin"))
+cbind(x=x, pxtvect(soa08Act, x=x, t=1, fractional = "hyp"), pXt(object=soa08Act, x=x, t=1, fractional = "hyp"))
+cbind(x=x, pxtvect(soa08Act, x=x, t=1, fractional = "exp"), pXt(object=soa08Act, x=x, t=1, fractional = "exp"))
+```
+
+# Examples of large ages
+```{r}
+x <- 135:145
+#high-age
+cbind(x=x, pxtvect(soa08Act, x=x, t=1), pXt(object=soa08Act, x=x, t=1))
+```
+

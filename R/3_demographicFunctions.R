@@ -76,6 +76,84 @@ dxt <- function(object, x, t, decrement) {
 }
 
 #survival probability between age x and x+t
+pxtvect <- function(object, x, t, fractional = "linear", decrement)
+{
+  out <- NULL
+  #checks
+  if (!(class(object) %in% c("lifetable","actuarialtable","mdt")))
+    stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
+  
+  fractional <- testfractionnalarg(fractional)
+  
+  #class(object) %in% c("lifetable","actuarialtable") 
+  if (missing(x))
+    stop("Missing x")
+  if (any(x < 0, t < 0))
+    stop("Check x or t domain")
+  if (missing(t))
+    t = 1 #default 1
+  if(length(x) <= 0)
+    stop("x is of length zero")
+  if(length(t) <= 0)
+    stop("t is of length zero")
+  
+  n <- max(length(t), length(x))
+  if(length(t) != length(x))
+  {
+    if(length(t) > 1 && length(x) > 1)
+      warnings("t and x arguments have been recycled to match the maximum length of x and t")
+    t <- rep(t, length.out=n)
+    x <- rep(x, length.out=n)
+  }
+  
+  #adjustment when age x is not an integer 
+  y <- x - floor(x)
+  t <- t+y
+  
+  #retrieve l_floor(x) and l_floor(x+t)
+  idx_shift <- 2 - object@x[1] #typically 2 when first age is 0
+  l_floorx <- object@lx[object@x[floor(x)+idx_shift]]
+  l_floorxp1 <- object@lx[object@x[ceiling(x)+idx_shift]]
+  l_floorxt <- object@lx[object@x[floor(x+t)+idx_shift]] 
+  l_floorxtp1 <- object@lx[object@x[ceiling(x+t)+idx_shift]] 
+  
+  #compute one-year survival probabilites 
+  floort_p_floorx <- l_floorxt / l_floorx 
+  ceilt_p_floorx <- l_floorxtp1 / l_floorx
+  one_p_floorxt <- l_floorxtp1 / l_floorxt 
+  one_p_floorx <- l_floorxp1 / l_floorx 
+  
+  #may contains NA if x or x+t is above omega => set to 0
+  floort_p_floorx[is.na(floort_p_floorx)] <- 0 
+  ceilt_p_floorx[is.na(ceilt_p_floorx)] <- 0 
+  one_p_floorxt[is.na(one_p_floorxt)] <- 0
+  one_p_floorx[is.na(one_p_floorx)] <- 0
+  
+  #adjustment when t is not integer
+  z <- t - floor(t)
+  
+  if (fractional == "linear") {
+    t_p_floorx <- z * ceilt_p_floorx + (1 - z) * floort_p_floorx
+  } else if (fractional == "constant force") {
+    t_p_floorx <- floort_p_floorx * one_p_floorxt^z 
+  } else if (fractional == "hyperbolic") {
+    t_p_floorx <- floort_p_floorx * one_p_floorxt / (1 - (1-z)*(1-one_p_floorxt))
+  }
+  
+  #adjustment when age x is not an integer 
+  y <- x - floor(x)
+  if (fractional == "linear") {
+    y_p_floorx <-  1 - y * (1-one_p_floorx)
+  } else if (fractional == "constant force") {
+    y_p_floorx <- one_p_floorx^y 
+  } else if (fractional == "hyperbolic") {
+    y_p_floorx <- one_p_floorx / (1 - (1-y)*(1-one_p_floorx))
+  }
+  
+  t_p_floorx / y_p_floorx
+}
+
+#survival probability between age x and x+t
 pxt <- function(object, x, t, fractional = "linear", decrement)
 {
   out <- NULL
@@ -89,15 +167,16 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
     #specific function for multiple decrements
     out <-
       ifelse(
-        missing(decrement),1 - .qxt.mdt(object = object,x = x,t = t),1 - .qxt.mdt(
-          object = object,x = x,t = t,decrement = decrement
-        )
+        missing(decrement), 1 - .qxt.mdt(object = object,x = x,t = t),
+        1 - .qxt.mdt(object = object,x = x,t = t,decrement = decrement)
       )
     return(out)
   }
+  
+  #class(object) %in% c("lifetable","actuarialtable") 
   if (missing(x))
     stop("Missing x")
-  if (any(x < 0,t < 0))
+  if (any(x < 0, t < 0))
     stop("Check x or t domain")
   if (missing(t))
     t = 1 #default 1
