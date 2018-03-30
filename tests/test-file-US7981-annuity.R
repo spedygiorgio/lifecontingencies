@@ -91,7 +91,7 @@ n <- 2
 sum(
 sapply(1:10, function(m)
 sapply(1:10, function(n)
-abs(getrentestthly(usLT7981$lx, x=x, R=1, nu=1/(1+i), s=m, t=n, k=12, frac="linear", anticipated=TRUE) - axn(USLT7981, x=x, n=n, m=m, k=12, i=i) )
+abs(getrentestthly(usLT7981$lx, x=x, R=1, nu=1/(1+i), s=m, t=n, k=12, frac="linear", anticipated=TRUE) - axn(USLT7981, x=x, n=n, m=m, k=12, i=i, pay="due") )
 )
 )
 )< tol
@@ -101,7 +101,7 @@ abs(getrentestthly(usLT7981$lx, x=x, R=1, nu=1/(1+i), s=m, t=n, k=12, frac="line
 sum(abs(
 sapply(1:10, function(m)
 sapply(1:10, function(n)
-getrentestthly(usLT7981$lx, x=x, R=1, nu=1/(1+i), s=m, t=n, k=12, frac="linear", anticipated=FALSE) - axn(USLT7981, x=x, n=n, m=m, k=12, i=i, pay="due") 
+getrentestthly(usLT7981$lx, x=x, R=1, nu=1/(1+i), s=m, t=n, k=12, frac="linear", anticipated=FALSE) - axn(USLT7981, x=x, n=n, m=m, k=12, i=i, pay="immediate") 
 )
 )
 )) < tol

@@ -5,43 +5,6 @@
 ###############################################################################
 
 
-testtypelifearg <- function(x)
-{
-  x <- match.arg(x, c("Tx", "Kx", "continuous", "curtate", "complete"))
-  if(x %in% c("continuous", "complete"))
-    x <- "Tx"
-  if(x == "curtate")
-    x <- "Kx"
-  x
-}
-testpaymentarg <- function(x)
-{
-  x <- match.arg(x, c("advance", "due", "immediate", "arrears"))
-  if(x == "due")
-    x <- "advance"
-  if(x == "arrears")
-    x <- "immediate"
-  x
-}
-testlifecontarg <- function(x)
-{
-  x <- match.arg(x, c("Axn", "axn", "Exn", "IAxn", "DAxn", "AExn"))
-  x
-}
-testlifecontarg2 <- function(x)
-{
-  x <- match.arg(x, c("Axyz", "axyz"))
-  x
-}
-teststatusarg <- function(x)
-{
-  x <- match.arg(x, c("last", "joint", "Joint-Life", "Last-Survivor"))
-  if(x == "Joint-Life")
-    x <- "joint"
-  if(x == "Last-Survivor")
-    x <- "last"
-  x
-}
 
 
 ##########random variables Tx and Kx generators 
@@ -247,16 +210,18 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 #APV
 #
 
+
+
 .faxn<-function(T,y,n, i, m, k=1, payment="advance")
 {
 	out=numeric(1)
-	payment <- testpaymentarg(payment)
+	payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
 	K=T-y #number of years to live
 		if(K<m) { #if policyholder dies before inception of the annuity
 			out=0 #no payment is due
 		} else {
 		  times=seq(from=m, to=min(m+n-1/k,K),by=1/k) #else it pays from m to the min of m + n - 1/k
-      if (payment=="arrears") times = times + 1/k;
+      if (payment=="immediate") times = times + 1/k;
  		  out=presentValue(cashFlows=rep(1/k, length(times)), timeIds=times, interestRates=i)
 		}
 	return(out)
@@ -284,7 +249,7 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 .faxyzn<-function(T,y,n, i, m, k=1,status, payment="advance")
 {
 	out=numeric(1)
-	payment <- testpaymentarg(payment)
+	payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
 	status <- teststatusarg(status)
 	
 	temp=T-y
@@ -293,7 +258,7 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 				out=0 #no payment is due
 			} else {
 				times=seq(from=m, to=min(m+n-1/k,K),by=1/k) #else it pays from m to the min of m + n - 1/k
-				if (payment=="arrears") times = times + 1/k #copy from univariate
+				if (payment=="immediate") times = times + 1/k #copy from univariate
 				out=presentValue(cashFlows=rep(1/k, length(times)), timeIds=times, interestRates=i)
 			}	
 	return(out)
@@ -333,7 +298,7 @@ rLifexyz=function(n,tablesList,x,k=1, type="Tx")
 rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@interest, 
 		m = 0, k = 1, parallel = FALSE, payment="advance") 
 {
-  payment <- testpaymentarg(payment)
+  payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   lifecontingency <- testlifecontarg(lifecontingency)
   
 	deathsTimeX = numeric(n)
@@ -439,7 +404,7 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
 rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i, 
 		m=0,k=1, status="joint", parallel=FALSE, payment="advance")
 {
-  payment <- testpaymentarg(payment)
+  payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   lifecontingency <- testlifecontarg2(lifecontingency)
   status <- teststatusarg(status)
   
@@ -463,7 +428,8 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
 	temp=matrix(nrow=n, ncol=numTables)
 	outs=numeric(n)
 	#fractional payment are handled using countinuous lifetime simulation
-	if(k==1) temp=x+rLifexyz(n=n,tablesList=tablesList,x=x, k=k,type="Kx") else temp=x+rLifexyz(n=n,tablesList=tablesList,x=x,k=k,type="Tx") #this to handle fractional payments (assume continuous...)
+	if(k==1) temp=x+rLifexyz(n=n,tablesList=tablesList,x=x, k=k,type="Kx") 
+	else temp=x+rLifexyz(n=n,tablesList=tablesList,x=x,k=k,type="Tx") #this to handle fractional payments (assume continuous...)
 
 	deathsTimeX<-temp	
 	if(parallel==TRUE) {
@@ -503,7 +469,7 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
 getLifecontingencyPv<-function (deathsTimeX, lifecontingency, object, x, t, i = object@interest, 
 		m = 0, k = 1,  payment="advance") 
 {
-  payment <- testpaymentarg(payment)
+  payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   
 	outs = numeric(length(deathsTimeX))
 	if (lifecontingency == "Axn") 
@@ -535,7 +501,7 @@ getLifecontingencyPv<-function (deathsTimeX, lifecontingency, object, x, t, i = 
 getLifecontingencyPvXyz<-function(deathsTimeXyz,lifecontingency, tablesList, x,t,i, 
 		m=0,k=1, status="joint", payment="advance")
 {
-  payment <- testpaymentarg(payment)
+  payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   status <- teststatusarg(status)
   
 	numTables=length(tablesList)

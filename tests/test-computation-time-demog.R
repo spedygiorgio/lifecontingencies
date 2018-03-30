@@ -24,7 +24,7 @@ pxtvect <- lifecontingencies:::pxtvect
 cbind(x=135:145, lx=g(135:145), pxtvect(soa08Act, x=135:145, t=1), pXt(object=soa08Act, x=135:145, t=1))
 
 #non-integer age
-cbind(x=10+0:5/6, lx=g(10+0:5/6), pxtvect(soa08Act, x=10+0:5/6, t=1), pXt(object=soa08Act, x=10+0:5/6, t=1))
+cbind(x=10+0:6/6, lx=g(10+0:6/6), pxtvect(soa08Act, x=10+0:6/6, t=1), pXt(object=soa08Act, x=10+0:6/6, t=1))
 
 
 checkvalx <- function(fractional)

@@ -1,35 +1,4 @@
 
-#see page 74 of Actuarial Mathematics
-testfractionnalarg <- function(x)
-{
-  x <- match.arg(x, c("linear", "uniform", "hyperbolic", "constant force", "exponential", "harmonic", "Balducci"))
-  if(x == "uniform")
-    x <- "linear"
-  if(x == "exponential")
-    x <- "constant force"
-  if(x %in% c("harmonic", "Balducci"))
-    x <- "hyperbolic"
-  x
-}
-teststatusarg <- function(x)
-{
-  x <- match.arg(x, c("last", "joint", "Joint-Life", "Last-Survivor"))
-  if(x == "Joint-Life")
-    x <- "joint"
-  if(x == "Last-Survivor")
-    x <- "last"
-  x
-}
-testtypelifearg <- function(x)
-{
-  x <- match.arg(x, c("Tx", "Kx", "continuous", "curtate", "complete"))
-  if(x %in% c("continuous", "complete"))
-    x <- "Tx"
-  if(x == "curtate")
-    x <- "Kx"
-  x
-}
-
 
 
 #number of deaths between age x and x+t
@@ -78,7 +47,6 @@ dxt <- function(object, x, t, decrement) {
 #survival probability between age x and x+t
 pxtvect <- function(object, x, t, fractional = "linear", decrement)
 {
-  out <- NULL
   #checks
   if (!(class(object) %in% c("lifetable","actuarialtable","mdt")))
     stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")

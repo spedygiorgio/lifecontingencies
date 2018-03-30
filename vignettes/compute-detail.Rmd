@@ -3,6 +3,9 @@ title: "Computational details of demographic functions"
 author: "C. Dutang and G.A. Spedicato"
 date: "2018"
 output: html_document
+vignette: "%\\VignetteIndexEntry{Computational details of demographic functions} \n%\\VignetteEngine{knitr::rmarkdown}
+  \ \n%\\usepackage[utf8]{inputenc}\n"
+
 ---
 
 ```{r setup, include=FALSE}

@@ -5,33 +5,6 @@
 ###############################################################################
 
 
-testtyperesarg <- function(x)
-{
-  x <- match.arg(x, c("EV", "ST", "expected", "stochastic"))
-  if(x == "expected")
-    x <- "EV"
-  if(x == "stochastic")
-    x <- "ST"
-  x
-}
-testpaymentarg <- function(x)
-{
-  x <- match.arg(x, c("advance", "due", "immediate", "arrears"))
-  if(x == "due")
-    x <- "advance"
-  if(x == "arrears")
-    x <- "immediate"
-  x
-}
-teststatusarg <- function(x)
-{
-  x <- match.arg(x, c("last", "joint", "Joint-Life", "Last-Survivor"))
-  if(x == "Joint-Life")
-    x <- "joint"
-  if(x == "Last-Survivor")
-    x <- "last"
-  x
-}
 
 #function to obtain the endowment
 Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", power = 1)
@@ -56,17 +29,110 @@ Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", 
       )
     #out=discount^2*prob*(1-prob)
     return(out)
+}
+
+
+#function computing survival annuities
+
+axnvect <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
+                    k = 1, type = "EV",power = 1, payment = "advance", ...)
+{
+  #checks
+  if (!(class(actuarialtable) %in% c("lifetable","actuarialtable")))
+    stop("Error! Only lifetable, actuarialtable classes are accepted")
+  
+  type <- testtyperesarg(type)
+  payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
+  
+  #class(object) %in% c("lifetable","actuarialtable") 
+  if (missing(x))
+    stop("Missing x")
+  if(length(k) > 1)
+  {
+    k <- k[1]
+    warnings("k should be of length 1, it takes first value")
   }
+  if (missing(m))
+    m <- 0
+  if (missing(n))
+    n <- ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k 
+  if (any(x < 0, n < 0, m < 0))
+    stop("Check x, n or m")
+  
+  if(length(x) <= 0)
+    stop("x is of length zero")
+  if(length(t) <= 0)
+    stop("t is of length zero")
+  
+  ntot <- max(length(n), length(x), length(m))
+  if(length(n) != length(x) || length(n) != length(m))
+  {
+    if(length(m) != ntot)
+      warnings("m argument has been recycled to match the maximum length of x, m and n")
+    if(length(n) != ntot)
+      warnings("n argument has been recycled to match the maximum length of x, m and n")
+    if(length(x) != ntot)
+      warnings("x argument has been recycled to match the maximum length of x, m and n")
+    m <- rep(m, length.out=ntot)
+    n <- rep(n, length.out=ntot)
+    x <- rep(x, length.out=ntot)
+    if(any(is.infinite(x), is.infinite(n), is.infinite(m)))
+      stop("infinite values provided in x, n or m")
+    if(any(x < 0, n < 0, m < 0))
+      stop("(strictly) negative values provided in x, n or m")
+  }
+  
+  
+  if (type == "EV")
+  {
+    single_axn_immediate <- function(j)
+    {  
+      if(n[j] <= 0)
+        return(0)
+      payments <- rep(1 / k, n[j] * k)
+      times <- m[j] + seq(from = 1/k, to = n[j], by = 1/k)
+      probs <- pxtvect(actuarialtable, x[j], times, ...)
+      #pxtvect(object, x, t, fractional = "linear", decrement)
+      presentValue(payments, times, i, probs, power)
+    }
+    single_axn_due <- function(j)
+    {  
+      if(n[j] <= 0)
+        return(0)
+      payments <- rep(1 / k, n[j] * k)
+      times <- m[j] + seq(from = 0, to = n[j]-1/k, by = 1/k)
+      probs <- pxtvect(actuarialtable, x[j], times, ...)
+      presentValue(payments, times, i, probs, power)
+    }
+    if(payment == "immediate")
+      out <- sapply(1:ntot, single_axn_immediate)
+    else if(payment == "due")
+      out <- sapply(1:ntot, single_axn_due)
+    else
+      stop("wrong payment type")
+  } else if (type == "ST") {
+    
+    rng_axn <- function(j)
+      rLifeContingencies(
+        n = 1, lifecontingency = "axn", object = actuarialtable, 
+        x = x[j], t = n[j],i = i, m = m[j], k = k, payment=payment)
+    out <- sapply(1:ntot, rng_axn)
+  } else
+    stop("wrong result type")
+  out  
+}
+
 #function to obtain the annuity
-axn <- function(actuarialtable, x, n,i = actuarialtable@interest, m,k = 1, type =
-             "EV",power = 1,payment = "advance")
+axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
+                k = 1, type = "EV", power = 1, payment = "advance")
   {
     interest <- i
     out <- numeric(1)
     if (missing(actuarialtable))
       stop("Error! Need an actuarial actuarialtable")
     type <- testtyperesarg(type)
-    payment <- testpaymentarg(payment)
+    payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
+    
     if (missing(x))
       stop("Error! Need age!")
     
@@ -88,7 +154,7 @@ axn <- function(actuarialtable, x, n,i = actuarialtable@interest, m,k = 1, type 
     payments = rep(1 / k,n * k)
     probs = numeric(n * k)
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
-    if (payment == "arrears")
+    if (payment == "immediate")
       times = times + 1 / k
     
     for (i in 1:length(times))
@@ -131,8 +197,9 @@ axyn <- function(tablex, tabley, x,y, n,i, m,k = 1, status = "joint", type = "EV
     if (missing(y))
       stop("Error! Need age for Y!")
     type <- testtyperesarg(type)
-    payment <- testpaymentarg(payment)
+    payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
     status <- teststatusarg(status)
+    
     if (missing(m))
       m = 0
     if (missing(n))
@@ -150,7 +217,7 @@ axyn <- function(tablex, tabley, x,y, n,i, m,k = 1, status = "joint", type = "EV
     payments = rep(1 / k,n * k)
     probs = numeric(n * k)
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
-    if (payment == "arrears")
+    if (payment == "immediate")
       times = times + 1 / k
     
     xVec = c(x,y)
@@ -192,7 +259,7 @@ axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",pow
         stop("Error! A list of lifetable objects is required")
     }
     type <- testtyperesarg(type)
-    payment <- testpaymentarg(payment)
+    payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
     status <- teststatusarg(status)
     
     if (k < 1)
@@ -223,7 +290,7 @@ axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",pow
     payments = rep(1 / k,n * k)
     probs = numeric(n * k)
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
-    if (payment == "arrears")
+    if (payment == "immediate")
       times = times + 1 / k
     for (j in 1:length(times))
       probs[j] = pxyzt(
