@@ -53,17 +53,22 @@ duration=function(cashFlows, timeIds,i, k=1,macaulay=TRUE)
 
 	if(!(length(cashFlows)==length(timeIds))) stop("Error! check dimensionality of cash flow and time ids vectors") #check dimensionality of cash flows
 	
-	interestRates=rep(i/k,length.out=length(timeIds))
-	#calcola il valora attuale
+	interestRates<-rep(i/k,length.out=length(timeIds))
+	#computing present value
 	ts=timeIds*k
 	v=(1+interestRates)^-(ts)
-	pv=sum((cashFlows*v))
+	pv<-sum((cashFlows*v))
 	#pv=.C("add2", x=as.double(cashFlows), y=as.double(v),n=as.integer(length(cashFlows)),out=numeric(1))$out
-	#calcola il tempo medio ponderato
-	weightedTime=sum((cashFlows*v*ts))
+	#computing weighted time
+	weightedTime <- sum((cashFlows*v*ts))
 	#weightedTime=.C("add3", x=as.double(cashFlows), y=as.double(v),z=as.double(ts),n=as.integer(length(cashFlows)),out=numeric(1))$out
-	out=weightedTime/pv	
-	if(macaulay==FALSE) out=out else out=out/(1+i/k) 
+	out <- weightedTime/pv	
+	# if(macaulay==FALSE) out=out else out=out/(1+i/k) 
+	# return(out)
+	if (macaulay == TRUE)
+	  out <- out
+	else 
+	  out <- out/(1 + i/k)
 	return(out)
 }
 

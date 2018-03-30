@@ -14,9 +14,11 @@ be generated as well as random samples of lifes.
 \usage{
 exyzt(tablesList, x, t = Inf, status = "joint",  type = "Kx", \dots)
 
-pxyzt(tablesList, x, t, status = "joint", fractional=rep("linear", length(tablesList)), \dots)
+pxyzt(tablesList, x, t, status = "joint", 
+fractional=rep("linear", length(tablesList)), \dots)
 
-qxyzt(tablesList, x, t, status = "joint",  fractional=rep("linear",length(tablesList)), \dots)
+qxyzt(tablesList, x, t, status = "joint",  
+fractional=rep("linear",length(tablesList)), \dots)
 
 rLifexyz(n, tablesList, x, k = 1, type = "Tx")
 }
