@@ -8,3 +8,9 @@ test_that("Annuities", {
 
 #TODO: ADD DURATION CHECKS
 
+ex_time = seq(1,6)
+ex_cfs = c(rep(50,5),1050)
+#http://www.investinganswers.com/financial-dictionary/bonds/duration-1288
+test_that("Duration",
+          {expect_equal(round(duration(cashFlows = ex_cfs,timeIds = ex_time,i=0.05,macaulay = TRUE),2),5.33)}
+          )
