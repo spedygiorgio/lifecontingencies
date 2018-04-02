@@ -1,2 +1,3 @@
--Version 1.3.3
-* Added geometric discounting clarifications
+-Version 1.3.4
+* Fixed issue in Macaulay duration
+* Recreated old data in data-raw
