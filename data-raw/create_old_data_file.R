@@ -16,7 +16,7 @@ AF92.data<-fread(input = "./data-raw/AF92.csv",data.table = FALSE, encoding = "U
 AF92Lt<-new("lifetable",x=AF92.data$x,lx=AF92.data$lx,name='AF92')
 devtools::use_data(AF92Lt,overwrite = TRUE)
 #demoUk
-data("demoUk")
-fwrite(x=demoUk, file="./data-raw/demoUk.csv")
+#data("demoUk")
+#fwrite(x=demoUk, file="./data-raw/demoUk.csv")
 demoUk<-fread(input = "./data-raw/demoUk.csv",data.table = FALSE, encoding = "UTF-8")
 devtools::use_data(demoUk,overwrite = TRUE)
