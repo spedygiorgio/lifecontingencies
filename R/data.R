@@ -50,7 +50,40 @@
 #' approach can be used to complete the series.
 #' @source Institute of Actuaries
 #' @references \url{http://www.actuaries.org.uk/research-and-resources/documents/am92-permanent-assurances-males}
-#' @examples 
-#' AM92Lt<-probs2lifetable(probs=dataFull$AM92,radix=100000,type="qx", name="AM92")
+#' @examples
+#' \dontrun{
+#' #shows the table
+#' data(demoUk)
+#' #create an actuarial table using a Brass - Logit approach
+#' data(soa08Act)
+#' x=seq(0, 110,1)
+#' qx=numeric(length(x))
+#' for(i in 1:111) qx[i]=qxt(soa08Act, x=i, t=1)
+#' temp=data.frame(Age=x, qx=qx)
+#' db=merge(temp, demoUk)
+#' db$lnAm92=with(db, log(AM92))
+#' db$lnAf92=with(db, log(AF92))
+#' db$logqx=with(db, log(qx))
+#' #do the brass model
+#' brassModelAM<-lm(lnAm92~logqx, data=db)
+#' brassModelAF<-lm(lnAf92~logqx, data=db)
+#' temp$logqx=log(temp$qx)
+#' #fit the probabilities
+#' temp$logAm92=predict(brassModelAM, newdata=temp)
+#' temp$logAf92=predict(brassModelAF, newdata=temp)
+#' temp$AM92=with(temp, exp(logAm92))
+#' temp$AF92=with(temp, exp(logAf92))
+#' missingAges=setdiff(temp$Age, demoUk$Age)
+#' #prepare the data
+#' dataOne=demoUk[,c("Age", "AM92", "AF92")]
+#' dataTwo=subset(temp[,c("Age", "AM92", "AF92")], Age 
+#' temp=rbind(dataOne, dataTwo)
+#' dataFull=temp[order(temp$Age),]
+#' #setting last attainable year death probability equal to one
+#' dataFull$AM92[length(temp$Age)]=1
+#' dataFull$AF92[length(temp$Age)]=1
+#' #produce the tables
+#' AM92Lt<-probs2lifetable(probs=dataFull$AM92, radix=100000,type="qx", name="AM92")
 #' AF92Lt<-probs2lifetable(probs=dataFull$AF92,radix=100000,type="qx", name="AF92")
+#' }
 "demoUk"
