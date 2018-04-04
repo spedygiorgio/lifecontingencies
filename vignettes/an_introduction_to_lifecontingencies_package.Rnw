@@ -1,12 +1,13 @@
 %\documentclass{jss}
 \documentclass[nojss]{jss}
 \usepackage[OT1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath,lifecon,thumbpdf,actuarialsymbol}
 %\usepackage{myVignette}
 %\VignetteIndexEntry{An introduction to lifecontingencies package}
 %\VignetteKeywords{vig1}
 %\VignettePackage{lifecontingencies}
-% need no \usepackage{Sweave.sty}
+\usepackage{Sweave}
 %\SweaveOpts{prefix.string=Figures/fig}
 \author{Giorgio Alfredo Spedicato\\StatisticalAdvisor}
 \Plainauthor{Giorgio Alfredo Spedicato}
