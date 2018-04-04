@@ -26,6 +26,10 @@ cbind(x=135:145, lx=g(135:145), pxtvect(soa08Act, x=135:145, t=1), pXt(object=so
 #non-integer age
 cbind(x=10+0:6/6, lx=g(10+0:6/6), pxtvect(soa08Act, x=10+0:6/6, t=1), pXt(object=soa08Act, x=10+0:6/6, t=1))
 
+#non consecutive age
+x <- rpois(10, 45)
+cbind(x=x, pxtvect(soa08Act, x=x, t=1), pXt(object=soa08Act, x=x, t=1))
+
 
 checkvalx <- function(fractional)
   all(pxtvect(soa08Act, x=1:100, t=1/3, fractional = fractional) == pXt(object=soa08Act, x=1:100, t=1/3, fractional = fractional))
@@ -36,9 +40,9 @@ c(checkvalx("linear"), checkvalt("linear"))
 c(checkvalx("harm"), checkvalt("harm"))
 c(checkvalx("exp"), checkvalt("exp"))
 
-system.time(replicate(1e3, pxtvect(soa08Act, x=1:130, t=1/2) ))
-system.time(replicate(1e3, pXt(soa08Act, x=1:130, t=1/2) ))
+system.time(replicate(1e2, pxtvect(soa08Act, x=1:130, t=1/2) ))
+system.time(replicate(1e2, pXt(soa08Act, x=1:130, t=1/2) ))
 
-system.time(replicate(1e3, pxtvect(soa08Act, x=1, t=1:130/2) ))
-system.time(replicate(1e3, pxT(soa08Act, x=1, t=1:130/2) ))
+system.time(replicate(1e2, pxtvect(soa08Act, x=1, t=1:130/2) ))
+system.time(replicate(1e2, pxT(soa08Act, x=1, t=1:130/2) ))
 

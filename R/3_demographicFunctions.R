@@ -78,13 +78,18 @@ pxtvect <- function(object, x, t, fractional = "linear", decrement)
   y <- x - floor(x)
   t <- t+y
   
+  #local lifetable data closed at maximum age
+  omega <- getOmega(object)
+  mylx <- c(object@lx, 0)
+  names(mylx) <- paste0("x", c(object@x, omega+1))
+  
   #retrieve l_floor(x) and l_floor(x+t)
   idx_shift <- 2 - object@x[1] #typically 2 when first age is 0
-  l_floorx <- object@lx[object@x[floor(x)+idx_shift]]
-  l_floorxp1 <- object@lx[object@x[ceiling(x)+idx_shift]]
-  l_floorxt <- object@lx[object@x[floor(x+t)+idx_shift]] 
-  l_floorxtp1 <- object@lx[object@x[ceiling(x+t)+idx_shift]] 
-  
+  l_floorx <- mylx[paste0("x", floor(x))]
+  l_floorxp1 <- mylx[paste0("x", ceiling(x))]
+  l_floorxt <- mylx[paste0("x", floor(x+t))]
+  l_floorxtp1 <- mylx[paste0("x", ceiling(x+t))]
+    
   #compute one-year survival probabilites 
   floort_p_floorx <- l_floorxt / l_floorx 
   ceilt_p_floorx <- l_floorxtp1 / l_floorx
@@ -118,7 +123,7 @@ pxtvect <- function(object, x, t, fractional = "linear", decrement)
     y_p_floorx <- one_p_floorx / (1 - (1-y)*(1-one_p_floorx))
   }
   
-  t_p_floorx / y_p_floorx
+  as.numeric(t_p_floorx / y_p_floorx)
 }
 
 #survival probability between age x and x+t
