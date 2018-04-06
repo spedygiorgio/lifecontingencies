@@ -261,7 +261,8 @@ Tx<-function(object,x)
 {
 	out<-NULL
  	#checks
-	if(!is(object, "lifetable")) stop("Error! Need lifetable or actuarialtable objects")
+	if(!is(object, "lifetable")) 
+	  stop("Error! Need lifetable or actuarialtable objects")
 	if(missing(x)) stop("Missing x")
 	n=getOmega(object)-x
 	lives=seq(from=x,to=x+n,by=1)
@@ -275,7 +276,8 @@ mxt<-function(object,x,t)
 	out<-NULL
 	#checks
 	if(missing(t)) t<-1 #default 1
-	if(!is(object, "lifetable")) stop("Error! Need lifetable or actuarialtable objects")
+	if(!is(object, "lifetable")) 
+	  stop("Error! Need lifetable or actuarialtable objects")
 	if(missing(x)) stop("Missing x")
 	if(any(x<0,t<0)) stop("Check x or t domain")
 
@@ -290,7 +292,8 @@ qxt<-function(object, x, t, fractional="linear", decrement)
 {
 	out<-NULL
 	#checks
-	if(!(class(object) %in% c("lifetable","actuarialtable","mdt"))) stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
+	if(!(class(object) %in% c("lifetable","actuarialtable","mdt"))) 
+	  stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
 	if(missing(x)) stop("Missing x")
 	if(any(x<0,t<0)) stop("Check x or t domain")
 	if(missing(t)) t<-1 #default 1
@@ -395,6 +398,93 @@ probs2lifetable<-function(probs, radix=10000, type="px", name="ungiven")
 	}
 	out=new("lifetable",x=seq(0,length(probs)-1), lx=lx, name=name)
 	return(out)
+}
+
+#multiple life new function
+pxyztvect <- function(tablesList, x, t, status="joint", 
+                      fractional=rep("linear",length(tablesList)), ...)
+{
+  #fractional list can be either missing or a string length of character one
+  if(length(fractional)==1) 
+  {
+    temp <- fractional;
+    fractional <- rep(temp, length.out =length(tablesList))
+  }
+  
+  fractional <- sapply(fractional, testfractionnalarg)
+  status <- teststatusarg(status)
+  
+  #initial checkings
+  if (missing(x))
+    stop("Missing x")
+  if (!is.numeric(x))
+    stop("non numeric x")
+  if (missing(t))
+    t = 1 #default 1
+  #convert argument to matrix
+  numTables <- length(tablesList)
+  if(is.vector(x) && is.vector(t))
+  {
+    if(length(x) != numTables)
+      stop("Error! Initial ages vector length does not match with number of lives")
+    if(length(t) == 1)
+      t <- rep(t, length.out=length(x))
+    if(length(t) != numTables)
+      stop("Error! Initial time vector length does not match with number of lives")
+    valx <- t(as.matrix(x))
+    valt <- t(as.matrix(t))
+  }else if(is.matrix(x) && is.vector(t))
+  {
+    if(NCOL(x) != numTables)
+      stop("Error! Initial ages matrix does not have as much column as number of lives")
+    if(length(t) == 1)
+      t <- rep(t, length.out=NCOL(x))
+    if(length(t) != numTables)
+      stop("Error! Initial time vector length does not match with number of lives")
+    valx <- as.matrix(x)
+    valt <- matrix(t, nrow=NROW(valx), ncol=numTables, byrow=TRUE)
+  }else if(is.vector(x) && is.matrix(t))
+  {
+    if(length(x) != numTables)
+      stop("Error! Initial ages vector length does not match with number of lives")
+    if(NCOL(t) != numTables)
+      stop("Error! Initial time matrix does not have as much column as number of lives")
+    valt <- as.matrix(t)
+    valx <- matrix(x, nrow=NROW(valt), ncol=numTables, byrow=TRUE)
+  }else
+  {
+    if(NCOL(x) != numTables)
+      stop("Error! Initial ages matrix does not have as much column as number of lives")
+    if(NCOL(t) != numTables)
+      stop("Error! Initial time matrix does not have as much column as number of lives")
+    if(NROW(x) != NROW(t))
+      warnings("t and x arguments have been recycled to match the maximum row number of x and t")
+    n <- max(NROW(x), NROW(t))
+    id2select <- rep(1:NROW(x), length.out=n)
+    valx <- x[id2select, ]
+    id2select <- rep(1:NROW(t), length.out=n)
+    valt <- t[id2select, ]
+  }
+  #computation
+  allpxt <- sapply(1:numTables, function(i)
+                   pxtvect(tablesList[[i]], valx[,i], valt[,i], fractional = fractional[i], ...)
+  )
+  
+  #the survival probability is the cumproduct of the single survival probabilities
+  if(status == "joint")
+  {
+    if(is.vector(allpxt))
+      out <- prod(allpxt)
+    else 
+      out <- apply(allpxt, 1, prod)
+  }else{ #last survivor status
+    allqxt <- 1-allpxt 
+    if(is.vector(allpxt))
+      out <- 1-prod(allqxt)
+    else
+      out <- 1-apply(allqxt, 1, prod)
+  }
+  return(out)
 }
 
 #multiple life new function
