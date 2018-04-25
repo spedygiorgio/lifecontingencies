@@ -6,8 +6,10 @@ output:
   pdf_document: default
   html_document: default
 bibliography: lifecontingenciesBiblio.bib
-vignette: "%\\VignetteIndexEntry{Pension Funding with lifecontingencies} \n%\\VignetteEngine{knitr::rmarkdown}
-  \ \n%\\usepackage[latin1]{inputenc}\n"
+vignette: |
+  %\VignetteIndexEntry{Pension funding with lifecontingencies} 
+  %\VignetteEngine{knitr::rmarkdown}  
+  %\usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include=FALSE}
