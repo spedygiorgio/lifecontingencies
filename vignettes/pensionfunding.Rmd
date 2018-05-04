@@ -3,11 +3,15 @@ title: "Pension Funding with lifecontingencies"
 author: "Gian Paolo Clemente, Catholic University, Milan"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
+  html_vignette: default
   pdf_document: default
   html_document: default
 bibliography: lifecontingenciesBiblio.bib
-vignette: "%\\VignetteIndexEntry{Pension Funding with lifecontingencies} \n%\\VignetteEngine{knitr::rmarkdown}
-  \ \n%\\usepackage[latin1]{inputenc}\n"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Pension Funding with lifecontingencies} 
+  %!\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include=FALSE}
