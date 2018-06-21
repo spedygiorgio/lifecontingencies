@@ -13,8 +13,8 @@
 % need no \usepackage{Sweave.sty}
 %\SweaveOpts{prefix.string=Figures/fig}
 
-\author{Giorgio Alfredo Spedicato, FCAS, FSA, Ph.D, C.Stat \And 
-        Gian Paolo Clemente, Unicatt}
+\author{Giorgio Alfredo Spedicato, FCAS, FSA, Ph.D, C.Stat \\ 
+        \textbf{Gian Paolo Clemente, Unicatt}}
 
 
 \title{Mortality projection with \pkg{demography} and \pkg{lifecontingencies}
@@ -60,6 +60,8 @@ this paper are mechanical and intended for didactic purposes.}
 \begin{document}
 
 
+
+
 \SweaveOpts{eps=FALSE, keep.source=TRUE}
 <<echo=FALSE,print=FALSE,results=hide>>=
 options(width=80, prompt='R> ')
@@ -74,7 +76,7 @@ Prospects of longer life have led to concern over their implications for public 
 The Lee Cartel forecasts could be used to project a life table for each specific cohort (year) of birth on which pension annuities projection could be fit.\\
 
 Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated function. We will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.\\
-Finally, \textbf{lifecontingencies} (\cite{spedlifecon}) package will be used to project the cost of a pension annuity, $\ddot{a}_{x}^{(m)}$ for the cohorts of 1920, 1930, \ldots,
+Finally, \textbf{lifecontingencies} (\cite{spedLifecon}) package will be used to project the cost of a pension annuity, $\ddot{a}_{x}^{(m)}$ for the cohorts of 1920, 1930, \ldots,
 2000. \\ 
 Applications have been provided by using three different data-sets regarding respectively male, female and total population.
 The use of several data-sets is usually motivated by both the need of a separate evaluation between males and females and of an analysis of models' performance when switching data. However, the change from female to male and a variation in the length of period of observation do not influence the quality of fit as much as the restriction of age range.\\

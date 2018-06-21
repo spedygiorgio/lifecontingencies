@@ -303,6 +303,26 @@ qxt<-function(object, x, t, fractional="linear", decrement)
 }
 
 
+#' Expected residual life.
+#'
+#' @param object A lifetable/actuarialtable object.
+#' @param x Attained age
+#' @param n Time until which the expected life should be calculated. Assumed omega - x whether missing.
+#' @param type Either \code{"Tx"}, \code{"complete"} or \code{"continuous"} for continuous future lifetime, 
+#' \code{"Kx"} or \code{"curtate"} for curtate furture lifetime (can be abbreviated).
+#'
+#' @return A numeric value representing the expected life span.
+#' @author Giorgio Alfredo Spedicato
+#' @references 	Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., 
+#' Jones, D.A. and Nesbitt, C.J.
+#' @seealso \code{\linkS4class{lifetable}}
+#'
+#' @examples
+#' #loads and show
+#' data(soa08Act)
+#' exn(object=soa08Act, x=0)
+#' exn(object=soa08Act, x=0,type="complete")
+#' @export
 exn<-function(object,x,n,type="curtate") {
 	out<-NULL
 	#checks
