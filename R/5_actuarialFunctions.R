@@ -7,6 +7,30 @@
 
 
 #function to obtain the endowment
+
+#' Function to evaluate the pure endowment
+#'
+#' @param actuarialtable An actuarial table object.
+#' @param x Age of the insured.
+#' @param n Length of the contract.
+#' @param i Interest rate (it overwrites the \code{actuarialtable} one)
+#' @param type A string, eithed "EV" (default value),  "ST" (stocastic realization) or "VR" if the value of the variance is needed.
+#' @param power The power of the APV. Default is 1 (mean)
+#'
+#' @return The APV of the contract
+#' @seealso \code{\link{axn}}
+#' @author Giorgio A. Spedicato
+#' @references Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., 
+#' Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+#' @export
+#'
+#' @examples
+#' 
+#' #assumes SOA example life table to be load
+#' data(soaLt)
+#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06, x=x,lx=Ix,name="SOA2008"))
+#' #evaluate the pure endowment for a man aged 30 for a time span of 35
+#' Exn(soa08Act, x=30, n=35) 
 Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", power = 1)
   {
     interest <- i
