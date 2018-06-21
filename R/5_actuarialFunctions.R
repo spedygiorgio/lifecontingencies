@@ -22,7 +22,6 @@
 #' @author Giorgio A. Spedicato
 #' @references Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., 
 #' Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
-#' @export
 #'
 #' @examples
 #' 
@@ -31,6 +30,8 @@
 #' soa08Act=with(soaLt, new("actuarialtable",interest=0.06, x=x,lx=Ix,name="SOA2008"))
 #' #evaluate the pure endowment for a man aged 30 for a time span of 35
 #' Exn(soa08Act, x=30, n=35) 
+#' @rdname pureendowment
+#' @export
 Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", power = 1)
   {
     interest <- i
