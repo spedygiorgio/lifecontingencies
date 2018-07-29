@@ -30,9 +30,9 @@ for the last-survivor status model (can be abbreviated).}
 curtate furture lifetime (can be abbreviated).}
 \item{fractional}{Assumptions for fractional age. One of \code{"linear"}, 
   \code{"hyperbolic"}, \code{"constant force"} (can be abbreviated).}
-  
+
 \item{\dots}{Options to be passed to \code{\link{pxt}}.}
-\item{k}{Fractional frequency option.}
+
 }
 \details{
 These functions extends \code{\link{pxyt}} family to an arbitrary number of life contingencies.

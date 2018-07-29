@@ -40,7 +40,8 @@ The function is provided as is, without any warranty regarding the accuracy of c
 ##get 20000 random future lifetimes for the Soa life table at birth
 data(soa08Act)
 lifes=rLife(n=20000,object=soa08Act, x=0, type="Tx")
-check if the expected life at birth derived from the life table is statistically equal to the expected value of the sample
+check if the expected life at birth derived from the life table is statistically equal 
+to the expected value of the sample
 t.test(x=lifes, mu=exn(soa08Act, x=0, type="continuous"))
 }
 \dontrun{

@@ -91,6 +91,8 @@ Following demographic and economic assumptions will be hold:
 The projection has been performed using a mechanical approach, since the purpose of this paper lies in showing the procedure instead of providing sensible results.\\
 Most of this paper is based on the examples provided in \cite{rmetrics1} and \cite{charpentierDutang} online manual.
 
+Recently, a new R package has made demographical projection even easier, the \pkg{StMoMo} package \cite{pkg:StMoMo}. The latter part of this vignettes explains how to perform mortality projections using the \pkg{StMoMo} package.
+
 \section{Fitting Lee Carter model}
 
 Lee Carter original model, \cite{Lee1992}, focuses, as main forecasting methodologies, on the central mortality rates $m(x,t)$ for age $x$ in year $t$ defined as the ratio between the number of deaths $D(x,t)$, recorded during the calendar year $t$ for people aged $x$, and the exposure to risk $E(x,t)$ obtained as the average number of people living during the calendar year $t$.
