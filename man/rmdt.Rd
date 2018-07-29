@@ -4,7 +4,8 @@
 \alias{rmdt}
 \title{Simulate from a multiple decrement table}
 \usage{
-rmdt(n = 1, object, x = 0, t = 1, t0 = "alive", include.t0 = TRUE)
+rmdt(n = 1, object, x = 0, t = 1, t0 = "alive",
+  include.t0 = TRUE)
 }
 \arguments{
 \item{n}{Number of simulations.}
