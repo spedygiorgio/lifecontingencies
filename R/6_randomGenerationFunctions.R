@@ -338,7 +338,41 @@ rLifexyz <- function(n,tablesList,x,k=1, type="Tx")
 #m=0
 #k=1
 
-
+#' @name rLifeContingencies
+#' @aliases rLifeContingenciesXyz
+#' @title Function to generate samples from the life contingencies stochastic variables
+#'
+#' @param n Size of sample
+#' @param lifecontingency A character string, either \code{"Exn"}, \code{"Axn"}, 
+#' \code{"axn"}, \code{"IAxn"} or \code{"DAxn"}
+#' @param object An \code{actuarialtable} object.
+#' @param x Policyholder's age at issue time;  for \code{rLifeContingenciesXyz} a numeric vector of 
+#' the same length of \code{object}, containing the policyholders' ages
+#' @param t The lenght of the insurance. Must be specified according to the 
+#' present value of benefits definition.
+#' @param i The interest rate, whose default value is the \code{actuarialtable} interest rate slot value.
+#' @param m Deferring period, default value is zero.
+#' @param k Fractional payment, default value is 1.
+#' @param parallel Uses the parallel computation facility.
+#' @param payment The Payment type, either \code{"advance"} for the annuity due (default) 
+#' or \code{"arrears"} for the annuity immediate. 
+#' Alternatively, one can use \code{"due"} or \code{"immediate"} 
+#' respectively (can be abbreviated).
+#'
+#' @return A numeric vector
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' 	#assumes SOA example life table to be load
+#' 	data(soaLt)
+#' 	soa08Act=with(soaLt, new("actuarialtable",interest=0.06, x=x,lx=Ix,name="SOA2008"))
+#' 	out<-rLifeContingencies(n=1000, lifecontingency="Axn",object=soa08Act, x=40,
+#' 	t=getOmega(soa08Act)-40, m=0)
+#' 	APV=Axn(soa08Act,x=40)
+#' 	#check if out distribution is unbiased
+#' 	t.test(x=out, mu=APV)$p.value>0.05
+#' }
 rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@interest, 
 		m = 0, k = 1, parallel = FALSE, payment="advance") 
 {
@@ -444,6 +478,25 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
 #		parallel=TRUE)
 #APV
 #mean(ciao)
+
+#' @rdname rLifeContingencies
+#' @param tablesList A list of \code{actuarialtable} objects
+#' @param status Either \code{"joint"} for the joint-life status model or \code{"last"} 
+#' for the last-survivor status model (can be abbreviated).
+#' @examples 
+#' \dontrun{
+#' data(soa08Act)
+#' n=10000
+#' lifecontingency="Axyz"
+#' tablesList=list(soa08Act,soa08Act)
+#' x=c(60,60); i=0.06; m=0; status="joint"; t=30; k=1
+#' APV=Axyzn(tablesList=tablesList,x=x,n=t,m=m,k=k,status=status,type="EV")
+#' samples<-rLifeContingenciesXyz(n=n,lifecontingency = lifecontingency,tablesList = tablesList,
+#' x=x,t=t,m=m,k=k,status=status, parallel=FALSE)
+#' APV
+#' mean(samples)
+#' } 
+#' @export
 
 rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i, 
 		m=0,k=1, status="joint", parallel=FALSE, payment="advance")
