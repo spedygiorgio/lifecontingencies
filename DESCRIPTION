@@ -29,7 +29,6 @@ Encoding: UTF-8
 LazyLoad: yes
 BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
 BuildVignettes: yes
-SystemRequirements: GNU make
 VignetteBuilder: utils, knitr
 URL: http://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
