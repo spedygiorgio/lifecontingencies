@@ -6,7 +6,6 @@
 
 
 
-#function to obtain the endowment
 
 #' Function to evaluate the pure endowment
 #'
@@ -148,6 +147,9 @@ axnvect <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
 }
 
 #function to obtain the annuity
+
+
+
 axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                 k = 1, type = "EV", power = 1, payment = "advance")
   {

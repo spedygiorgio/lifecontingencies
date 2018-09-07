@@ -179,39 +179,86 @@ accumulatedValue=function(i, n, m=0,k=1, type="immediate")
 	out=(1+i)^n*annuity(i=i,n=n,k=k,m=m,type=type)
 	return(out)
 }
-#obtain the nominal interest rate
+
+#' @rdname nominal-real-convertible
+#' @aliases convertible2Effective
+#' @aliases real2Nominal
+#' @aliases nominal2Real
+#' @title Functions to switch from nominal / effective / convertible rates
+#'
+#' @param i The rate to be converted.
+#' @param k The original / target compounting frequency.
+#' @param type Either "interest" (default) or "nominal".
+#' 
+#' @details \code{effective2Convertible} and \code{convertible2Effective} wrap the other two functions.
+#'
+#' @return A numeric value.
+#' @references Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
+#' @note Convertible rates are synonims of nominal rates
+#' @seealso \code{\link{real2Nominal}}
+#'
+#' @examples
+#' #a nominal rate of 0.12 equates an APR of
+#' nominal2Real(i=0.12, k = 12, "interest")
+#' @export
 nominal2Real=function(i, k=1, type="interest")
 {
-	out=NULL
-	if(type=="interest") out=(1+i/k)^k-1 else 
-		out=1-(1-i/k)^k
+	out <- NULL
+	if(type=="interest") 
+	  out <- (1+i/k)^k-1 
+	else 
+		out<- 1-(1-i/k)^k
 	return(out)
 }
-#or
+#' @rdname nominal-real-convertible
+#' @export
 convertible2Effective=function(i, k=1, type="interest")
 {
 	return(nominal2Real(i=i,k=k,type=type))
 }
-#obtain the real interest rate
+#' @rdname nominal-real-convertible
+#' @export
 real2Nominal=function(i, k=1, type="interest")
 {
 	if(type=="interest") out=((1+i)^(1/k)-1)*k else
 		out=k*(1-(1-i)^(1/k))
 	return(out)
 }
-#or
+#' @rdname nominal-real-convertible
+#' @export
 effective2Convertible=function(i, k=1, type="interest")
 {
 	return(real2Nominal(i=i,k=k,type=type))
 }
 
-#obtain the interest from intensity
+
+#' @title Functions to switch from interest to intensity and vice versa.
+#' @description There functions switch from interest to intensity and vice - versa.
+#' @rdname intensity-interest
+#' @aliases interest2Intensity
+#'
+#' @param intensity Intensity rate
+#' @details Simple financial mathematics formulas are applied.
+#' @references Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
+#' @author Giorgio A. Spedicato
+#' @seealso \code{\link{real2Nominal}}, \code{\link{nominal2Real}} 
+#'
+#' @return A numeric value.
+#'
+#' @examples
+#' a force of interest of 0.02 corresponds to an APR of 
+#' intensity2Interest(intensity=0.02)
+#' @export
 intensity2Interest=function(intensity)
 {
 	out=exp(intensity*1)-1
 	return(out)
 }
-#obtain the intensity rate from the interest rate
+#' @rdname intensity-interest
+#' @examples
+#' #an interest rate equal to 0.02 corresponds to a force of interest of of 
+#' interest2Intensity(i=0.02)
+#' @export
 interest2Intensity=function(i)
 {
 	out=log(1+i)
