@@ -246,7 +246,7 @@ effective2Convertible=function(i, k=1, type="interest")
 #' @return A numeric value.
 #'
 #' @examples
-#' a force of interest of 0.02 corresponds to an APR of 
+#' # a force of interest of 0.02 corresponds to an APR of 
 #' intensity2Interest(intensity=0.02)
 #' @export
 intensity2Interest=function(intensity)
@@ -255,6 +255,7 @@ intensity2Interest=function(intensity)
 	return(out)
 }
 #' @rdname intensity-interest
+#' @param i interest rate
 #' @examples
 #' #an interest rate equal to 0.02 corresponds to a force of interest of of 
 #' interest2Intensity(i=0.02)

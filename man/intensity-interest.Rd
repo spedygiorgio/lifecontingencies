@@ -11,6 +11,8 @@ interest2Intensity(i)
 }
 \arguments{
 \item{intensity}{Intensity rate}
+
+\item{i}{interest rate}
 }
 \value{
 A numeric value.
@@ -22,7 +24,7 @@ There functions switch from interest to intensity and vice - versa.
 Simple financial mathematics formulas are applied.
 }
 \examples{
-a force of interest of 0.02 corresponds to an APR of 
+# a force of interest of 0.02 corresponds to an APR of 
 intensity2Interest(intensity=0.02)
 #an interest rate equal to 0.02 corresponds to a force of interest of of 
 interest2Intensity(i=0.02)
