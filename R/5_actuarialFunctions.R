@@ -74,7 +74,6 @@ Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", 
 
 
 #function computing survival annuities
-
 axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                     k = 1, type = "EV",power = 1, payment = "advance", ...)
 {
@@ -288,6 +287,149 @@ axyn <- function(tablex, tabley, x,y, n,i, m,k = 1, status = "joint", type = "EV
     return(out)
   }
 
+
+axyznvect <- function(tablesList, x, n, i, m, k = 1, status = "joint", type = "EV",
+                      power =1, payment = "advance", ...)
+{
+  #initial checkings
+  numTables = length(tablesList)
+  if (missing(x))
+    stop("Missing x")
+  if(!is.numeric(x))
+    stop("Error! x should be a numeric vector or a numeric matrix")
+  else if(is.vector(x))
+  {  
+    if(length(x) == 1)
+      x <- rep(x, length.out=numTables)
+    if (length(x) != numTables)
+      stop("Error! Initial ages vector length does not match with number of lives")
+  }else if(is.matrix(x))
+  {
+    if(NCOL(x) != numTables)
+      stop("Error! Age matrix colum number does not match with number of lives")
+  }else
+    stop("Error! x should be a numeric vector or a numeric matrix")
+  
+  if(is.vector(x))
+    x <- t(as.matrix(x))
+  #from here, x is a matrix where NCOL(x) == numTables
+  nbcomput <- NROW(x)
+  
+  classlist <- sapply(tablesList, class)
+  if(any(!classlist %in% c("lifetable", "actuarialtable")))
+    stop("Error! A list of lifetable objects is required")
+  
+  type <- testtyperesarg(type)
+  payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
+  status <- teststatusarg(status)
+  
+  #class(object) %in% c("lifetable","actuarialtable") 
+  if(length(k) > 1)
+  {
+    k <- k[1]
+    warnings("k should be of length 1, it takes first value")
+  }
+  if (missing(m))
+    m <- 0
+  if (any(x < 0, m < 0))
+    stop("Check x, n or m")
+  
+  if(length(x) <= 0)
+    stop("x is of length zero")
+  if(length(t) <= 0)
+    stop("t is of length zero")
+  
+  missingn <- missing(n)
+  if(!missingn)
+  {
+    if(length(n) <= 0)
+      stop("n is of length zero")
+    if(!is.numeric(n))
+      stop("Error! n should be a numeric vector")
+  }else
+  {
+    computn <- function(idrow)
+    {
+      getn <- function(j)
+        ceiling((getOmega(tablesList[[j]]) + 1 - x[idrow, j] - m) * k) / k 
+      myn <- max(sapply(1:numTables, getn))
+    }
+    n <- sapply(1:nbcomput, computn)
+  }
+  
+  #recycle some parameters
+  if(length(m) != nbcomput)
+  {
+    m <- rep(m, length.out = nbcomput)
+    warnings("m argument has been recycled to match the row number of x")
+  }
+  if(length(k) != nbcomput)
+  {
+    k <- rep(k, length.out = nbcomput)
+    warnings("k argument has been recycled to match the row number of x")
+  }
+  if(length(n) != nbcomput)
+  {
+    n <- rep(n, length.out = nbcomput)
+    warnings("n argument has been recycled to match the row number of x")
+  }
+  
+  
+  if (!missing(i))
+  {
+    if(!is.numeric(i))
+      stop("Error! i should be a numeric vector")
+    interest = i
+  }else 
+  {
+    interest <- sapply(1:numTables, function(j) tablesList[[j]]@interest)
+  }
+  if(length(interest) > 1)
+  {
+    interest <- mean(interest)
+    warnings("i argument is the average value of interest values")
+  }
+  
+  
+  #computation of quantities, assuming fractional payments
+  allpayments <- matrix(1 / k, nrow=nbcomput, ncol=n * k)
+  
+  computtime <- function(idrow)
+  {
+    if(payment == "immediate")
+    {  
+      times <- m[idrow] + seq(from = 1/k, to = n[idrow], by = 1/k)
+    }else if(payment == "due")
+    {  
+      times <- m[idrow] + seq(from = 0, to = n[idrow]-1/k, by = 1/k)
+    }
+    else
+      stop("wrong payment type")
+    times
+  }
+  alltime <- t(sapply(1:nbcomput, computtime))
+  
+  computprob <- function(idrow)
+  {
+    #replicate time over lifetables
+    valt <- replicate(numTables, alltime[idrow,])
+    valx <- x[idrow,]
+    pxyzt(tablesList, valx, valt, status=status, ...)
+  }
+  allprob <- t(sapply(1:nbcomput, computprob))
+  if(NROW(allprob) != nbcomput)
+    stop("wrong probabilities computed")
+  
+  #cat("blii\n")
+  #print(dim(allpayments))
+  #print(dim(alltime))
+  #print(dim(allprob))
+  
+  res <- sapply(1:nbcomput, function(idrow)
+    presentValue(allpayments[idrow,], alltime[idrow,], interest, allprob[idrow,], power))
+  
+  res
+}
 
 axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",power =
              1, payment = "advance")
