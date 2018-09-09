@@ -3,11 +3,11 @@ library(lifecontingencies)
 data("soa08Act")
 
 #test accuraccy
-aXn <- Vectorize(axn, "x")
-axN <- Vectorize(axn, "n")
-axnM <- Vectorize(axn, "m")
+aXn <- Vectorize(lifecontingencies:::axnold, "x")
+axN <- Vectorize(lifecontingencies:::axnold, "n")
+axnM <- Vectorize(lifecontingencies:::axnold, "m")
 
-axnvect <- lifecontingencies:::axnvect
+axnvect <- axn
 
 #high-age
 x <- 85:90
@@ -34,10 +34,10 @@ c(checkvalx("due"), checkvalx("arrears"), checkvalx("immediate"), checkvalx("adv
 c(checkvaln("due"), checkvaln("arrears"), checkvaln("immediate"), checkvaln("advance"))
 c(checkvalm("due"), checkvalm("arrears"), checkvalm("immediate"), checkvalm("advance"))
 
+nrep <- 10
+system.time(replicate(nrep, axnvect(soa08Act, x=1:100, pay="advance") ))
+system.time(replicate(nrep, aXn(soa08Act, x=1:100, pay="advance") ))
 
-system.time(replicate(1e2, axnvect(soa08Act, x=1:100, pay="advance") ))
-system.time(replicate(1e2, aXn(soa08Act, x=1:100, pay="advance") ))
-
-system.time(replicate(1e2, axnvect(soa08Act, x=33, n=1:50, pay="advance") ))
-system.time(replicate(1e2, axN(soa08Act, x=33, n=1:50, pay="advance") ))
+system.time(replicate(nrep, axnvect(soa08Act, x=33, n=1:50, pay="advance") ))
+system.time(replicate(nrep, axN(soa08Act, x=33, n=1:50, pay="advance") ))
 

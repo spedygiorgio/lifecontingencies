@@ -50,9 +50,9 @@ $$
 ```{r}
 library(lifecontingencies)
 data("soa08Act")
-pXt <- Vectorize(pxt, "x")
-pxT <- Vectorize(pxt, "t")
-pxtvect <- lifecontingencies:::pxtvect
+pXt <- Vectorize(lifecontingencies:::pxtold, "x")
+pxT <- Vectorize(lifecontingencies:::pxtold, "t")
+pxtvect <- pxt
 
 z <- 1:6/3
 #non integer time

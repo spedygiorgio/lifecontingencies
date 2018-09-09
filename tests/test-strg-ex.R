@@ -1,5 +1,5 @@
 library(lifecontingencies)
-pxtvect <- lifecontingencies:::pxtvect
+pxtvect <- pxt
 
 #strange example of non consecutive integers
 x <- 0:10*10

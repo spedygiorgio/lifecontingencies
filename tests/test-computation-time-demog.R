@@ -16,9 +16,9 @@ if(all(g(1:10) == sapply(1:10, f)))
 }
 
 #test accuraccy
-pXt <- Vectorize(pxt, "x")
-pxT <- Vectorize(pxt, "t")
-pxtvect <- lifecontingencies:::pxtvect
+pXt <- Vectorize(lifecontingencies:::pxtold, "x")
+pxT <- Vectorize(lifecontingencies:::pxtold, "t")
+pxtvect <- pxt
 
 #high-age
 cbind(x=135:145, lx=g(135:145), pxtvect(soa08Act, x=135:145, t=1), pXt(object=soa08Act, x=135:145, t=1))
@@ -40,9 +40,11 @@ c(checkvalx("linear"), checkvalt("linear"))
 c(checkvalx("harm"), checkvalt("harm"))
 c(checkvalx("exp"), checkvalt("exp"))
 
-system.time(replicate(1e2, pxtvect(soa08Act, x=1:130, t=1/2) ))
-system.time(replicate(1e2, pXt(soa08Act, x=1:130, t=1/2) ))
 
-system.time(replicate(1e2, pxtvect(soa08Act, x=1, t=1:130/2) ))
-system.time(replicate(1e2, pxT(soa08Act, x=1, t=1:130/2) ))
+nrep <- 10
+system.time(replicate(nrep, pxtvect(soa08Act, x=1:130, t=1/2) ))
+system.time(replicate(nrep, pXt(soa08Act, x=1:130, t=1/2) ))
+
+system.time(replicate(nrep, pxtvect(soa08Act, x=1, t=1:130/2) ))
+system.time(replicate(nrep, pxT(soa08Act, x=1, t=1:130/2) ))
 
