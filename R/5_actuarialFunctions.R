@@ -1,8 +1,25 @@
-# TODO: varianze funzioni + importanti
-
+#############################################################################
+#   Copyright (c) 2018 Giorgio A. Spedicato, Christophe Dutang
 #
-# Author: Giorgio Spedicato
-###############################################################################
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the
+#   Free Software Foundation, Inc.,
+#   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
+#
+#############################################################################
+###
+###         actuarial functions
+###
 
 
 
@@ -58,7 +75,7 @@ Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", 
 
 #function computing survival annuities
 
-axnvect <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
+axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                     k = 1, type = "EV",power = 1, payment = "advance", ...)
 {
   #checks
@@ -113,9 +130,10 @@ axnvect <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
     {  
       if(n[j] <= 0)
         return(0)
+      #computation of quantities, assuming fractional payments
       payments <- rep(1 / k, n[j] * k)
       times <- m[j] + seq(from = 1/k, to = n[j], by = 1/k)
-      probs <- pxtvect(actuarialtable, x[j], times, ...)
+      probs <- pxt(actuarialtable, x[j], times, ...)
       #pxtvect(object, x, t, fractional = "linear", decrement)
       presentValue(payments, times, i, probs, power)
     }
@@ -123,9 +141,10 @@ axnvect <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
     {  
       if(n[j] <= 0)
         return(0)
+      #computation of quantities, assuming fractional payments
       payments <- rep(1 / k, n[j] * k)
       times <- m[j] + seq(from = 0, to = n[j]-1/k, by = 1/k)
-      probs <- pxtvect(actuarialtable, x[j], times, ...)
+      probs <- pxt(actuarialtable, x[j], times, ...)
       presentValue(payments, times, i, probs, power)
     }
     if(payment == "immediate")
@@ -139,7 +158,7 @@ axnvect <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
     rng_axn <- function(j)
       rLifeContingencies(
         n = 1, lifecontingency = "axn", object = actuarialtable, 
-        x = x[j], t = n[j],i = i, m = m[j], k = k, payment=payment)
+        x = x[j], t = n[j], i = i, m = m[j], k = k, payment=payment)
     out <- sapply(1:ntot, rng_axn)
   } else
     stop("wrong result type")
@@ -147,10 +166,7 @@ axnvect <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
 }
 
 #function to obtain the annuity
-
-
-
-axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
+axnold <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                 k = 1, type = "EV", power = 1, payment = "advance")
   {
     interest <- i
@@ -185,7 +201,7 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
       times = times + 1 / k
     
     for (i in 1:length(times))
-      probs[i] = pxt(actuarialtable, x,times[i])
+      probs[i] = pxtold(actuarialtable, x,times[i])
     discounts = (1 + interest) ^ -times #prima era asteriskato
     #out<-sum(payments*discounts*probs)
     if (type == "EV") {
@@ -336,7 +352,7 @@ axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",pow
     } else	if (type == "ST") {
       out = rLifeContingenciesXyz(
         n = 1,lifecontingency = "axyz", tablesList = tablesList, x = x,t = n,i =
-          i, m = m,k = k,status = status, payment = payment
+          i, m = m,k = k, status = status, payment = payment
       )
     }
     return(out)
@@ -362,7 +378,7 @@ axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",pow
 #x: beginnin life age
 #m: deferring term
 #type: output requested: default expected value
-Axn <- function(actuarialtable, x, n,i = actuarialtable@interest, m, k = 1, type =
+Axnold <- function(actuarialtable, x, n,i = actuarialtable@interest, m, k = 1, type =
              "EV",power = 1)
   {
     out <- numeric(1)
@@ -415,7 +431,82 @@ Axn <- function(actuarialtable, x, n,i = actuarialtable@interest, m, k = 1, type
     return(out)
   }
 
-#Axn(soa08Act,65,k=12, n=12) # 0.2483798
+
+#function computing survival annuities
+
+Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
+                    k = 1, type = "EV", power = 1, ...)
+{
+  #checks
+  if (!(class(actuarialtable) %in% c("lifetable","actuarialtable")))
+    stop("Error! Only lifetable, actuarialtable classes are accepted")
+  
+  type <- testtyperesarg(type)
+  
+  #class(object) %in% c("lifetable","actuarialtable") 
+  if (missing(x))
+    stop("Missing x")
+  if(length(k) > 1)
+  {
+    k <- k[1]
+    warnings("k should be of length 1, it takes first value")
+  }
+  if (missing(m))
+    m <- 0
+  if (missing(n))
+    n <- ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k 
+  if (any(x < 0, n < 0, m < 0))
+    stop("Check x, n or m")
+  
+  if(length(x) <= 0)
+    stop("x is of length zero")
+  if(length(t) <= 0)
+    stop("t is of length zero")
+  
+  ntot <- max(length(n), length(x), length(m))
+  if(length(n) != length(x) || length(n) != length(m))
+  {
+    if(length(m) != ntot)
+      warnings("m argument has been recycled to match the maximum length of x, m and n")
+    if(length(n) != ntot)
+      warnings("n argument has been recycled to match the maximum length of x, m and n")
+    if(length(x) != ntot)
+      warnings("x argument has been recycled to match the maximum length of x, m and n")
+    m <- rep(m, length.out=ntot)
+    n <- rep(n, length.out=ntot)
+    x <- rep(x, length.out=ntot)
+    if(any(is.infinite(x), is.infinite(n), is.infinite(m)))
+      stop("infinite values provided in x, n or m")
+    if(any(x < 0, n < 0, m < 0))
+      stop("(strictly) negative values provided in x, n or m")
+  }
+  
+  
+  if (type == "EV")
+  {
+    single_Axn <- function(j)
+    {  
+      if(n[j] <= 0)
+        return(0)
+      #the payment is fixed
+      payments <- rep(1, n[j] * k)
+      times <- m[j] + seq(from = 0, to = n[j]-1/k, by = 1/k)
+      probs <- pxt(actuarialtable, x=x[j], t=times, ...) * qxt(actuarialtable, x=x[j]+times, t=1/k, ...)
+      presentValue(payments, times + 1/k, i, probs, power)
+    }
+    out <- sapply(1:ntot, single_Axn)
+    
+  } else if (type == "ST") {
+    
+    rng_Axn <- function(j)
+      rLifeContingencies(
+        n = 1, lifecontingency = "Axn", object = actuarialtable, 
+        x = x[j], t = n[j], i = i, m = m[j], k = k)
+    out <- sapply(1:ntot, rng_Axn)
+  } else
+    stop("wrong result type")
+  out  
+}
 
 Axyn <- function(tablex, x,tabley, y, n,i, m, k = 1, status = "joint", type = "EV")
   {

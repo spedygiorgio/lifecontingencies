@@ -1,3 +1,25 @@
+#############################################################################
+#   Copyright (c) 2018 Giorgio A. Spedicato, Christophe Dutang
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the
+#   Free Software Foundation, Inc.,
+#   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
+#
+#############################################################################
+###
+###         demographic functions
+###
 
 
 
@@ -45,7 +67,7 @@ dxt <- function(object, x, t, decrement) {
 }
 
 #survival probability between age x and x+t
-pxtvect <- function(object, x, t, fractional = "linear", decrement)
+pxt <- function(object, x, t, fractional = "linear", decrement)
 {
   #checks
   if (!(class(object) %in% c("lifetable","actuarialtable","mdt")))
@@ -80,11 +102,19 @@ pxtvect <- function(object, x, t, fractional = "linear", decrement)
   
   #local lifetable data closed at maximum age
   omega <- getOmega(object)
-  mylx <- c(object@lx, 0)
-  names(mylx) <- paste0("x", c(object@x, omega+1))
+  if (class(object) == "mdt")
+  {  
+    myx <- object@table$x
+    mylx <- c(object@table$lx, 0)
+  }else #lifetable or actuarialtable
+  {
+    myx <- object@x
+    mylx <- c(object@lx, 0)
+  }
+  names(mylx) <- paste0("x", c(myx, omega+1))
   
   #retrieve l_floor(x) and l_floor(x+t)
-  idx_shift <- 2 - object@x[1] #typically 2 when first age is 0
+  idx_shift <- 2 - myx[1] #typically 2 when first age is 0
   l_floorx <- mylx[paste0("x", floor(x))]
   l_floorxp1 <- mylx[paste0("x", ceiling(x))]
   l_floorxt <- mylx[paste0("x", floor(x+t))]
@@ -127,7 +157,7 @@ pxtvect <- function(object, x, t, fractional = "linear", decrement)
 }
 
 #survival probability between age x and x+t
-pxt <- function(object, x, t, fractional = "linear", decrement)
+pxtold <- function(object, x, t, fractional = "linear", decrement)
 {
   out <- NULL
   #checks
@@ -226,7 +256,7 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
 }
 
 
-.forceOfMortality<-function(object,x)
+.forceOfMortality <- function(object,x)
 {
 	out<-NULL
 	#checks
@@ -238,7 +268,7 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
 }
 
 #the number of person-years lived between exact ages x and x+1
-Lxt<-function(object, x,t=1,fxt=0.5)
+Lxt <- function(object, x,t=1,fxt=0.5)
 {
 
 	out<-NULL
@@ -257,7 +287,7 @@ Lxt<-function(object, x,t=1,fxt=0.5)
 	return(out)
 }
 # the number of person-years lived after exact age x
-Tx<-function(object,x)
+Tx <- function(object,x)
 {
 	out<-NULL
  	#checks
@@ -271,7 +301,7 @@ Tx<-function(object,x)
 }
 
 #central mortality rate
-mxt<-function(object,x,t)
+mxt <- function(object,x,t)
 {
 	out<-NULL
 	#checks
@@ -288,17 +318,20 @@ mxt<-function(object,x,t)
 }
 
 #death probability
-qxt<-function(object, x, t, fractional="linear", decrement)
+qxt <- function(object, x, t, fractional="linear", decrement)
 {
 	out<-NULL
 	#checks
 	if(!(class(object) %in% c("lifetable","actuarialtable","mdt"))) 
 	  stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
-	if(missing(x)) stop("Missing x")
-	if(any(x<0,t<0)) stop("Check x or t domain")
-	if(missing(t)) t<-1 #default 1
+	if(missing(x)) 
+	  stop("Missing x")
+	if(any(x<0,t<0)) 
+	  stop("Check x or t domain")
+	if(missing(t)) 
+	  t<-1 #default 1
 	#complement of pxt
-	out<-1-pxt(object=object, x=x, t=t, fractional=fractional, decrement=decrement)
+	out <- 1-pxt(object=object, x=x, t=t, fractional=fractional, decrement=decrement)
 	return(out)
 }
 
@@ -323,7 +356,7 @@ qxt<-function(object, x, t, fractional="linear", decrement)
 #' exn(object=soa08Act, x=0)
 #' exn(object=soa08Act, x=0,type="complete")
 #' @export
-exn<-function(object,x,n,type="curtate") {
+exn <- function(object,x,n,type="curtate") {
 	out<-NULL
 	#checks
 	if(!is(object, "lifetable")) stop("Error! Need lifetable or actuarialtable objects")
@@ -346,7 +379,7 @@ exn<-function(object,x,n,type="curtate") {
 ##################two life ###########
 
 
-pxyt<-function(objectx, objecty,x,y,t, status="joint")
+pxyt <- function(objectx, objecty,x,y,t, status="joint")
 {
   .Deprecated("pxyzt")
   out<-NULL
@@ -366,7 +399,7 @@ pxyt<-function(objectx, objecty,x,y,t, status="joint")
 	return(out)
 }
 
-qxyt<-function(objectx, objecty,x,y,t, status="joint")
+qxyt <- function(objectx, objecty,x,y,t, status="joint")
 {
   .Deprecated("qxyzt")
   out<-NULL
@@ -404,7 +437,7 @@ exyt<-function(objectx, objecty,x,y,t,status="joint")
 	return(out)
 }
 
-probs2lifetable<-function(probs, radix=10000, type="px", name="ungiven")
+probs2lifetable <- function(probs, radix=10000, type="px", name="ungiven")
 {
 	if(any(probs>1) | any(probs<0)) stop("Error: probabilities must lie between 0 an 1")
 	if(!(type %in% c("px","qx"))) stop("Error: type must be either px or qx")
@@ -421,7 +454,7 @@ probs2lifetable<-function(probs, radix=10000, type="px", name="ungiven")
 }
 
 #multiple life new function
-pxyztvect <- function(tablesList, x, t, status="joint", 
+pxyzt <- function(tablesList, x, t, status="joint", 
                       fractional=rep("linear",length(tablesList)), ...)
 {
   #fractional list can be either missing or a string length of character one
@@ -487,7 +520,7 @@ pxyztvect <- function(tablesList, x, t, status="joint",
   }
   #computation
   allpxt <- sapply(1:numTables, function(i)
-                   pxtvect(tablesList[[i]], valx[,i], valt[,i], fractional = fractional[i], ...)
+                   pxt(tablesList[[i]], valx[,i], valt[,i], fractional = fractional[i], ...)
   )
   
   #the survival probability is the cumproduct of the single survival probabilities
@@ -508,7 +541,7 @@ pxyztvect <- function(tablesList, x, t, status="joint",
 }
 
 #multiple life new function
-pxyzt<-function(tablesList,x,t, status="joint",fractional=rep("linear",length(tablesList)),...)
+pxyztold <- function(tablesList,x,t, status="joint",fractional=rep("linear",length(tablesList)),...)
 {
 	out=1
 	#fractional list can be either missing or a string length of character one
@@ -537,7 +570,7 @@ pxyzt<-function(tablesList,x,t, status="joint",fractional=rep("linear",length(ta
 	return(out)
 }
 #the death probability
-qxyzt<-function(tablesList,x,t, status="joint",fractional=rep("linear",length(tablesList)),...)
+qxyzt <- function(tablesList,x,t, status="joint",fractional=rep("linear",length(tablesList)),...)
 {
 	out=numeric(1)
 	out=1-pxyzt(tablesList=tablesList,x=x,t=t, status=status,...)
@@ -553,7 +586,7 @@ qxyzt<-function(tablesList,x,t, status="joint",fractional=rep("linear",length(ta
 }
 
 
-.qxyznt<-function(tablesList,x,n,t=1, status="joint")
+.qxyznt <- function(tablesList,x,n,t=1, status="joint")
 {
 	out=numeric(1)
 	if(status=="joint")
@@ -569,7 +602,7 @@ qxyzt<-function(tablesList,x,t, status="joint",fractional=rep("linear",length(ta
 
 #curtate expectation of future lifetime
 
-exyzt<-function(tablesList,x,t=Inf, status="joint",type="Kx",...)
+exyzt <- function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 {
 	#initial checkings
 	numTables=length(tablesList)
