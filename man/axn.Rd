@@ -11,7 +11,7 @@ Annuity immediate and due function.
 }
 \usage{
 	axn(actuarialtable, x, n, i = actuarialtable@interest, m,  k = 1, type = "EV",
-	power=1,payment = "advance")
+	power=1,payment = "advance", \dots)
 }
 	
 \arguments{
@@ -48,6 +48,9 @@ or \code{"arrears"} for the annuity immediate.
 Alternatively, one can use \code{"due"} or \code{"immediate"}
 	respectively (can be abbreviated).
 }
+  \item{\dots}{
+  Arguments to be passed to \code{pxt()}.
+  }
 }
 \details{
 	When "ST" has been selected a stochastic value representing a number drawn from the domain of \deqn{

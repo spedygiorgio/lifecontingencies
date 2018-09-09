@@ -8,7 +8,8 @@
 	This function evaluates n - years term and whole life insurance.
 }
 \usage{
-	Axn(actuarialtable, x, n, i=actuarialtable@interest,m, k=1, type = "EV",power=1)
+	Axn(actuarialtable, x, n, i=actuarialtable@interest, 
+	m, k=1, type = "EV", power=1, \dots)
 }
 
 \arguments{
@@ -40,6 +41,9 @@
   \item{power}{
 The power of the APV. Default is 1 (mean)
 }
+  \item{\dots}{
+  Arguments to be passed to \code{pxt()}.
+  }
 }
 \details{
 	The variance calculation has not been implemented yet.
