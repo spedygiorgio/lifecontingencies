@@ -11,8 +11,9 @@ qxt(object, x, t, fractional = "linear", decrement)
 }
 \arguments{
   \item{object}{A \code{lifetable} object.}
-  \item{x}{Age of life \code{x}.}
-  \item{t}{Period until which the age shall be evaluated. Default value is 1.}
+  \item{x}{Age of life \code{x}. (can be a vector for \code{pxt, qxt}).}
+  \item{t}{Period until which the age shall be evaluated. Default value is 1.
+  (can be a vector for \code{pxt, qxt}).}
   \item{fractional}{Assumptions for fractional age. One of \code{"linear"}, 
   \code{"hyperbolic"}, \code{"constant force"} (can be abbreviated).}
   \item{decrement}{The reason of decrement (only for \code{mdt} class objects). Can be either an ordinal number or the

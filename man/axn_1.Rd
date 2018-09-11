@@ -8,7 +8,7 @@
 	This function evaluates n - years term and whole life insurance.
 }
 \usage{
-	Axn(actuarialtable, x, n, i=actuarialtable@interest, 
+Axn(actuarialtable, x, n, i=actuarialtable@interest, 
 	m, k=1, type = "EV", power=1, \dots)
 }
 
@@ -18,19 +18,24 @@
 }
   \item{x}{
 	Age of the insured.
+	(can be a vector).
 }
   \item{n}{
-	Coverage period, if missing the insurance is considered whole life \eqn{n=\omega-x-m}
+	Coverage period, if missing the insurance is considered whole life \eqn{n=\omega-x-m}.
+	(can be a vector).
 }
   \item{i}{
 	Interest rate (overrides the interest rate slot in \code{actuarialtable}).
+	(should be a scalar).
 }
   \item{m}{
 	Deferring period, even fractional, if missing assumed to be 0.
+	(can be a vector).
 }
   \item{k}{
 	Number of periods per year at the end of which the capital is payable in case of 
 	insured event, default=1 (capital payable at the end of death year).
+	(should be a scalar).
 }
     \item{type}{
 	A string, either \code{"EV"} for expected value of the actuarial present value (default) or 
