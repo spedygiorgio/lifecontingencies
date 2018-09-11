@@ -3,12 +3,13 @@ title: "Computational details of demographic functions"
 author: "C. Dutang and G.A. Spedicato"
 date: "2018"
 output: 
+  pdf_document: default
   html_vignette: default
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Computational details of demographic functions} 
   %!\VignetteEncoding{UTF-8}
   \usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include=FALSE}
@@ -19,21 +20,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 For notation details, see Actuarial Mathematics by Nesbitt et al.
 
-We compute ${}_tp_{x}$ as for all $x,t\in\mathbb R_+$
+Using the well-known relation ${}_{s+u}p_y={}_up_{y+s} \times {}_sp_y$, we compute ${}_tp_{x}$ as for all $x,t\in\mathbb R_+$
 $$
-{}_tp_{x} = \frac{{}_{t+\epsilon_x}p_{\lfloor x\rfloor}}{{}_{\epsilon_x}p_{x}}
-\text{ and } 
-{}_{u}p_{\lfloor x\rfloor} = {}_{\lfloor u\rfloor}p_{\lfloor x\rfloor} \times {}_{\epsilon_u}p_{\lfloor x+u\rfloor},
+{}_tp_{x} = \frac{{}_{t+\epsilon_x}p_{\lfloor x\rfloor}
+}{{}_{\epsilon_x}p_{\lfloor x\rfloor}}
+ = \frac{{}_{\lfloor u\rfloor}p_{\lfloor x\rfloor} \times {}_{\epsilon_u}p_{\lfloor x\rfloor+\lfloor u\rfloor}
+ }{{}_{\epsilon_x}p_{\lfloor x\rfloor}}
 $$
-with $\epsilon_x=x - \lfloor x\rfloor$, $u=t+\epsilon_x$ and $\epsilon_u=u-\lfloor u\rfloor$
+with $\epsilon_x=x - \lfloor x\rfloor$, $u=t+\epsilon_x$ and $\epsilon_u=u-\lfloor u\rfloor$.
 
 
-We estimate ${}_np_{m}$ as for all $n,m\in\mathbb N$
+Then we estimate ${}_np_{m}$ as for all $n,m\in\mathbb N$
 $$
 {}_np_{m} = \frac{l_{n+m}}{l_m}.
 $$
 
-We interpolate fractional age probabilities ${}_yp_{\lfloor x\rfloor}$ by three classical assumptions
+We interpolate fractional age probabilities by three classical assumptions
 for all $y \in [0,1), m\in\mathbb N$
 $$
 {}_{y}p_{m} =
@@ -41,7 +43,7 @@ $$
 \begin{array}{ll}
 1 - y (1-p_{m}) & \text{if uniform distribution} \\
 (p_{m})^y & \text{if constant force} \\
-\frac{p_{m}}{1-(1-t)(1-p_{m})} & \text{if hyperbolic distribution} \\
+\frac{p_{m}}{1-(1-y)(1-p_{m})} & \text{if hyperbolic distribution} \\
 \end{array}
 \right. 
 $$

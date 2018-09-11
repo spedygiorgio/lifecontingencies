@@ -74,6 +74,14 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
     stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
   
   fractional <- testfractionnalarg(fractional)
+  if(!missing(decrement))
+  {
+    stopifnot(class(decrement) %in% c("numeric", "character"))
+    #convert to character string
+    if (class(decrement) == "numeric") 
+      decrement<-getDecrements(object)[decrement]
+    stopifnot(decrement %in% names(object@table))
+  }
   
   #class(object) %in% c("lifetable","actuarialtable") 
   if (missing(x))
@@ -96,16 +104,41 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
     x <- rep(x, length.out=n)
   }
   
+  
   #adjustment when age x is not an integer 
-  y <- x - floor(x)
-  t <- t+y
+  floorx <- floor(x) #compute floor(x)
+  eps_x <- x - floorx #compute epsilon x
+  u <- t+eps_x #add epsilon x to time t
+  flooru <- floor(u) #compute floor(u)
+  eps_u <- u - flooru #compute epsilon t
   
   #local lifetable data closed at maximum age
   omega <- getOmega(object)
   if (class(object) == "mdt")
   {  
-    myx <- object@table$x
-    mylx <- c(object@table$lx, 0)
+    if(missing(decrement))
+    {
+      myx <- object@table$x
+      mylx <- c(object@table$lx, 0)
+    }else 
+    {
+      decrement.cols <- which(names(object@table) == decrement)
+      
+      #check decrement table does not have missing/zero values
+      l0 <- object@table[1, decrement.cols]
+      #if yes use older function
+      if(any(object@table[1, -1] == 0) || any(is.na(object@table[1, -1])))
+      {
+        getqxt <- function(i)
+          .qxt.mdt(object = object, x = x[i], t = t[i], decrement = decrement)
+        return(1 - sapply(1:n, getqxt))
+      }
+      #otherwise compute lx from full decrement table containing nb of deaths
+      myx <- object@table$x
+      mydx <- object@table[, decrement.cols]
+      mylx <- c(l0-cumsum(mydx), 0)
+    }
+    
   }else #lifetable or actuarialtable
   {
     myx <- object@x
@@ -113,47 +146,44 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
   }
   names(mylx) <- paste0("x", c(myx, omega+1))
   
-  #retrieve l_floor(x) and l_floor(x+t)
-  idx_shift <- 2 - myx[1] #typically 2 when first age is 0
-  l_floorx <- mylx[paste0("x", floor(x))]
-  l_floorxp1 <- mylx[paste0("x", ceiling(x))]
-  l_floorxt <- mylx[paste0("x", floor(x+t))]
-  l_floorxtp1 <- mylx[paste0("x", ceiling(x+t))]
-    
+  #get l_floor(x) and consecutive
+  l_floorx <- mylx[paste0("x", floorx)]
+  l_floorxp1 <- mylx[paste0("x", floorx+1)]
+  #get l_floor(x+t) and consecutive
+  l_floorxu <- mylx[paste0("x", floorx+flooru)]
+  l_floorxup1 <- mylx[paste0("x", floorx+flooru+1)]
+  
   #compute one-year survival probabilites 
-  floort_p_floorx <- l_floorxt / l_floorx 
-  ceilt_p_floorx <- l_floorxtp1 / l_floorx
-  one_p_floorxt <- l_floorxtp1 / l_floorxt 
+  flooru_p_floorx <- l_floorxu / l_floorx 
+  floorup1_p_floorx <- l_floorxup1 / l_floorx
+  one_p_floorxu <- l_floorxup1 / l_floorxu
   one_p_floorx <- l_floorxp1 / l_floorx 
   
   #may contains NA if x or x+t is above omega => set to 0
-  floort_p_floorx[is.na(floort_p_floorx)] <- 0 
-  ceilt_p_floorx[is.na(ceilt_p_floorx)] <- 0 
-  one_p_floorxt[is.na(one_p_floorxt)] <- 0
+  flooru_p_floorx[is.na(flooru_p_floorx)] <- 0 
+  floorup1_p_floorx[is.na(floorup1_p_floorx)] <- 0 
+  one_p_floorxu[is.na(one_p_floorxu)] <- 0
   one_p_floorx[is.na(one_p_floorx)] <- 0
   
   #adjustment when t is not integer
-  z <- t - floor(t)
-  
   if (fractional == "linear") {
-    t_p_floorx <- z * ceilt_p_floorx + (1 - z) * floort_p_floorx
+    u_p_floorx <- flooru_p_floorx * (1 - eps_u*(1-one_p_floorxu))
+      #equivalent to eps_u * floorup1_p_floorx + (1 - eps_u) * flooru_p_floorx
   } else if (fractional == "constant force") {
-    t_p_floorx <- floort_p_floorx * one_p_floorxt^z 
+    u_p_floorx <- flooru_p_floorx * one_p_floorxu^eps_u
   } else if (fractional == "hyperbolic") {
-    t_p_floorx <- floort_p_floorx * one_p_floorxt / (1 - (1-z)*(1-one_p_floorxt))
+    u_p_floorx <- flooru_p_floorx * one_p_floorxu / (1 - (1-eps_u)*(1-one_p_floorxu))
   }
   
-  #adjustment when age x is not an integer 
-  y <- x - floor(x)
+  #adjustment when age x is not an integer (otherwise equal 1)
   if (fractional == "linear") {
-    y_p_floorx <-  1 - y * (1-one_p_floorx)
+    eps_x_p_floorx <-  1 - eps_x * (1-one_p_floorx)
   } else if (fractional == "constant force") {
-    y_p_floorx <- one_p_floorx^y 
+    eps_x_p_floorx <- one_p_floorx^eps_x 
   } else if (fractional == "hyperbolic") {
-    y_p_floorx <- one_p_floorx / (1 - (1-y)*(1-one_p_floorx))
+    eps_x_p_floorx <- one_p_floorx / (1 - (1-eps_x)*(1-one_p_floorx))
   }
-  
-  as.numeric(t_p_floorx / y_p_floorx)
+  as.numeric(u_p_floorx / eps_x_p_floorx)
 }
 
 #survival probability between age x and x+t
@@ -188,11 +218,13 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
   if ((x - floor(x)) > 0) {
     integerAge = floor(x)
     excess = x - floor(x)
-    out = pxt(
-      object = object, x = integerAge, t = excess + t, decrement = decrement
-    ) / pxt(
-      object = object, x = integerAge,t = excess, decrement = decrement
+    texcess_p_floorx <- pxtold(object = object, x = integerAge, 
+      fractional=fractional, t = excess + t, decrement = decrement)
+    
+    excess_p_floorx <- pxtold(object = object, x = integerAge, 
+      fractional=fractional, t = excess, decrement = decrement
     )
+    out = texcess_p_floorx / excess_p_floorx
     return(out)
   }
   #Rosa Corrales Patch
@@ -215,10 +247,10 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
       ph <- 0
       out <- z * ph + (1 - z) * pl
     } else if (fractional == "constant force") {
-      out <- pl * pxt(object = object, x = (x + floor(t)),t = 1) ^ z # fix on this line
+      out <- pl * pxtold(object = object, x = (x + floor(t)),t = 1, fractional=fractional) ^ z # fix on this line
     } else if (fractional == "hyperbolic") {
       out <-
-        pl * pxt(object = object, x = (x + floor(t)),t = 1) / (1 - (1 - z) * qxt(
+        pl * pxtold(object = object, x = (x + floor(t)),t = 1, fractional=fractional) / (1 - (1 - z) * qxtold(
           object = object, x = (x + floor(t)),t = 1
         )) # Kevin Owens: fix on this line
     }
@@ -227,9 +259,10 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
     #fractional ages
   {
     if ((t %% 1) == 0)
+    { 
       out <-
         object@lx[which(object@x == t + x)] / object@lx[which(object@x == x)]
-    else {
+    }else {
       z <- t %% 1 #the fraction of year
       #linearly interpolates if fractional age
       pl <-
@@ -241,11 +274,11 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
                                                                            x)]
         out <- z * ph + (1 - z) * pl
       } else if (fractional == "constant force") {
-        out <- pl * pxt(object = object, x = (x + floor(t)),t = 1) ^ z # fix on this line
+        out <- pl * pxtold(object = object, x = (x + floor(t)),t = 1, fractional=fractional) ^ z # fix on this line
       } else if (fractional == "hyperbolic") {
         out <-
-          pl * pxt(object = object, x = (x + floor(t)),t = 1) / (1 - (1 - z) * qxt(
-            object = object, x = (x + floor(t)),t = 1
+          pl * pxtold(object = object, x = (x + floor(t)),t = 1, fractional=fractional) / (1 - (1 - z) * qxtold(
+            object = object, x = (x + floor(t)),t = 1, fractional=fractional
           )) # Kevin Owens: fix on this line
       }
     }
@@ -331,8 +364,25 @@ qxt <- function(object, x, t, fractional="linear", decrement)
 	if(missing(t)) 
 	  t<-1 #default 1
 	#complement of pxt
-	out <- 1-pxt(object=object, x=x, t=t, fractional=fractional, decrement=decrement)
+	out <- 1 - pxt(object=object, x=x, t=t, fractional=fractional, decrement=decrement)
 	return(out)
+}
+
+qxtold <- function(object, x, t, fractional="linear", decrement)
+{
+  out<-NULL
+  #checks
+  if(!(class(object) %in% c("lifetable","actuarialtable","mdt"))) 
+    stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
+  if(missing(x)) 
+    stop("Missing x")
+  if(any(x<0,t<0)) 
+    stop("Check x or t domain")
+  if(missing(t)) 
+    t<-1 #default 1
+  #complement of pxt
+  out <- 1-pxtold(object=object, x=x, t=t, fractional=fractional, decrement=decrement)
+  return(out)
 }
 
 
@@ -580,8 +630,8 @@ qxyzt <- function(tablesList,x,t, status="joint",fractional=rep("linear",length(
 #probability to die between time n and n+t
 .qxnt<-function(object, x,n,t=1,...)
 {
-	out=numeric(1)
-	out=pxt(object=object,x=x,t=n,...)*qxt(object=object,x=x+n,t=t)
+	out <- numeric(1)
+	out <- pxtold(object=object,x=x,t=n,...)*qxtold(object=object,x=x+n,t=t)
 	return(out)
 }
 

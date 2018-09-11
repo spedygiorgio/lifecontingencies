@@ -34,8 +34,10 @@ valdezDf<-data.frame(
   other=c(4293,5162,5960,6840,7631)
 )
 valdezMdt<-new("mdt",name="ValdezExample",table=valdezDf)
+str(valdezMdt)
 
+cbind(pxt(valdezMdt,x=50:51,t=3), pXt(valdezMdt,x=50:51,t=3))
 
-pxt(valdezMdt,x=50:51,t=3)
-pXt(valdezMdt,x=50:51,t=3)
-
+c(dxt(valdezMdt,x=51,t=2,decrement = "other"),11122)
+c(round( pxt(valdezMdt,x=50,t=3),5),0.99268)
+c(round( qxt(valdezMdt,x=50,t=3, decrement = "heart"),5),0.00334)

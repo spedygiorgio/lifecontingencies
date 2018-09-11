@@ -420,11 +420,6 @@ axyznvect <- function(tablesList, x, n, i, m, k = 1, status = "joint", type = "E
   if(NROW(allprob) != nbcomput)
     stop("wrong probabilities computed")
   
-  #cat("blii\n")
-  #print(dim(allpayments))
-  #print(dim(alltime))
-  #print(dim(allprob))
-  
   res <- sapply(1:nbcomput, function(idrow)
     presentValue(allpayments[idrow,], alltime[idrow,], interest, allprob[idrow,], power))
   
@@ -553,7 +548,6 @@ Axnold <- function(actuarialtable, x, n,i = actuarialtable@interest, m, k = 1, t
       probs[i] = .qxnt(
         object = actuarialtable, x = startAge,n = times[i],t = 1 / k
       )
-    
     discounts = (1 + interest) ^ -(times + 1 / k) #prima asteriskato
     
     if (type == "EV") {
@@ -632,11 +626,13 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
         return(0)
       #the payment is fixed
       payments <- rep(1, n[j] * k)
-      times <- m[j] + seq(from = 0, to = n[j]-1/k, by = 1/k)
+      times <- m[j] + seq(from = 0, to = (n[j]-1/k), by = 1/k)
       probs <- pxt(actuarialtable, x=x[j], t=times, ...) * qxt(actuarialtable, x=x[j]+times, t=1/k, ...)
-      presentValue(payments, times + 1/k, i, probs, power)
+      presentValue(payments, timeIds=(times + 1/k), interestRates=i, 
+                   probabilities=probs, power=power)
     }
     out <- sapply(1:ntot, single_Axn)
+    
     
   } else if (type == "ST") {
     

@@ -45,6 +45,7 @@ presentValue<-function(cashFlows, timeIds, interestRates, probabilities, power=1
 	
 	interestRates <- rep(interestRates,length.out=length(timeIds))
 	v <- (1+interestRates)^(-timeIds)
+	
 	#power used for APV, usually=1
 	out <- sum( ( (cashFlows^power) * (v^power) ) * probabilities) 
   #using Rcpp code seems inefficient

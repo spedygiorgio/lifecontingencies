@@ -20,11 +20,25 @@ pXt <- Vectorize(lifecontingencies:::pxtold, "x")
 pxT <- Vectorize(lifecontingencies:::pxtold, "t")
 pxtvect <- pxt
 
+#non-integer age
+compalldigit <- function(x, t, fractional)
+  print(
+    cbind(x=x,
+          new=pxtvect(soa08Act, x=x, t=t, fractional=fractional),
+          old=pXt(object=soa08Act, x=x, t=t, fractional=fractional))
+    , digits=22)
+
+compalldigit(80+0:6/4, t=1, "exp")
+compalldigit(80+0:6/4, t=1, "lin")
+compalldigit(80+0:6/4, t=1, "hyp")
+
+
+
+cbind(x=10+0:6/6, lx=g(10+0:6/6), pxtvect(soa08Act, x=10+0:6/6, t=1), pXt(object=soa08Act, x=10+0:6/6, t=1))
+
 #high-age
 cbind(x=135:145, lx=g(135:145), pxtvect(soa08Act, x=135:145, t=1), pXt(object=soa08Act, x=135:145, t=1))
 
-#non-integer age
-cbind(x=10+0:6/6, lx=g(10+0:6/6), pxtvect(soa08Act, x=10+0:6/6, t=1), pXt(object=soa08Act, x=10+0:6/6, t=1))
 
 #non consecutive age
 x <- rpois(10, 45)
@@ -32,13 +46,23 @@ cbind(x=x, pxtvect(soa08Act, x=x, t=1), pXt(object=soa08Act, x=x, t=1))
 
 
 checkvalx <- function(fractional)
-  all(pxtvect(soa08Act, x=1:100, t=1/3, fractional = fractional) == pXt(object=soa08Act, x=1:100, t=1/3, fractional = fractional))
+{
+  allfracage <- seq(1, 100, by=1/4)
+  new <- pxtvect(soa08Act, x=allfracage, t=1/3, fractional = fractional)
+  old <- pXt(object=soa08Act, x=allfracage, t=1/3, fractional = fractional)
+  cbind("equal on all digit"=all(old == new), "equal with round off"=  sum(abs(old - new)) < 1e-6)
+}  
 checkvalt <- function(fractional)
-  all(pxtvect(soa08Act, x=2, t=1:100/3, fractional = fractional) == pxT(object=soa08Act, x=2, t=1:100/3, fractional = fractional))
+{
+  allfractime <- seq(1, 30, by=1/4)
+  new <- pxtvect(soa08Act, x=2, t=allfractime, fractional = fractional)
+  old <- pxT(object=soa08Act, x=2, t=allfractime, fractional = fractional)
+  cbind("equal on all digit"=all(old == new), "equal with round off"=  sum(abs(old - new)) < 1e-6)
+}
 
-c(checkvalx("linear"), checkvalt("linear"))
-c(checkvalx("harm"), checkvalt("harm"))
-c(checkvalx("exp"), checkvalt("exp"))
+rbind("lin"=checkvalx("linear"), "harm"=checkvalx("harm"), "exp"=checkvalx("exp"))
+
+rbind("lin"=checkvalt("linear"), "harm"=checkvalt("harm"), "exp"=checkvalt("exp"))
 
 
 nrep <- 10
