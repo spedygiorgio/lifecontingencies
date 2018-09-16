@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Survival probabilities
 
-For notation details, see Actuarial Mathematics by Nesbitt et al.
+For notation details, see [@bowers1997actuarial].
 
 Using the well-known relation ${}_{s+u}p_y={}_up_{y+s} \times {}_sp_y$, we compute ${}_tp_{x}$ as for all $x,t\in\mathbb R_+$
 $$
