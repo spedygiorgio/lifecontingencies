@@ -1,4 +1,4 @@
 -Version 1.3.4.1
-* Fixed issue in Macaulay duration
-* Recreated old data in data-raw
+* add vectorization of pxt(), qxt(), axn(), Axn()
+* start vectorization of axyzn() (devel version)
 * Started moving docs in Roxygen
