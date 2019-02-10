@@ -34,7 +34,7 @@
 #' @param power The power of the APV. Default is 1 (mean)
 #'
 #' @return The APV of the contract
-#' @seealso \code{\link{axn}}
+#' @seealso \code{\link{axn}}, \code{\link{Axn}}
 #' @author Giorgio A. Spedicato
 #' @references Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., 
 #' Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
