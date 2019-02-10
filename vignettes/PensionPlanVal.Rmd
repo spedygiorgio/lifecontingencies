@@ -3,6 +3,7 @@ title: "Pension valuation with lifecontingencies package"
 author: "Iván Williams"
 date: "feb-2019"
 output: rmarkdown::html_vignette
+bibliography: lifecontingenciesBiblio.bib
 vignette: >
   %\VignetteIndexEntry{Pension valuation with lifecontingencies package} 
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,7 +17,7 @@ knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.align='center',fig.show='
 ### Function *PensFund*
 In this brief document we present a general function to valuate actuarial liabilities and normal costs, allowing different methods in pension funding for defined benefit schemes.
 
-Each method is defined by the way that contributions are accrued in the active age before the specific risk apply. Following Winklevoss (1993) and Bowers et. al (1997), the Normal Cost and Actuarial Liability can be seen as portions of $PVFNC^{r}_x$, the present value of future benefit at age $x$ for the risk in $r$, and that's the way that we treat this in the function's code. The methods that are implemented here are the "Benefit Prorate Method, Constant Dollar", "Benefit Prorate Method, Constant Percent", "Cost Prorate Method, Constant Dollar" and "Cost Prorate Method, Constant Benefit" (the last two also called "entry age methods"). For formula details the reader can go to chapters 5 and 6 on Winklevoss (1993).  
+Each method is defined by the way that contributions are accrued in the active age before the specific risk apply. Following [@winklevoss1993pension] and [@bowers1997actuarial], the Normal Cost and Actuarial Liability can be seen as portions of $PVFNC^{r}_x$, the present value of future benefit at age $x$ for the risk in $r$, and that's the way that we treat this in the function's code. The methods that are implemented here are the "Benefit Prorate Method, Constant Dollar", "Benefit Prorate Method, Constant Percent", "Cost Prorate Method, Constant Dollar" and "Cost Prorate Method, Constant Benefit" (the last two also called "entry age methods"). For formula details the reader can go to chapters 5 and 6 on [@winklevoss1993pension].  
   
 We define a general function that allows to perform the calculations in a multi-decrement environment, with flexibility to consider different kind of benefit scheme, using functions of the "lifecontingencies" package (Spedicato et. al., 2018). The arguments (following general notation in Gian Paolo Clemente's vignette titled "Pension Funding with lifecontingencies") are:
 
@@ -201,7 +202,7 @@ round(BPM_CD_y$AL[BPM_CD_y$x==45],10) == round(sum(sapply(y1:44, function(y) (1.
 
 ### Second example
 
-Now we'll evaluate a retirement pension, that receives a payment grade which is a lineal function between age 60 and the maximum possible age of retirement at 70, and goes from 50% to 100%. This is not a grading function in which benefit provided at early or late retirement has the same present value as the benefit payable at normal retirement (Winklevos, 1993, chapter 9). Instead, here the person is penalyzed for early retirement. The insured has an annual salary of 5000 at age $x$.  Also there is a seniority condition of 10 years. The other parameters are the same that the previous example.
+Now we'll evaluate a retirement pension, that receives a payment grade which is a lineal function between age 60 and the maximum possible age of retirement at 70, and goes from 50% to 100%. This is not a grading function in which benefit provided at early or late retirement has the same present value as the benefit payable at normal retirement ([@winklevoss1993pension], chapter 9). Instead, here the person is penalyzed for early retirement. The insured has an annual salary of 5000 at age $x$.  Also there is a seniority condition of 10 years. The other parameters are the same that the previous example.
 
 ```{r echo=TRUE, tidy=TRUE}
 x2=50
@@ -278,6 +279,4 @@ title ("Normal Cost. Example 3", cex.main=.9)
 1) Because a payment can't be done before the contingency occurs, an assumption about occurrence and payment must be done. We will improve the function to consider payments at half of the year. This affects only the financial component, and little bit the final results.
 2) Make the benefit rent payable for a designed survivor too, and with a portion of the titular benefit. This also allows to include death as a main benefit risk.
 
-#### Bibliography
-*Winklevoss (1993). Pension Mathematics with Numerical Illustrations. University of Pennsylvania Press.*
-*Bowers, Gerber, Hickman, Jones & Nesbitt (1997). The Society of Actuaries.*
+#
