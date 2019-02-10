@@ -1,13 +1,23 @@
 ---
 title: "Pension valuation with lifecontingencies package"
 author: "Iván Williams"
-date: "feb-2019"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_vignette: default
+  pdf_document: default
+  html_document: default
+bibliography: lifecontingenciesBiblio.bib
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Pension plan evaluation with Lifecontingencies} 
+  %!\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 
 ### Function
 In this brief document we present a general function to valuate actuarial liabilities and normal cost of different methods in pension funding for defined benefits schemes, and some examples of its application. 
 
-Each method is defined by the way that contributions are accrued in the active age before the specific risk apply. Following Winklevoss (1993) and Bowers et. al (1997), the Normal Cost and Actuarial Liability are both a portion of $PVFNC^{r}_x$, the present value of future benefit at age $x$ for the risk in $r$, and that's the way that we treat this in the function's code. The methods that are implemented here are the "Benefit Prorate Method, Constant Dollar", "Benefit Prorate Method, Constant Percent", "Cost Prorate Method, Constant Dollar" and "Cost Prorate Method, Constant Benefit" (the last two also called "entry age methods"). For formula details the reader can read the chapter 5 and 6 on Winklevoss (1993).  
+Each method is defined by the way that contributions are accrued in the active age before the specific risk apply. Following [@winklevoss1993pension] and [@bowers1997actuarial], the Normal Cost and Actuarial Liability are both a portion of $PVFNC^{r}_x$, the present value of future benefit at age $x$ for the risk in $r$, and that's the way that we treat this in the function's code. The methods that are implemented here are the "Benefit Prorate Method, Constant Dollar", "Benefit Prorate Method, Constant Percent", "Cost Prorate Method, Constant Dollar" and "Cost Prorate Method, Constant Benefit" (the last two also called "entry age methods"). For formula details the reader can read the chapter 5 and 6 on [@winklevoss1993pension].  
   
 We define a general function that allows to perform the calculations in a multi-decrement environment, with flexibility to consider different kind of benefit scheme, using functions of the "lifecontingencies" package (Spedicato et. al., 2018). The arguments (following general notation in Gian Paolo Clemente's vignette titled "Pension Funding with lifecontingencies") are:
 
@@ -27,10 +37,9 @@ We define a general function that allows to perform the calculations in a multi-
 The general function is:
 
 ```{r echo=TRUE,  tidy=TRUE}
+require("lifecontingencies")
 PensFund <-function(x, y, r, acttableAccPeriod, decrement, i, j, delta, n, avg, acttablePaymPeriod, CostMet){
-
   ########## handle errors
-  library("lifecontingencies")
   if (missing(n)) n <- getOmega(acttableAccPeriod)-x-1
   if (x<y) stop("Entry age greater than actual age")
   if (missing(decrement)) stop("Which is the contingency of benefit?")
@@ -266,3 +275,4 @@ plot(x3:r3, BPM_CP3$NC, t="o", ylab="NCx", xlab="Age", main = "Normal Cost. Exam
 1) Because a payment can't be done before the contingency occurs, an assumption about occurrence and payment must be done. We will improve the function to consider payments at half of the year. This affects only the financial component, and little bit the final results.
 2) Make the benefit rent ($axn$) payable for a designed survivor too, and with a % of the titular benefit. This also allows to include death as a main benefit risk.
 
+#
