@@ -381,7 +381,7 @@ load(file="StMoMoModels.RData")
 
 Plotting fitted models is immediate as well:
 
-<<stmomo_lcplot,keep.source=TRUE>>=
+<<stmomo_lcplot,keep.source=FALSE, eval=TRUE>>=
 plot(LCfit)
 @
 
@@ -389,6 +389,7 @@ plot(LCfit)
 plot(RHfit)
 @
 
+\subsection{Getting life tables}
 
 <<stmomo_cbdlot,keep.source=TRUE>>=
 plot(CBDfit)
