@@ -75,7 +75,9 @@ Mortality across any ages is indeed showing continuous reduction across the worl
 Prospects of longer life have led to concern over their implications for public spending on old-age support. Forecasting mortality appears indeed a key issue in different field of insurance and financial markets as pricing annuity, evaluating mortality-linked securities and quantifying longevity risk. Lee-Carter proposed in 1992 a model widely used in order to forecast mortality rates.\\
 The Lee Cartel forecasts could be used to project a life table for each specific cohort (year) of birth on which pension annuities projection could be fit.\\
 
-Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated function. We will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.\\
+Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated function. In the first part, we will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.
+In the second part we will work with the StMoMo \cite{pkg:StMoMo} package for the same purposes, tha represents a more current approach to making mortality projections. 
+
 Finally, \textbf{lifecontingencies} (\cite{spedLifecon}) package will be used to project the cost of a pension annuity, $\ddot{a}_{x}^{(m)}$ for the cohorts of 1920, 1930, \ldots,
 2000. \\ 
 Applications have been provided by using three different data-sets regarding respectively male, female and total population.
@@ -93,7 +95,9 @@ Most of this paper is based on the examples provided in \cite{rmetrics1} and \ci
 
 Recently, a new R package has made demographical projection even easier, the \pkg{StMoMo} package \cite{pkg:StMoMo}. The latter part of this vignettes explains how to perform mortality projections using the \pkg{StMoMo} package.
 
-\section{Fitting Lee Carter model}
+\section{Using Demography}
+
+\subsection{Intro and loading mortality data}
 
 Lee Carter original model, \cite{Lee1992}, focuses, as main forecasting methodologies, on the central mortality rates $m(x,t)$ for age $x$ in year $t$ defined as the ratio between the number of deaths $D(x,t)$, recorded during the calendar year $t$ for people aged $x$, and the exposure to risk $E(x,t)$ obtained as the average number of people living during the calendar year $t$.
 
@@ -167,6 +171,8 @@ plot(italyDemo,series="total",datatype="rate",
 @
 
 Italian data confirms that mortality is falling at all ages with a different behaviour according to different ages
+
+\subsection{Fitting Lee Carter model} 
 
 To fit Lee - Carter model (without going through logaritms) lca function can be used. Lee-Carter is here applied separately between male, female and total population and by considering a maximum age equal to 100.
 
@@ -252,7 +258,7 @@ We have applied here the original version of Lee-Carter in order to obtain a for
 Alternative estimates can be derived by using \textbf{lca} function through the \pkg{demography} package (as Lee-Miller (\cite{LM}), Booth-Maindonald-Smith (\cite{BMS}) and Hyndman-Ullah (\cite{Hyn}) methods).
 Finally Lifemetrics package allows to fit  \cite{BDV}, \cite{RH} and \cite{CBD} models.
 
-\section{Perform actuarial projections}
+\subsection{Perform actuarial projections}
 Our aim is to create a function to project life table depending by year of birth,
 using results from Lee - Carter model. 
 In particular, for ages $0, 1, \ldots, \tau$ on which Lee-Carter model has been fit Equation~\ref{eq:fit1} apply, while for extreme
@@ -325,6 +331,7 @@ for(i in seq(1920,2000,by=10)) {
 	}
 @
 
+\Section{Using the StMoMo package}
 
 \section*{Acknowledgments}\label{sec:acknowledgments}
 
