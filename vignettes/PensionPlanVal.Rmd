@@ -1,13 +1,18 @@
 ---
 title: "Pension valuation with lifecontingencies package"
 author: "Iván Williams"
-date: "feb-2019"
-output: rmarkdown::html_vignette
+
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_vignette: default
+  pdf_document: default
+  html_document: default
 bibliography: lifecontingenciesBiblio.bib
 vignette: >
-  %\VignetteIndexEntry{Pension valuation with lifecontingencies package} 
   %\VignetteEngine{knitr::rmarkdown}
-    \usepackage[utf8]{inputenc}
+  %\VignetteIndexEntry{Pension plan evaluation with Lifecontingencies} 
+  %!\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 ```{r echo=F}
 knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.align='center',fig.show='hold') 
@@ -18,6 +23,7 @@ knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.align='center',fig.show='
 In this brief document we present a general function to valuate actuarial liabilities and normal costs, allowing different methods in pension funding for defined benefit schemes.
 
 Each method is defined by the way that contributions are accrued in the active age before the specific risk apply. Following [@winklevoss1993pension] and [@bowers1997actuarial], the Normal Cost and Actuarial Liability can be seen as portions of $PVFNC^{r}_x$, the present value of future benefit at age $x$ for the risk in $r$, and that's the way that we treat this in the function's code. The methods that are implemented here are the "Benefit Prorate Method, Constant Dollar", "Benefit Prorate Method, Constant Percent", "Cost Prorate Method, Constant Dollar" and "Cost Prorate Method, Constant Benefit" (the last two also called "entry age methods"). For formula details the reader can go to chapters 5 and 6 on [@winklevoss1993pension].  
+
   
 We define a general function that allows to perform the calculations in a multi-decrement environment, with flexibility to consider different kind of benefit scheme, using functions of the "lifecontingencies" package (Spedicato et. al., 2018). The arguments (following general notation in Gian Paolo Clemente's vignette titled "Pension Funding with lifecontingencies") are:
 
@@ -37,10 +43,8 @@ We define a general function that allows to perform the calculations in a multi-
 The general function is:
 
 ```{r echo=TRUE,  tidy=TRUE}
+require("lifecontingencies")
 PensFund <-function(x, y, r, acttableAccPeriod, decrement, i, j, delta, n, avg, acttablePaymPeriod, CostMet){
-
-########## handle errors
-library("lifecontingencies")
 if (missing(n)) n <- getOmega(acttableAccPeriod)-x-1
 if (x<y) stop("Entry age greater than actual age")
 if (missing(decrement)) stop("Which is the contingency of benefit?")
@@ -66,6 +70,86 @@ x0=x
 B = ifelse(avg==0, 1, (1+j)^(r-x0) *  annuity(j, avg, m=0, k=1, type = "immediate") / avg )
 q.r = qxt(object=acttableAccPeriod, x=r, t=1, decrement=decrement)
 Br = q.r * axn(acttablePaymPeriod, r, i = (1+i)/(1+delta)-1, n=n, k=1) * B
+
+  ########## handle errors
+  if (missing(n)) n <- getOmega(acttableAccPeriod)-x-1
+  if (x<y) stop("Entry age greater than actual age")
+  if (missing(decrement)) stop("Which is the contingency of benefit?")
+  if (class(acttableAccPeriod) != "mdt") stop("Error! Needed Mdt")
+  if (!(decrement %in% getDecrements(acttableAccPeriod))) stop("Error! Not recognized decrement type")
+  if (missing(acttableAccPeriod)) stop("Error! Need a lifetable or actuarialtable")
+  if (missing(x) | missing(y)) stop("Error! Need age and seniority!")
+  if (x > getOmega(acttableAccPeriod)) { out = 0
+                                          return(out)}
+  if (missing(CostMet)) CostMet = 'BPM_CD'
+  if (missing(avg)) stop("Error! Need avg period of computing benefit")
+  if (missing(j)) stop("Error! Need average salary increase rate")
+  if (any(x < 0, y < 0, avg < 0, delta < 0))  stop("Error! Negative parameters")
+  
+  ##########survive all casuses
+  acttableAccPeriodTotal = pxt(acttableAccPeriod, x = 0:(getOmega(acttableAccPeriod)), t=1)
+  acttableAccPeriodTotal = probs2lifetable(acttableAccPeriodTotal, type = "px")
+  if (missing(acttablePaymPeriod)) acttablePaymPeriod = acttableAccPeriodTotal
+
+  ########## Set benefit
+  # fix age valuation
+  x0=x
+  B = ifelse(avg==0, 1, (1+j)^(r-x0) *  annuity(j, avg, m=0, k=1, type = "immediate") / avg )
+  q.r = qxt(object=acttableAccPeriod, x=r, t=1, decrement=decrement)
+  Br = q.r * axn(acttablePaymPeriod, r, i = (1+i)/(1+delta)-1, n=n, k=1) * B
+    
+  ########## Actuarial liability in age x, fot the age r (r>=x)
+  
+  ALyNC.x.r = function(x, r){
+              
+              ## PVFB
+              
+              PVFB.x = Exn(acttableAccPeriodTotal, x, r-x, i=i) * Br
+              
+              ## Normal Costs and liabilities under Actuarial Cost Methods 
+              
+              if(CostMet == 'BPM_CD'){
+                K <- (x-y) / (r-y) 
+                k <- 1 / (r-y)}
+              
+              if(CostMet == 'BPM_CP'){
+                K <-    (1+j)^(x-x0) * annuity(j, x-y+1, m=0, k=1, type = "immediate") / 
+                      ( (1+j)^(r-x0) * annuity(j, r-y+1, m=0, k=1, type = "immediate") )
+                k <-    (1+j)^(x-x0) / ( annuity(j, r-y, m=0, k=1, type = "immediate") * (1+j)^(r-x0) ) }
+              
+              if(CostMet == 'CPM_CD'){
+                K <- axn(acttableAccPeriodTotal, y, i = i, n=x-y, k=1) / 
+                     axn(acttableAccPeriodTotal, y, i = i, n=r-y, k=1) 
+                
+                k <- Exn(acttableAccPeriodTotal, y, x-y, i=i) / 
+                     axn(acttableAccPeriodTotal, y, i = i, n = r-y, k = 1) 
+                }
+              
+              if(CostMet == 'CPM_CB'){
+                K <- axn(acttableAccPeriodTotal, y, i = (1+i)/(1+j)-1, n=x-y, k=1) / 
+                     axn(acttableAccPeriodTotal, y, i = (1+i)/(1+j)-1, n=r-y, k=1) 
+                
+                k <- Exn(acttableAccPeriodTotal, y, x-y, i=i) * (1+j)^(x-y) /
+                     axn(acttableAccPeriodTotal, y, i = (1+i)/(1+j)-1, n=r-y, k=1) }
+              
+              ## Results
+              
+              outAL.x.r <- PVFB.x * K
+              outNC.x.r <- PVFB.x * k
+              outPVFB.x <- PVFB.x
+              out.x.r <- c(outAL.x.r, outNC.x.r, outPVFB.x)
+              
+              return(out.x.r)
+  }
+
+  ######## AL y NC for the rest of ages
+
+  ages_risk = x:r
+  outAL.x = sapply(ages_risk,  function(x) ALyNC.x.r(x, r)[1])
+  outNC.x = sapply(ages_risk,  function(x) ALyNC.x.r(x, r)[2])
+  outPVFB.x = sapply(ages_risk,  function(x) ALyNC.x.r(x, r)[3])
+  outNC.x[length(ages_risk)] = NA
+  out.x <- data.frame(x = ages_risk, AL = outAL.x, NC = outNC.x, PVFB = outPVFB.x)
   
 ########## Actuarial liability in age x, fot the age r (r>=x)
 
@@ -275,8 +359,8 @@ title ("Normal Cost. Example 3", cex.main=.9)
 
 ```
 
-### Future improvements:
+# Future improvements:
 1) Because a payment can't be done before the contingency occurs, an assumption about occurrence and payment must be done. We will improve the function to consider payments at half of the year. This affects only the financial component, and little bit the final results.
 2) Make the benefit rent payable for a designed survivor too, and with a portion of the titular benefit. This also allows to include death as a main benefit risk.
 
-#
+# References 
