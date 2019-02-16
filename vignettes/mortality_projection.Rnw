@@ -75,7 +75,7 @@ Mortality across any ages is indeed showing continuous reduction across the worl
 Prospects of longer life have led to concern over their implications for public spending on old-age support. Forecasting mortality appears indeed a key issue in different field of insurance and financial markets as pricing annuity, evaluating mortality-linked securities and quantifying longevity risk. Lee-Carter proposed in 1992 a model widely used in order to forecast mortality rates.\\
 The Lee Cartel forecasts could be used to project a life table for each specific cohort (year) of birth on which pension annuities projection could be fit.\\
 
-Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated function. In the first part, we will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.
+Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated functions, that covers a year span from the second half of the XIX century until 2014. In the first part, we will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.
 In the second part we will work with the StMoMo \cite{pkg:StMoMo} package for the same purposes, tha represents a more current approach to making mortality projections. 
 
 Finally, \textbf{lifecontingencies} (\cite{spedLifecon}) package will be used to project the cost of a pension annuity, $\ddot{a}_{x}^{(m)}$ for the cohorts of 1920, 1930, \ldots,
@@ -145,7 +145,8 @@ library(lifecontingencies)
 @
 
 Following code import data from the Human mortality Database and it creates a \code{demogdata} object from HMD data structure.
-The hmd.mx function downloads all available annual data by single years of age, but for the application we will use the already saved data.
+The \code{hmd.mx} function downloads all available annual data by single years of age, but for the application we will use the already saved data.
+
 <<createDemogData, keep.source=TRUE>>=
 #italyDemo<-hmd.mx(country="ITA", username="username@email.domain", 
 #password="password", label="Italy")
@@ -221,7 +222,7 @@ fT<-forecast(italyLcaT,h=110)
 @
 %plot(forecast(italyLcaT,h=110))
 
-The predicted values of $k_{t}$ rescaled to zero in the last observed year (2009) are here reported.
+The predicted values of $k_{t}$ rescaled to zero in the last observed year (2014) are here reported.
 
 <<ktProjectionFig, fig=TRUE>>=
 par(mfrow=c(1,3))
@@ -333,7 +334,66 @@ for(i in seq(1920,2000,by=10)) {
 
 \section{Using the StMoMo package}
 
-To be written
+The \pkg{StMoMo} provides many useful functions to manage mortality data.
+
+\subsection{Loading data}
+
+We will recycle previous example's data to initialize mortality data.
+
+<<r_stmomoconfig, keep.source=TRUE>>=
+#loading StMoMo package
+require(StMoMo) 
+#get data
+##use total death, mid year exposures
+ita.StMoMoData<-StMoMoData(data=italyDemo, series = "total",type="central")
+#bring to initial year
+ita.StMoMoData.Ini<-central2initial(ita.StMoMoData)
+#assume max age 103
+ages.fit = 0:103
+#generate weight matrix
+wxt <- genWeightMat(ages = ages.fit, 
+  years = ita.StMoMoData.Ini$years,clip = 3)
+@
+
+\subsection{Fitting models}
+
+The code below fits the Lee Carter models as well as the Reinshaw Haberban (RH) and the Cairn Blake Down (CBD) one \cite{Cairns2007} ones. Some are long to be fit (expecialli the RH one)
+
+<<r_stmomofit, keep.source=TRUE, eval=FALSE>>=
+#fitting Lee Carter
+LC <- lc(link = "logit")
+LCfit <- fit(LC, data = ita.StMoMoData.Ini, ages.fit = ages.fit, wxt = wxt)
+#fitting CBD
+CBD <- cbd()
+CBDfit <- fit(CBD, data = ita.StMoMoData.Ini, ages.fit = ages.fit, wxt = wxt)
+#fitting Reinshaw Haberman (long)
+RH <- rh(link = "logit", cohortAgeFun = "1")
+RHfit <- fit(RH, data = ita.StMoMoData.Ini, ages.fit = ages.fit,   wxt = wxt,start.ax = LCfit$ax,
+             start.bx = LCfit$bx, start.kt = LCfit$kt)
+@
+
+
+<<r_stmomosaveandload, keep.source=FALSE>>=
+#save(list=c("LCfit","CBDfit","RHfit"),file="StMoMoModels.RData")
+load(file="StMoMoModels.RData")
+@
+
+
+Plotting fitted models is immediate as well:
+
+<<stmomo_lcplot,keep.source=TRUE>>=
+plot(LCfit)
+@
+
+<<stmomo_rhplot,keep.source=TRUE>>=
+plot(RHfit)
+@
+
+
+<<stmomo_cbdlot,keep.source=TRUE>>=
+plot(CBDfit)
+@
+
 
 \section*{Acknowledgments}\label{sec:acknowledgments}
 
