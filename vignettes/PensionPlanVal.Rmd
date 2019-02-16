@@ -1,7 +1,6 @@
 ---
 title: "Pension valuation with lifecontingencies package"
 author: "Iván Williams"
-
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_vignette: default
@@ -209,7 +208,7 @@ return(out.x)
 
 ### First (main) example
 
-A first example of appliaction is of a person aged 30 (entered to job at age 20), with a benefit in case of disability, that is the average of the last 5 salaries before get disabled. For calculate that we'll use the multi-decrement table 'SoAISTdata'  for the accrued period and 'soa08' for the payment period, both availables in "lifecontingencies" package.
+A first example of application is of a person aged 30 (entered to job at age 20), with a benefit in case of disability, that is the average of the last 5 salaries before get disabled. For calculate that we'll use the multi-decrement table 'SoAISTdata'  for the accrued period and 'soa08' for the payment period, both available in "lifecontingencies" package.
 
 ```{r echo=TRUE,  tidy=TRUE, warning=FALSE, message=FALSE}
 library('lifecontingencies')
@@ -265,7 +264,7 @@ plot(x1:r1, BPM_CP$NC, t="o", ylab="NCx", xlab="Age", cex = .7)
          lty = rep(1,4), col = 1:4, cex=.6, bty = "n")
 ```
 
-We can check the results with actuarial equivalences, specifically the formulas $AL^{r}_x = PVFB^{r}_x-PVFNC^{r}_x$ (6.3a) and $AL^{r}_x = AVPNC^{r}_x$ (6.4a) in Winklevoss (1993), which means that the actuarial liability at any time can be expressed as the difference between the present value of future benefit and the present value of future normal costs, and as the actuarial value of past normal costs (retrospective view).
+We can check the results with actuarial equivalences, specifically the formulas $AL^{r}_x = PVFB^{r}_x-PVFNC^{r}_x$ (6.3a) and $AL^{r}_x = AVPNC^{r}_x$ (6.4a) in [@winklevoss1993pension], which means that the actuarial liability at any time can be expressed as the difference between the present value of future benefit and the present value of future normal costs, and as the actuarial value of past normal costs (retrospective view).
 
 ```{r echo=TRUE, tidy=TRUE}
 # AL = PVBF - PVFNC
@@ -360,7 +359,10 @@ title ("Normal Cost. Example 3", cex.main=.9)
 ```
 
 # Future improvements:
-1) Because a payment can't be done before the contingency occurs, an assumption about occurrence and payment must be done. We will improve the function to consider payments at half of the year. This affects only the financial component, and little bit the final results.
-2) Make the benefit rent payable for a designed survivor too, and with a portion of the titular benefit. This also allows to include death as a main benefit risk.
+
+The following improvements are planned:
+
+1. Because a payment can't be done before the contingency occurs, an assumption about occurrence and payment must be done. We will improve the function to consider payments at half of the year. This affects only the financial component, and little bit the final results.
+2. Make the benefit rent payable for a designed survivor too, and with a portion of the titular benefit. This also allows to include death as a main benefit risk.
 
 # References 
