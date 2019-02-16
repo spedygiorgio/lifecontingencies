@@ -331,7 +331,9 @@ for(i in seq(1920,2000,by=10)) {
 	}
 @
 
-\Section{Using the StMoMo package}
+\section{Using the StMoMo package}
+
+To be written
 
 \section*{Acknowledgments}\label{sec:acknowledgments}
 

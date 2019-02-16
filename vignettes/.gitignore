@@ -5,3 +5,5 @@
 *.tex
 *.log
 *.bak
+jss.bst
+jss.cls
