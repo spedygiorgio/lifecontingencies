@@ -8,7 +8,8 @@ Authors@R: c(person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
     person("Reinhold", "Kainhofer", role = "ctb",comment = c(ORCID = "0000-0002-7895-1311")),
     person("Kevin J", "Owens", role = "ctb"),
     person("Ernesto", "Schirmacher", role = "ctb"),
-    person("Gian Paolo", "Clemente", role = "ctb",comment = c(ORCID = "0000-0001-6795-4595"))
+    person("Gian Paolo", "Clemente", role = "ctb",comment = c(ORCID = "0000-0001-6795-4595")),
+    person("Iván", "Williams", role = "ctb")
     )
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Classes and methods that allow the user to manage life table,
