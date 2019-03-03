@@ -1,6 +1,6 @@
 ---
 title: "Pension valuation with lifecontingencies package"
-author: "Iván Williams"
+author: "Ivan Williams"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_vignette: default

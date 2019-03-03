@@ -301,6 +301,8 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
 }
 
 #' @rdname other-demographic-functions
+#' @param t duration of the calculation
+#' @param fxt correction constant, default 0.5
 #' @aliases Lxt
 #' @examples 
 #' data(soaLt)
@@ -357,7 +359,21 @@ Tx <- function(object,x)
 	return(sum(toSum))
 }
 
-#central mortality rate
+#' @title Central mortality rate
+#' @description This function returns the central mortality rate demographic function.
+#' @param object a \code{lifetable} or \code{actuarialtable} object
+#' @param x subject's age
+#' @param t period on which the rate is evaluated
+#' @return A numeric value representing the central mortality rate between age \eqn{x} and \eqn{x+t}.
+#' @references Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+#' @examples 
+#' #assumes SOA example life table to be load
+#' data(soaLt)
+#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
+#' #compare mx and qx 
+#' mxt(soa08Act, 60,10)
+#' qxt(soa08Act, 60,10)
+#' @export
 mxt <- function(object,x,t)
 {
 	out<-NULL
