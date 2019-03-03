@@ -9,7 +9,7 @@ Authors@R: c(person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
     person("Kevin J", "Owens", role = "ctb"),
     person("Ernesto", "Schirmacher", role = "ctb"),
     person("Gian Paolo", "Clemente", role = "ctb",comment = c(ORCID = "0000-0001-6795-4595")),
-    person("Iván", "Williams", role = "ctb")
+    person("Ivan", "Williams", role = "ctb")
     )
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Classes and methods that allow the user to manage life table,
@@ -30,6 +30,8 @@ Suggests:
     forecast,
     testthat,
     knitr,
+    formatR,
+    StMoMo,
     rmarkdown
 License: GPL-2
 Encoding: UTF-8

@@ -1,4 +1,3 @@
--Version 1.3.4.1
-* add vectorization of pxt(), qxt(), axn(), Axn()
-* start vectorization of axyzn() (devel version)
-* Started moving docs in Roxygen
+-Version 1.3.6
+* Mortality projections with StMoMo added
+* Added a new vignette on Pension evaluation by Ivan Williams
