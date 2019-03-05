@@ -374,7 +374,7 @@ RHfit <- fit(RH, data = ita.StMoMoData.Ini, ages.fit = ages.fit,   wxt = wxt,sta
 
 
 <<r_stmomosaveandload, keep.source=FALSE>>=
-#save(list=c("LCfit","CBDfit","RHfit"),file="StMoMoModels.RData")
+#save(list=c("LCfit","CBDfit","RHfit"),file="StMoMoModels.RData",compress = "xz")
 load(file="StMoMoModels.RData")
 @
 
