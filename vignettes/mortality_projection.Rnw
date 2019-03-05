@@ -13,8 +13,8 @@
 % need no \usepackage{Sweave.sty}
 %\SweaveOpts{prefix.string=Figures/fig}
 
-\author{Giorgio Alfredo Spedicato, FCAS, FSA, Ph.D, C.Stat \\ 
-        \textbf{Gian Paolo Clemente, Unicatt}}
+\author{Giorgio Alfredo Spedicato\\ Ph.D, FCAS, FSA, CSPA C.Stat \\ 
+        \textbf{Gian Paolo Clemente, Ph.D Unicatt}}
 
 
 \title{Mortality projection with \pkg{demography} and \pkg{lifecontingencies}
@@ -37,8 +37,8 @@ insurances and social security issues. \pkg{demography} and
 \pkg{lifecontingencies} packages will be used. The analysis performed within
 this paper are mechanical and intended for didactic purposes.}
 
-\Keywords{annuities, Lee-Carter, mortality projection, \pkg{lifecontingencies}, \pkg{demography}}
-\Plainkeywords{annuities, Lee-Carter, mortality projection, lifecontingencies, demography} %% without formatting
+\Keywords{mortality projection, \pkg{lifecontingencies}, \pkg{demography}, \pkg{StMoMo}}
+\Plainkeywords{mortality projection, lifecontingencies, demography, StMoMo} %% without formatting
 
 
 
@@ -64,7 +64,7 @@ this paper are mechanical and intended for didactic purposes.}
 
 \SweaveOpts{eps=FALSE, keep.source=TRUE}
 <<echo=FALSE,print=FALSE,results=hide>>=
-options(width=80, prompt='R> ')
+options(width=80, prompt='R>')
 @
 
 
@@ -76,7 +76,7 @@ Prospects of longer life have led to concern over their implications for public 
 The Lee Cartel forecasts could be used to project a life table for each specific cohort (year) of birth on which pension annuities projection could be fit.\\
 
 Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated functions, that covers a year span from the second half of the XIX century until 2014. In the first part, we will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.
-In the second part we will work with the StMoMo \cite{pkg:StMoMo} package for the same purposes, tha represents a more current approach to making mortality projections. 
+In the second part we will work with the StMoMo package \cite{pkg:StMoMo} for the same purposes, that is a more current approach for making mortality projections. 
 
 Finally, \textbf{lifecontingencies} (\cite{spedLifecon}) package will be used to project the cost of a pension annuity, $\ddot{a}_{x}^{(m)}$ for the cohorts of 1920, 1930, \ldots,
 2000. \\ 
@@ -332,6 +332,7 @@ for(i in seq(1920,2000,by=10)) {
 	}
 @
 
+\newpage
 \section{Using the StMoMo package}
 
 The \pkg{StMoMo} package provides many useful functions to manage mortality data.
@@ -356,7 +357,7 @@ wxt <- genWeightMat(ages = ages.fit,  years = ita.StMoMoData.Ini$years,clip = 3)
 
 \subsection{Fitting models}
 
-The code below fits the Lee Carter models as well as the Reinshaw Haberman (RH) and the Cairn Blake Down (CBD) one \cite{Cairns2007;Renshaw2006} ones. Some are long to be fit (expecialli the RH one)
+The code below fits the Lee Carter models as well as the Reinshaw Haberman (RH) and the Cairn Blake Down (CBD) one \cite{Cairns2007;Renshaw2006} ones. 
 
 <<r_stmomofit, keep.source=TRUE, eval=FALSE>>=
 #fitting the models
@@ -366,6 +367,11 @@ LCfit <- fit(LC, data = ita.StMoMoData.Ini, ages.fit = ages.fit, wxt = wxt)
 ## CBD
 CBD <- cbd()
 CBDfit <- fit(CBD, data = ita.StMoMoData.Ini, ages.fit = ages.fit, wxt = wxt)
+@
+
+Some are long to be fit (expecially the RH one):
+
+<<stmomo_rh_fit, keep.source=TRUE, eval=FALSE>>=
 ## RH
 RH <- rh(link = "logit", cohortAgeFun = "1")
 RHfit <- fit(RH, data = ita.StMoMoData.Ini, ages.fit = ages.fit,   wxt = wxt,start.ax = LCfit$ax,
@@ -374,7 +380,7 @@ RHfit <- fit(RH, data = ita.StMoMoData.Ini, ages.fit = ages.fit,   wxt = wxt,sta
 
 
 <<r_stmomosaveandload, keep.source=FALSE>>=
-#save(list=c("LCfit","CBDfit","RHfit"),file="StMoMoModels.RData",compress = "xz")
+#save(list=c("LCfit","CBDfit"),file="StMoMoModels.RData",compress = "xz")
 load(file="StMoMoModels.RData")
 @
 
@@ -387,17 +393,17 @@ The figure below shows LC fits:
 plot(LCfit)
 @
 
-The figure below shows RH fits:
-
-<<stmomo_rhplot,keep.source=TRUE, fig=TRUE>>=
-plot(RHfit)
-@
-
 The figure below shows CDB fits:
 
 
 <<stmomo_cbdlot,keep.source=TRUE, fig=TRUE>>=
 plot(CBDfit)
+@
+
+The figure below shows RH fits:
+
+<<stmomo_rhplot,keep.source=TRUE, fig=TRUE, eval=FALSE>>=
+plot(RHfit)
 @
 
 \subsection{Projecting and simulating mortality models}
@@ -408,7 +414,7 @@ The foillowing code projects individual fits for forthcoming 50 years:
 horizon=50
 LCfor <- forecast(LCfit, h = horizon)
 #assuming arima with drift
-RHfor <- forecast(RHfit, h = horizon, gc.order = c(1,1,0))
+#RHfor <- forecast(RHfit, h = horizon, gc.order = c(1,1,0))
 CBDfor <- forecast(CBDfit, h = horizon)
 @
 
@@ -418,13 +424,13 @@ Also it is possible to simulate mortality models' projections:
 #simulazione & proiezione
 ##simulazione
 nsims=100
-RHsim <- simulate(RHfit, nsim = nsims, h = 50, gc.order = c(1, 1, 0))
+#RHsim <- simulate(RHfit, nsim = nsims, h = 50, gc.order = c(1, 1, 0))
 LCsim <- simulate(LCfit, nsim = nsims, h = 50)
 CBDsim <- simulate(CBDfit, nsim = nsims, h = 50)
 @
 
 
-See for example LC ones:
+See for example the LC ones:
 
 <<stmomo_lc_sims, keep.source=TRUE, eval=FALSE>>=
 ##LC
@@ -470,9 +476,9 @@ lc_historical_rates <- extractCohort(fitted(LCfit, type = "rates"), cohort = cho
 lc_forecasted_rates <- extractCohort(LCfor$rates, cohort = chosen_cohort)
 lc_rates_1950 <- c(lc_historical_rates,lc_forecasted_rates)
 #RH
-rh_historical_rates <- extractCohort(fitted(RHfit, type = "rates"), cohort = chosen_cohort)
-rh_forecasted_rates <- extractCohort(RHfor$rates, cohort = chosen_cohort)
-rh_rates_1950 <- c(rh_historical_rates,rh_forecasted_rates)
+#rh_historical_rates <- extractCohort(fitted(RHfit, type = "rates"), cohort = chosen_cohort)
+#rh_forecasted_rates <- extractCohort(RHfor$rates, cohort = chosen_cohort)
+#rh_rates_1950 <- c(rh_historical_rates,rh_forecasted_rates)
 #CBD
 cbd_historical_rates <- extractCohort(fitted(CBDfit, type = "rates"), cohort = chosen_cohort)
 cbd_forecasted_rates <- extractCohort(CBDfor$rates, cohort = chosen_cohort)
@@ -483,7 +489,7 @@ Now we use \pkg{lifecontingencies} functions to transform mortality rates to mor
 
 <<rates_to_prob_1950, keep.source=TRUE>>=
 lc_qx_1950<-mx2qx(lc_rates_1950)
-rh_qx_1950<-mx2qx(rh_rates_1950)
+#rh_qx_1950<-mx2qx(rh_rates_1950)
 cbd_qx_1950<-mx2qx(cbd_rates_1950)
 @
 
@@ -491,7 +497,7 @@ And to get \code{lifetable} objects:
 
 <<qx_to_lifetable, keep.source=TRUE>>=
 lc_lifetable_1950<-probs2lifetable(probs=lc_qx_1950,type = "qx",name = paste("LC","1950","lt",sep="_"))
-rh_lifetable_1950<-probs2lifetable(probs=rh_qx_1950,type = "qx",name = paste("RH","1950","lt",sep="_"))
+#rh_lifetable_1950<-probs2lifetable(probs=rh_qx_1950,type = "qx",name = paste("RH","1950","lt",sep="_"))
 cbd_lifetable_1950<-probs2lifetable(probs=cbd_qx_1950,type = "qx",name = paste("CDB","1950","lt",sep="_"))
 @
 
@@ -499,7 +505,7 @@ Then, we can easily obtain expected life time at $x=65$:
 
 <<>>=
 exn(lc_lifetable_1950,x=65)
-exn(rh_lifetable_1950,x=65)
+#exn(rh_lifetable_1950,x=65)
 exn(cbd_lifetable_1950,x=65)
 @
 
@@ -507,7 +513,7 @@ Finally, after having created actuarial tables:
 
 <<stmomo_act, keep.source=TRUE>>=
 lc_acttbl_1950<-new("actuarialtable",x=lc_lifetable_1950@x,lx=lc_lifetable_1950@lx, interest=0.015,name="LC ActTbl")
-rh_acttbl_1950<-new("actuarialtable",x=rh_lifetable_1950@x,lx=rh_lifetable_1950@lx, interest=0.015,name="RH ActTbl")
+#rh_acttbl_1950<-new("actuarialtable",x=rh_lifetable_1950@x,lx=rh_lifetable_1950@lx, interest=0.015,name="RH ActTbl")
 cdb_acttbl_1950<-new("actuarialtable",x=cbd_lifetable_1950@x,lx=cbd_lifetable_1950@lx, interest=0.015,name="CBD ActTbl")
 @
 
@@ -515,7 +521,7 @@ We can compute the APV of an annuity under the three mortality assumptions:
 
 <<stmomo_axn, keep.source=TRUE>>=
 axn(actuarialtable = lc_acttbl_1950,x=65)
-axn(actuarialtable = rh_acttbl_1950,x=65)
+#axn(actuarialtable = rh_acttbl_1950,x=65)
 axn(actuarialtable = cdb_acttbl_1950,x=65)
 @
 
