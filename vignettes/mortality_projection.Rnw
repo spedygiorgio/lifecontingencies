@@ -503,6 +503,21 @@ exn(rh_lifetable_1950,x=65)
 exn(cbd_lifetable_1950,x=65)
 @
 
+Finally, after having created actuarial tables:
+
+<<stmomo_act, keep.source=TRUE>>=
+lc_acttbl_1950<-new("actuarialtable",x=lc_lifetable_1950@x,lx=lc_lifetable_1950@lx, interest=0.015,name="LC ActTbl")
+rh_acttbl_1950<-new("actuarialtable",x=rh_lifetable_1950@x,lx=rh_lifetable_1950@lx, interest=0.015,name="RH ActTbl")
+cdb_acttbl_1950<-new("actuarialtable",x=cbd_lifetable_1950@x,lx=cbd_lifetable_1950@lx, interest=0.015,name="CBD ActTbl")
+@
+
+We can compute the APV of an annuity under the three mortality assumptions:
+
+<<stmomo_axn, keep.source=TRUE>>=
+axn(actuarialtable = lc_acttbl_1950,x=65)
+axn(actuarialtable = rh_acttbl_1950,x=65)
+axn(actuarialtable = cdb_acttbl_1950,x=65)
+@
 
 
 \section*{Acknowledgments}\label{sec:acknowledgments}
