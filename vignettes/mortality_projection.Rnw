@@ -17,7 +17,7 @@
         \textbf{Gian Paolo Clemente, Ph.D Unicatt}}
 
 
-\title{Mortality projection with \pkg{demography} and \pkg{lifecontingencies}
+\title{Mortality projection using \pkg{lifecontingencies}, \pkg{demography} and \pkg{StMoMo}
 packages}
 
 \Plainauthor{Giorgio Alfredo Spedicato, Gian Paolo Clemente}
@@ -47,7 +47,7 @@ this paper are mechanical and intended for didactic purposes.}
   Ph.D ACAS C.STAT\\
   Via Firenze 11
   20037 Italy\\
-  E-mail: \email{spedygiorgio@gmail.com}\\
+  E-mail: \email{spedicato_giorgio@yahoo.it}\\
   URL: \url{https://github.com/spedygiorgio/lifecontingencies}
 }
 
@@ -472,8 +472,10 @@ So, the whole mortality rates, $m_{x}$, can be obtained as follows:
 
 <<stmomo_mortality_rates, keep.source=TRUE>>=
 #LC
-lc_historical_rates <- extractCohort(fitted(LCfit, type = "rates"), cohort = chosen_cohort)
-lc_forecasted_rates <- extractCohort(LCfor$rates, cohort = chosen_cohort)
+lc_historical_rates <- extractCohort(fitted(LCfit, type = "rates"), 
+  cohort = chosen_cohort)
+lc_forecasted_rates <- extractCohort(LCfor$rates, 
+  cohort = chosen_cohort)
 lc_rates_1950 <- c(lc_historical_rates,lc_forecasted_rates)
 #RH
 #rh_historical_rates <- extractCohort(fitted(RHfit, type = "rates"), cohort = chosen_cohort)
@@ -496,9 +498,11 @@ cbd_qx_1950<-mx2qx(cbd_rates_1950)
 And to get \code{lifetable} objects:
 
 <<qx_to_lifetable, keep.source=TRUE>>=
-lc_lifetable_1950<-probs2lifetable(probs=lc_qx_1950,type = "qx",name = paste("LC","1950","lt",sep="_"))
+lc_lifetable_1950<-probs2lifetable(probs=lc_qx_1950,type = "qx",
+  name = paste("LC","1950","lt",sep="_"))
 #rh_lifetable_1950<-probs2lifetable(probs=rh_qx_1950,type = "qx",name = paste("RH","1950","lt",sep="_"))
-cbd_lifetable_1950<-probs2lifetable(probs=cbd_qx_1950,type = "qx",name = paste("CDB","1950","lt",sep="_"))
+cbd_lifetable_1950<-probs2lifetable(probs=cbd_qx_1950,type = "qx",
+  name = paste("CDB","1950","lt",sep="_"))
 @
 
 Then, we can easily obtain expected life time at $x=65$:
