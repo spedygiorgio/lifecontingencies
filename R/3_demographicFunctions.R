@@ -300,7 +300,16 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
 	return(out)
 }
 
-#the number of person-years lived between exact ages x and x+1
+#' @rdname other-demographic-functions
+#' @param t duration of the calculation
+#' @param fxt correction constant, default 0.5
+#' @aliases Lxt
+#' @examples 
+#' data(soaLt)
+#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,
+#' x=x,lx=Ix,name="SOA2008"))
+#' Lxt(soa08Act, 67,10)
+#' @export
 Lxt <- function(object, x,t=1,fxt=0.5)
 {
 
@@ -319,7 +328,24 @@ Lxt <- function(object, x,t=1,fxt=0.5)
 	out=sum(toSum)
 	return(out)
 }
-# the number of person-years lived after exact age x
+
+#' @rdname other-demographic-functions
+#' @aliases Tx
+#' @title Various demographic functions
+#' 
+#' @param object a \code{lifetable} or \code{actuarialtable} object
+#' @param x age of the subject
+#' @details \code{Tx} il the sum of years lived since age \code{x} by the population of the life table, it is the sum of \code{Lx}. The function is provided as is, 
+#' without any warranty regarding the accuracy of calculations. Use at own risk.
+#' @return A numeric value
+#' @references 	Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+#' @author Giorgio Alfredo Spedicato.
+#' @examples 
+#' #assumes SOA example life table to be load
+#' data(soaLt)
+#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
+#' Tx(soa08Act, 67)
+#' @export
 Tx <- function(object,x)
 {
 	out<-NULL
@@ -333,7 +359,21 @@ Tx <- function(object,x)
 	return(sum(toSum))
 }
 
-#central mortality rate
+#' @title Central mortality rate
+#' @description This function returns the central mortality rate demographic function.
+#' @param object a \code{lifetable} or \code{actuarialtable} object
+#' @param x subject's age
+#' @param t period on which the rate is evaluated
+#' @return A numeric value representing the central mortality rate between age \eqn{x} and \eqn{x+t}.
+#' @references Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+#' @examples 
+#' #assumes SOA example life table to be load
+#' data(soaLt)
+#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
+#' #compare mx and qx 
+#' mxt(soa08Act, 60,10)
+#' qxt(soa08Act, 60,10)
+#' @export
 mxt <- function(object,x,t)
 {
 	out<-NULL

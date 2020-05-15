@@ -39,7 +39,7 @@ Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U.,
 Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 }
 \seealso{
-\code{\link{axn}}
+\code{\link{axn}}, \code{\link{Axn}}
 }
 \author{
 Giorgio A. Spedicato

@@ -13,11 +13,11 @@
 % need no \usepackage{Sweave.sty}
 %\SweaveOpts{prefix.string=Figures/fig}
 
-\author{Giorgio Alfredo Spedicato, FCAS, FSA, Ph.D, C.Stat \\ 
-        \textbf{Gian Paolo Clemente, Unicatt}}
+\author{Giorgio Alfredo Spedicato\\ Ph.D, FCAS, FSA, CSPA C.Stat \\ 
+        \textbf{Gian Paolo Clemente, Ph.D Unicatt}}
 
 
-\title{Mortality projection with \pkg{demography} and \pkg{lifecontingencies}
+\title{Mortality projection using \pkg{lifecontingencies}, \pkg{demography} and \pkg{StMoMo}
 packages}
 
 \Plainauthor{Giorgio Alfredo Spedicato, Gian Paolo Clemente}
@@ -37,8 +37,8 @@ insurances and social security issues. \pkg{demography} and
 \pkg{lifecontingencies} packages will be used. The analysis performed within
 this paper are mechanical and intended for didactic purposes.}
 
-\Keywords{annuities, Lee-Carter, mortality projection, \pkg{lifecontingencies}, \pkg{demography}}
-\Plainkeywords{annuities, Lee-Carter, mortality projection, lifecontingencies, demography} %% without formatting
+\Keywords{mortality projection, \pkg{lifecontingencies}, \pkg{demography}, \pkg{StMoMo}}
+\Plainkeywords{mortality projection, lifecontingencies, demography, StMoMo} %% without formatting
 
 
 
@@ -47,7 +47,7 @@ this paper are mechanical and intended for didactic purposes.}
   Ph.D ACAS C.STAT\\
   Via Firenze 11
   20037 Italy\\
-  E-mail: \email{spedygiorgio@gmail.com}\\
+  E-mail: \email{spedicato_giorgio@yahoo.it}\\
   URL: \url{https://github.com/spedygiorgio/lifecontingencies}
 }
 
@@ -64,18 +64,20 @@ this paper are mechanical and intended for didactic purposes.}
 
 \SweaveOpts{eps=FALSE, keep.source=TRUE}
 <<echo=FALSE,print=FALSE,results=hide>>=
-options(width=80, prompt='R> ')
+options(width=80, prompt='R>')
 @
 
 
 
 \section{Introduction}
-Mortality data shows that mortality is falling at all ages with a different behaviour according to different ages and country.
+Mortality data shows that mortality is falling at all ages with a different behavior according to different ages and country.
 Mortality across any ages is indeed showing continuous reduction across the world. \\ 
 Prospects of longer life have led to concern over their implications for public spending on old-age support. Forecasting mortality appears indeed a key issue in different field of insurance and financial markets as pricing annuity, evaluating mortality-linked securities and quantifying longevity risk. Lee-Carter proposed in 1992 a model widely used in order to forecast mortality rates.\\
 The Lee Cartel forecasts could be used to project a life table for each specific cohort (year) of birth on which pension annuities projection could be fit.\\
 
-Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated function. We will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.\\
+Our exercise will be based on Italian data downloaded from the Human Mortality Databases (HMD) via \textbf{demography} (\cite{demographyR}) package dedicated functions, that covers a year span from the second half of the XIX century until 2014. In the first part, we will use \textbf{demography} and \textbf{forecast} package in order to fit Lee - Carter model and perform 100 - years in advance extrapolations.
+In the second part we will work with the StMoMo package \cite{pkg:StMoMo} for the same purposes, that is a more current approach for making mortality projections. 
+
 Finally, \textbf{lifecontingencies} (\cite{spedLifecon}) package will be used to project the cost of a pension annuity, $\ddot{a}_{x}^{(m)}$ for the cohorts of 1920, 1930, \ldots,
 2000. \\ 
 Applications have been provided by using three different data-sets regarding respectively male, female and total population.
@@ -91,9 +93,11 @@ Following demographic and economic assumptions will be hold:
 The projection has been performed using a mechanical approach, since the purpose of this paper lies in showing the procedure instead of providing sensible results.\\
 Most of this paper is based on the examples provided in \cite{rmetrics1} and \cite{charpentierDutang} online manual.
 
-Recently, a new R package has made demographical projection even easier, the \pkg{StMoMo} package \cite{pkg:StMoMo}. The latter part of this vignettes explains how to perform mortality projections using the \pkg{StMoMo} package.
+Recently, a new R package has made demographic projection even easier, the \pkg{StMoMo} package \cite{pkg:StMoMo}. The latter part of this vignettes explains how to perform mortality projections using the \pkg{StMoMo} package.
 
-\section{Fitting Lee Carter model}
+\section{Using Demography}
+
+\subsection{Intro and loading mortality data}
 
 Lee Carter original model, \cite{Lee1992}, focuses, as main forecasting methodologies, on the central mortality rates $m(x,t)$ for age $x$ in year $t$ defined as the ratio between the number of deaths $D(x,t)$, recorded during the calendar year $t$ for people aged $x$, and the exposure to risk $E(x,t)$ obtained as the average number of people living during the calendar year $t$.
 
@@ -104,7 +108,7 @@ Starting by this sample notation, Lee and Carter (1992) proposed to describe the
 \label{eq:LeeCarter}
 \end{equation}
 
-where $a_{x}$ describes the general shape of mortality according to different ages and it represents the logarithm of the geometric mean of empirical mortality rates, averaged over historical years. $e^{a_{x}}$ mesaure indeed the general shape across age of the mortality schedule. \\
+where $a_{x}$ describes the general shape of mortality according to different ages and it represents the logarithm of the geometric mean of empirical mortality rates, averaged over historical years. $e^{a_{x}}$ measure indeed the general shape across age of the mortality schedule. \\
 Furthermore, $k_{t}$ reproduces the underlying time trend, while a term $b_{x}$ is considered in order to take into account the different effect of time $t$ at each age. 
 $b_{x}$ is assumed to be invariant over time and it explains how rates decline rapidly or slowly in response to change in $k_{t}$. \\  
 Finally, $\varepsilon_{x,t}$ are independent and identical distributed random variables $N(0,\sigma^{2})$ taking into account the age and time specific trends not fully captured by the model. \\
@@ -112,7 +116,7 @@ Finally, $\varepsilon_{x,t}$ are independent and identical distributed random va
 In the original version, parameters have been estimated by a two-stage process where Singular Value Decomposition (SVD) of the matrix of centered age profiles $ln(m_{x,t})-\hat{a}_{x}$, allows a first estimation of parameters $b_{x}$ and $k_{t}$. \\
 In order to assure a unique solution for the system of equation of the model, Lee and Carter proposed the following constraints:$\sum_{t}k_{t}=0$ and $\sum_{x}b_{x}=1$. \\
 
-A second step, based on a refitting of $\hat{k}_{t}$ on the number of deaths, is usually suggested in order to assure a better convergence bewteen estimated and observed deaths. The aim is to find the $\hat{k}_{t}$ such that $D(x,t)=E(x,t)exp(\hat{a}_{x}+\hat{b}_{x}\cdot\hat{k}_{t})$.\\
+A second step, based on a refitting of $\hat{k}_{t}$ on the number of deaths, is usually suggested in order to assure a better convergence between estimated and observed deaths. The aim is to find the $\hat{k}_{t}$ such that $D(x,t)=E(x,t)exp(\hat{a}_{x}+\hat{b}_{x}\cdot\hat{k}_{t})$.\\
 
 Alternative frameworks have been proposed over the years in order to improve some drawbacks of original Lee-Carter model (in particular see \cite{Al},\cite{LM}, \cite{BMS}, \cite{BDV}, \cite{RH}, \cite{CBD}, \cite{Plat})
 
@@ -141,14 +145,15 @@ library(lifecontingencies)
 @
 
 Following code import data from the Human mortality Database and it creates a \code{demogdata} object from HMD data structure.
-The hmd.mx function downloads all available annual data by single years of age, but for the application we will use the already saved data.
+The \code{hmd.mx} function downloads all available annual data by single years of age, but for the application we will use the already saved data.
+
 <<createDemogData, keep.source=TRUE>>=
 #italyDemo<-hmd.mx(country="ITA", username="username@email.domain", 
 #password="password", label="Italy")
 load(file="mortalityDatasets.RData")
 @
 
-Plot method is available on \code{demogdata}. Following figures report for the Italian Population the pattern of logarithm of death rates according to age and time. Several behaviour are shown respectively for male, female and total population. 
+Plot method is available on \code{demogdata}. Following figures report for the Italian Population the pattern of logarithm of death rates according to age and time. As detailed in \pkg{demography} vignette, different colors indicate different years (most recent ones in violet, earliest in red). Several behavior are shown respectively for male, female and total population. 
 
 <<italyDemoFig,fig=TRUE>>=
 par(mfrow=c(1,3))
@@ -166,9 +171,11 @@ plot(italyDemo,series="total",datatype="rate",
      plot.type="time", main="Total rates",xlab="Years")
 @
 
-Italian data confirms that mortality is falling at all ages with a different behaviour according to different ages
+Italian data confirms that mortality is falling at all ages with a different behavior according to different ages
 
-To fit Lee - Carter model (without going through logaritms) lca function can be used. Lee-Carter is here applied separately between male, female and total population and by considering a maximum age equal to 100.
+\subsection{Fitting Lee Carter model} 
+
+To fit Lee - Carter model (without going through logarithms) lca function can be used. Lee-Carter is here applied separately between male, female and total population and by considering a maximum age equal to 100.
 
 <<fitLeeCarter, keep.source=TRUE>>=
 italyLcaM<-lca(italyDemo,series="male",max.age=100)
@@ -199,7 +206,7 @@ italyLcaT<-lca(italyDemo,series="total",max.age=100)
   cex=0.8,col=c("blue","red","black"),lty=1);
 @
 
-A similar behaviour of parameters is observed according to different data-sets. As expected the average mortality grows when age increases (see $\hat{a}_{x}$ pattern).Furthermore it is clearly visible the young mortality hump for males in the age-range (20,30) due to accidental deaths. $\hat{b}_{x}$ shows instead a greater value for younger ages and a greatest improvement for females in the age range (60-80).
+A similar behavior of parameters is observed according to different data-sets. As expected the average mortality grows when age increases (see $\hat{a}_{x}$ pattern).Furthermore it is clearly visible the young mortality hump for males in the age-range (20,30) due to accidental deaths. $\hat{b}_{x}$ shows instead a greater value for younger ages and a greatest improvement for females in the age range (60-80).
 Finally, as expected, $\hat{k}_{t}$ has a decreasing trend with the increment of time. \\
 
 We can therefore use \pkg{forecast} package to project the future $k_{t}$s (up to 110). Projection is based on ARIMA extrapolation.
@@ -215,7 +222,7 @@ fT<-forecast(italyLcaT,h=110)
 @
 %plot(forecast(italyLcaT,h=110))
 
-The predicted values of $k_{t}$ rescaled to zero in the last observed year (2009) are here reported.
+The predicted values of $k_{t}$ re-scaled to zero in the last observed year (2014) are here reported.
 
 <<ktProjectionFig, fig=TRUE>>=
 par(mfrow=c(1,3))
@@ -224,7 +231,7 @@ plot(fF$kt.f,main="Female",)
 plot(fT$kt.f,main="Total")
 @
 
-Finally, it's easy to derive the full pattern of rates. Past and forecasted rates are here binded in the same matrix.
+Finally, it's easy to derive the full pattern of rates. Past and projected rates are here binded in the same matrix.
 
 <<ktrates, keep.source=TRUE>>=
 ratesM<-cbind(italyDemo$rate$male[1:100,],fM$rate$male[1:100,])
@@ -234,7 +241,7 @@ ratesT<-cbind(italyDemo$rate$total[1:100,],fT$rate$total[1:100,])
 %plot(italyDemo,series="total",main="Total: observed and forecasted rates",ylim=c(-20,2),lty=2)
 %lines(fT,lty=2)
 %max(unlist(fT$rate))
-We report here the pattern of past and forecasted rates according to different population for people aged $65$. The expected improvement is clearly visible in the Figure.
+We report here the pattern of past and projected rates according to different population for people aged $65$. The expected improvement is clearly visible in the Figure.
 
 <<ktratesFig, fig=TRUE>>=
 par(mfrow=c(1,1))
@@ -252,7 +259,7 @@ We have applied here the original version of Lee-Carter in order to obtain a for
 Alternative estimates can be derived by using \textbf{lca} function through the \pkg{demography} package (as Lee-Miller (\cite{LM}), Booth-Maindonald-Smith (\cite{BMS}) and Hyndman-Ullah (\cite{Hyn}) methods).
 Finally Lifemetrics package allows to fit  \cite{BDV}, \cite{RH} and \cite{CBD} models.
 
-\section{Perform actuarial projections}
+\subsection{Perform actuarial projections}
 Our aim is to create a function to project life table depending by year of birth,
 using results from Lee - Carter model. 
 In particular, for ages $0, 1, \ldots, \tau$ on which Lee-Carter model has been fit Equation~\ref{eq:fit1} apply, while for extreme
@@ -323,6 +330,203 @@ for(i in seq(1920,2000,by=10)) {
 		" and the APV is :",round(getAnnuityAPV(i,rate),2),"\n")
 		
 	}
+@
+
+\newpage
+\section{Using the StMoMo package}
+
+The \pkg{StMoMo} package provides many useful functions to manage mortality data.
+
+\subsection{Loading data}
+
+We will recycle previous example's data to initialize mortality data. The interested reader will find further details on the \pkg{StMoMo} package's vignette.
+
+<<r_stmomoconfig, keep.source=TRUE>>=
+#loading StMoMo package
+require(StMoMo) 
+#get data
+##use total death, mid year exposures
+ita.StMoMoData<-StMoMoData(data=italyDemo, series = "total",type="central")
+#bring to initial year
+ita.StMoMoData.Ini<-central2initial(ita.StMoMoData)
+#assume max age 103
+ages.fit = 0:103
+#generate weight matrix
+wxt <- genWeightMat(ages = ages.fit,  years = ita.StMoMoData.Ini$years,clip = 3)
+@
+
+\subsection{Fitting models}
+
+The code below fits the Lee Carter models as well as the Reinshaw Haberman (RH) and the Cairn Blake Down (CBD) one \cite{Cairns2007;Renshaw2006} ones. 
+
+<<r_stmomofit, keep.source=TRUE, eval=FALSE>>=
+#fitting the models
+## LC
+LC <- lc(link = "logit")
+LCfit <- fit(LC, data = ita.StMoMoData.Ini, ages.fit = ages.fit, wxt = wxt)
+## CBD
+CBD <- cbd()
+CBDfit <- fit(CBD, data = ita.StMoMoData.Ini, ages.fit = ages.fit, wxt = wxt)
+@
+
+Some are long to be fit (especially the RH one):
+
+<<stmomo_rh_fit, keep.source=TRUE, eval=FALSE>>=
+## RH
+RH <- rh(link = "logit", cohortAgeFun = "1")
+RHfit <- fit(RH, data = ita.StMoMoData.Ini, ages.fit = ages.fit,   wxt = wxt,start.ax = LCfit$ax,
+             start.bx = LCfit$bx, start.kt = LCfit$kt)
+@
+
+
+<<r_stmomosaveandload, keep.source=FALSE>>=
+#save(list=c("LCfit","CBDfit"),file="StMoMoModels.RData",compress = "xz")
+load(file="StMoMoModels.RData")
+@
+
+
+Plotting fitted models is immediate as well:
+
+The figure below shows LC fits:
+
+<<stmomo_lcplot,keep.source=FALSE, eval=TRUE,fig=TRUE>>=
+plot(LCfit)
+@
+
+The figure below shows CDB fits:
+
+
+<<stmomo_cbdlot,keep.source=TRUE, fig=TRUE>>=
+plot(CBDfit)
+@
+
+The figure below shows RH fits:
+
+<<stmomo_rhplot,keep.source=TRUE, fig=TRUE, eval=FALSE>>=
+plot(RHfit)
+@
+
+\subsection{Projecting and simulating mortality models}
+
+The following code projects individual fits for forthcoming 50 years:
+
+<<stmomo_cbdlot,keep.source=TRUE>>=
+horizon=50
+LCfor <- forecast(LCfit, h = horizon)
+#assuming arima with drift
+#RHfor <- forecast(RHfit, h = horizon, gc.order = c(1,1,0))
+CBDfor <- forecast(CBDfit, h = horizon)
+@
+
+Also it is possible to simulate mortality models' projections:
+
+<<stmomo_simulate, keep.source=TRUE>>=
+#simulazione & proiezione
+##simulazione
+nsims=100
+#RHsim <- simulate(RHfit, nsim = nsims, h = 50, gc.order = c(1, 1, 0))
+LCsim <- simulate(LCfit, nsim = nsims, h = 50)
+CBDsim <- simulate(CBDfit, nsim = nsims, h = 50)
+@
+
+
+See for example 20 year projected LC trajectories:
+
+<<stmomo_lc_sims, keep.source=TRUE, eval=FALSE>>=
+##LC
+plot(LCfit$years, LCfit$kt[1, ], xlim = range(LCfit$years, LCsim$kt.s$years), ylim = range(LCfit$kt, LCsim$kt.s$sim[1, , 1:20]),type = "l", xlab = "year", ylab = "kt", main = "LC model simulations")
+matlines(LCsim$kt.s$years, LCsim$kt.s$sim[1, , 1:20], type = "l", lty = 1)
+@
+
+<<stmomo_lc_sims2, keep.source=FALSE, fig=TRUE>>=
+##LC
+plot(LCfit$years, LCfit$kt[1, ], xlim = range(LCfit$years, LCsim$kt.s$years), ylim = range(LCfit$kt, LCsim$kt.s$sim[1, , 1:20]),type = "l", xlab = "year", ylab = "kt", main = "LC model simulations")
+matlines(LCsim$kt.s$years, LCsim$kt.s$sim[1, , 1:20], type = "l", lty = 1)
+@
+
+\subsection{Obtaining life tables}
+
+The \pkg{StMoMo} package provides a useful function to extract mortality rates from model objects' fit and forecasts, the \code{extractCohort} one. In order to obtain a projected life table for a given cohort of birth, we need to blend fitted rates from historical data to projection, all from the same cohort.
+
+<<stmomo_lifetable, keep.source=TRUE, eval=FALSE>>=
+#plotting historical fitted rates, until 2014
+chosen_cohort=1950
+plot(0:64, extractCohort(fitted(LCfit, type = "rates"), cohort = chosen_cohort),
+type = "l", log = "y", xlab = "age", ylab = "q(x)",
+main = "Cohort 1950 mortality rate", xlim = c(0,103), ylim = c(0.0005, 0.07))
+#adding fitted projections
+lines(65:103, extractCohort(LCfor$rates, cohort = chosen_cohort), lty = 2, lwd=2, col="red")
+@
+
+<<stmomo_lifetable2, keep.source=FALSE, fig=TRUE>>=
+#plotting historical fitted rates, until 2014
+chosen_cohort=1950
+plot(0:64, extractCohort(fitted(LCfit, type = "rates"), cohort = chosen_cohort),
+type = "l", log = "y", xlab = "age", ylab = "q(x)",
+main = "Cohort 1950 mortality rate", xlim = c(0,103), ylim = c(0.0005, 0.07))
+#adding fitted projections
+lines(65:103, extractCohort(LCfor$rates, cohort = chosen_cohort), lty = 2, lwd=2, col="red")
+@
+
+So, the whole mortality rates, $m_{x}$, can be obtained as follows:
+
+<<stmomo_mortality_rates, keep.source=TRUE>>=
+#LC
+lc_historical_rates <- extractCohort(fitted(LCfit, type = "rates"), 
+  cohort = chosen_cohort)
+lc_forecasted_rates <- extractCohort(LCfor$rates, 
+  cohort = chosen_cohort)
+lc_rates_1950 <- c(lc_historical_rates,lc_forecasted_rates)
+#RH
+#rh_historical_rates <- extractCohort(fitted(RHfit, type = "rates"), cohort = chosen_cohort)
+#rh_forecasted_rates <- extractCohort(RHfor$rates, cohort = chosen_cohort)
+#rh_rates_1950 <- c(rh_historical_rates,rh_forecasted_rates)
+#CBD
+cbd_historical_rates <- extractCohort(fitted(CBDfit, type = "rates"), cohort = chosen_cohort)
+cbd_forecasted_rates <- extractCohort(CBDfor$rates, cohort = chosen_cohort)
+cbd_rates_1950 <- c(cbd_historical_rates,cbd_forecasted_rates)
+@
+
+Now we use \pkg{lifecontingencies} functions to transform mortality rates to mortality probabilities
+
+<<rates_to_prob_1950, keep.source=TRUE>>=
+lc_qx_1950<-mx2qx(lc_rates_1950)
+#rh_qx_1950<-mx2qx(rh_rates_1950)
+cbd_qx_1950<-mx2qx(cbd_rates_1950)
+@
+
+And to get \code{lifetable} objects:
+
+<<qx_to_lifetable, keep.source=TRUE>>=
+lc_lifetable_1950<-probs2lifetable(probs=lc_qx_1950,type = "qx",
+  name = paste("LC","1950","lt",sep="_"))
+#rh_lifetable_1950<-probs2lifetable(probs=rh_qx_1950,type = "qx",name = paste("RH","1950","lt",sep="_"))
+cbd_lifetable_1950<-probs2lifetable(probs=cbd_qx_1950,type = "qx",
+  name = paste("CDB","1950","lt",sep="_"))
+@
+
+Then, we can easily obtain expected life time at $x=65$:
+
+<<>>=
+exn(lc_lifetable_1950,x=65)
+#exn(rh_lifetable_1950,x=65)
+exn(cbd_lifetable_1950,x=65)
+@
+
+Finally, after having created actuarial tables:
+
+<<stmomo_act, keep.source=TRUE>>=
+lc_acttbl_1950<-new("actuarialtable",x=lc_lifetable_1950@x,lx=lc_lifetable_1950@lx, interest=0.015,name="LC ActTbl")
+#rh_acttbl_1950<-new("actuarialtable",x=rh_lifetable_1950@x,lx=rh_lifetable_1950@lx, interest=0.015,name="RH ActTbl")
+cdb_acttbl_1950<-new("actuarialtable",x=cbd_lifetable_1950@x,lx=cbd_lifetable_1950@lx, interest=0.015,name="CBD ActTbl")
+@
+
+We can compute the APV of an annuity under the three mortality assumptions:
+
+<<stmomo_axn, keep.source=TRUE>>=
+axn(actuarialtable = lc_acttbl_1950,x=65)
+#axn(actuarialtable = rh_acttbl_1950,x=65)
+axn(actuarialtable = cdb_acttbl_1950,x=65)
 @
 
 
