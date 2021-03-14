@@ -33,7 +33,7 @@ Suggests:
     formatR,
     StMoMo,
     rmarkdown
-License: GPL-2
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyLoad: yes
 BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
