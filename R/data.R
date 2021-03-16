@@ -48,7 +48,7 @@
 #' rates are not provided for ages below 16 nor for ages over 90. Various 
 #' approach can be used to complete the series.
 #' @source Institute of Actuaries
-#' @references \url{http://www.actuaries.org.uk/research-and-resources/documents/am92-permanent-assurances-males}
+#' @references \url{https://www.actuaries.org.uk/research-and-resources/documents/am92-permanent-assurances-males}
 #' @examples
 #' data(demoUk)
 #' head(demoUk)

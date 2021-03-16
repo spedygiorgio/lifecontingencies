@@ -8,12 +8,12 @@ citEntry(entry = "Article",
   volume       = "55",
   number       = "10",
   pages        = "1--36",
-  url          = "http://www.jstatsoft.org/v55/i10/",
+  url          = "https://www.jstatsoft.org/v55/i10/",
 
   textVersion  =
   paste("Giorgio Alfredo Spedicato (2013).",
         "The lifecontingencies Package: Performing Financial and Actuarial Mathematics Calculations in R.",
         "Journal of Statistical Software, 55(10), 1-36.",
-        "URL http://www.jstatsoft.org/v55/i10/.")
+        "URL https://www.jstatsoft.org/v55/i10/.")
 )
     

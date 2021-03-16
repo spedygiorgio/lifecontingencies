@@ -36,9 +36,9 @@ Suggests:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyLoad: yes
-BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
+BugReports: https://github.com/spedygiorgio/lifecontingencies/issues
 BuildVignettes: yes
 VignetteBuilder: utils, knitr
-URL: http://github.com/spedygiorgio/lifecontingencies
+URL: https://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
