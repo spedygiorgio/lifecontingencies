@@ -18,7 +18,7 @@ knitr::opts_chunk$set(warning=F, message=F, fig.width=6, fig.height=3.5, fig.ali
 ```
 
 
-## Function *PensFund*
+# Function *PensFund*
 In this brief document we present a general function to valuate actuarial liabilities and normal costs, allowing different methods in pension funding for defined benefit schemes.
 
 Each method is defined by the way that contributions are accrued in the active age before the specific risk apply. Following [@winklevoss1993pension] and [@bowers1997actuarial], the Normal Cost and Actuarial Liability can be seen as portions of $PVFNC^{r}_x$, the present value of future benefit at age $x$ for the risk in $r$, and that's the way that we treat this in the function's code. The methods that are implemented here are the "Benefit Prorate Method, Constant Dollar", "Benefit Prorate Method, Constant Percent", "Cost Prorate Method, Constant Dollar" and "Cost Prorate Method, Constant Benefit" (the last two also called "entry age methods"). For formula details the reader can go to chapters 5 and 6 on [@winklevoss1993pension].  
@@ -125,7 +125,7 @@ return(out.x)
 ```
 
 
-### First (main) example
+## First (main) example
 
 
 A first example of application is of a person aged 30 (entered to job at age 20), with a benefit in case of disability, that is the average of the last 5 salaries before get disabled. For calculate that we'll use the multi-decrement table 'SoAISTdata'  for the accrued period and 'soa08' for the payment period, both available in "lifecontingencies" package.
@@ -202,7 +202,7 @@ BPM_CD_y = PensFund(y1, y1, r1, acttableAccPeriod = MultiDecrTable, decrement = 
 round(BPM_CD_y$AL[BPM_CD_y$x==45],10) == round(sum(sapply(y1:44, function(y) (1.04)^(45-y) / pxt(acttableAccPeriodTotal, y, 45-y) * BPM_CD_y$NC[BPM_CD_y$x==y])),10)
 ```
 
-### Second example
+## Second example
 
 Now we'll evaluate a retirement pension, that receives a payment grade which is a lineal function between age 60 and the maximum possible age of retirement at 70, and goes from 50% to 100%. This is not a grading function in which benefit provided at early or late retirement has the same present value as the benefit payable at normal retirement ([@winklevoss1993pension], chapter 9). Instead, here the person is penalyzed for early retirement. The insured has an annual salary of 5000 at age $x$.  Also there is a seniority condition of 10 years. The other parameters are the same that the previous example.
 
@@ -248,7 +248,7 @@ mtext("Probability", side = 4, line = 3)
 legend('topleft', legend=c('ALx', 'q(retire)'), col=1:2, lty=c(1,1), bty = 'n', cex = .6)
 ```
 
-### Third example
+## Third example
 
 Now let's imagine that the same insured has the benefit of receive a 50% of his/her last salary at each age before retirement if he decide to leave the Company. The benefit is in concept of recognition of past contributions to the pension plan. This benefit can be estimated setting  $n=1$ (no rent, a single payment) and $avg=0$ (only last salary). For example, for the risk of withdrawal at age 45:
 
@@ -277,7 +277,7 @@ title ("Normal Cost. Example 3", cex.main=.9)
 
 ```
 
-# Future improvements:
+## Future improvements:
 
 The following improvements are planned:
 
@@ -285,4 +285,4 @@ The following improvements are planned:
 2. Make the benefit rent payable for a designed survivor too, and with a portion of the titular benefit. This also allows to include death as a main benefit risk.
 
 
-## References 
+# References 
