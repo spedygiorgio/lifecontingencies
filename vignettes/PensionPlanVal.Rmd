@@ -1,5 +1,5 @@
 ---
-title: "Pension valuation with lifecontingencies package"
+title: "Pensions valuation with lifecontingencies package"
 author: "Ivan Williams"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -9,7 +9,7 @@ output:
 bibliography: lifecontingenciesBiblio.bib
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Pension plan evaluation with Lifecontingencies} 
+  %\VignetteIndexEntry{Pensions valuation with lifecontingencies package} 
   %!\VignetteEncoding{UTF-8}
   \usepackage[utf8]{inputenc}
 ---
