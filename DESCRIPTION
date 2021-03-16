@@ -36,6 +36,7 @@ Suggests:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyLoad: yes
+LazyData: true
 BugReports: https://github.com/spedygiorgio/lifecontingencies/issues
 BuildVignettes: yes
 VignetteBuilder: utils, knitr
