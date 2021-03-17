@@ -48,7 +48,7 @@
 #' rates are not provided for ages below 16 nor for ages over 90. Various 
 #' approach can be used to complete the series.
 #' @source Institute of Actuaries
-#' @references \url{https://www.actuaries.org.uk/research-and-resources/documents/am92-permanent-assurances-males}
+#' @references \url{https://www.actuaries.org.uk/learn-and-develop/continuous-mortality-investigation/cmi-mortality-and-morbidity-tables/92-series-tables}
 #' @examples
 #' data(demoUk)
 #' head(demoUk)
