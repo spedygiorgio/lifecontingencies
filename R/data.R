@@ -5,7 +5,7 @@
 #' and transitions from Healty to Disabled
 #' 
 #' @format a list containing elevent items (data.frames), and an mdt data object (HealthyMaleTable2013)
-#' @source PAOLO DE ANGELIS, LUIGI DI FALCO (a cura di). Assicurazioni sulla salute: caratteristiche, 
+#' @source Paolo De Angelis, Luigi di Falco (a cura di). Assicurazioni sulla salute: caratteristiche, 
 #' modelli attuariali e basi tecniche
 "de_angelis_di_falco"
 
@@ -58,7 +58,7 @@
 #' @description Two yearly mortality rates for each age
 #' @usage data(demoJapan)
 #' @format A data frame with 110 observations on the following 3 variables.
-#' \describe{ \item{\code{Age}}{Attained age} \item{\code{JP8587M}}{Male life table} \item{\code{JP8587F}}{Female life table} }
+#' \describe{ \item{\code{JP8587M}}{Male life table} \item{\code{JP8587F}}{Female life table} \item{\code{age}}{Attained age} }
 #' @details See the references link for details.
 #' @source Society of Actuaries mortality web site
 #' @references \url{https://mort.soa.org/}
