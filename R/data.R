@@ -59,9 +59,8 @@
 #' @usage data(demoJapan)
 #' @format A data frame with 110 observations on the following 3 variables.
 #' \describe{ \item{\code{JP8587M}}{Male life table} \item{\code{JP8587F}}{Female life table} \item{\code{age}}{Attained age} }
-#' @details See the references link for details.
-#' @source Society of Actuaries mortality web site
-#' @references \url{https://mort.soa.org/}
+#' @details Dowloaded in 2012 from Society of Actuaries (SOA) mortality table web site
+#' @source SOA mortality web site
 #' @examples
 #' data(demoJapan)
 #' head(demoJapan)
