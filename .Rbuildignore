@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^data-raw$
+^trash_and_old$
 ^cran-comments\.md$
 ^README\.Rmd$
 ^README-.*\.png$
