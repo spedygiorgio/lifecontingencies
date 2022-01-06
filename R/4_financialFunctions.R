@@ -1,5 +1,5 @@
 #############################################################################
-#   Copyright (c) 2018 Giorgio A. Spedicato
+#   Copyright (c) 2022 Giorgio A. Spedicato
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -57,9 +57,30 @@ presentValue<-function(cashFlows, timeIds, interestRates, probabilities, power=1
 
 
 
-#duration
-#m=tasso di interesse nominale capitalizzato m volte
-duration=function(cashFlows, timeIds,i, k=1,macaulay=TRUE)
+
+#' Compute the duration or the convexity of a series of CF
+#'
+#' @param cashFlows A vector representing the cash flows amounts. 
+#' @param timeIds Cash flows times
+#' @param i APR interest, i.e. nominal interest rate compounded m-thly.
+#' @param k Compounding frequency for the nominal interest rate.
+#' @param macaulay Use the Macaulay formula
+#' @references Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
+#' @details The Macaulay duration is defined  as 
+#' \eqn{\sum\limits_t^{T} \frac{t*CF_{t}\left( 1 + \frac{i}{k} \right)^{ - t*k}}{P}}, 
+#' while  \eqn{\sum\limits_{t}^{T} t*\left( t + \frac{1}{k} \right) * CF_t \left(1 + \frac{y}{k} \right)^{ - k*t - 2}}
+
+#'
+#' @return A numeric value representing either the duration or the convexity of the cash flow series
+#' @export
+#'
+#' @examples
+#' #evaluate the duration/convexity of a coupon payment
+#' cf=c(10,10,10,10,10,110)
+#' t=c(1,2,3,4,5,6)
+#' duration(cf, t, i=0.03)
+#' convexity(cf, t, i=0.03)
+duration<-function(cashFlows, timeIds,i, k=1,macaulay=TRUE)
 {
   out=0
   if(missing(timeIds)) #check coherence on time id vector
@@ -92,6 +113,7 @@ duration=function(cashFlows, timeIds,i, k=1,macaulay=TRUE)
 #convexity
 
 
+#' @rdname duration
 convexity=function(cashFlows, timeIds,i,k=1)
 {
 	out=0
