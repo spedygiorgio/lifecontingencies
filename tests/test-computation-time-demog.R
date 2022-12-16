@@ -66,9 +66,11 @@ rbind("lin"=checkvalt("linear"), "harm"=checkvalt("harm"), "exp"=checkvalt("exp"
 
 
 nrep <- 10
-system.time(replicate(nrep, pxtvect(soa08Act, x=1:130, t=1/2) ))
-system.time(replicate(nrep, pXt(soa08Act, x=1:130, t=1/2) ))
+T1 <- system.time(replicate(nrep, pxtvect(soa08Act, x=1:130, t=1/2) ))
+T2 <- system.time(replicate(nrep, pXt(soa08Act, x=1:130, t=1/2) ))
 
-system.time(replicate(nrep, pxtvect(soa08Act, x=1, t=1:130/2) ))
-system.time(replicate(nrep, pxT(soa08Act, x=1, t=1:130/2) ))
+T3 <- system.time(replicate(nrep, pxtvect(soa08Act, x=1, t=1:130/2) ))
+T4 <- system.time(replicate(nrep, pxT(soa08Act, x=1, t=1:130/2) ))
 
+alltime <- rbind(T1, T2, T3, T4)[, 1:3]
+#library(xtable);xtable(alltime, digits=3)

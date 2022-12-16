@@ -35,9 +35,12 @@ c(checkvaln("due"), checkvaln("arrears"), checkvaln("immediate"), checkvaln("adv
 c(checkvalm("due"), checkvalm("arrears"), checkvalm("immediate"), checkvalm("advance"))
 
 nrep <- 10
-system.time(replicate(nrep, axnvect(soa08Act, x=1:100, pay="advance") ))
-system.time(replicate(nrep, aXn(soa08Act, x=1:100, pay="advance") ))
+T1 <- system.time(replicate(nrep, axnvect(soa08Act, x=1:100, pay="advance") ))
+T2 <- system.time(replicate(nrep, aXn(soa08Act, x=1:100, pay="advance") ))
 
-system.time(replicate(nrep, axnvect(soa08Act, x=33, n=1:50, pay="advance") ))
-system.time(replicate(nrep, axN(soa08Act, x=33, n=1:50, pay="advance") ))
+T3 <- system.time(replicate(nrep, axnvect(soa08Act, x=33, n=1:50, pay="advance") ))
+T4 <- system.time(replicate(nrep, axN(soa08Act, x=33, n=1:50, pay="advance") ))
+
+alltime <- rbind(T1, T2, T3, T4)[, 1:3]
+#library(xtable);xtable(alltime, digits=3)
 
