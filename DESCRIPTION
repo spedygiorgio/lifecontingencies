@@ -1,7 +1,7 @@
 Package: lifecontingencies
 Type: Package
 Title: Financial and Actuarial Mathematics for Life Contingencies
-Version: 1.3.6
+Version: 1.3.9
 Authors@R: c(person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
     email = "spedicato_giorgio@yahoo.it",comment = c(ORCID = "0000-0002-0315-8888")),
     person("Christophe", "Dutang", role = "ctb",comment = c(ORCID = "0000-0001-6732-1501")),
@@ -15,15 +15,15 @@ Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Classes and methods that allow the user to manage life table,
     actuarial tables (also multiple decrements tables). Moreover, functions to easily
     perform demographic, financial and actuarial mathematics on life contingencies
-    insurances calculations are contained therein.
+    insurances calculations are contained therein. See Spedicato (2013)	<doi:10.18637/jss.v055.i10>.
 Depends:
-    R (>= 3.5),
+    R (>= 4.0),
     methods
 Imports:
     parallel,
     utils,
     markovchain,
-    Rcpp (>= 0.12.18),
+    Rcpp (>= 1.0.0),
     stats
 Suggests:
     demography,
@@ -33,12 +33,13 @@ Suggests:
     formatR,
     StMoMo,
     rmarkdown
-License: GPL-2
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyLoad: yes
-BugReports: http://github.com/spedygiorgio/lifecontingencies/issues
+LazyData: true
+BugReports: https://github.com/spedygiorgio/lifecontingencies/issues
 BuildVignettes: yes
 VignetteBuilder: utils, knitr
-URL: http://github.com/spedygiorgio/lifecontingencies
+URL: https://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.2

@@ -28,7 +28,7 @@ See the source link for details.
 Society of Actuaries
 }
 \references{
-\url{www.mort.soa.org}
+\url{https://mort.soa.org/}
 }
 \examples{
 data(demoChina)

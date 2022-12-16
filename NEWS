@@ -1,3 +1,3 @@
--Version 1.3.6
-* Mortality projections with StMoMo added
-* Added a new vignette on Pension evaluation by Ivan Williams
+-Version 1.3.9
+* Uptick Rcpp & R version
+* Roxygenyzing code

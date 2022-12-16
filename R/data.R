@@ -5,7 +5,7 @@
 #' and transitions from Healty to Disabled
 #' 
 #' @format a list containing elevent items (data.frames), and an mdt data object (HealthyMaleTable2013)
-#' @source PAOLO DE ANGELIS, LUIGI DI FALCO (a cura di). Assicurazioni sulla salute: caratteristiche, 
+#' @source Paolo De Angelis, Luigi di Falco (a cura di). Assicurazioni sulla salute: caratteristiche, 
 #' modelli attuariali e basi tecniche
 "de_angelis_di_falco"
 
@@ -48,8 +48,20 @@
 #' rates are not provided for ages below 16 nor for ages over 90. Various 
 #' approach can be used to complete the series.
 #' @source Institute of Actuaries
-#' @references \url{http://www.actuaries.org.uk/research-and-resources/documents/am92-permanent-assurances-males}
+#' @references \url{https://www.actuaries.org.uk/learn-and-develop/continuous-mortality-investigation/cmi-mortality-and-morbidity-tables/92-series-tables}
 #' @examples
 #' data(demoUk)
 #' head(demoUk)
 "demoUk"
+
+#' @title Japan Mortality Rates for life table construction
+#' @description Two yearly mortality rates for each age
+#' @usage data(demoJapan)
+#' @format A data frame with 110 observations on the following 3 variables.
+#' \describe{ \item{\code{JP8587M}}{Male life table} \item{\code{JP8587F}}{Female life table} \item{\code{age}}{Attained age} }
+#' @details Dowloaded in 2012 from Society of Actuaries (SOA) mortality table web site
+#' @source SOA mortality web site
+#' @examples
+#' data(demoJapan)
+#' head(demoJapan)
+"demoJapan"

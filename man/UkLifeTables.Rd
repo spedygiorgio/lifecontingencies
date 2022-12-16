@@ -22,7 +22,7 @@ been derived using a Brass - Logit model fit on Society of Actuaries life table.
 See Uk life table.
 }
 \references{
-\url{http://www.actuaries.org.uk/research-and-resources/documents/am92-permanent-assurances-males}
+\url{https://www.actuaries.org.uk/learn-and-develop/continuous-mortality-investigation/cmi-mortality-and-morbidity-tables/92-series-tables}
 }
 \examples{
 data(AF92Lt)
