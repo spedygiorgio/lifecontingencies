@@ -5,7 +5,8 @@ title: "News"
 # lifecontingencies 1.3.10
 
 * Added a `NEWS.md` file to track changes to the package.
-* Fix class
+* Fix class calls
+* moved to bibentry and fix missing links
 
 # Version 1.3.8
 

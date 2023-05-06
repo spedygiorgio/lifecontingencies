@@ -16,7 +16,7 @@
 #' @format A \code{data.frame} containing people surviving at the beginning of "age" at 2007, 2000, and 1990
 #' split by gender
 #' @details Reported age is truncated at the last age with lx>0.
-#' @source See \url{http://www.ssa.gov/oact/NOTES/as120/LifeTables_Body.html}
+#' @source See \url{https://www.ssa.gov/oact/NOTES/as120/LifeTables_Body.html}
 #' @examples
 #' data(demoUsa)
 #' head(demoUsa)
