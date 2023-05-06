@@ -4,8 +4,7 @@
 \alias{Exn}
 \title{Function to evaluate the pure endowment}
 \usage{
-Exn(actuarialtable, x, n, i = actuarialtable@interest, type = "EV",
-  power = 1)
+Exn(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", power = 1)
 }
 \arguments{
 \item{actuarialtable}{An actuarial table object.}

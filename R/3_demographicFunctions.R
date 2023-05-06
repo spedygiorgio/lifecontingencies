@@ -34,7 +34,7 @@ dxt <- function(object, x, t, decrement) {
   if (missing(t))
     t = 1
   omega = getOmega(object) #prima object+1
-  if (class(object) == "mdt") {
+  if (is(object,"mdt")) {
     #call specific function for MDT class
     if (!missing(decrement))
       out <-
@@ -78,7 +78,7 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
   {
     stopifnot(class(decrement) %in% c("numeric", "character"))
     #convert to character string
-    if (class(decrement) == "numeric") 
+    if (is.numeric(decrement)) 
       decrement<-getDecrements(object)[decrement]
     stopifnot(decrement %in% names(object@table))
   }
@@ -114,7 +114,7 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
   
   #local lifetable data closed at maximum age
   omega <- getOmega(object)
-  if (class(object) == "mdt")
+  if (is(object,"mdt"))
   {  
     if(missing(decrement))
     {
@@ -196,7 +196,7 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
   
   fractional <- testfractionnalarg(fractional)
   
-  if (class(object) == "mdt") {
+  if (is(object,"mdt")) {
     #specific function for multiple decrements
     out <-
       ifelse(

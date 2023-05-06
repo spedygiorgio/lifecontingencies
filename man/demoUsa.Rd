@@ -4,8 +4,10 @@
 \name{demoUsa}
 \alias{demoUsa}
 \title{United States Social Security life tables}
-\format{A \code{data.frame} containing people surviving at the beginning of "age" at 2007, 2000, and 1990
-split by gender}
+\format{
+A \code{data.frame} containing people surviving at the beginning of "age" at 2007, 2000, and 1990
+split by gender
+}
 \source{
 See \url{http://www.ssa.gov/oact/NOTES/as120/LifeTables_Body.html}
 }

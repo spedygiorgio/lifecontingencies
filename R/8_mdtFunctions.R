@@ -33,7 +33,7 @@
 	if(missing(decrement)) {
 		decrement.cols<-which(!(names(object@table) %in% c("lx","x")))
 	} else {
-		if (class(decrement)=="numeric") decrement<-getDecrements(object)[decrement]
+		if (is.numeric(decrement)) decrement<-getDecrements(object)[decrement]
 		decrement.cols<-which(names(object@table)==decrement)
 	}
 	#have a check!!!
@@ -143,7 +143,7 @@ Axn.mdt<-function(object,x,n,i, decrement) {
   if (missing(n)) n <- getOmega(object)-x-1
   if (missing(decrement)) return(Axn(actuarialtable = object, x=x, n=n,i=i))
   
-  if (class(object) != "mdt") stop("Error! Needed Mdt")
+  if (!is(object,'mdt')) stop("Error! Needed Mdt")
   if (!(decrement %in% getDecrements(object))) stop("Error! Not recognized decrement type")
   
   seqk <- seq(from=0, to=n-1, by=1) #period start

@@ -30,9 +30,9 @@ Return Associated single decrement from absolute rate of decrement
 }
 \section{Functions}{
 \itemize{
-\item \code{qxt.fromQxprime}: Obtain decrement from single decrements
-}}
+\item \code{qxt.fromQxprime()}: Obtain decrement from single decrements
 
+}}
 \examples{
 #Creating the valdez mdf
 

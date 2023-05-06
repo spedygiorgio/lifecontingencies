@@ -4,8 +4,10 @@
 \name{soaLt}
 \alias{soaLt}
 \title{Society of Actuaries life table}
-\format{A \code{data.frame} with 111 obs on the following 2 variables:
-\describe{ \item{\code{x}}{a numeric vector} \item{\code{Ix}}{a numeric vector} }}
+\format{
+A \code{data.frame} with 111 obs on the following 2 variables:
+\describe{ \item{\code{x}}{a numeric vector} \item{\code{Ix}}{a numeric vector} }
+}
 \usage{
 data(soaLt)
 }

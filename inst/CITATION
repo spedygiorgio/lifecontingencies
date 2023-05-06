@@ -1,19 +1,13 @@
-citHeader("To cite lifecontingencies in publications use:")
+note <- sprintf("R package version %s", meta$Version)
 
-citEntry(entry = "Article",
-  title        = "The {lifecontingencies} Package: Performing Financial and Actuarial Mathematics Calculations in {R}",
-  author       = personList(as.person("Giorgio Alfredo Spedicato")),
-  journal      = "Journal of Statistical Software",
-  year         = "2013",
-  volume       = "55",
-  number       = "10",
-  pages        = "1--36",
-  url          = "https://www.jstatsoft.org/v55/i10/",
-
-  textVersion  =
-  paste("Giorgio Alfredo Spedicato (2013).",
-        "The lifecontingencies Package: Performing Financial and Actuarial Mathematics Calculations in R.",
-        "Journal of Statistical Software, 55(10), 1-36.",
-        "URL https://www.jstatsoft.org/v55/i10/.")
+bibentry(
+  bibtype  = "Article",
+  title    = "The {lifecontingencies} Package: Performing Financial and Actuarial Mathematics Calculations in {R}",
+  author   =  person(given="Giorgio Alfredo", family="Spedicato"),
+  journal  = "Journal of Statistical Software",
+  year     = "2013",
+  volume   = "55",
+  number   = "10",
+  pages    = "1--36",
+  url      = "https://www.jstatsoft.org/v55/i10/"
 )
-    

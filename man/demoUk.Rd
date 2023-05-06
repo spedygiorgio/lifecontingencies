@@ -4,8 +4,10 @@
 \name{demoUk}
 \alias{demoUk}
 \title{UK life tables}
-\format{A data frame with 74 observations on the following 3 variables:
-\describe{ \item{\code{Age}}{Annuitant age} \item{\code{AM92}}{One year mortality rate (males)} \item{\code{AF92}}{One year mortality rate (males)} }}
+\format{
+A data frame with 74 observations on the following 3 variables:
+\describe{ \item{\code{Age}}{Annuitant age} \item{\code{AM92}}{One year mortality rate (males)} \item{\code{AF92}}{One year mortality rate (males)} }
+}
 \source{
 Institute of Actuaries
 }
@@ -27,6 +29,6 @@ data(demoUk)
 head(demoUk)
 }
 \references{
-\url{http://www.actuaries.org.uk/research-and-resources/documents/am92-permanent-assurances-males}
+\url{https://www.actuaries.org.uk/learn-and-develop/continuous-mortality-investigation/cmi-mortality-and-morbidity-tables/92-series-tables}
 }
 \keyword{datasets}

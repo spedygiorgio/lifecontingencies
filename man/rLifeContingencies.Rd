@@ -5,11 +5,32 @@
 \alias{rLifeContingenciesXyz}
 \title{Function to generate samples from the life contingencies stochastic variables}
 \usage{
-rLifeContingencies(n, lifecontingency, object, x, t, i = object@interest,
-  m = 0, k = 1, parallel = FALSE, payment = "advance")
+rLifeContingencies(
+  n,
+  lifecontingency,
+  object,
+  x,
+  t,
+  i = object@interest,
+  m = 0,
+  k = 1,
+  parallel = FALSE,
+  payment = "advance"
+)
 
-rLifeContingenciesXyz(n, lifecontingency, tablesList, x, t, i, m = 0,
-  k = 1, status = "joint", parallel = FALSE, payment = "advance")
+rLifeContingenciesXyz(
+  n,
+  lifecontingency,
+  tablesList,
+  x,
+  t,
+  i,
+  m = 0,
+  k = 1,
+  status = "joint",
+  parallel = FALSE,
+  payment = "advance"
+)
 }
 \arguments{
 \item{n}{Size of sample}
