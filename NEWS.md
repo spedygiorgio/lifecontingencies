@@ -4,6 +4,10 @@ title: "News"
 
 # lifecontingencies 1.3.10
 
+* Lowered requirements to 4.1
+
+# lifecontingencies 1.3.10
+
 * Added a `NEWS.md` file to track changes to the package.
 * Fix class calls
 * moved to bibentry and fix missing links

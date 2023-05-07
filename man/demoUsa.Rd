@@ -9,7 +9,7 @@ A \code{data.frame} containing people surviving at the beginning of "age" at 200
 split by gender
 }
 \source{
-See \url{http://www.ssa.gov/oact/NOTES/as120/LifeTables_Body.html}
+See \url{https://www.ssa.gov/oact/NOTES/as120/LifeTables_Body.html}
 }
 \usage{
 demoUsa
