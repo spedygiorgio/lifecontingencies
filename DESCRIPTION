@@ -22,7 +22,6 @@ Depends:
 Imports:
     parallel,
     utils,
-    markovchain,
     Rcpp (>= 1.0.0),
     stats
 Suggests:
@@ -32,6 +31,7 @@ Suggests:
     knitr,
     formatR,
     StMoMo,
+    markovchain,
     rmarkdown
 License: MIT + file LICENSE
 Encoding: UTF-8
