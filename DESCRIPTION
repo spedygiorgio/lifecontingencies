@@ -18,7 +18,8 @@ Description: Classes and methods that allow the user to manage life table,
     insurances calculations are contained therein. See Spedicato (2013)	<doi:10.18637/jss.v055.i10>.
 Depends:
     R (>= 4.1),
-    methods
+    methods,
+    markovchain
 Imports:
     parallel,
     utils,
@@ -31,7 +32,6 @@ Suggests:
     knitr,
     formatR,
     StMoMo,
-    markovchain,
     rmarkdown
 License: MIT + file LICENSE
 Encoding: UTF-8
