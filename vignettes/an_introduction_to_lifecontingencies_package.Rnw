@@ -1043,7 +1043,7 @@ table as non - homogeneous discrete Markov chain by means of
 \citep{markovchainR} \proglang{R} package.
 
 <<toMarkovChain, keep.source=TRUE>>=
-if requireNamespace('markovchain',quietly = TRUE) {
+if (requireNamespace('markovchain',quietly = TRUE)) {
 data(soa08)
 require(markovchain)
 soa08Mc<-as(soa08,"markovchainList")
