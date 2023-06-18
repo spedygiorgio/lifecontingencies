@@ -2,7 +2,7 @@
 title: "News"
 ---
 
-# lifecontingencies 1.3.10
+# lifecontingencies 1.3.11
 
 * Lowered requirements to 4.1
 
