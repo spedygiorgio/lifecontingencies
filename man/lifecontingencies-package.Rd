@@ -10,15 +10,7 @@ Package to perform actuarial mathematics on life contingencies and classical fin
 	the package is to provide a comprehensive set of tools to perform risk assessment of life contingent insurances.  
 }
 \details{
-\tabular{ll}{
-Package: \tab lifecontingencies\cr
-Type: \tab Package\cr
-Version: \tab 1.3.4\cr
-Date: \tab 2018-04-01\cr
-License: \tab GPL-2.0\cr
-LazyLoad: \tab yes\cr
-}
-
+Some functions have been powered by Rcpp code.
 }
 \author{
 Giorgio Alfredo Spedicato with contributions from Reinhold Kainhofer and Kevin J. Owens
