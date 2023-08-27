@@ -2,6 +2,11 @@
 title: "News"
 ---
 
+# lifecontingencies 1.3.11
+
+* Removed metatable in lifecontingencies.md
+
+
 # lifecontingencies 1.3.10
 
 * Lowered requirements to 4.1
