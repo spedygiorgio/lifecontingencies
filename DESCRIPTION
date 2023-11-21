@@ -17,7 +17,7 @@ Description: Classes and methods that allow the user to manage life table,
     perform demographic, financial and actuarial mathematics on life contingencies
     insurances calculations are contained therein. See Spedicato (2013)	<doi:10.18637/jss.v055.i10>.
 Depends:
-    R (>= 4.1),
+    R (>= 4.2.0),
     methods
 Imports:
     parallel,
