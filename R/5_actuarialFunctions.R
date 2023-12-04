@@ -90,12 +90,15 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if(length(k) > 1)
   {
     k <- k[1]
-    warnings("k should be of length 1, it takes first value")
+    warnings("k should be of length 1, it takes the first value")
   }
   if (missing(m))
     m <- 0
   if (missing(n))
-    n <- ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k 
+  {
+    #put zero if x+m > omega+1
+    n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
+  }
   if (any(x < 0, n < 0, m < 0))
     stop("Check x, n or m")
   
@@ -483,7 +486,10 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if (missing(m))
     m <- 0
   if (missing(n))
-    n <- ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k 
+  {
+    #put zero if x+m > omega+1
+    n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
+  }
   if (any(x < 0, n < 0, m < 0))
     stop("Check x, n or m")
   
