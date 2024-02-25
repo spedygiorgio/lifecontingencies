@@ -1,6 +1,8 @@
 ---
 title: "Pension Funding with lifecontingencies"
-author: "Gian Paolo Clemente, Catholic University, Milan"
+author:
+  - name: "Gian Paolo Clemente"
+    affiliation: Catholic University of Milan
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: rmarkdown::html_vignette
 bibliography: lifecontingenciesBiblio.bib
