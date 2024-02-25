@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="C. Dutang and G.A. Spedicato" />
+
+
+<title>Computational details of demographic functions</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Computational details of demographic
+functions</h1>
+<h4 class="author">C. Dutang and G.A. Spedicato</h4>
+<h4 class="date">25 febbraio, 2024</h4>
+
+
+
+<div id="survival-probabilities" class="section level1">
+<h1>Survival probabilities</h1>
+<p>For notation details, see <span class="citation">[@bowers1997actuarial]</span>.</p>
+<p>Using the well-known relation <span class="math inline">\({}_{s+u}p_y={}_up_{y+s} \times {}_sp_y\)</span>,
+we compute <span class="math inline">\({}_tp_{x}\)</span> as for all
+<span class="math inline">\(x,t\in\mathbb R_+\)</span> <span class="math display">\[
+{}_tp_{x} = \frac{{}_{t+\epsilon_x}p_{\lfloor x\rfloor}
+}{{}_{\epsilon_x}p_{\lfloor x\rfloor}}
+= \frac{{}_{\lfloor u\rfloor}p_{\lfloor x\rfloor} \times
+{}_{\epsilon_u}p_{\lfloor x\rfloor+\lfloor u\rfloor}
+}{{}_{\epsilon_x}p_{\lfloor x\rfloor}}
+\]</span> with <span class="math inline">\(\epsilon_x=x - \lfloor
+x\rfloor\)</span>, <span class="math inline">\(u=t+\epsilon_x\)</span>
+and <span class="math inline">\(\epsilon_u=u-\lfloor
+u\rfloor\)</span>.</p>
+<p>Then we estimate <span class="math inline">\({}_np_{m}\)</span> as
+for all <span class="math inline">\(n,m\in\mathbb N\)</span> <span class="math display">\[
+{}_np_{m} = \frac{l_{n+m}}{l_m}.
+\]</span></p>
+<p>We interpolate fractional age probabilities by three classical
+assumptions for all <span class="math inline">\(y \in [0,1), m\in\mathbb
+N\)</span> <span class="math display">\[
+{}_{y}p_{m} =
+\left\{
+\begin{array}{ll}
+1 - y (1-p_{m}) &amp; \text{if uniform distribution} \\
+(p_{m})^y &amp; \text{if constant force} \\
+\frac{p_{m}}{1-(1-y)(1-p_{m})} &amp; \text{if hyperbolic distribution}
+\\
+\end{array}
+\right.
+\]</span></p>
+</div>
+<div id="examples-of-non-integer-times" class="section level1">
+<h1>Examples of non-integer times</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(lifecontingencies)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; Package:  lifecontingencies</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Authors:  Giorgio Alfredo Spedicato [aut, cre]</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;     (&lt;https://orcid.org/0000-0002-0315-8888&gt;),</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt;   Christophe Dutang [ctb] (&lt;https://orcid.org/0000-0001-6732-1501&gt;),</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;   Reinhold Kainhofer [ctb] (&lt;https://orcid.org/0000-0002-7895-1311&gt;),</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt;   Kevin J Owens [ctb],</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt;   Ernesto Schirmacher [ctb],</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt;   Gian Paolo Clemente [ctb] (&lt;https://orcid.org/0000-0001-6795-4595&gt;),</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt;   Ivan Williams [ctb]</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; Version:  1.3.12</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt; Date:     </span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; BugReport: https://github.com/spedygiorgio/lifecontingencies/issues</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;soa08Act&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>pXt <span class="ot">&lt;-</span> <span class="fu">Vectorize</span>(lifecontingencies<span class="sc">:::</span>pxtold, <span class="st">&quot;x&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>pxT <span class="ot">&lt;-</span> <span class="fu">Vectorize</span>(lifecontingencies<span class="sc">:::</span>pxtold, <span class="st">&quot;t&quot;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>pxtvect <span class="ot">&lt;-</span> pxt</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span><span class="sc">/</span><span class="dv">3</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#non integer time</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">t=</span>z, <span class="fu">pxtvect</span>(soa08Act, <span class="at">x=</span><span class="dv">100</span>, <span class="at">t=</span>z, <span class="at">fractional =</span> <span class="st">&quot;lin&quot;</span>), <span class="fu">pxT</span>(<span class="at">object=</span>soa08Act, <span class="at">x=</span><span class="dv">100</span>, <span class="at">t=</span>z, <span class="at">fractional =</span> <span class="st">&quot;lin&quot;</span>))</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt;              t                    </span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; [1,] 0.3333333 0.8639604 0.8639604</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; [2,] 0.6666667 0.7279208 0.7279208</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; [3,] 1.0000000 0.5918812 0.5918812</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; [4,] 1.3333333 0.5056079 0.5056079</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; [5,] 1.6666667 0.4193345 0.4193345</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; [6,] 2.0000000 0.3330612 0.3330612</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">t=</span>z, <span class="fu">pxtvect</span>(soa08Act, <span class="at">x=</span><span class="dv">100</span>, <span class="at">t=</span>z, <span class="at">fractional =</span> <span class="st">&quot;hyp&quot;</span>), <span class="fu">pxT</span>(<span class="at">object=</span>soa08Act, <span class="at">x=</span><span class="dv">100</span>, <span class="at">t=</span>z, <span class="at">fractional =</span> <span class="st">&quot;hyp&quot;</span>))</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt;              t                    </span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt; [1,] 0.3333333 0.8131121 0.8131121</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt; [2,] 0.6666667 0.6850791 0.6850791</span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt; [3,] 1.0000000 0.5918812 0.5918812</span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt; [4,] 1.3333333 0.4701083 0.4701083</span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt; [5,] 1.6666667 0.3898924 0.3898924</span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt; [6,] 2.0000000 0.3330612 0.3330612</span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">t=</span>z, <span class="fu">pxtvect</span>(soa08Act, <span class="at">x=</span><span class="dv">100</span>, <span class="at">t=</span>z, <span class="at">fractional =</span> <span class="st">&quot;exp&quot;</span>), <span class="fu">pxT</span>(<span class="at">object=</span>soa08Act, <span class="at">x=</span><span class="dv">100</span>, <span class="at">t=</span>z, <span class="at">fractional =</span> <span class="st">&quot;exp&quot;</span>))</span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt;              t                    </span></span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a><span class="co">#&gt; [1,] 0.3333333 0.8396111 0.8396111</span></span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a><span class="co">#&gt; [2,] 0.6666667 0.7049468 0.7049468</span></span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a><span class="co">#&gt; [3,] 1.0000000 0.5918812 0.5918812</span></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a><span class="co">#&gt; [4,] 1.3333333 0.4886498 0.4886498</span></span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a><span class="co">#&gt; [5,] 1.6666667 0.4034232 0.4034232</span></span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a><span class="co">#&gt; [6,] 2.0000000 0.3330612 0.3330612</span></span></code></pre></div>
+</div>
+<div id="examples-of-non-integer-ages" class="section level1">
+<h1>Examples of non-integer ages</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">50</span><span class="sc">+</span><span class="dv">0</span><span class="sc">:</span><span class="dv">6</span><span class="sc">/</span><span class="dv">6</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#non-integer age</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">x=</span>x, <span class="fu">pxtvect</span>(soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>, <span class="at">fractional =</span> <span class="st">&quot;lin&quot;</span>), <span class="fu">pXt</span>(<span class="at">object=</span>soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>, <span class="at">fractional =</span> <span class="st">&quot;lin&quot;</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;             x                    </span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [1,] 50.00000 0.9940801 0.9940801</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; [2,] 50.16667 0.9939968 0.9939968</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; [3,] 50.33333 0.9939134 0.9939134</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [4,] 50.50000 0.9938298 0.9938298</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; [5,] 50.66667 0.9937460 0.9937460</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; [6,] 50.83333 0.9936620 0.9936620</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; [7,] 51.00000 0.9935779 0.9935779</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">x=</span>x, <span class="fu">pxtvect</span>(soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>, <span class="at">fractional =</span> <span class="st">&quot;hyp&quot;</span>), <span class="fu">pXt</span>(<span class="at">object=</span>soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>, <span class="at">fractional =</span> <span class="st">&quot;hyp&quot;</span>))</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt;             x                    </span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; [1,] 50.00000 0.9940801 0.9940801</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; [2,] 50.16667 0.9939960 0.9939960</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; [3,] 50.33333 0.9939120 0.9939120</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; [4,] 50.50000 0.9938282 0.9938282</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; [5,] 50.66667 0.9937446 0.9937446</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; [6,] 50.83333 0.9936612 0.9936612</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; [7,] 51.00000 0.9935779 0.9935779</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">x=</span>x, <span class="fu">pxtvect</span>(soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>, <span class="at">fractional =</span> <span class="st">&quot;exp&quot;</span>), <span class="fu">pXt</span>(<span class="at">object=</span>soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>, <span class="at">fractional =</span> <span class="st">&quot;exp&quot;</span>))</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;             x                    </span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; [1,] 50.00000 0.9940801 0.9940801</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; [2,] 50.16667 0.9939964 0.9939964</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; [3,] 50.33333 0.9939127 0.9939127</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; [4,] 50.50000 0.9938290 0.9938290</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; [5,] 50.66667 0.9937453 0.9937453</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; [6,] 50.83333 0.9936616 0.9936616</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; [7,] 51.00000 0.9935779 0.9935779</span></span></code></pre></div>
+</div>
+<div id="examples-of-large-ages" class="section level1">
+<h1>Examples of large ages</h1>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">135</span><span class="sc">:</span><span class="dv">145</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#high-age</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">x=</span>x, <span class="fu">pxtvect</span>(soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>), <span class="fu">pXt</span>(<span class="at">object=</span>soa08Act, <span class="at">x=</span>x, <span class="at">t=</span><span class="dv">1</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;         x                          </span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;  [1,] 135 1.932519e-06 1.932519e-06</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;  [2,] 136 5.431077e-07 5.431077e-07</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;  [3,] 137 1.350422e-07 1.350422e-07</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;  [4,] 138 2.935883e-08 2.935883e-08</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;  [5,] 139 5.508989e-09 5.508989e-09</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;  [6,] 140 0.000000e+00 0.000000e+00</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;  [7,] 141 0.000000e+00 0.000000e+00</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;  [8,] 142 0.000000e+00 0.000000e+00</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;  [9,] 143 0.000000e+00 0.000000e+00</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; [10,] 144 0.000000e+00 0.000000e+00</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; [11,] 145 0.000000e+00 0.000000e+00</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
