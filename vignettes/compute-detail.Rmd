@@ -1,10 +1,8 @@
 ---
 title: "Computational details of demographic functions"
 author: "C. Dutang and G.A. Spedicato"
-date: "2018"
-output: 
-  pdf_document: default
-  html_vignette: default
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Computational details of demographic functions} 
   %!\VignetteEncoding{UTF-8}
@@ -13,7 +11,9 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      collapse = TRUE,
+                      comment = "#>")
 ```
 
 # Survival probabilities

@@ -2,10 +2,7 @@
 title: "Pensions valuation with lifecontingencies package"
 author: "Ivan Williams"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  html_vignette: default
-  pdf_document: default
-  html_document: default
+output: rmarkdown::html_vignette
 bibliography: lifecontingenciesBiblio.bib
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,7 +11,17 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 ```{r echo=F}
-knitr::opts_chunk$set(warning=F, message=F, fig.width=6, fig.height=3.5, fig.align='center',fig.show='hold') 
+knitr::opts_chunk$set(
+  warning = F,
+  message = F,
+  collapse = TRUE,
+  error = TRUE,
+  fig.width = 6,
+  fig.height = 3.5,
+  fig.align = 'center',
+  comment = "#>",
+  fig.show = 'hold'
+)
 ```
 
 
