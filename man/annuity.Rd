@@ -7,7 +7,7 @@ Annuity function
 Function to calculate present value of annuities-certain.
 }
 \usage{
-annuity(i, n,m=0, k=1,type = "immediate")
+annuity(i, n, m = 0, k = 1, type = "immediate")
 }
 
 \arguments{
@@ -35,7 +35,7 @@ Alternatively, one can use \code{"due"} or \code{"immediate"}
 \details{
 	This function calculates the present value of a stream of fixed payments 
 	separated by equal interval of time. Annuity immediate has the 
-	fist payment at time t=0, while an annuity due has the first payment at time t=1.
+	fist payment at time t = 0, while an annuity due has the first payment at time t = 1.
 }
 \value{
 	A string, either "immediate" or "due".
@@ -60,13 +60,13 @@ Alternatively, one can use \code{"due"} or \code{"immediate"}
 \code{\link{accumulatedValue}}
 }
 \examples{
-# The present value of 5 payments of 1000 at one year interval that begins 
+# The present value of 5 payments of 1000 at one year interval that begins
 # now when the interest rate is 2.5% is
-1000*annuity(i=0.05, n=5, type = "due")
-#A man borrows a loan of 20,000 to purchase a car at
+1000 * annuity(i = 0.025, n = 5, type = "due")
+# A man borrows a loan of 20,000 to purchase a car at
 # a nominal annual rate of interest of 0.06. He will pay back the loan through monthly
-#installments over 5 years, with the first installment to be made one month
-#after the release of the loan. What is the monthly installment he needs to pay?
-R=20000/annuity(i=0.06/12, n=5*12)
+# installments over 5 years, with the first installment to be made one month
+# after the release of the loan. What is the monthly installment he needs to pay?
+20000 / annuity(i = 0.06 / 12, n = 5 * 12)
 }
 
