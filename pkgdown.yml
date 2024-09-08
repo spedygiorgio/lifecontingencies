@@ -1,9 +1,8 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
-  PensionPlanVal: PensionPlanVal.html
   compute-detail: compute-detail.html
   pensionfunding: pensionfunding.html
-last_built: 2024-02-25T11:44Z
-
+  PensionPlanVal: PensionPlanVal.html
+last_built: 2024-09-08T13:16Z

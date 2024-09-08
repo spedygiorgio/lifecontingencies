@@ -1,198 +1,68 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/PensionPlanVal.html</loc>
-  </url>
-  <url>
-    <loc>/articles/compute-detail.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/pensionfunding.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/AExn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DAxn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/IAxn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Iaxn_1.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Isn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Multiple-life-insurances.html</loc>
-  </url>
-  <url>
-    <loc>/reference/UkLifeTables.html</loc>
-  </url>
-  <url>
-    <loc>/reference/accumulatedValue.html</loc>
-  </url>
-  <url>
-    <loc>/reference/actuarialtable-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/annuity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/axn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/axn_1.html</loc>
-  </url>
-  <url>
-    <loc>/reference/axyn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/de_angelis_di_falco.html</loc>
-  </url>
-  <url>
-    <loc>/reference/decreasingAnnuity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoCanada.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoChina.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoFrance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoGermany.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoIta.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoJapan.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoUk.html</loc>
-  </url>
-  <url>
-    <loc>/reference/demoUsa.html</loc>
-  </url>
-  <url>
-    <loc>/reference/discount-interest.html</loc>
-  </url>
-  <url>
-    <loc>/reference/duration.html</loc>
-  </url>
-  <url>
-    <loc>/reference/exn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getDecrements.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getLifeContingencies.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getOmega.html</loc>
-  </url>
-  <url>
-    <loc>/reference/increasingAnnuity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/intensity-interest.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lifecontingencies-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lifetable-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mdt-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/multidecrins.html</loc>
-  </url>
-  <url>
-    <loc>/reference/multiple-life-probabilities.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mx2qx.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mxt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/nominal-real-convertible.html</loc>
-  </url>
-  <url>
-    <loc>/reference/other-demographic-functions.html</loc>
-  </url>
-  <url>
-    <loc>/reference/presentValue.html</loc>
-  </url>
-  <url>
-    <loc>/reference/probs2lifetable.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pureendowment.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pxt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pxyt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/qx2mx.html</loc>
-  </url>
-  <url>
-    <loc>/reference/qxt.prime.fromMdt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rLifeContingencies.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rLifes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rmdt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/soa08.html</loc>
-  </url>
-  <url>
-    <loc>/reference/soa08Act.html</loc>
-  </url>
-  <url>
-    <loc>/reference/soaIllustrativeServiceTable.html</loc>
-  </url>
-  <url>
-    <loc>/reference/soaLt.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/articles/PensionPlanVal.html</loc></url>
+<url><loc>/articles/compute-detail.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/pensionfunding.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/AExn.html</loc></url>
+<url><loc>/reference/DAxn.html</loc></url>
+<url><loc>/reference/IAxn.html</loc></url>
+<url><loc>/reference/Iaxn_1.html</loc></url>
+<url><loc>/reference/Isn.html</loc></url>
+<url><loc>/reference/Multiple-life-insurances.html</loc></url>
+<url><loc>/reference/UkLifeTables.html</loc></url>
+<url><loc>/reference/accumulatedValue.html</loc></url>
+<url><loc>/reference/actuarialtable-class.html</loc></url>
+<url><loc>/reference/annuity.html</loc></url>
+<url><loc>/reference/axn.html</loc></url>
+<url><loc>/reference/axn_1.html</loc></url>
+<url><loc>/reference/axyn.html</loc></url>
+<url><loc>/reference/de_angelis_di_falco.html</loc></url>
+<url><loc>/reference/decreasingAnnuity.html</loc></url>
+<url><loc>/reference/demoCanada.html</loc></url>
+<url><loc>/reference/demoChina.html</loc></url>
+<url><loc>/reference/demoFrance.html</loc></url>
+<url><loc>/reference/demoGermany.html</loc></url>
+<url><loc>/reference/demoIta.html</loc></url>
+<url><loc>/reference/demoJapan.html</loc></url>
+<url><loc>/reference/demoUk.html</loc></url>
+<url><loc>/reference/demoUsa.html</loc></url>
+<url><loc>/reference/discount-interest.html</loc></url>
+<url><loc>/reference/duration.html</loc></url>
+<url><loc>/reference/exn.html</loc></url>
+<url><loc>/reference/getDecrements.html</loc></url>
+<url><loc>/reference/getLifeContingencies.html</loc></url>
+<url><loc>/reference/getOmega.html</loc></url>
+<url><loc>/reference/increasingAnnuity.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/intensity-interest.html</loc></url>
+<url><loc>/reference/lifecontingencies-package.html</loc></url>
+<url><loc>/reference/lifetable-class.html</loc></url>
+<url><loc>/reference/mdt-class.html</loc></url>
+<url><loc>/reference/multidecrins.html</loc></url>
+<url><loc>/reference/multiple-life-probabilities.html</loc></url>
+<url><loc>/reference/mx2qx.html</loc></url>
+<url><loc>/reference/mxt.html</loc></url>
+<url><loc>/reference/nominal-real-convertible.html</loc></url>
+<url><loc>/reference/other-demographic-functions.html</loc></url>
+<url><loc>/reference/presentValue.html</loc></url>
+<url><loc>/reference/probs2lifetable.html</loc></url>
+<url><loc>/reference/pureendowment.html</loc></url>
+<url><loc>/reference/pxt.html</loc></url>
+<url><loc>/reference/pxyt.html</loc></url>
+<url><loc>/reference/qx2mx.html</loc></url>
+<url><loc>/reference/qxt.prime.fromMdt.html</loc></url>
+<url><loc>/reference/rLifeContingencies.html</loc></url>
+<url><loc>/reference/rLifes.html</loc></url>
+<url><loc>/reference/rmdt.html</loc></url>
+<url><loc>/reference/soa08.html</loc></url>
+<url><loc>/reference/soa08Act.html</loc></url>
+<url><loc>/reference/soaIllustrativeServiceTable.html</loc></url>
+<url><loc>/reference/soaLt.html</loc></url>
 </urlset>
+

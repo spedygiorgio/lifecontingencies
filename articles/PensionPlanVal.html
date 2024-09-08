@@ -6,20 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pensions valuation with lifecontingencies package • lifecontingencies</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Pensions valuation with lifecontingencies package">
-<meta property="og:description" content="lifecontingencies">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -45,18 +44,18 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/PensionPlanVal.html">Pensions valuation with lifecontingencies package</a>
-    </li>
-    <li>
       <a href="../articles/compute-detail.html">Computational details of demographic functions</a>
     </li>
     <li>
       <a href="../articles/pensionfunding.html">Pension Funding with lifecontingencies</a>
+    </li>
+    <li>
+      <a href="../articles/PensionPlanVal.html">Pensions valuation with lifecontingencies package</a>
     </li>
   </ul>
 </li>
@@ -68,7 +67,7 @@
 <li>
   <a href="https://github.com/spedygiorgio/lifecontingencies/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -79,7 +78,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -89,9 +88,9 @@ package</h1>
                         <h4 data-toc-skip class="author">Ivan
 Williams</h4>
             
-            <h4 data-toc-skip class="date">25 February, 2024</h4>
+            <h4 data-toc-skip class="date">08 September, 2024</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/spedygiorgio/lifecontingencies/blob/HEAD/vignettes/PensionPlanVal.Rmd" class="external-link"><code>vignettes/PensionPlanVal.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spedygiorgio/lifecontingencies/blob/master/vignettes/PensionPlanVal.Rmd" class="external-link"><code>vignettes/PensionPlanVal.Rmd</code></a></small>
       <div class="hidden name"><code>PensionPlanVal.Rmd</code></div>
 
     </div>
@@ -106,15 +105,18 @@ actuarial liabilities and normal costs, allowing different methods in
 pension funding for defined benefit schemes.</p>
 <p>Each method is defined by the way that contributions are accrued in
 the active age before the specific risk apply. Following <span class="citation">(Winklevoss 1993)</span> and <span class="citation">(Bowers et al. 1997)</span>, the Normal Cost and
-Actuarial Liability can be seen as portions of <span class="math inline">\(PVFNC^{r}_x\)</span>, the present value of future
-benefit at age <span class="math inline">\(x\)</span> for the risk in
-<span class="math inline">\(r\)</span>, and that’s the way that we treat
-this in the function’s code. The methods that are implemented here are
-the “Benefit Prorate Method, Constant Dollar”, “Benefit Prorate Method,
-Constant Percent”, “Cost Prorate Method, Constant Dollar” and “Cost
-Prorate Method, Constant Benefit” (the last two also called “entry age
-methods”). For formula details the reader can go to chapters 5 and 6 on
-<span class="citation">(Winklevoss 1993)</span>.</p>
+Actuarial Liability can be seen as portions of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>V</mi><mi>F</mi><mi>N</mi><msubsup><mi>C</mi><mi>x</mi><mi>r</mi></msubsup></mrow><annotation encoding="application/x-tex">PVFNC^{r}_x</annotation></semantics></math>,
+the present value of future benefit at age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+for the risk in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>,
+and that’s the way that we treat this in the function’s code. The
+methods that are implemented here are the “Benefit Prorate Method,
+Constant Dollar”, “Benefit Prorate Method, Constant Percent”, “Cost
+Prorate Method, Constant Dollar” and “Cost Prorate Method, Constant
+Benefit” (the last two also called “entry age methods”). For formula
+details the reader can go to chapters 5 and 6 on <span class="citation">(Winklevoss 1993)</span>.</p>
 <p>We define a general function that allows to perform the calculations
 in a multi-decrement environment, with flexibility to consider different
 kind of benefit scheme, using functions of the “lifecontingencies”
@@ -123,50 +125,54 @@ notation in Gian Paolo Clemente’s vignette titled “Pension Funding with
 lifecontingencies”) are:</p>
 <ul>
 <li>
-<span class="math inline">\(x\)</span>: the age of the insured at
-the time of valuation</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>:
+the age of the insured at the time of valuation</li>
 <li>
-<span class="math inline">\(y\)</span>: the age which the person
-entered to the job. This age is usually different than the age that the
-plan began</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>:
+the age which the person entered to the job. This age is usually
+different than the age that the plan began</li>
 <li>
-<span class="math inline">\(r\)</span>: age where the risk is
-evaluated</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>:
+age where the risk is evaluated</li>
 <li>
-<span class="math inline">\(acttableAccPeriod\)</span>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>c</mi><mi>t</mi><mi>t</mi><mi>a</mi><mi>b</mi><mi>l</mi><mi>e</mi><mi>A</mi><mi>c</mi><mi>c</mi><mi>P</mi><mi>e</mi><mi>r</mi><mi>i</mi><mi>o</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">acttableAccPeriod</annotation></semantics></math>:
 multi-decrement object lifetable, where one of its decrements is the
 risk of interest. One of the most common applications is for and
-obligated retirement at age <span class="math inline">\(r\)</span>, and
-even in this case is needed a multi-decrement table with risks of death
-and retirement (with certainty for age <span class="math inline">\(r\)</span>)</li>
+obligated retirement at age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>,
+and even in this case is needed a multi-decrement table with risks of
+death and retirement (with certainty for age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>)</li>
 <li>
-<span class="math inline">\(decrement\)</span>: decrement to
-evaluate</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>e</mi><mi>c</mi><mi>r</mi><mi>e</mi><mi>m</mi><mi>e</mi><mi>n</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">decrement</annotation></semantics></math>:
+decrement to evaluate</li>
 <li>
-<span class="math inline">\(i\)</span>: interest rate (real)</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>:
+interest rate (real)</li>
 <li>
-<span class="math inline">\(j\)</span>: salary rate increment (real,
-productivity and seniority included)</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>:
+salary rate increment (real, productivity and seniority included)</li>
 <li>
-<span class="math inline">\(delta\)</span>: benefit rate increment
-(real)</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>e</mi><mi>l</mi><mi>t</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">delta</annotation></semantics></math>:
+benefit rate increment (real)</li>
 <li>
-<span class="math inline">\(n\)</span>: years that the benefit will
-be payed (can be 1 for single payments). If it is omitted, will take
-value <span class="math inline">\(\omega-r\)</span>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>:
+years that the benefit will be payed (can be 1 for single payments). If
+it is omitted, will take value
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ω</mi><mo>−</mo><mi>r</mi></mrow><annotation encoding="application/x-tex">\omega-r</annotation></semantics></math>
 </li>
 <li>
-<span class="math inline">\(avg\)</span>: number of past salaries to
-be considered for average</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>v</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">avg</annotation></semantics></math>:
+number of past salaries to be considered for average</li>
 <li>
-<span class="math inline">\(acttablePaymPeriod\)</span>: lifetable
-object for payment period</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>c</mi><mi>t</mi><mi>t</mi><mi>a</mi><mi>b</mi><mi>l</mi><mi>e</mi><mi>P</mi><mi>a</mi><mi>y</mi><mi>m</mi><mi>P</mi><mi>e</mi><mi>r</mi><mi>i</mi><mi>o</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">acttablePaymPeriod</annotation></semantics></math>:
+lifetable object for payment period</li>
 <li>
-<span class="math inline">\(CostMet\)</span>: Method Cost, that
-could be “BPM_CD” (Benefit Prorate Method, Constant Dollar), “BPM_CP”
-(Benefit Prorate Method, Constant Percent), “CPM_CD” (Cost Prorate
-Method, Constant Dollar), “CPM_CB” (Cost Prorate Method, Constant
-Benefit).</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>o</mi><mi>s</mi><mi>t</mi><mi>M</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">CostMet</annotation></semantics></math>:
+Method Cost, that could be “BPM_CD” (Benefit Prorate Method, Constant
+Dollar), “BPM_CP” (Benefit Prorate Method, Constant Percent), “CPM_CD”
+(Cost Prorate Method, Constant Dollar), “CPM_CB” (Cost Prorate Method,
+Constant Benefit).</li>
 </ul>
 <p>The general function is:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -290,8 +296,13 @@ package.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/getDecrements.html">getDecrements</a></span><span class="op">(</span><span class="va">MultiDecrTable</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "death"      "withdrawal" "inability"  "retirement"</span></span></code></pre></div>
 <p>Now we calculate the liability and normal cost with the four methods,
-and <span class="math inline">\(i = .04\)</span>, <span class="math inline">\(j = .06\)</span>, <span class="math inline">\(delta = .03\)</span>, <span class="math inline">\(avg = 5\)</span>. In this case for the age risk 53
-(<span class="math inline">\(r = 53\)</span>).</p>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>.04</mn></mrow><annotation encoding="application/x-tex">i = .04</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>.06</mn></mrow><annotation encoding="application/x-tex">j = .06</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>e</mi><mi>l</mi><mi>t</mi><mi>a</mi><mo>=</mo><mn>.03</mn></mrow><annotation encoding="application/x-tex">delta = .03</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>v</mi><mi>g</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">avg = 5</annotation></semantics></math>.
+In this case for the age risk 53
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>53</mn></mrow><annotation encoding="application/x-tex">r = 53</annotation></semantics></math>).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x1</span><span class="op">=</span><span class="fl">30</span></span>
 <span><span class="va">y1</span><span class="op">=</span><span class="fl">20</span></span>
@@ -311,15 +322,23 @@ and <span class="math inline">\(i = .04\)</span>, <span class="math inline">\(j 
 <span>                  acttablePaymPeriod <span class="op">=</span> <span class="va">soa08</span>, CostMet <span class="op">=</span> <span class="st">'CPM_CB'</span><span class="op">)</span></span></code></pre></div>
 <p>The way that each method amortize the benefit cost in active years
 can be seen in the next graph, showing the liability accumulated
-relationship between at any age: “CPM_CD” <span class="math inline">\(\geqslant\)</span> “CPM_CB”<span class="math inline">\(\geqslant\)</span> “BPM_CD” <span class="math inline">\(\geqslant\)</span> “BPM_CP”.</p>
+relationship between at any age: “CPM_CD”
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≥</mo><annotation encoding="application/x-tex">\geqslant</annotation></semantics></math>
+“CPM_CB”<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≥</mo><annotation encoding="application/x-tex">\geqslant</annotation></semantics></math>
+“BPM_CD”
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≥</mo><annotation encoding="application/x-tex">\geqslant</annotation></semantics></math>
+“BPM_CP”.</p>
 <p><img src="PensionPlanVal_files/figure-html/fig_width-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>We can check the results with actuarial equivalences, specifically
-the formulas <span class="math inline">\(AL^{r}_x =
-PVFB^{r}_x-PVFNC^{r}_x\)</span> (6.3a) and <span class="math inline">\(AL^{r}_x = AVPNC^{r}_x\)</span> (6.4a) in <span class="citation">(Winklevoss 1993)</span>, which means that the
-actuarial liability at any time can be expressed as the difference
-between the present value of future benefit and the present value of
-future normal costs, and as the actuarial value of past normal costs
-(retrospective view).</p>
+the formulas
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msubsup><mi>L</mi><mi>x</mi><mi>r</mi></msubsup><mo>=</mo><mi>P</mi><mi>V</mi><mi>F</mi><msubsup><mi>B</mi><mi>x</mi><mi>r</mi></msubsup><mo>−</mo><mi>P</mi><mi>V</mi><mi>F</mi><mi>N</mi><msubsup><mi>C</mi><mi>x</mi><mi>r</mi></msubsup></mrow><annotation encoding="application/x-tex">AL^{r}_x = PVFB^{r}_x-PVFNC^{r}_x</annotation></semantics></math>
+(6.3a) and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msubsup><mi>L</mi><mi>x</mi><mi>r</mi></msubsup><mo>=</mo><mi>A</mi><mi>V</mi><mi>P</mi><mi>N</mi><msubsup><mi>C</mi><mi>x</mi><mi>r</mi></msubsup></mrow><annotation encoding="application/x-tex">AL^{r}_x = AVPNC^{r}_x</annotation></semantics></math>
+(6.4a) in <span class="citation">(Winklevoss 1993)</span>, which means
+that the actuarial liability at any time can be expressed as the
+difference between the present value of future benefit and the present
+value of future normal costs, and as the actuarial value of past normal
+costs (retrospective view).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># AL = PVBF - PVFNC first get survivial for all causes</span></span>
 <span><span class="va">acttableAccPeriodTotal</span> <span class="op">=</span> <span class="fu"><a href="../reference/pxt.html">pxt</a></span><span class="op">(</span><span class="va">MultiDecrTable</span>, x <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="op">(</span><span class="fu"><a href="../reference/getOmega.html">getOmega</a></span><span class="op">(</span><span class="va">MultiDecrTable</span><span class="op">)</span><span class="op">)</span>, t <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -347,7 +366,8 @@ grading function in which benefit provided at early or late retirement
 has the same present value as the benefit payable at normal retirement
 (<span class="citation">(Winklevoss 1993)</span>, chapter 9). Instead,
 here the person is penalyzed for early retirement. The insured has an
-annual salary of 5000 at age <span class="math inline">\(x\)</span>.
+annual salary of 5000 at age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.
 Also there is a seniority condition of 10 years. The other parameters
 are the same that the previous example.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -359,8 +379,10 @@ are the same that the previous example.</p>
 <span><span class="va">s_x</span> <span class="op">=</span> <span class="fl">5000</span></span>
 <span><span class="va">Cost_Method2</span> <span class="op">=</span> <span class="st">"BPM_CD"</span></span></code></pre></div>
 <p>The calculation now focus on estimate the actuarial values at age
-<span class="math inline">\(x2\)</span>, for all the retirement scheme
-(all ages between <span class="math inline">\(x2\)</span> and 70).</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">x2</annotation></semantics></math>,
+for all the retirement scheme (all ages between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">x2</annotation></semantics></math>
+and 70).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">AL_xr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>r <span class="op">=</span> <span class="fl">0</span>, AL <span class="op">=</span> <span class="fl">0</span>, NC <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">r</span> <span class="kw">in</span> <span class="va">x2</span><span class="op">:</span><span class="fl">70</span><span class="op">)</span> <span class="op">{</span></span>
@@ -386,9 +408,11 @@ expected behavior (probability of retirement).</p>
 50% of his/her last salary at each age before retirement if he decide to
 leave the Company. The benefit is in concept of recognition of past
 contributions to the pension plan. This benefit can be estimated setting
-<span class="math inline">\(n=1\)</span> (no rent, a single payment) and
-<span class="math inline">\(avg=0\)</span> (only last salary). For
-example, for the risk of withdrawal at age 45:</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n=1</annotation></semantics></math>
+(no rent, a single payment) and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>v</mi><mi>g</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">avg=0</annotation></semantics></math>
+(only last salary). For example, for the risk of withdrawal at age
+45:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">decrement3</span> <span class="op">=</span> <span class="st">"withdrawal"</span></span>
 <span><span class="va">x3</span> <span class="op">=</span> <span class="fl">30</span></span>
@@ -417,7 +441,7 @@ main benefit risk.</li>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-bowers1997actuarial" class="csl-entry">
 Bowers, N. L., D. A. Jones, H. U. Gerber, C. J. Nesbitt, and J. C.
 Hickman. 1997. <em>Actuarial Mathematics, 2nd Edition</em>. Society of
@@ -433,9 +457,7 @@ Illustrations</em>. University of Pennsylvania Press.
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -448,16 +470,16 @@ Illustrations</em>. University of Pennsylvania Press.
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
