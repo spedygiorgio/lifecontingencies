@@ -147,5 +147,8 @@ Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A., Nesbitt, C. J. (1997
 }
 \seealso{
 \code{\link{Axn}}, \code{\link{AExn}}, \code{\link{axn}}, \code{\link{Exn}}
+
+Other life-contingency APVs: 
+\code{\link{arithmetic_variation_insurances}}
 }
 \concept{life-contingency APVs}

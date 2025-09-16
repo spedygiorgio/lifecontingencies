@@ -779,7 +779,73 @@ Axyzn <- function(tablesList, x, n,i, m, k = 1, status = "joint", type = "EV",po
 # i=0.06
 # m=0
 # k=2
-
+#' Life insurance with arithmetic-variation benefit (increasing/decreasing, fractional claims)
+#'
+#' This help page groups two term life insurances with **arithmetic variation** of the benefit,
+#' both with optional deferment \code{m} and \code{k} fractional claim times (claims at end of subperiods):
+#' \itemize{
+#'   \item \strong{IAxn}: \emph{increasing} arithmetic term insurance (benefit grows linearly with time);
+#'   \item \strong{DAxn}: \emph{decreasing} arithmetic term insurance (benefit declines linearly with time).
+#' }
+#'
+#' @section \code{IAxn} — Increasing arithmetic term:
+#' Computes the APV of an n-year **increasing** term insurance on a life aged \code{x}, with \code{k} fractional
+#' claim times and optional deferment \code{m}. The benefit at the \eqn{j}-th subperiod equals \eqn{j/k}.
+#'
+#' @param actuarialtable A \code{lifetable} or \code{actuarialtable} object.
+#' @param x Attained age at inception.
+#' @param n Coverage length in years. If missing, it is set to \code{getOmega(actuarialtable) - x - m}.
+#' @param i Annual effective interest rate. Defaults to \code{actuarialtable@interest}.
+#' @param m Deferment (years). Default 0.
+#' @param k Fractional periods per year (\eqn{k \ge 1}). Default 1.
+#' @param type Output type: \code{"EV"} (expected value, default) or \code{"ST"} (one stochastic
+#'   realization via \code{rLifeContingencies}).
+#' @param power Power applied to discounted cash flows before expectation (default 1).
+#'
+#' @return A numeric value: the APV (or one simulated realization if \code{type="ST"}).
+#'
+#' @details
+#' Let \eqn{t_j = m + (j-1)/k}, \eqn{j=1,\dots,nk}. With **fractional claims at end of subperiods**,
+#' the EV implementations follow the pattern already used in \code{\link{Axn}}:
+#'
+#' \strong{IAxn} (increasing):
+#' \deqn{ \mathrm{IA}_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} \Big(\frac{j}{k}\Big)\,
+#'         v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}, }
+#' where \eqn{v=(1+i)^{-1}}, computed via \code{pxt(\dots)} and \code{qxt(\dots, t=1/k)}.
+#'
+#' \strong{DAxn} (decreasing) is analogous with benefit \eqn{(n - (j-1)/k)}; see its subsection below.
+#'
+#' @section Fractional timing conventions:
+#' For **insurance** benefits in this package, fractional claims are assumed to occur at the
+#' **end** of each subperiod (i.e., at \eqn{t_j + 1/k}). This matches the implementation that
+#' multiplies survival to \eqn{t_j} and a fractional death probability over the next subperiod:
+#' \deqn{ v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}. }
+#' By contrast, **annuities** use a payment-timing flag (\code{"immediate"} vs \code{"due"}) which
+#' changes the evaluation times; insurance here has a fixed claim timing at end-subperiod.
+#'
+#' @references
+#' Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A., Nesbitt, C. J. (1997).
+#' \emph{Actuarial Mathematics}, 2nd ed., SOA.
+#'
+#' @seealso \code{\link{Axn}} (level benefit), \code{\link{AExn}}, \code{\link{Exn}}, \code{\link{axn}}
+#'
+#' @examples
+#' ## Setup (legacy examples)
+#' data(soaLt)
+#' soa08Act <- with(soaLt, new("actuarialtable", interest=0.06, x=x, lx=Ix, name="SOA2008"))
+#'
+#' ## IAxn: increasing arithmetic term, 10 years, age 25 (legacy)
+#' IAxn(actuarialtable = soa08Act, x = 25, n = 10)
+#'
+#' ## More examples (k>1 and deferment)
+#' IAxn(actuarialtable = soa08Act, x = 40, n = 20, k = 12)     # monthly claims
+#' IAxn(actuarialtable = soa08Act, x = 40, n = 15, m = 5, k = 4) # deferred 5y, quarterly
+#'
+#' @family life-contingency APVs
+#' @name arithmetic_variation_insurances
+#' @aliases IAxn DAxn
+#' @rdname arithmetic_variation_insurances
+#' @export
 IAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1, type =
              "EV",power = 1)
   {
@@ -828,27 +894,26 @@ IAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1,
     return(out)
   }
 
-# n=500000
-# lifecontingency="IAxn"
-# object=soa08Act
-# x=40
-# t=20
-# i=soa08Act@interest
-# m=5
-# k=12
-
-
-# outs<-rLifeContingencies(n,lifecontingency, object, x,t,i=i,
-# m=m,k=k, parallel=TRUE)
-# APV=IAxn(object, x=x,n=t, k=k)
-# mean(outs)
-# APV
-# t.test(x=outs, mu=APV)
-
-
-# IAxn(soa08Act, x=50,n=10,k=2,type="EV")
-# IAxn(soa08Act, x=50,n=10,k=2,type="ST")
-
+#' @rdname arithmetic_variation_insurances
+#'
+#' @section \code{DAxn} — Decreasing arithmetic term:
+#' Computes the APV of an n-year **decreasing** term insurance on a life aged \code{x}, with \code{k} fractional
+#' claim times and optional deferment \code{m}. The benefit at the \eqn{j}-th subperiod equals \eqn{n - (j-1)/k}.
+#'
+#' @details
+#' \strong{DAxn} (decreasing):
+#' \deqn{ \mathrm{DA}_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} \Big(n - \frac{j-1}{k}\Big)\,
+#'         v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}, \qquad t_j = m + \frac{j-1}{k}. }
+#' See “Fractional timing conventions” above for claim timing assumptions.
+#'
+#' @examples
+#' ## DAxn: decreasing arithmetic term, 10 years, age 25 (legacy)
+#' DAxn(actuarialtable = soa08Act, x = 25, n = 10)
+#' ## More examples (k>1 and deferment)
+#' DAxn(actuarialtable = soa08Act, x = 45, n = 10, k = 2)       # semiannual
+#' DAxn(actuarialtable = soa08Act, x = 45, n = 12, m = 3, k = 12) # deferred 3y, monthly
+#'
+#' @export
 DAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1, type =
              "EV",power = 1)
   {
