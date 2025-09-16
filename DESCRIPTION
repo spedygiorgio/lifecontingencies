@@ -42,4 +42,4 @@ BuildVignettes: yes
 VignetteBuilder: utils, knitr
 URL: https://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
