@@ -9,7 +9,6 @@
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
-<url><loc>/reference/AExn.html</loc></url>
 <url><loc>/reference/DAxn.html</loc></url>
 <url><loc>/reference/IAxn.html</loc></url>
 <url><loc>/reference/Iaxn_1.html</loc></url>
@@ -19,8 +18,6 @@
 <url><loc>/reference/accumulatedValue.html</loc></url>
 <url><loc>/reference/actuarialtable-class.html</loc></url>
 <url><loc>/reference/annuity.html</loc></url>
-<url><loc>/reference/axn.html</loc></url>
-<url><loc>/reference/axn_1.html</loc></url>
 <url><loc>/reference/axyn.html</loc></url>
 <url><loc>/reference/de_angelis_di_falco.html</loc></url>
 <url><loc>/reference/decreasingAnnuity.html</loc></url>
@@ -34,6 +31,7 @@
 <url><loc>/reference/demoUsa.html</loc></url>
 <url><loc>/reference/discount-interest.html</loc></url>
 <url><loc>/reference/duration.html</loc></url>
+<url><loc>/reference/endowment_trio.html</loc></url>
 <url><loc>/reference/exn.html</loc></url>
 <url><loc>/reference/getDecrements.html</loc></url>
 <url><loc>/reference/getLifeContingencies.html</loc></url>
@@ -52,7 +50,6 @@
 <url><loc>/reference/other-demographic-functions.html</loc></url>
 <url><loc>/reference/presentValue.html</loc></url>
 <url><loc>/reference/probs2lifetable.html</loc></url>
-<url><loc>/reference/pureendowment.html</loc></url>
 <url><loc>/reference/pxt.html</loc></url>
 <url><loc>/reference/pxyt.html</loc></url>
 <url><loc>/reference/qx2mx.html</loc></url>
