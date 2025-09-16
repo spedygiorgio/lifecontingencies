@@ -22,14 +22,17 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,   r: 'release' }
-          - { os: macos-latest,    r: 'release' }
-          - { os: windows-latest,  r: 'release' }
+          - { os: ubuntu-latest,  r: 'release' }
+          - { os: macos-latest,   r: 'release' }
+          - { os: windows-latest, r: 'release' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       _R_CHECK_CRAN_INCOMING_REMOTE_: false
+      # Evita problemi con parallel durante i check
+      _R_CHECK_LIMIT_CORES_: true
+      R_CHECK_NUM_CORES: 1
 
     steps:
       - uses: actions/checkout@v4
@@ -40,24 +43,35 @@ jobs:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
 
-      # ✅ Quarto ufficiale
-      - name: Setup Quarto
-        uses: quarto-dev/quarto-actions/setup@v2
-        with:
-          version: latest
-
-      # TinyTeX per PDF
-      - name: Setup TinyTeX
+      # ---------- TinyTeX + system deps ----------
+      - name: Setup TinyTeX (all OS)
         uses: r-lib/actions/setup-tinytex@v2
 
-      # Utility richieste per --compact-vignettes su Linux
       - name: Install system deps (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y qpdf ghostscript
 
-      # Dipendenze R (incluse quelle per le vignette)
+      - name: Install system deps (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install qpdf ghostscript || true
+
+      - name: Install system deps (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install -y ghostscript
+          choco install -y qpdf
+
+      # LaTeX packages necessari per le tue vignette (.Rnw)
+      - name: Install LaTeX packages (TinyTeX)
+        run: |
+          tlmgr install pict2e grfext everyshi graphics etoolbox kvoptions xcolor
+          tlmgr install collection-latexrecommended collection-latexextra collection-fontsrecommended
+
+      # ---------- Dipendenze R ----------
       - name: Install R package dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -66,15 +80,55 @@ jobs:
             any::knitr
             any::rmarkdown
             any::tinytex
-            any::quarto
           needs: check
           cache-version: 2
 
-      # R CMD check con build delle vignette
-      - name: Check
+      # ---------- CHECK con build vignette su Linux/macOS ----------
+      - name: Check (build vignettes)
+        if: runner.os != 'Windows'
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
           build_args: 'c("--no-resave-data","--compact-vignettes=gs+qpdf")'
-          check_args: 'c("--as-cran")'
+          args: 'c("--as-cran")'
           error-on: '"error"'
+
+      # ---------- CHECK senza vignette su Windows ----------
+      - name: Check (no vignettes on Windows)
+        if: runner.os == 'Windows'
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data","--no-build-vignettes")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
+
+      # ---------- Build VIGNETTES su Windows *dopo* install (per aggirare il problema parallel) ----------
+      - name: Build vignettes on Windows (post-install)
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          # Installa il pacchetto locale senza costruire le vignette
+          if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes", repos = "https://cloud.r-project.org")
+          remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
+
+          # Percorso installazione
+          pkg_path <- find.package("lifecontingencies")
+
+          # Costruisce le vignette nell'installazione (inst/doc)
+          tools::buildVignettes(dir = pkg_path)
+
+          # Stampa elenco dei PDF generati
+          cat("Built vignettes:\n")
+          print(list.files(file.path(pkg_path, "doc"), pattern = "\\.pdf$", full.names = TRUE))
+
+      # Carica come artifact i PDF delle vignette generati su Windows
+      - name: Upload Windows vignettes
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-vignettes
+          path: |
+            ${R_HOME}\library\lifecontingencies\doc\*.pdf
+            ${R_HOME}\library\lifecontingencies\doc\*.html
+          if-no-files-found: ignore
