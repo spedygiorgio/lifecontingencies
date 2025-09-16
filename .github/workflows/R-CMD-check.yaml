@@ -2,91 +2,79 @@ name: R-CMD-check
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   pull_request:
-    branches: [main, master]
-  workflow_dispatch:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   R-CMD-check:
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     runs-on: ${{ matrix.config.os }}
+
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { os: macos-latest,   r: 'release' }
-          - { os: windows-latest, r: 'release' }
-          - { os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release' }
-          - { os: ubuntu-latest,  r: 'release' }
-          - { os: ubuntu-latest,  r: 'oldrel-1' }
+          - { os: ubuntu-latest,   r: 'release' }
+          - { os: macos-latest,    r: 'release' }
+          - { os: windows-latest,  r: 'release' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      _R_CHECK_CRAN_INCOMING_REMOTE_: false
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: r-lib/actions/setup-pandoc@v2
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          use-public-rspm: true
 
-      # Quarto (per futuri .qmd)
-      - uses: r-lib/actions/setup-quarto@v1
+      # ✅ Quarto ufficiale
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: latest
 
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+      # TinyTeX per PDF
+      - name: Setup TinyTeX
+        uses: r-lib/actions/setup-tinytex@v2
 
-      # LaTeX per vignette Sweave/PDF
-      - uses: r-lib/actions/setup-tinytex@v2
-
-      # Pacchetti LaTeX extra (via tlmgr cross-OS)
-      - name: Install LaTeX extras (tlmgr via R)
-        shell: Rscript {0}
-        run: |
-          pkgs <- c(
-            "ae","inconsolata","upquote","courier","fancyvrb","framed","titling","booktabs",
-            "geometry","hyperref","url","xcolor","microtype","graphicx","graphics","grfext",
-            "thumbpdf","float","caption","subcaption","babel-english","amsmath","amssymb",
-            "mathtools","siunitx","etoolbox","natbib","biblatex","csquotes","ulem","parskip",
-            "titlesec","wrapfig","longtable","makecell","multirow","colortbl","pgf","tikz",
-            "xkeyval","changepage"
-          )
-          if (Sys.which("tlmgr") != "") tinytex::tlmgr_install(pkgs, .quiet = TRUE)
-
-      # Dipendenze R (incluse quelle per i vignette)
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::rcmdcheck
-          needs: check
-
-      # (Ubuntu) assicura tools per compattare i PDF
-      - name: Ensure PDF tools (Ubuntu)
+      # Utility richieste per --compact-vignettes su Linux
+      - name: Install system deps (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y ghostscript qpdf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf ghostscript
 
-      # Check completo con build vignette
-      - uses: r-lib/actions/check-r-package@v2
+      # Dipendenze R (incluse quelle per le vignette)
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            any::knitr
+            any::rmarkdown
+            any::tinytex
+            any::quarto
+          needs: check
+          cache-version: 2
+
+      # R CMD check con build delle vignette
+      - name: Check
+        uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          # per simulare più da vicino CRAN:
-          # args: 'c("--as-cran")'
-
-      # Log testthat in caso di failure
-      - name: Show testthat output
-        if: always()
-        shell: bash
-        run: |
-          find "${{ runner.temp }}/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
-
-      # Artefatti di check se fallisce
-      - name: Upload failed check directory
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: check-failures
-          path: ${{ runner.temp }}/package
-
+          build_args: 'c("--no-resave-data","--compact-vignettes=gs+qpdf")'
+          check_args: 'c("--as-cran")'
+          error-on: '"error"'
