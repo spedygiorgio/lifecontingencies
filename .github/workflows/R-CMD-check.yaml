@@ -16,7 +16,7 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release'}
           - {os: ubuntu-latest,  r: 'release'}
           - {os: ubuntu-latest,  r: 'oldrel-1'}
 
@@ -28,26 +28,64 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
 
+      - uses: r-lib/actions/setup-quarto@v3
+        with:
+          version: "latest"
+
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      # (opzionale) pacchetti LaTeX extra per vignette complesse
-      - name: TinyTeX extras (optional)
-        if: runner.os == 'Linux'
-        run: |
-          tlmgr install grfext thumbpdf
-          tlmgr list --only-installed
+      # TinyTeX (LaTeX) per compilare vignette Sweave (.Rnw) e PDF
+      - uses: r-lib/actions/setup-tinytex@v2
 
+      # Installa pacchetti LaTeX aggiuntivi via tinytex::tlmgr_install (cross-OS)
+      # Nota: includo un set ampio e "sicuro" per Rnw/knitr/Sweave (formatting, tabelle, grafica, microtype, hyperref, ecc.)
+      - name: Install LaTeX extras (tlmgr via R)
+        shell: Rscript {0}
+        run: |
+          pkgs <- c(
+            # base essentials (alcuni già presenti in TinyTeX, reinstall ok)
+            "ae","inconsolata","upquote","courier","fancyvrb","framed","titling","booktabs",
+            "geometry","hyperref","url","xcolor","microtype","graphicx","graphics",
+            "grfext","thumbpdf","float","caption","subcaption","babel-english",
+            "amsmath","amssymb","mathtools","siunitx","etoolbox","natbib","biblatex",
+            "csquotes","ulem","parskip","titlesec","titling","tools","wrapfig","longtable",
+            "ulem","makecell","multirow","colortbl","pgf","tikz","xkeyval","changepage"
+          )
+          # installa silenziosamente ciò che manca
+          if (Sys.which("tlmgr") != "") {
+            tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+          }
+
+      # Dipendenze R (Imports/Suggests) incluse quelle per i vignette (forecast, demography, StMoMo, gnm, knitr, rmarkdown, ecc.)
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
           needs: check
 
+      # R CMD check con build dei vignette; compact con gs+qpdf
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          # args: 'c("--no-manual","--as-cran")'   # se vuoi emulare CRAN al massimo
+          # Se vuoi comportamento tipo CRAN, puoi aggiungere anche:
+          # args: 'c("--as-cran")'
+
+      # (Facoltativo) mostra output testthat se fallisce
+      - name: Show testthat output
+        if: always()
+        shell: bash
+        run: |
+          find ${{ runner.temp }}/package -name 'testthat.Rout*' -exec cat '{}' \; || true
+
+      # (Facoltativo) salva artefatti in caso di failure
+      - name: Upload failed check directory
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-failures
+          path: ${{ runner.temp }}/package
