@@ -1,3 +1,5 @@
+# lifecontingencies 1.4.3
+
 # lifecontingencies 1.4.2
 
 <!-- NEWS.md is maintained by https://cynkra.github.io/fledge, do not edit -->
