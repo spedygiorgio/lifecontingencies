@@ -44,14 +44,13 @@ presentValue<-function(cashFlows, timeIds, interestRates, probabilities, power=1
 	if((length(interestRates)>1)&(length(interestRates)!=length(timeIds))) warning("Interest rates incoherent with time ids") #check dimensioanlity of time ids
 	
 	interestRates <- rep(interestRates,length.out=length(timeIds))
-	v <- (1+interestRates)^(-timeIds)
 	
 	#power used for APV, usually=1
-	out <- sum( ( (cashFlows^power) * (v^power) ) * probabilities) 
-  #using Rcpp code seems inefficient
-# 	out<-switch(calculation,
-#               R=sum(((cashFlows^power)*(v^power))*probabilities),
-#               Rcpp=.mult3sum(x=(cashFlows^power),y=(v^power),z=probabilities))
+	out <- .presentValueC(cashFlows = cashFlows,
+	                      timeIds = timeIds,
+	                      interestRates = interestRates,
+	                      probabilities = probabilities,
+	                      power = power)
 	return(out)
 }
 

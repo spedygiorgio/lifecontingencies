@@ -9,7 +9,7 @@ double mult3sum(NumericVector x, NumericVector y, NumericVector z)
   double total=0;
   // assuming x y z have the same length
   int n = x.size();
-  
+
   for(int i = 0; i < n; ++i) {
     total += x[i]*y[i]*z[i];
   }
@@ -22,10 +22,28 @@ double mult2sum(NumericVector x, NumericVector y)
   double total=0;
   // assuming x y z have the same length
   int n = x.size();
-  
+
   for(int i = 0; i < n; ++i) {
     total += x[i]*y[i];
   }
+  return total;
+}
+
+// [[Rcpp::export(name=".presentValueC")]]
+double presentValueC(NumericVector cashFlows,
+                     NumericVector timeIds,
+                     NumericVector interestRates,
+                     NumericVector probabilities,
+                     double power = 1.0) {
+  int n = cashFlows.size();
+  double total = 0.0;
+
+  for (int i = 0; i < n; ++i) {
+    double discountFactor = pow(1.0 + interestRates[i], -timeIds[i]);
+    double term = pow(cashFlows[i], power) * pow(discountFactor, power) * probabilities[i];
+    total += term;
+  }
+
   return total;
 }
 
