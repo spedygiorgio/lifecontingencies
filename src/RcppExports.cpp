@@ -35,6 +35,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// presentValueC
+double presentValueC(NumericVector cashFlows, NumericVector timeIds, NumericVector interestRates, NumericVector probabilities, double power);
+RcppExport SEXP _lifecontingencies_presentValueC(SEXP cashFlowsSEXP, SEXP timeIdsSEXP, SEXP interestRatesSEXP, SEXP probabilitiesSEXP, SEXP powerSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type cashFlows(cashFlowsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type timeIds(timeIdsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type interestRates(interestRatesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type probabilities(probabilitiesSEXP);
+    Rcpp::traits::input_parameter< double >::type power(powerSEXP);
+    rcpp_result_gen = Rcpp::wrap(presentValueC(cashFlows, timeIds, interestRates, probabilities, power));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fExnCpp
 double fExnCpp(double T, double y, double n, double i);
 RcppExport SEXP _lifecontingencies_fExnCpp(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP) {
@@ -116,6 +131,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_mult3sum", (DL_FUNC) &_lifecontingencies_mult3sum, 3},
     {"_lifecontingencies_mult2sum", (DL_FUNC) &_lifecontingencies_mult2sum, 2},
+    {"_lifecontingencies_presentValueC", (DL_FUNC) &_lifecontingencies_presentValueC, 5},
     {"_lifecontingencies_fExnCpp", (DL_FUNC) &_lifecontingencies_fExnCpp, 4},
     {"_lifecontingencies_fAxnCpp", (DL_FUNC) &_lifecontingencies_fAxnCpp, 6},
     {"_lifecontingencies_fIAxnCpp", (DL_FUNC) &_lifecontingencies_fIAxnCpp, 6},

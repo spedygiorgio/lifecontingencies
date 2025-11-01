@@ -29,3 +29,7 @@
     .Call(`_lifecontingencies_fAExnCpp`, T, y, n, i, k)
 }
 
+.presentValueC <- function(cashFlows, timeIds, interestRates, probabilities, power) {
+    .Call(`_lifecontingencies_presentValueC`, cashFlows, timeIds, interestRates, probabilities, power)
+}
+
