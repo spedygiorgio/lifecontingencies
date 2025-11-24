@@ -1,3 +1,5 @@
+# lifecontingencies 1.4.4
+
 # lifecontingencies 1.4.3
 
 # lifecontingencies 1.4.2
