@@ -752,7 +752,7 @@ covnPpty <- 2/(yieldT0^2)
 @
 
 Then the ALM problem can be set up as a three step problem, as the \cite{mathFinAct}
-texbook remarks:
+textbook remarks:
 \begin{enumerate}
   \item Setting the initial present value of cash inflows (assets) to be equal
   to the present value of cash outflows (liabilities). 
@@ -1912,7 +1912,7 @@ pxt(valdezMdt,x=50,t=3)
 qxt(valdezMdt,x=53,t=2,decrement=1)
 @
 
-It is possible to generate random traiectories of a life subject to multiple cause of decrements as the following code shows.
+It is possible to generate random trajectories of a life subject to multiple cause of decrements as the following code shows.
 
 <<mdt.randomSamples, keep.source=TRUE>>=
 rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
