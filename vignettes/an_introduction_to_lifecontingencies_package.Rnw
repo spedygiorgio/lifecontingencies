@@ -2053,9 +2053,6 @@ axn(DAT,65,10,payment="arrears")
 @
 
 
-
-
-
 \section{Discussion}\label{sec:discussion}
 \subsection{Advantages, limitations, and future perspectives}
 
@@ -2079,10 +2076,8 @@ demographic analysis, like \pkg{demography} and
 analyses with interest rate modeling packages like \pkg{termstrc}.
 
 Finally, code optimization and improvement is carried out
-continuously. The extension of parallel computation features, memory
-usage profiling, and the use of \proglang{C} or \proglang{C++} code
-fragments in select parts of the code have begun (for \pkg{Rcpp} package, \cite{RcppR} usage) or being 
-planned for the near future.
+continuously. Key parts of core functions use \proglang{C++} code
+snippets via the \pkg{Rcpp} package \cite{RcppR}.
 
 \subsection{Accuracy}\label{sec:disclaimer}
 
