@@ -117,26 +117,17 @@ setMethod(f="initialize",
 
 
 #validity method for lifetable object
-setValidity("lifetable",
-		function(object) {
-			check <- character(0)
-			if(length(object@x)!=length(object@lx)) 
-			  check <- c(check, "x and lx do not match in length")
-			if(any(diff(object@lx)>0)) 
-			  check <- c(check, "lx must be non-increasing")
-			if(any(abs(object@x - floor(object@x)) > 0))
-			  check <- c(check, "x must be integral")
-			if(any(object@x < 0))
-			  check <- c(check, "x must be non-negative")
-			if(any(diff(object@x) != 1))
-			  check <- c(check, "x must be consecutive integers")
-			
-			if(length(check) == 0) 
-			  return(TRUE) 
-			else 
-				return(check)
-		}
-)
+
+setValidity("lifetable", function(object) {
+  err <- character(0)
+  if (length(object@x) != length(object@lx)) err <- c(err, "x and lx do not match in length")
+  if (length(object@x) == 0L)               err <- c(err, "empty lifetable")
+  if (any(diff(object@lx) > 0))             err <- c(err, "lx must be non-increasing")
+  if (any(abs(object@x - floor(object@x)) > 0)) err <- c(err, "x must be integral")
+  if (any(object@x < 0))                    err <- c(err, "x must be non-negative")
+  if (any(diff(object@x) != 1))             err <- c(err, "x must be consecutive integers")
+  if (length(err) == 0) TRUE else err
+})
 
 
 
