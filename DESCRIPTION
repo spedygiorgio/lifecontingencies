@@ -7,7 +7,7 @@ Authors@R: c(person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
     person("Christophe", "Dutang", role = "ctb",comment = c(ORCID = "0000-0001-6732-1501")),
     person("Reinhold", "Kainhofer", role = "ctb",comment = c(ORCID = "0000-0002-7895-1311")),
     person("Kevin J", "Owens", role = "ctb"),
-    person("Ernesto", "Schirmacher", role = "ctb"),
+    person("Ernesto", "Schirmacher", role = "ctb", comment = c(ORCID="0000-0002-0789-0072")),
     person("Gian Paolo", "Clemente", role = "ctb",comment = c(ORCID = "0000-0001-6795-4595")),
     person("Ivan", "Williams", role = "ctb")
     )

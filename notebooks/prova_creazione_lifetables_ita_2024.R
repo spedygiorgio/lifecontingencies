@@ -39,6 +39,9 @@ test_that("ita2023 lifetable object can be constructed", {
   
   # dx_1^1 atteso (come da tuo controllo: 2)
   expect_equal(dxt(ita2023_lt, x = 1, t = 1), 20)
+  
+  # check that expected curtated lifetime at birth is 82.5318 (rounded)
+  expect_equal(exn(ita2023_lt, x = 0), 82.5318, tolerance = 1e-4)
 })
 
-qxt(ita2023_lt, x=2,t=1 ) 0.14446	
+
