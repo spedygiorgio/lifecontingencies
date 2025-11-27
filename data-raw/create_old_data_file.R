@@ -20,3 +20,18 @@ devtools::use_data(AF92Lt,overwrite = TRUE)
 #fwrite(x=demoUk, file="./data-raw/demoUk.csv")
 demoUk<-fread(input = "./data-raw/demoUk.csv",data.table = FALSE, encoding = "UTF-8")
 devtools::use_data(demoUk,overwrite = TRUE)
+
+#ita2024
+ita2024<-fread(input = "./data-raw/ita_2024.csv",data.table = FALSE, encoding = "UTF-8")
+# renamings:  "Età  x" -> x                                       "Sopravviventi  lx"  -> lx
+ita2024 <- rename(ita2024, c("x" = "Età  x", "lx"="Sopravviventi  lx")) %>% dplyr::select(x,lx)
+# keep rows where lx>0
+ita2024 <- ita2024 %>% filter(lx > 0) %>% arrange(x)
+usethis::use_data(ita2024,overwrite = TRUE)
+
+#ita2023
+ita2023<-fread(input = "./data-raw/ita_2023.csv",data.table = FALSE, encoding = "UTF-8")
+ita2023<-rename(ita2023, c("x"= "Età  x", "lx"="Sopravviventi  lx"))
+# keep rows where lx>0
+ita2023 <- ita2023 %>% filter(lx > 0) %>% arrange(x)
+usethis::use_data(ita2023,overwrite = TRUE)
