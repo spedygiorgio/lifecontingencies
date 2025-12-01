@@ -105,7 +105,7 @@ Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", 
       stop("Error! Need an actuarial actuarialtable") #request an actuarial actuarialtable
     type <- testtyperesarg(type)
     prob = pxt(actuarialtable,x,n)
-    discount = (1 + interest) ^ (-n)
+    #discount = (1 + interest) ^ (-n)
     #defines the outputs
     if (type == "EV")
       out = presentValue(
@@ -141,95 +141,107 @@ Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", 
 #'
 #' @export
 axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
-                    k = 1, type = "EV",power = 1, payment = "advance", ...)
+          k = 1, type = "EV", power = 1, payment = "advance", ...)
 {
-  #checks
+  # Input validation: check actuarialtable class
   if (!(class(actuarialtable) %in% c("lifetable","actuarialtable")))
-    stop("Error! Only lifetable, actuarialtable classes are accepted")
+  stop("Error! Only lifetable, actuarialtable classes are accepted")
   
+  # Validate and normalize type and payment arguments
   type <- testtyperesarg(type)
   payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   
-  #class(object) %in% c("lifetable","actuarialtable") 
+  # Check required argument x
   if (missing(x))
-    stop("Missing x")
+  stop("Missing x argument")
+  
+  # Ensure k is scalar
   if(length(k) > 1)
   {
-    k <- k[1]
-    warnings("k should be of length 1, it takes the first value")
+  k <- k[1]
+  warning("k should be of length 1, it takes the first value")
   }
+  
+  # Set default values for optional arguments
   if (missing(m))
-    m <- 0
+  m <- 0
   if (missing(n))
   {
-    #put zero if x+m > omega+1
-    n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
+  # Default n: remaining lifetime from x+m, put zero if x+m > omega+1
+  n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
   }
+  
+  # Basic parameter checks
   if (any(x < 0, n < 0, m < 0))
-    stop("Check x, n or m")
-  
+  stop("Check x, n or m")
   if(length(x) <= 0)
-    stop("x is of length zero")
-  if(length(t) <= 0)
-    stop("t is of length zero")
+  stop("x is of length zero")
   
+  # Recycle arguments to match maximum length
   ntot <- max(length(n), length(x), length(m))
   if(length(n) != length(x) || length(n) != length(m))
   {
-    if(length(m) != ntot)
-      warnings("m argument has been recycled to match the maximum length of x, m and n")
-    if(length(n) != ntot)
-      warnings("n argument has been recycled to match the maximum length of x, m and n")
-    if(length(x) != ntot)
-      warnings("x argument has been recycled to match the maximum length of x, m and n")
-    m <- rep(m, length.out=ntot)
-    n <- rep(n, length.out=ntot)
-    x <- rep(x, length.out=ntot)
-    if(any(is.infinite(x), is.infinite(n), is.infinite(m)))
-      stop("infinite values provided in x, n or m")
-    if(any(x < 0, n < 0, m < 0))
-      stop("(strictly) negative values provided in x, n or m")
+  if(length(m) != ntot)
+    warnings("m argument has been recycled to match the maximum length of x, m and n")
+  if(length(n) != ntot)
+    warnings("n argument has been recycled to match the maximum length of x, m and n")
+  if(length(x) != ntot)
+    warnings("x argument has been recycled to match the maximum length of x, m and n")
+  m <- rep(m, length.out=ntot)
+  n <- rep(n, length.out=ntot)
+  x <- rep(x, length.out=ntot)
+  if(any(is.infinite(x), is.infinite(n), is.infinite(m)))
+    stop("infinite values provided in x, n or m")
+  if(any(x < 0, n < 0, m < 0))
+    stop("(strictly) negative values provided in x, n or m")
   }
   
-  
+  # Compute expected value or stochastic realization
   if (type == "EV")
   {
-    single_axn_immediate <- function(j)
-    {  
-      if(n[j] <= 0)
-        return(0)
-      #computation of quantities, assuming fractional payments
-      payments <- rep(1 / k, n[j] * k)
-      times <- m[j] + seq(from = 1/k, to = n[j], by = 1/k)
-      probs <- pxt(actuarialtable, x[j], times, ...)
-      #pxtvect(object, x, t, fractional = "linear", decrement)
-      presentValue(payments, times, i, probs, power)
-    }
-    single_axn_due <- function(j)
-    {  
-      if(n[j] <= 0)
-        return(0)
-      #computation of quantities, assuming fractional payments
-      payments <- rep(1 / k, n[j] * k)
-      times <- m[j] + seq(from = 0, to = n[j]-1/k, by = 1/k)
-      probs <- pxt(actuarialtable, x[j], times, ...)
-      presentValue(payments, times, i, probs, power)
-    }
-    if(payment == "immediate")
-      out <- sapply(1:ntot, single_axn_immediate)
-    else if(payment == "due")
-      out <- sapply(1:ntot, single_axn_due)
-    else
-      stop("wrong payment type")
-  } else if (type == "ST") {
+  # Helper: compute immediate annuity for j-th element
+  single_axn_immediate <- function(j)
+  {  
+    if(n[j] <= 0)
+    return(0)
+    # Payments in arrears: at times 1/k, 2/k, ..., n
+    payments <- rep(1 / k, n[j] * k)
+    times <- m[j] + seq(from = 1/k, to = n[j], by = 1/k)
+    probs <- pxt(actuarialtable, x[j], times, ...)
+    presentValue(payments, times, i, probs, power)
+  }
+  
+  # Helper: compute due annuity for j-th element
+  single_axn_due <- function(j)
+  {  
+    if(n[j] <= 0)
+    return(0)
+    # Payments in advance: at times 0, 1/k, ..., n-1/k
+    payments <- rep(1 / k, n[j] * k)
+    times <- m[j] + seq(from = 0, to = n[j]-1/k, by = 1/k)
+    probs <- pxt(actuarialtable, x[j], times, ...)
+    presentValue(payments, times, i, probs, power)
+  }
+  
+  # Select payment timing and compute for all elements
+  if(payment == "immediate")
+    out <- sapply(1:ntot, single_axn_immediate)
+  else if(payment == "due")
+    out <- sapply(1:ntot, single_axn_due)
+  else
+    stop("wrong payment type")
     
-    rng_axn <- function(j)
-      rLifeContingencies(
-        n = 1, lifecontingency = "axn", object = actuarialtable, 
-        x = x[j], t = n[j], i = i, m = m[j], k = k, payment=payment)
-    out <- sapply(1:ntot, rng_axn)
+  } else if (type == "ST") {
+  # Stochastic simulation: generate random realizations
+  rng_axn <- function(j)
+    rLifeContingencies(
+    n = 1, lifecontingency = "axn", object = actuarialtable, 
+    x = x[j], t = n[j], i = i, m = m[j], k = k, payment=payment)
+  out <- sapply(1:ntot, rng_axn)
+  
   } else
-    stop("wrong result type")
+  stop("wrong result type")
+  
   out  
 }
 
