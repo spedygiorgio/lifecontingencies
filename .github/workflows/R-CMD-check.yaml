@@ -67,9 +67,20 @@ jobs:
 
       # LaTeX packages necessari per le tue vignette (.Rnw)
       - name: Install LaTeX packages (TinyTeX)
+        shell: Rscript {0}
         run: |
-          tlmgr install pict2e grfext everyshi graphics etoolbox kvoptions xcolor
-          tlmgr install collection-latexrecommended collection-latexextra collection-fontsrecommended
+          pkgs <- c(
+            "pict2e","grfext","everyshi","graphics","etoolbox","kvoptions","xcolor",
+            "collection-latexrecommended","collection-latexextra","collection-fontsrecommended",
+            "ae","inconsolata","upquote","courier","fancyvrb","framed","titling","booktabs",
+            "geometry","hyperref","url","microtype","graphicx","thumbpdf","float","caption",
+            "subcaption","babel-english","amsmath","amssymb","mathtools","siunitx","natbib",
+            "biblatex","csquotes","ulem","parskip","titlesec","wrapfig","longtable","makecell",
+            "multirow","colortbl","pgf","tikz","xkeyval","changepage"
+          )
+          if (Sys.which("tlmgr") != "") {
+            tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+          }
 
       # ---------- Dipendenze R ----------
       - name: Install R package dependencies
