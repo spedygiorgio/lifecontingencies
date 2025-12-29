@@ -1044,8 +1044,11 @@ table as non - homogeneous discrete Markov chain by means of
 
 <<toMarkovChain, keep.source=TRUE>>=
 data(soa08)
-require(markovchain)
-soa08Mc<-as(soa08,"markovchainList")
+if (requireNamespace("markovchain", quietly = TRUE)) {
+  soa08Mc<-as(soa08,"markovchainList")
+} else {
+  warning("Install the 'markovchain' package to build markovchainList objects.")
+}
 @
 
 Finally, a \code{plot} method can be applied to either\code{lifetable} or
@@ -1871,8 +1874,11 @@ print(valdezMdt)
  
 <<md3b, keep.source=TRUE>>=
 valdezDf<-as(valdezMdt,"data.frame")
-require(markovchain)
-valdezMarkovChainList<-as(valdezMdt,"markovchainList")
+if (requireNamespace("markovchain", quietly = TRUE)) {
+  valdezMarkovChainList<-as(valdezMdt,"markovchainList")
+} else {
+  warning("Install the 'markovchain' package to build markovchainList objects.")
+}
 @
 
 Two specific methods have been defined for \code{mdt} class objects:

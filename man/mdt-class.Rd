@@ -41,7 +41,7 @@ Marcel Finan A Reading of the Theory of Life Contingency
 Models: A Preparation for Exam MLC/3L
 }
 \author{
-Giorgio Spedicato
+Giorgio Alfredo Spedicato
 }
 \note{
 Currently only decrements storage of the class is defined.
