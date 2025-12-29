@@ -45,7 +45,7 @@
 #' @details \code{probabilities} is optional; when omitted a sequence of 1's with the
 #' same length as \code{timeIds} is assumed. Interest rate may be a fixed number
 #' or a vector of the same size as \code{timeIds}. The \code{power} parameter is
-#' normally unused except in specialised actuarial evaluations.
+#' normally unused except in special actuarial evaluations.
 #' @return A numeric scalar representing the present value of the cash flow vector,
 #' or the actuarial present value if \code{probabilities} are provided.
 #' @references Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
@@ -271,7 +271,7 @@ accumulatedValue=function(i, n, m=0,k=1, type="immediate")
 #' @title Functions to switch from nominal / effective / convertible rates
 #'
 #' @param i The rate to be converted.
-#' @param k The original / target compounting frequency.
+#' @param k The original / target compounding frequency.
 #' @param type Either "interest" (default) or "nominal".
 #' 
 #' @details \code{effective2Convertible} and \code{convertible2Effective} wrap the other two functions.

@@ -729,7 +729,7 @@ instruments:
   $D_{\text{pp}}=\frac{1+y}{y}$, $C_{\text{pp}}=\frac{2}{y^2}$ respectively, if the yield rate is $y$.
  \end{enumerate}
 Assume the issuing company wants to hedge its liability with an investment
-portfolio that will not be affected adverserly by changes in the investment yield. In order to solve
+portfolio that will not be impacted by changes in the investment yield. In order to solve
 the ALM problem, the composition of assets within the portfolio shall be
 chosen accordingly. Moreover, assume that the current market yield rate is 4\%. The following lines of code figure out some parameters that are used within the
 example.
@@ -752,7 +752,7 @@ covnPpty <- 2/(yieldT0^2)
 @
 
 Then the ALM problem can be set up as a three step problem, as the \cite{mathFinAct}
-texbook remarks:
+textbook remarks:
 \begin{enumerate}
   \item Setting the initial present value of cash inflows (assets) to be equal
   to the present value of cash outflows (liabilities). 
@@ -1699,7 +1699,7 @@ APV
 @
 
 while the benefit premium at the 90th percentile, that is, the premium that would
-make the insurer incurr an underwriting loss with 10\% probability,
+make the insurer to suffer an underwriting loss with 10\% probability,
 would be
 
 
@@ -1912,7 +1912,7 @@ pxt(valdezMdt,x=50,t=3)
 qxt(valdezMdt,x=53,t=2,decrement=1)
 @
 
-It is possible to generate random traiectories of a life subject to multiple cause of decrements as the following code shows.
+It is possible to generate random trajectories of a life subject to multiple cause of decrements as the following code shows.
 
 <<mdt.randomSamples, keep.source=TRUE>>=
 rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
@@ -1990,7 +1990,7 @@ Axn.mdt(object=myMdt,x=16,i=.1,decrement="da")
 @
 
 
-Another example has been inspired by data found in \cite{de2016assicurazioni}. We use life tables from the quoted book and the following functions (still based on single decrement tables) to compute the APV of (costant or variable) annuity with multiple decrement. 
+Another example has been inspired by data found in \cite{de2016assicurazioni}. We use life tables from the quoted book and the following functions (still based on single decrement tables) to compute the APV of (constant or variable) annuity with multiple decrement. 
 The first type of annuity pays benefits are payable while the annuitant is in current state and cease upon transition to another state.
 
 <<deadifalco.1a, keep.source=TRUE>>=
@@ -2053,9 +2053,6 @@ axn(DAT,65,10,payment="arrears")
 @
 
 
-
-
-
 \section{Discussion}\label{sec:discussion}
 \subsection{Advantages, limitations, and future perspectives}
 
@@ -2079,10 +2076,8 @@ demographic analysis, like \pkg{demography} and
 analyses with interest rate modeling packages like \pkg{termstrc}.
 
 Finally, code optimization and improvement is carried out
-continuously. The extension of parallel computation features, memory
-usage profiling, and the use of \proglang{C} or \proglang{C++} code
-fragments in select parts of the code have begun (for \pkg{Rcpp} package, \cite{RcppR} usage) or being 
-planned for the near future.
+continuously. Key parts of core functions use \proglang{C++} code
+snippets via the \pkg{Rcpp} package \cite{RcppR}.
 
 \subsection{Accuracy}\label{sec:disclaimer}
 
