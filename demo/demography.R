@@ -1,6 +1,6 @@
 # TODO: Add comment
 # 
-# Author: Giorgio Spedicato
+# Author: Giorgio Alfredo Spedicato
 ####################################################
 
 
@@ -38,4 +38,3 @@ exn(soa08Act, 70,2)
 
 listOfTables=list(soa08Act,soa08Act,soa08Act)
 pxyzt(listOfTables, x=c(14,15,16),t=60,"joint")
-

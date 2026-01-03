@@ -52,8 +52,6 @@
 
 #' @useDynLib lifecontingencies, .registration = TRUE 
 #' @import methods parallel utils
-#' @importClassesFrom markovchain markovchain markovchainList
-#' @importFrom markovchain rmarkovchain
 #' @importFrom stats rbinom complete.cases integrate
 #' @importFrom Rcpp evalCpp
 #' @importFrom Rcpp sourceCpp
