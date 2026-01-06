@@ -29,7 +29,7 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v2
 
       # Quarto (per futuri .qmd nelle vignette/articoli)
-      - uses: r-lib/actions/setup-quarto@v2
+      - uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: "latest"
 
@@ -59,7 +59,7 @@ jobs:
       # Dipendenze R, inclusi pkgdown e il pacchetto locale
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, any::tinytex, local::.
           needs: website
 
       # (Opzionale) tools per comprimere PDF (di solito già presenti)
@@ -96,4 +96,3 @@ jobs:
           clean: false
           branch: gh-pages
           folder: docs
-

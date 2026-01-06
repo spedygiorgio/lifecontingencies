@@ -22,12 +22,12 @@ Depends:
 Imports:
     parallel,
     utils,
-    markovchain,
     Rcpp (>= 1.0.0),
     stats
 Suggests:
     demography,
     forecast,
+    markovchain,
     testthat,
     knitr,
     formatR,

@@ -29,6 +29,8 @@ Simulate from a multiple decrement table
 \section{Details}{
 
 The functin uses \code{rmarkovchain} function from markovchain package to simulate the chain
+
+If the \pkg{markovchain} package is not installed, the function issues a warning and returns \code{NULL}.
 }
 
 \examples{
@@ -41,5 +43,5 @@ ciao<-rmdt(n=5,object = myMdt,x = 0,t = 4,include.t0=FALSE,t0="alive")
 \code{\link{rLifeContingenciesXyz}},\code{\link{rLifeContingencies}}
 }
 \author{
-Giorgio Spedicato
+Giorgio Alfredo Spedicato
 }
