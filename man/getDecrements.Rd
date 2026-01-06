@@ -18,7 +18,7 @@ getDecrements(object)
 Marcel Finan A Reading of the Theory of Life Contingency 
 Models: A Preparation for Exam MLC/3L
 }
-\author{Giorgio Spedicato}
+\author{Giorgio Alfredo Spedicato}
 \note{
 To be updated
 }

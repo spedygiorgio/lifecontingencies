@@ -532,7 +532,7 @@ axn(actuarialtable = cdb_acttbl_1950,x=65)
 
 \section*{Acknowledgments}\label{sec:acknowledgments}
 
-The authors are deeply indebited with Prof. Rob J. Hyndman for his suggestions on these vignettes and to all people that contributed to \pkg{lifecontingencies} package.
+The authors are deeply indebted with Prof. Rob J. Hyndman for his suggestions on these vignettes and to all people that contributed to \pkg{lifecontingencies} package.
 
 
 \bibliography{lifecontingenciesBiblio}

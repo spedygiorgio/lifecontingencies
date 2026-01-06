@@ -31,6 +31,9 @@
 
 .qxToMc<-function(qx, age)
 {
+	if (!.require_markovchain(".qxToMc")) {
+		return(invisible(NULL))
+	}
 	statesNames=c("alive","death")
 	matr=matrix(rep(0,4),nrow = 2);dimnames(matr) <- list(statesNames,statesNames)
 	matr[1,1]=1-qx
@@ -41,25 +44,30 @@
 	invisible(outMc)
 }
 
-setAs("lifetable","markovchainList",
-		function(from)
-		{
-			outChains<-list()
-			ages<-seq(0,getOmega(from),1)
-			for(i in ages)
+if (requireNamespace("markovchain", quietly = TRUE)) {
+	setAs("lifetable","markovchainList",
+			function(from)
 			{
-				ageMc<-.qxToMc(qx=qxt(from,i,1),age=as.character(i))
-				outChains[[length(outChains)+1]]<-ageMc
+				outChains<-list()
+				ages<-seq(0,getOmega(from),1)
+				for(i in ages)
+				{
+					ageMc<-.qxToMc(qx=qxt(from,i,1),age=as.character(i))
+					outChains[[length(outChains)+1]]<-ageMc
+				}
+				out<-new("markovchainList",markovchains=outChains,name=from@name)
+				invisible(out)
 			}
-			out<-new("markovchainList",markovchains=outChains,name=from@name)
-			invisible(out)
-		}
-	)
+		)
+}
 
 #function to convert a mdt to a markovchain list
 
 .qxdToMc<-function(qx,age)
 {
+	if (!.require_markovchain(".qxdToMc")) {
+		return(invisible(NULL))
+	}
 	statesNames=c("alive",names(qx))
 	matr<-matrix(0,ncol=length(statesNames), nrow=length(statesNames)) #preallocate matrix
 	colnames(matr)<-statesNames
@@ -71,21 +79,23 @@ setAs("lifetable","markovchainList",
 	invisible(outMc)
 }
 
-setAs("mdt","markovchainList",
-		function(from)
-		{
-			outChains<-list()
-			ages<-seq(0,getOmega(from),1)
-			pureDecrements<-from@table[,getDecrements(from)]
-			
-			for(i in ages)
+if (requireNamespace("markovchain", quietly = TRUE)) {
+	setAs("mdt","markovchainList",
+			function(from)
 			{
-				qx<-pureDecrements[i+1,]/from@table$lx[i+1]
-				names(qx)<-getDecrements(from)
-				ageMc<-.qxdToMc(qx=qx,age=as.character(i))
-				outChains[[length(outChains)+1]]<-ageMc
+				outChains<-list()
+				ages<-seq(0,getOmega(from),1)
+				pureDecrements<-from@table[,getDecrements(from)]
+				
+				for(i in ages)
+				{
+					qx<-pureDecrements[i+1,]/from@table$lx[i+1]
+					names(qx)<-getDecrements(from)
+					ageMc<-.qxdToMc(qx=qx,age=as.character(i))
+					outChains[[length(outChains)+1]]<-ageMc
+				}
+				out<-new("markovchainList",markovchains=outChains,name=from@name)
+				invisible(out)
 			}
-			out<-new("markovchainList",markovchains=outChains,name=from@name)
-			invisible(out)
-		}
-)
+		)
+}
