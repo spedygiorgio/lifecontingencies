@@ -8,3 +8,5 @@
 ^README-.*\.png$
 ^LICENSE\.md$
 ^\.github$
+^doc$
+^Meta$

@@ -45,7 +45,7 @@
 }
 
 if (requireNamespace("markovchain", quietly = TRUE)) {
-	setAs("lifetable","markovchainList",
+	setAs("lifetable","markovchain::markovchainList",
 			function(from)
 			{
 				outChains<-list()
@@ -55,7 +55,7 @@ if (requireNamespace("markovchain", quietly = TRUE)) {
 					ageMc<-.qxToMc(qx=qxt(from,i,1),age=as.character(i))
 					outChains[[length(outChains)+1]]<-ageMc
 				}
-				out<-new("markovchainList",markovchains=outChains,name=from@name)
+				out<-new("markovchain::markovchainList",markovchains=outChains,name=from@name)
 				invisible(out)
 			}
 		)
@@ -80,7 +80,7 @@ if (requireNamespace("markovchain", quietly = TRUE)) {
 }
 
 if (requireNamespace("markovchain", quietly = TRUE)) {
-	setAs("mdt","markovchainList",
+	setAs("mdt","markovchain::markovchainList",
 			function(from)
 			{
 				outChains<-list()
@@ -94,7 +94,7 @@ if (requireNamespace("markovchain", quietly = TRUE)) {
 					ageMc<-.qxdToMc(qx=qx,age=as.character(i))
 					outChains[[length(outChains)+1]]<-ageMc
 				}
-				out<-new("markovchainList",markovchains=outChains,name=from@name)
+				out<-new("markovchain::markovchainList",markovchains=outChains,name=from@name)
 				invisible(out)
 			}
 		)
