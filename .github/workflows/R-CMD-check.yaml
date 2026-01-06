@@ -81,6 +81,12 @@ jobs:
       - name: Install LaTeX packages (TinyTeX)
         shell: Rscript {0}
         run: |
+          if (!requireNamespace("tinytex", quietly = TRUE)) {
+            install.packages("tinytex", repos = "https://cloud.r-project.org")
+          }
+          if (!tinytex::is_tinytex()) {
+            tinytex::install_tinytex()
+          }
           pkgs <- c(
             "pict2e","grfext","everyshi","graphics","etoolbox","kvoptions","xcolor",
             "collection-latexrecommended","collection-latexextra","collection-fontsrecommended",
