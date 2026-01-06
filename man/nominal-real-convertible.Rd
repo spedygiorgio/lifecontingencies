@@ -18,7 +18,7 @@ effective2Convertible(i, k = 1, type = "interest")
 \arguments{
 \item{i}{The rate to be converted.}
 
-\item{k}{The original / target compounting frequency.}
+\item{k}{The original / target compounding frequency.}
 
 \item{type}{Either "interest" (default) or "nominal".}
 }

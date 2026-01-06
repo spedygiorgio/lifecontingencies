@@ -29,8 +29,6 @@ Simulate from a multiple decrement table
 \section{Details}{
 
 The functin uses \code{rmarkovchain} function from markovchain package to simulate the chain
-
-If the \pkg{markovchain} package is not installed, the function issues a warning and returns \code{NULL}.
 }
 
 \examples{

@@ -294,6 +294,19 @@ setMethod("plot","lifetable",
 					main=paste("life table",x@name),...)
 		}
 )
+
+#' Plot a lifetable
+#'
+#' Plots the survivorship function $l_x$ versus age $x$ for a
+#' `lifetable` object.
+#'
+#' @param x A `lifetable` object.
+#' @param y Unused.
+#' @param ... Additional graphical parameters passed to [graphics::plot()].
+#'
+#' @return Invisibly returns `NULL`.
+#' @export
+NULL
 #saves lifeTableObj as data frame
 setAs("lifetable","data.frame",
 		function(from){
