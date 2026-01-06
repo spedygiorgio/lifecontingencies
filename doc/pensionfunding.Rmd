@@ -1,0 +1,349 @@
+---
+title: "Pension Funding with lifecontingencies"
+author:
+  - name: "Gian Paolo Clemente"
+    affiliation: Catholic University of Milan
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: rmarkdown::html_vignette
+bibliography: lifecontingenciesBiblio.bib
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Pension Funding with lifecontingencies} 
+  %!\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  collapse = TRUE,
+  comment = "#>")
+```
+
+
+
+```{r setup, include=FALSE}
+#configure
+library(lifecontingencies)
+data(demoIta)
+lxTAB<-demoIta$SIM81
+lxTAB<-lxTAB[!is.na(lxTAB) & lxTAB!=0]
+xTAB<-seq(0,length(lxTAB)-1,1)
+#create the table
+lt=new("lifetable",x=xTAB,lx=lxTAB)
+```
+
+## Introduction and some general settings
+
+This report focuses on several funding and actuarial costing methods in occupational pension funds where the benefits are defined. As well-known, a defined benefit (DB) pension plan is a type of pension plan in which an employer/sponsor promises a specified pension payment, lump-sum (or combination thereof) on retirement that is predetermined by a formula based on the employee's history (earnings, tenure of service and age, etc.) rather than depending directly on individual investment returns. The first consideration is what constitutes the "retirement provision". We could argue that provisions regard any savings or investments made by an individual for later life.  For the sake of brevity, we only focus here on the actuarial involvement in the provision of retirement benefits by employers, groups of employers and professions for their members (i.e the so called "second pillar" of retirement provisions).  This provision is usually designed to supplement and in some cases replace ("contracted out" pension schemes in the United Kingdom) the compulsory state pension arrangements.  The main benefits are usually at least both a pension payable for life from the attainment of a specified retirement age and a pension payable to the widow/er on the death of the employee/member, according to the death of either the active member or the retired member. These core benefits are found in almost every pension funds, albeit in differing forms.  Also additional benefits are usually provided in variable frameworks (e.g. disability for instance).  
+In the next, we focus on a specific defined benefit pension fund by considering only the retirement benefit for the sake of simplicity. We present some well-known funding methods and we show how to evaluate both premium rate and technical reserve via life contingencies package dedicated functions. 
+To this aim we follow a cohort approach by considering a group of people who share the same characteristic in terms of age of affiliation $\alpha$ with the pension plan, sex, age of retirement $\beta$ and initial salary ($s_\alpha$). We consider a DB scheme where  the  pension  on  retirement  is  fixed in  advance as a proportion of the member's salary in their last year of service. So the level of the pension at the time of benefit
+entitlement is based on a proportional-earnings related formula and benefit is expressed as a pension annuity $b_{x}$, starting at age $\beta$, annually increasing at the rate $\delta$ and payable until death:
+\begin{equation}
+b_{x}=(1+\delta)^{x-\beta}\left(\frac{\beta-\alpha}{t}\right)s_{\beta}
+\end{equation}
+In particular, we are assuming that:
+\begin{itemize}
+\item the date of award of retirement benefits coincide with the date when the first payment is due (i.e. no time lag due to administrative procedures)
+\item reference earnings is the member's salary at the last year of service (i.e. $\beta-1$). An alternative is usually based on an average of earnings over a given period preceding retirement and may include a formula to ensure pre-retirement indexing. They are implicitly capped by the ceiling on contributory earnings, if applicable.
+\item No maximum ceiling is placed on the amount of pension
+\item No minimum benefit is provided
+\item $\frac{1}{t}$ represents the annual percentage of earnings recognized by the pension plan.
+\end{itemize}
+In other words, the pension plan guarantees a replacement ratio equal to:
+\begin{equation}
+RR_{\beta}=\frac{s_{\beta}}{b_{\beta}}=\left(\frac{\beta-\alpha}{t}\right)
+\end{equation}
+
+Furthermore, we assume that annual earnings are increasing at a yearly flat rate $i$:
+\begin{equation}
+s_{x}=s_{x-1}(1+j)
+\end{equation}
+This evolution of earnings, defined by the rate $j$, is usually considered to include two components:
+\begin{itemize}
+\item an individual component reflecting the increasing experience of the worker (e.g. promotions, merit, etc). This component is reflected in the use of a salary scale, which is usually built on the basis of the age of the worker, and varies also by sex. It could be, however, possible to build a salary scale on the basis of seniority (number of years of service) if it is considered that this gives a better reflection of the individual component of earnings evolution;
+\item a collective component that takes into account the general increase in wages observed in the economy. This component represents productivity gains that are eventually reflected (at least in the long run) in general wage levels.
+\end{itemize}
+
+## Contribution rate and technical reserves
+Our first aim is to quantify the level of contribution to be set at a level to produce the targeted pension on retirement. In this framework, two general approaches can be pursued. On one hand, the accrued benefits cost method defines the annual normal cost on the basis of portion of pension benefit matured at the valuation date. Accrued Benefits Funding Methods are indeed a major category of funding methods in which the Actuarial Liability for active members is based on pensionable service accrued up to the valuation date or to the end of the Control Period, as appropriate. Differences between the various Accrued Benefits Funding Methods arise  from the treatment of decrements in membership and increases in pensionable  pay when calculating the Actuarial Liabilities for active members. This affects the value placed not only on the Actuarial Liability but also on the  Standard Contribution Rate. Main examples treated in the next are Current Unit Method and Projected Unit Method. \\
+On the other hand the Projected Benefit Cost Methods, that include several methods (as Individual Entry-Age Method for instance), quantifies a normal cost that represents an amount that will provide for the estimated projected retirement benefits over the service lives of either the individual employees or the employee group. Pension costs computed under this approach tend to be stable or decline year by year, depending on the method selected.
+
+We begin by the Current Unit Method (CUM). The Actuarial Liability for active members is calculated taking into account all types of decrement (in our case only retirement).  In calculating the Actuarial Liability  as at the valuation date pensionable pay is not projected.  It is now possible to define the following mathematical reserve V_{x} at age $x$ ($\alpha \leq x <\beta$):
+\begin{equation}
+V_{x}={}_{\beta-x}E^{p^{ap},i^{ap}}_{x}\left(\frac{x-\alpha}{t}s_{x-1}\right)\ddot{a}^{p^{pp},u}_{\beta}
+\end{equation}
+where $p^{ap}$ and $p^{pp}$ are the survival probabilities in accumulation and payment periods respectively, $i^{ap}$ is the technical financial rate in the accumulation period, $u=\frac{1+i^{pp}}{1+\delta}-1$ is a synthetic index function of the technical financial rate $i^{pp}$ in the payment period and the indexation of the pension amount. Notice that $p^{pp}$ and $j^{pp}$ may depend on premium rate requested by the insurer when an agreement is made between pension plan and insurer for the payments of annuity amounts. ${}_{\beta-x}E^{p^{ap},i^{ap}}_{x}=\frac{{}_{\beta-x}p^{ap}_{x}}{(1+i)^{\beta-x}}$ is the actuarial present value of a life-contingent $\beta-x$-year future payment of 1. While $\ddot{a}^{p^{pp},u}_{\beta}$ is the expected present value for the life-annuity due of infinite-duration.
+By applying Fouret's formula, it is easily derive the contribution rate $\gamma_{x}$ as:
+\begin{equation}
+\gamma_{x}={}_{\beta-x}E^{p^{ap},i^{ap}}_{x}\frac{1}{t}\left(1+\frac{j}{1+j}(x-\alpha)\right)\ddot{a}^{p^{pp},u}_{\beta}
+\end{equation}
+In such calculations, allowance is made for increases in the benefits between the relevant date and the assumed date of retirement because of the future increases in salaries. 
+Finally 
+
+The Projected Unit Method is based on a similar structure of CUM, but the pensionable pay is  projected from the relevant date up to the assumed date of retirement. This method is  also known as the Projected Unit Credit Method. We have then the following relations for the mathematical reserve and the contribution rate respectively:
+\begin{equation}
+V_{x}={}_{\beta-x}E^{p^{ap},i^{ap}}_{x}\left(\frac{x-\alpha}{t}s_{\beta-1}\right)\ddot{a}^{p^{pp},u}_{\beta}
+\end{equation}
+\begin{equation}
+\gamma_{x}={}_{\beta-x}E^{p^{ap},i^{ap}}_{x}\frac{1}{t}(1+j)^{\beta-x-1}\ddot{a}^{p^{pp},u}_{\beta}
+\end{equation}
+In this case, the normal cost depends yearly on a portion $\frac{1}{t}$ of the expected earning at the last year of service before than retirement.
+
+Finally, we consider Individual Entry-Age Method. This method assumes that every employee entered the plan (thus, entry age) at the time of employment and that contributions have been made on this basis from the entry age to the date of valuation. The contributions are the level annual amounts which, if accumulated at the rate of interest used in the actuarial valuation, would result in a fund equal to the present value of the pension benefits at retirement for employees that survive at that time.
+In this case the contribution rate is equal to the ratio of expected present value of future benefits to expected present value of future earnings:
+\begin{equation}
+\gamma_{x}=\frac{{}_{\beta-\alpha}E^{p^{ap},i^{ap}}_{\alpha}\left(\frac{\beta-\alpha}{t}s_{\beta-1}\right)\ddot{a}^{p^{pp},u}_{\beta}}{s_{\alpha}{}_{\beta-\alpha}\ddot{a}^{p^{pp},r}_{\alpha}}
+\end{equation}
+where $u=\frac{1+i^{pp}}{1+j}-1$ is  a syntethic index function of the technical financial rate $i^{pp}$ in the payment period and the annual salary increase $j$. 
+In this case, $\gamma_{x}$ is constant over time.
+
+Mathematical reserve can be derived in a perspective view as:
+\begin{equation}
+V_{x}={}_{\beta-x}E^{p^{ap},i^{ap}}_{x}\left(\frac{\beta-\alpha}{t}s_{\beta-1}\right)\ddot{a}^{p^{pp},u}_{\beta}-\gamma_{x}s_{x}{}_{\beta-x}\ddot{a}^{p^{pp},r}_{x}
+\end{equation}
+
+
+
+
+## Functions definitions
+
+The CUM contribution rate is defined by following function:
+
+```{r cumdef, echo=TRUE, tidy=TRUE}
+CUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+
+    out <- numeric(1)
+    if (missing(acttableAccPeriod)) 
+      stop("Error! Need an actuarial actuarialtable")
+    if (missing(acttablePaymPeriod)) 
+      acttablePaymPeriod=acttableAccPeriod
+    if(missing(i2))
+      i2=i
+    if (missing(x)) 
+      stop("Error! Need age!")
+    if (missing(beta)) 
+      stop("Error! Retirement age!")
+    if (x > getOmega(acttableAccPeriod)) {
+      out = 0
+      return(out)
+    }
+    if (missing(t)) 
+      stop("Error! Need t")
+   if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+      stop("Error! Negative parameters")
+    out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((1/t)+(h-x)/t*(j/(1+j)))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1))
+    return(out)
+  }
+```
+
+The mathematical reserve is instead equal to:
+```{r cummr, echo=TRUE, tidy=TRUE}
+CUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+  
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
+  out=c(sapply(seq(x,beta,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((h-x)/t*(1+j)^(h-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)),sapply(seq(beta+1,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  return(out)
+}
+```
+
+
+The PUM contribution rate is defined by the following function:
+
+```{r pumdef, echo=TRUE, tidy=TRUE}
+#Projected Unit Method
+PUM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+  
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
+  out=sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*1/t*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-h-1))
+  return(out)
+}
+```
+
+
+while the mathematical reserve is
+```{r pummr, echo=TRUE, tidy=TRUE}
+PUMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0){
+  
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
+  out=c(sapply(seq(x,beta,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((h-x)/t*(1+j)^(beta-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)),sapply(seq(beta+1,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  return(out)
+}
+```
+
+The IEAM is defined as follows:
+
+```{r ieamdef, echo=TRUE, tidy=TRUE}
+#Individual Entry-Age Unit Method
+#Type: 0 constant contribution rate, 1 # Constant Contribution amount (Default is 0)
+IEAM<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
+  
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
+  if(type==0){
+  out=(Exn(acttableAccPeriod,x,beta-x,i=i)*(beta-x)/t*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-x-1))/(axn(acttablePaymPeriod,x,beta-x,i = (1+i)/(1+j)-1,k=1,payment="advance"))
+  }
+  else{
+    out=((Exn(acttableAccPeriod,x,beta-x,i=i)*(beta-x)/t*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)*(1+j)^(beta-x-1))/(axn(acttablePaymPeriod,x,beta-x,i ,k=1,payment="advance")))/(1+j)^seq(0,beta-x-1,1)
+  }
+  return(out)
+}
+```
+
+while the reserve is:
+
+```{r ieammr, echo=TRUE, tidy=TRUE}
+IEAMmr<-function(acttableAccPeriod,x,beta,i = actuarialtable@interest,j,t,k=1,payment="advance",acttablePaymPeriod,i2,delta=0,type=0){
+  
+  out <- numeric(1)
+  if (missing(acttableAccPeriod)) 
+    stop("Error! Need an actuarial actuarialtable")
+  if (missing(acttablePaymPeriod)) 
+    acttablePaymPeriod=acttableAccPeriod
+  if(missing(i2))
+    i2=i
+  if (missing(x)) 
+    stop("Error! Need age!")
+  if (missing(beta)) 
+    stop("Error! Retirement age!")
+  if (x > getOmega(acttableAccPeriod)) {
+    out = 0
+    return(out)
+  }
+  if (missing(t)) 
+    stop("Error! Need t")
+  if (missing(j)) 
+    stop("Error! Need average salary increase rate")
+  if (any(x < 0, beta < 0, t < 0)) 
+    stop("Error! Negative parameters")
+  al=IEAM(acttableAccPeriod,x,beta,i,j,t,k=1,payment,acttablePaymPeriod,i2,delta,type)
+    if(type==0){
+    out=c(sapply(seq(x,beta,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((beta-x)/t*(1+j)^(beta-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)-al*(1+j)^(h-x)*axn(acttableAccPeriod,h,beta-h,i = (1+i)/(1+j)-1,k=1)),sapply(seq(beta+1,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  }
+  else{
+    out=c(sapply(seq(x,beta-1,1),function(h)Exn(acttableAccPeriod,h,beta-h,i=i)*((beta-x)/t*(1+j)^(beta-x-1))*axn(acttablePaymPeriod,beta,i = (1+i2)/(1+delta)-1,k=1)-al[h-x+1]*(1+j)^(h-x)*axn(acttableAccPeriod,h,beta-h,i ,k=1)),sapply(seq(beta,getOmega(acttablePaymPeriod)+1,1),function(h)((beta-x)/t*(1+j)^(beta-x-1))*(1+delta)^(h-beta)*axn(acttablePaymPeriod,h,i = (1+i2)/(1+delta)-1,k=1)))
+  }
+    return(out)
+}
+```
+
+
+## An applied example
+
+We consider a pension fund based on a single cohort of age $x=25$. Furthermore, we assume that the DB pension fund has based the quantification of the contribution rate on the following assumptions:
+
+```{r assumptions}
+#Current Unit Method
+beta=65 # Beta Retirement age
+x=25 #x Age of the insured.
+i=0.08 # Interest Rate
+t=60 #1/t is the % of the salary, recognized as retirement pension, for each year of service
+j=0.06 #  average salary increases (for both growth in wages and promotional salary for seniority)
+delta=0.03 #Increase of retirement pension
+```
+
+Therefore, the following Figure shows the pattern of the contribution rates according to the three methods. As expected, Current Unit Method, being based on the current salary, shows a very increasing tendency over time. Differences with respect to PUM depends on the value of $j$. It is indeed easy to prove that both methods lead to the same rates when $j=0$.
+
+```{r calcandshow, tidy=TRUE}
+CUM(lt,x,beta,i,j,t,k,delta=0.03)
+PUM(lt,x,beta,i,j,t,k,delta=0.03)
+IEAM(lt,x,beta,i,j,t,k,delta=0.03,type=0)
+plot(seq(x,beta-1,1),CUM(lt,x,beta,i,j,t,k,delta=0.03),xlab="age",ylab="Contribution rate")
+lines(seq(x,beta-1,1),PUM(lt,x,beta,i,j,t,k,delta=0.03),type="p",col="red")
+lines(seq(x,beta-1,1),rep(IEAM(lt,x,beta,i,j,t,k,delta=0.03),beta-x),type="p",col="blue")
+lines(seq(x,beta-1,1),IEAM(lt,x,beta,i,j,t,k,delta=0.03,type=1),type="p",col="green")
+legend("topleft",c("CUM","PUM","IEAM (constant rate)","IEAM (constant premium)"),col=c("black","red","blue","green"),pch=c(1,1,1,1),cex=0.6)
+```
+According to the mathematical reserve, we observe in the following figure the different behavior in the accumulation period.
+
+```{r calc2andshow, tidy=TRUE}
+CUMmr(lt,x,beta,i,j,t,k,delta=0.03)
+PUMmr(lt,x,beta,i,j,t,k,delta=0.03)
+IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=0)
+IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=1)
+plot(seq(x,getOmega(lt)+1,1),CUMmr(lt,x,beta,i,j,t,k,delta=0.03),xlab="age",ylab="",main="Mathematical reserve")
+lines(seq(x,getOmega(lt)+1,1),PUMmr(lt,x,beta,i,j,t,k,delta=0.03),type="p",col="red")
+lines(seq(x,getOmega(lt)+1,1),IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=0),type="p",col="blue")
+lines(seq(x,getOmega(lt)+1,1),IEAMmr(lt,x,beta,i,j,t,k,delta=0.03,type=1),type="p",col="green")
+legend("topleft",c("CUM","PUM","IEAM (constant rate)","IEAM (constant premium)"),col=c("black","red","blue","green"),pch=c(1,1,1,1),cex=0.6)
+```
+

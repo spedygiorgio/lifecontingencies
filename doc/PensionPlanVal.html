@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Ivan Williams" />
+
+
+<title>Pensions valuation with lifecontingencies package</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Pensions valuation with lifecontingencies
+package</h1>
+<h4 class="author">Ivan Williams</h4>
+<h4 class="date">06 gennaio, 2026</h4>
+
+
+
+<div id="function-pensfund" class="section level1">
+<h1>Function <em>PensFund</em></h1>
+<p>In this brief document we present a general function to valuate
+actuarial liabilities and normal costs, allowing different methods in
+pension funding for defined benefit schemes.</p>
+<p>Each method is defined by the way that contributions are accrued in
+the active age before the specific risk apply. Following <span class="citation">(Winklevoss 1993)</span> and <span class="citation">(Bowers et al. 1997)</span>, the Normal Cost and
+Actuarial Liability can be seen as portions of <span class="math inline">\(PVFNC^{r}_x\)</span>, the present value of future
+benefit at age <span class="math inline">\(x\)</span> for the risk in
+<span class="math inline">\(r\)</span>, and that’s the way that we treat
+this in the function’s code. The methods that are implemented here are
+the “Benefit Prorate Method, Constant Dollar”, “Benefit Prorate Method,
+Constant Percent”, “Cost Prorate Method, Constant Dollar” and “Cost
+Prorate Method, Constant Benefit” (the last two also called “entry age
+methods”). For formula details the reader can go to chapters 5 and 6 on
+<span class="citation">(Winklevoss 1993)</span>.</p>
+<p>We define a general function that allows to perform the calculations
+in a multi-decrement environment, with flexibility to consider different
+kind of benefit scheme, using functions of the “lifecontingencies”
+package (Spedicato et. al., 2018). The arguments (following general
+notation in Gian Paolo Clemente’s vignette titled “Pension Funding with
+lifecontingencies”) are:</p>
+<ul>
+<li><span class="math inline">\(x\)</span>: the age of the insured at
+the time of valuation</li>
+<li><span class="math inline">\(y\)</span>: the age which the person
+entered to the job. This age is usually different than the age that the
+plan began</li>
+<li><span class="math inline">\(r\)</span>: age where the risk is
+evaluated</li>
+<li><span class="math inline">\(acttableAccPeriod\)</span>:
+multi-decrement object lifetable, where one of its decrements is the
+risk of interest. One of the most common applications is for and
+obligated retirement at age <span class="math inline">\(r\)</span>, and
+even in this case is needed a multi-decrement table with risks of death
+and retirement (with certainty for age <span class="math inline">\(r\)</span>)</li>
+<li><span class="math inline">\(decrement\)</span>: decrement to
+evaluate</li>
+<li><span class="math inline">\(i\)</span>: interest rate (real)</li>
+<li><span class="math inline">\(j\)</span>: salary rate increment (real,
+productivity and seniority included)</li>
+<li><span class="math inline">\(delta\)</span>: benefit rate increment
+(real)</li>
+<li><span class="math inline">\(n\)</span>: years that the benefit will
+be payed (can be 1 for single payments). If it is omitted, will take
+value <span class="math inline">\(\omega-r\)</span></li>
+<li><span class="math inline">\(avg\)</span>: number of past salaries to
+be considered for average</li>
+<li><span class="math inline">\(acttablePaymPeriod\)</span>: lifetable
+object for payment period</li>
+<li><span class="math inline">\(CostMet\)</span>: Method Cost, that
+could be “BPM_CD” (Benefit Prorate Method, Constant Dollar), “BPM_CP”
+(Benefit Prorate Method, Constant Percent), “CPM_CD” (Cost Prorate
+Method, Constant Dollar), “CPM_CB” (Cost Prorate Method, Constant
+Benefit).</li>
+</ul>
+<p>The general function is:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">require</span>(<span class="st">&quot;lifecontingencies&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>PensFund <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, r, acttableAccPeriod, decrement, i, j, delta, n, avg,</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    acttablePaymPeriod, CostMet) {</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(n))</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>        n <span class="ot">&lt;-</span> <span class="fu">getOmega</span>(acttableAccPeriod) <span class="sc">-</span> x <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="cf">if</span> (x <span class="sc">&lt;</span> y)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Entry age greater than actual age&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(decrement))</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Which is the contingency of benefit?&quot;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">class</span>(acttableAccPeriod) <span class="sc">!=</span> <span class="st">&quot;mdt&quot;</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Error! Needed Mdt&quot;</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>(decrement <span class="sc">%in%</span> <span class="fu">getDecrements</span>(acttableAccPeriod)))</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Error! Not recognized decrement type&quot;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(acttableAccPeriod))</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Error! Need a lifetable or actuarialtable&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(x) <span class="sc">|</span> <span class="fu">missing</span>(y))</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Error! Need age and seniority!&quot;</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>    <span class="cf">if</span> (x <span class="sc">&gt;</span> <span class="fu">getOmega</span>(acttableAccPeriod)) {</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>        out <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>        <span class="fu">return</span>(out)</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>    }</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(CostMet))</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>        CostMet <span class="ot">=</span> <span class="st">&quot;BPM_CD&quot;</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(avg))</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Error! Need avg period of computing benefit&quot;</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(j))</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Error! Need average salary increase rate&quot;</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(x <span class="sc">&lt;</span> <span class="dv">0</span>, y <span class="sc">&lt;</span> <span class="dv">0</span>, avg <span class="sc">&lt;</span> <span class="dv">0</span>, delta <span class="sc">&lt;</span> <span class="dv">0</span>))</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Error! Negative parameters&quot;</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>    <span class="do">########## survive all casuses</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>    acttableAccPeriodTotal <span class="ot">=</span> <span class="fu">pxt</span>(acttableAccPeriod, <span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span>(<span class="fu">getOmega</span>(acttableAccPeriod)),</span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>        <span class="at">t =</span> <span class="dv">1</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>    acttableAccPeriodTotal <span class="ot">=</span> <span class="fu">probs2lifetable</span>(acttableAccPeriodTotal, <span class="at">type =</span> <span class="st">&quot;px&quot;</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">missing</span>(acttablePaymPeriod))</span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a>        acttablePaymPeriod <span class="ot">=</span> acttableAccPeriodTotal</span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a>    <span class="do">########## Set benefit fix age valuation</span></span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>    x0 <span class="ot">=</span> x</span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>    B <span class="ot">=</span> <span class="fu">ifelse</span>(avg <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, (<span class="dv">1</span> <span class="sc">+</span> j)<span class="sc">^</span>(r <span class="sc">-</span> x0) <span class="sc">*</span> <span class="fu">annuity</span>(j, avg, <span class="at">m =</span> <span class="dv">0</span>, <span class="at">k =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">&quot;immediate&quot;</span>)<span class="sc">/</span>avg)</span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>    q.r <span class="ot">=</span> <span class="fu">qxt</span>(<span class="at">object =</span> acttableAccPeriod, <span class="at">x =</span> r, <span class="at">t =</span> <span class="dv">1</span>, <span class="at">decrement =</span> decrement)</span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>    Br <span class="ot">=</span> q.r <span class="sc">*</span> <span class="fu">axn</span>(acttablePaymPeriod, r, <span class="at">i =</span> (<span class="dv">1</span> <span class="sc">+</span> i)<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> delta) <span class="sc">-</span> <span class="dv">1</span>, <span class="at">n =</span> n, <span class="at">k =</span> <span class="dv">1</span>) <span class="sc">*</span></span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a>        B</span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a>    <span class="do">########## Actuarial liability in age x, fot the age r (r&gt;=x)</span></span>
+<span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a>    ALyNC.x.r <span class="ot">=</span> <span class="cf">function</span>(x, r) {</span>
+<span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a>        <span class="do">## PVFB</span></span>
+<span id="cb1-49"><a href="#cb1-49" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" tabindex="-1"></a>        PVFB.x <span class="ot">=</span> <span class="fu">Exn</span>(acttableAccPeriodTotal, x, r <span class="sc">-</span> x, <span class="at">i =</span> i) <span class="sc">*</span> Br</span>
+<span id="cb1-51"><a href="#cb1-51" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" tabindex="-1"></a>        <span class="do">## Normal Costs and liabilities under Actuarial Cost Methods</span></span>
+<span id="cb1-53"><a href="#cb1-53" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" tabindex="-1"></a>        <span class="cf">if</span> (CostMet <span class="sc">==</span> <span class="st">&quot;BPM_CD&quot;</span>) {</span>
+<span id="cb1-55"><a href="#cb1-55" tabindex="-1"></a>            K <span class="ot">&lt;-</span> (x <span class="sc">-</span> y)<span class="sc">/</span>(r <span class="sc">-</span> y)</span>
+<span id="cb1-56"><a href="#cb1-56" tabindex="-1"></a>            k <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(r <span class="sc">-</span> y)</span>
+<span id="cb1-57"><a href="#cb1-57" tabindex="-1"></a>        }</span>
+<span id="cb1-58"><a href="#cb1-58" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" tabindex="-1"></a>        <span class="cf">if</span> (CostMet <span class="sc">==</span> <span class="st">&quot;BPM_CP&quot;</span>) {</span>
+<span id="cb1-60"><a href="#cb1-60" tabindex="-1"></a>            K <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">+</span> j)<span class="sc">^</span>(x <span class="sc">-</span> x0) <span class="sc">*</span> <span class="fu">annuity</span>(j, x <span class="sc">-</span> y <span class="sc">+</span> <span class="dv">1</span>, <span class="at">m =</span> <span class="dv">0</span>, <span class="at">k =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">&quot;immediate&quot;</span>)<span class="sc">/</span>((<span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb1-61"><a href="#cb1-61" tabindex="-1"></a>                j)<span class="sc">^</span>(r <span class="sc">-</span> x0) <span class="sc">*</span> <span class="fu">annuity</span>(j, r <span class="sc">-</span> y <span class="sc">+</span> <span class="dv">1</span>, <span class="at">m =</span> <span class="dv">0</span>, <span class="at">k =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">&quot;immediate&quot;</span>))</span>
+<span id="cb1-62"><a href="#cb1-62" tabindex="-1"></a>            k <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">+</span> j)<span class="sc">^</span>(x <span class="sc">-</span> x0)<span class="sc">/</span>(<span class="fu">annuity</span>(j, r <span class="sc">-</span> y, <span class="at">m =</span> <span class="dv">0</span>, <span class="at">k =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">&quot;immediate&quot;</span>) <span class="sc">*</span></span>
+<span id="cb1-63"><a href="#cb1-63" tabindex="-1"></a>                (<span class="dv">1</span> <span class="sc">+</span> j)<span class="sc">^</span>(r <span class="sc">-</span> x0))</span>
+<span id="cb1-64"><a href="#cb1-64" tabindex="-1"></a>        }</span>
+<span id="cb1-65"><a href="#cb1-65" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" tabindex="-1"></a>        <span class="cf">if</span> (CostMet <span class="sc">==</span> <span class="st">&quot;CPM_CD&quot;</span>) {</span>
+<span id="cb1-67"><a href="#cb1-67" tabindex="-1"></a>            K <span class="ot">&lt;-</span> <span class="fu">axn</span>(acttableAccPeriodTotal, y, <span class="at">i =</span> i, <span class="at">n =</span> x <span class="sc">-</span> y, <span class="at">k =</span> <span class="dv">1</span>)<span class="sc">/</span><span class="fu">axn</span>(acttableAccPeriodTotal,</span>
+<span id="cb1-68"><a href="#cb1-68" tabindex="-1"></a>                y, <span class="at">i =</span> i, <span class="at">n =</span> r <span class="sc">-</span> y, <span class="at">k =</span> <span class="dv">1</span>)</span>
+<span id="cb1-69"><a href="#cb1-69" tabindex="-1"></a>            k <span class="ot">&lt;-</span> <span class="fu">Exn</span>(acttableAccPeriodTotal, y, x <span class="sc">-</span> y, <span class="at">i =</span> i)<span class="sc">/</span><span class="fu">axn</span>(acttableAccPeriodTotal,</span>
+<span id="cb1-70"><a href="#cb1-70" tabindex="-1"></a>                y, <span class="at">i =</span> i, <span class="at">n =</span> r <span class="sc">-</span> y, <span class="at">k =</span> <span class="dv">1</span>)</span>
+<span id="cb1-71"><a href="#cb1-71" tabindex="-1"></a>        }</span>
+<span id="cb1-72"><a href="#cb1-72" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" tabindex="-1"></a>        <span class="cf">if</span> (CostMet <span class="sc">==</span> <span class="st">&quot;CPM_CB&quot;</span>) {</span>
+<span id="cb1-74"><a href="#cb1-74" tabindex="-1"></a>            K <span class="ot">&lt;-</span> <span class="fu">axn</span>(acttableAccPeriodTotal, y, <span class="at">i =</span> (<span class="dv">1</span> <span class="sc">+</span> i)<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> j) <span class="sc">-</span> <span class="dv">1</span>, <span class="at">n =</span> x <span class="sc">-</span></span>
+<span id="cb1-75"><a href="#cb1-75" tabindex="-1"></a>                y, <span class="at">k =</span> <span class="dv">1</span>)<span class="sc">/</span><span class="fu">axn</span>(acttableAccPeriodTotal, y, <span class="at">i =</span> (<span class="dv">1</span> <span class="sc">+</span> i)<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> j) <span class="sc">-</span> <span class="dv">1</span>,</span>
+<span id="cb1-76"><a href="#cb1-76" tabindex="-1"></a>                <span class="at">n =</span> r <span class="sc">-</span> y, <span class="at">k =</span> <span class="dv">1</span>)</span>
+<span id="cb1-77"><a href="#cb1-77" tabindex="-1"></a>            k <span class="ot">&lt;-</span> <span class="fu">Exn</span>(acttableAccPeriodTotal, y, x <span class="sc">-</span> y, <span class="at">i =</span> i) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">+</span> j)<span class="sc">^</span>(x <span class="sc">-</span> y)<span class="sc">/</span><span class="fu">axn</span>(acttableAccPeriodTotal,</span>
+<span id="cb1-78"><a href="#cb1-78" tabindex="-1"></a>                y, <span class="at">i =</span> (<span class="dv">1</span> <span class="sc">+</span> i)<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> j) <span class="sc">-</span> <span class="dv">1</span>, <span class="at">n =</span> r <span class="sc">-</span> y, <span class="at">k =</span> <span class="dv">1</span>)</span>
+<span id="cb1-79"><a href="#cb1-79" tabindex="-1"></a>        }</span>
+<span id="cb1-80"><a href="#cb1-80" tabindex="-1"></a></span>
+<span id="cb1-81"><a href="#cb1-81" tabindex="-1"></a>        <span class="do">## Results</span></span>
+<span id="cb1-82"><a href="#cb1-82" tabindex="-1"></a></span>
+<span id="cb1-83"><a href="#cb1-83" tabindex="-1"></a>        outAL.x.r <span class="ot">&lt;-</span> PVFB.x <span class="sc">*</span> K</span>
+<span id="cb1-84"><a href="#cb1-84" tabindex="-1"></a>        outNC.x.r <span class="ot">&lt;-</span> PVFB.x <span class="sc">*</span> k</span>
+<span id="cb1-85"><a href="#cb1-85" tabindex="-1"></a>        outPVFB.x <span class="ot">&lt;-</span> PVFB.x</span>
+<span id="cb1-86"><a href="#cb1-86" tabindex="-1"></a>        out.x.r <span class="ot">&lt;-</span> <span class="fu">c</span>(outAL.x.r, outNC.x.r, outPVFB.x)</span>
+<span id="cb1-87"><a href="#cb1-87" tabindex="-1"></a></span>
+<span id="cb1-88"><a href="#cb1-88" tabindex="-1"></a>        <span class="fu">return</span>(out.x.r)</span>
+<span id="cb1-89"><a href="#cb1-89" tabindex="-1"></a>    }</span>
+<span id="cb1-90"><a href="#cb1-90" tabindex="-1"></a></span>
+<span id="cb1-91"><a href="#cb1-91" tabindex="-1"></a>    <span class="do">######## AL y NC for the rest of ages</span></span>
+<span id="cb1-92"><a href="#cb1-92" tabindex="-1"></a></span>
+<span id="cb1-93"><a href="#cb1-93" tabindex="-1"></a>    ages_risk <span class="ot">=</span> x<span class="sc">:</span>r</span>
+<span id="cb1-94"><a href="#cb1-94" tabindex="-1"></a>    outAL.x <span class="ot">=</span> <span class="fu">sapply</span>(ages_risk, <span class="cf">function</span>(x) <span class="fu">ALyNC.x.r</span>(x, r)[<span class="dv">1</span>])</span>
+<span id="cb1-95"><a href="#cb1-95" tabindex="-1"></a>    outNC.x <span class="ot">=</span> <span class="fu">sapply</span>(ages_risk, <span class="cf">function</span>(x) <span class="fu">ALyNC.x.r</span>(x, r)[<span class="dv">2</span>])</span>
+<span id="cb1-96"><a href="#cb1-96" tabindex="-1"></a>    outPVFB.x <span class="ot">=</span> <span class="fu">sapply</span>(ages_risk, <span class="cf">function</span>(x) <span class="fu">ALyNC.x.r</span>(x, r)[<span class="dv">3</span>])</span>
+<span id="cb1-97"><a href="#cb1-97" tabindex="-1"></a>    outNC.x[<span class="fu">length</span>(ages_risk)] <span class="ot">=</span> <span class="cn">NA</span></span>
+<span id="cb1-98"><a href="#cb1-98" tabindex="-1"></a>    out.x <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> ages_risk, <span class="at">AL =</span> outAL.x, <span class="at">NC =</span> outNC.x, <span class="at">PVFB =</span> outPVFB.x)</span>
+<span id="cb1-99"><a href="#cb1-99" tabindex="-1"></a></span>
+<span id="cb1-100"><a href="#cb1-100" tabindex="-1"></a>    <span class="fu">return</span>(out.x)</span>
+<span id="cb1-101"><a href="#cb1-101" tabindex="-1"></a>}</span></code></pre></div>
+<div id="first-main-example" class="section level2">
+<h2>First (main) example</h2>
+<p>A first example of application is of a person aged 30 (entered to job
+at age 20), with a benefit in case of disability, that is the average of
+the last 5 salaries before get disabled. For calculate that we’ll use
+the multi-decrement table ‘SoAISTdata’ for the accrued period and
+‘soa08’ for the payment period, both available in “lifecontingencies”
+package.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">data</span>(SoAISTdata)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">data</span>(soa08)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>MultiDecrTable <span class="ot">&lt;-</span> <span class="fu">new</span>(<span class="st">&quot;mdt&quot;</span>, <span class="at">name =</span> <span class="st">&quot;testMDT&quot;</span>, <span class="at">table =</span> SoAISTdata)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; Added fictional decrement below last x and completed x and lx until zero....</span></span></code></pre></div>
+<p>The specific name of this risk in the table is ‘inability’.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">getDecrements</span>(MultiDecrTable)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;death&quot;      &quot;withdrawal&quot; &quot;inability&quot;  &quot;retirement&quot;</span></span></code></pre></div>
+<p>Now we calculate the liability and normal cost with the four methods,
+and <span class="math inline">\(i = .04\)</span>, <span class="math inline">\(j = .06\)</span>, <span class="math inline">\(delta = .03\)</span>, <span class="math inline">\(avg = 5\)</span>. In this case for the age risk 53
+(<span class="math inline">\(r = 53\)</span>).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x1<span class="ot">=</span><span class="dv">30</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>y1<span class="ot">=</span><span class="dv">20</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>r1<span class="ot">=</span><span class="dv">53</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>decrement1 <span class="ot">=</span> <span class="st">&quot;inability&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>BPM_CD <span class="ot">=</span> <span class="fu">PensFund</span>(x1, y1, r1, <span class="at">acttableAccPeriod =</span> MultiDecrTable, <span class="at">decrement =</span> decrement1,  </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                  <span class="at">i =</span> .<span class="dv">04</span>, <span class="at">j =</span> .<span class="dv">06</span>, <span class="at">delta =</span> .<span class="dv">03</span>, <span class="at">avg =</span> <span class="dv">5</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>                  <span class="at">acttablePaymPeriod =</span> soa08, <span class="at">CostMet =</span> <span class="st">&#39;BPM_CD&#39;</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>BPM_CP <span class="ot">=</span> <span class="fu">PensFund</span>(x1, y1, r1, <span class="at">acttableAccPeriod =</span> MultiDecrTable, <span class="at">decrement =</span> decrement1,  </span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>                  <span class="at">i =</span> .<span class="dv">04</span>, <span class="at">j =</span> .<span class="dv">06</span>, <span class="at">delta =</span> .<span class="dv">03</span>, <span class="at">avg =</span> <span class="dv">5</span>, </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>                  <span class="at">acttablePaymPeriod =</span> soa08, <span class="at">CostMet =</span> <span class="st">&#39;BPM_CP&#39;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>CPM_CD <span class="ot">=</span> <span class="fu">PensFund</span>(x1, y1, r1, <span class="at">acttableAccPeriod =</span> MultiDecrTable, <span class="at">decrement =</span> decrement1,  </span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>                  <span class="at">i =</span> .<span class="dv">04</span>, <span class="at">j =</span> .<span class="dv">06</span>, <span class="at">delta =</span> .<span class="dv">03</span>, <span class="at">avg =</span> <span class="dv">5</span>, </span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>                  <span class="at">acttablePaymPeriod =</span> soa08, <span class="at">CostMet =</span> <span class="st">&#39;CPM_CD&#39;</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>CPM_CP <span class="ot">=</span> <span class="fu">PensFund</span>(x1, y1, r1, <span class="at">acttableAccPeriod =</span> MultiDecrTable, <span class="at">decrement =</span> decrement1,  </span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>                  <span class="at">i =</span> .<span class="dv">04</span>, <span class="at">j =</span> .<span class="dv">06</span>, <span class="at">delta =</span> .<span class="dv">03</span>, <span class="at">avg =</span> <span class="dv">5</span>, </span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>                  <span class="at">acttablePaymPeriod =</span> soa08, <span class="at">CostMet =</span> <span class="st">&#39;CPM_CB&#39;</span>)</span></code></pre></div>
+<p>The way that each method amortize the benefit cost in active years
+can be seen in the next graph, showing the liability accumulated
+relationship between at any age: “CPM_CD” <span class="math inline">\(\geqslant\)</span> “CPM_CB”<span class="math inline">\(\geqslant\)</span> “BPM_CD” <span class="math inline">\(\geqslant\)</span> “BPM_CP”.</p>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt style="display: block; margin: auto;" /></p>
+<p>We can check the results with actuarial equivalences, specifically
+the formulas <span class="math inline">\(AL^{r}_x =
+PVFB^{r}_x-PVFNC^{r}_x\)</span> (6.3a) and <span class="math inline">\(AL^{r}_x = AVPNC^{r}_x\)</span> (6.4a) in <span class="citation">(Winklevoss 1993)</span>, which means that the
+actuarial liability at any time can be expressed as the difference
+between the present value of future benefit and the present value of
+future normal costs, and as the actuarial value of past normal costs
+(retrospective view).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># AL = PVBF - PVFNC first get survivial for all causes</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>acttableAccPeriodTotal <span class="ot">=</span> <span class="fu">pxt</span>(MultiDecrTable, <span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span>(<span class="fu">getOmega</span>(MultiDecrTable)), <span class="at">t =</span> <span class="dv">1</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>acttableAccPeriodTotal <span class="ot">=</span> <span class="fu">probs2lifetable</span>(acttableAccPeriodTotal, <span class="at">type =</span> <span class="st">&quot;px&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># are equal?</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">round</span>(BPM_CD<span class="sc">$</span>AL[<span class="dv">1</span>], <span class="dv">10</span>) <span class="sc">==</span> <span class="fu">round</span>(BPM_CD<span class="sc">$</span>PVFB[<span class="dv">1</span>] <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">sapply</span>(x1<span class="sc">:</span>(r1 <span class="sc">-</span> <span class="dv">1</span>), <span class="cf">function</span>(x) <span class="fu">Exn</span>(acttableAccPeriodTotal,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    x1, x <span class="sc">-</span> x1, <span class="at">i =</span> <span class="fl">0.04</span>) <span class="sc">*</span> BPM_CD<span class="sc">$</span>NC[x <span class="sc">-</span> x1 <span class="sc">+</span> <span class="dv">1</span>])), <span class="dv">10</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Restrospective AL First get the liability at entry age y</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>BPM_CD_y <span class="ot">=</span> <span class="fu">PensFund</span>(y1, y1, r1, <span class="at">acttableAccPeriod =</span> MultiDecrTable, <span class="at">decrement =</span> decrement1,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="at">i =</span> <span class="fl">0.04</span>, <span class="at">j =</span> <span class="fl">0.06</span>, <span class="at">delta =</span> <span class="fl">0.03</span>, <span class="at">avg =</span> <span class="dv">5</span>, <span class="at">acttablePaymPeriod =</span> soa08, <span class="at">CostMet =</span> <span class="st">&quot;BPM_CD&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># are equal?</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">round</span>(BPM_CD_y<span class="sc">$</span>AL[BPM_CD_y<span class="sc">$</span>x <span class="sc">==</span> <span class="dv">45</span>], <span class="dv">10</span>) <span class="sc">==</span> <span class="fu">round</span>(<span class="fu">sum</span>(<span class="fu">sapply</span>(y1<span class="sc">:</span><span class="dv">44</span>, <span class="cf">function</span>(y) (<span class="fl">1.04</span>)<span class="sc">^</span>(<span class="dv">45</span> <span class="sc">-</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    y)<span class="sc">/</span><span class="fu">pxt</span>(acttableAccPeriodTotal, y, <span class="dv">45</span> <span class="sc">-</span> y) <span class="sc">*</span> BPM_CD_y<span class="sc">$</span>NC[BPM_CD_y<span class="sc">$</span>x <span class="sc">==</span> y])), <span class="dv">10</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="second-example" class="section level2">
+<h2>Second example</h2>
+<p>Now we’ll evaluate a retirement pension, that receives a payment
+grade which is a lineal function between age 60 and the maximum possible
+age of retirement at 70, and goes from 50% to 100%. This is not a
+grading function in which benefit provided at early or late retirement
+has the same present value as the benefit payable at normal retirement
+(<span class="citation">(Winklevoss 1993)</span>, chapter 9). Instead,
+here the person is penalyzed for early retirement. The insured has an
+annual salary of 5000 at age <span class="math inline">\(x\)</span>.
+Also there is a seniority condition of 10 years. The other parameters
+are the same that the previous example.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x2 <span class="ot">=</span> <span class="dv">50</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>y2 <span class="ot">=</span> <span class="dv">35</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>decrement2 <span class="ot">=</span> <span class="st">&quot;retirement&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>pay_grade <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x2<span class="sc">:</span><span class="dv">70</span>, <span class="at">gr =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="fu">seq</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">0.05</span>)))</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>snty_req <span class="ot">=</span> <span class="dv">20</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>s_x <span class="ot">=</span> <span class="dv">5000</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>Cost_Method2 <span class="ot">=</span> <span class="st">&quot;BPM_CD&quot;</span></span></code></pre></div>
+<p>The calculation now focus on estimate the actuarial values at age
+<span class="math inline">\(x2\)</span>, for all the retirement scheme
+(all ages between <span class="math inline">\(x2\)</span> and 70).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>AL_xr <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">r =</span> <span class="dv">0</span>, <span class="at">AL =</span> <span class="dv">0</span>, <span class="at">NC =</span> <span class="dv">0</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="cf">for</span> (r <span class="cf">in</span> x2<span class="sc">:</span><span class="dv">70</span>) {</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="cf">if</span> ((r <span class="sc">-</span> y2) <span class="sc">&lt;</span> snty_req)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>        AL_xr[r <span class="sc">-</span> x2 <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>) <span class="cf">else</span> {</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>        AL_xr[r <span class="sc">-</span> x2 <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">=</span> s_x <span class="sc">*</span> pay_grade[pay_grade<span class="sc">$</span>x <span class="sc">==</span> r, <span class="dv">2</span>] <span class="sc">*</span> <span class="fu">PensFund</span>(x2,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>            y2, r, <span class="at">acttableAccPeriod =</span> MultiDecrTable, <span class="at">decrement =</span> decrement2, <span class="at">i =</span> <span class="fl">0.04</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>            <span class="at">j =</span> <span class="fl">0.06</span>, <span class="at">delta =</span> <span class="fl">0.03</span>, <span class="at">avg =</span> <span class="dv">5</span>, <span class="at">acttablePaymPeriod =</span> soa08, <span class="at">CostMet =</span> Cost_Method2)[<span class="dv">1</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>            <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>    }</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>    AL_xr[r <span class="sc">-</span> x2 <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">1</span>] <span class="ot">=</span> r</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>}</span></code></pre></div>
+<p>The total liability at age x is 1.88917^{4} and is distributed
+between this retirement options, influenced by the progressive function
+of the early retirement <em>pay_grade</em>) and the individual’s
+expected behavior (probability of retirement).</p>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt style="display: block; margin: auto;" /></p>
+</div>
+<div id="third-example" class="section level2">
+<h2>Third example</h2>
+<p>Now let’s imagine that the same insured has the benefit of receive a
+50% of his/her last salary at each age before retirement if he decide to
+leave the Company. The benefit is in concept of recognition of past
+contributions to the pension plan. This benefit can be estimated setting
+<span class="math inline">\(n=1\)</span> (no rent, a single payment) and
+<span class="math inline">\(avg=0\)</span> (only last salary). For
+example, for the risk of withdrawal at age 45:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>decrement3 <span class="ot">=</span> <span class="st">&quot;withdrawal&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>x3 <span class="ot">=</span> <span class="dv">30</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>y3 <span class="ot">=</span> <span class="dv">20</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>r3 <span class="ot">=</span> <span class="dv">45</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>BPM_CP3 <span class="ot">=</span> s_x <span class="sc">*</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">PensFund</span>(x3, y3, r3, <span class="at">acttableAccPeriod =</span> MultiDecrTable, <span class="at">decrement =</span> decrement3,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="at">i =</span> <span class="fl">0.04</span>, <span class="at">j =</span> <span class="fl">0.06</span>, <span class="at">delta =</span> <span class="fl">0.03</span>, <span class="at">avg =</span> <span class="dv">0</span>, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">acttablePaymPeriod =</span> soa08,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    <span class="at">CostMet =</span> <span class="st">&quot;BPM_CP&quot;</span>)</span></code></pre></div>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt style="display: block; margin: auto;" /></p>
+</div>
+<div id="future-improvements" class="section level2">
+<h2>Future improvements:</h2>
+<p>The following improvements are planned:</p>
+<ol style="list-style-type: decimal">
+<li>Because a payment can’t be done before the contingency occurs, an
+assumption about occurrence and payment must be done. We will improve
+the function to consider payments at half of the year. This affects only
+the financial component, and little bit the final results.</li>
+<li>Make the benefit rent payable for a designed survivor too, and with
+a portion of the titular benefit. This also allows to include death as a
+main benefit risk.</li>
+</ol>
+</div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-bowers1997actuarial" class="csl-entry">
+Bowers, N. L., D. A. Jones, H. U. Gerber, C. J. Nesbitt, and J. C.
+Hickman. 1997. <em>Actuarial Mathematics, 2nd Edition</em>. Society of
+Actuaries.
+</div>
+<div id="ref-winklevoss1993pension" class="csl-entry">
+Winklevoss, Howard E. 1993. <em>Pension Mathematics with Numerical
+Illustrations</em>. University of Pennsylvania Press.
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
