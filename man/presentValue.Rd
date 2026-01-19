@@ -37,7 +37,7 @@ given time instants and discounted by provided interest rates.
 \code{probabilities} is optional; when omitted a sequence of 1's with the
 same length as \code{timeIds} is assumed. Interest rate may be a fixed number
 or a vector of the same size as \code{timeIds}. The \code{power} parameter is
-normally unused except in specialised actuarial evaluations.
+normally unused except in special actuarial evaluations.
 }
 \note{
 This simple function is the kernel working core of the package. Actuarial and financial mathematics ground on it.
