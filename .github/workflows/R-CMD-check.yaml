@@ -69,7 +69,10 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install qpdf ghostscript || true
+          brew install qpdf ghostscript gettext || true
+          echo "CPPFLAGS=-I/opt/homebrew/opt/gettext/include" >> $GITHUB_ENV
+          echo "LDFLAGS=-L/opt/homebrew/opt/gettext/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/opt/homebrew/opt/gettext/lib/pkgconfig" >> $GITHUB_ENV
 
       - name: Install system deps (Windows)
         if: runner.os == 'Windows'
