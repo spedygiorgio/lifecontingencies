@@ -118,7 +118,7 @@ In order to assure a unique solution for the system of equation of the model, Le
 
 A second step, based on a refitting of $\hat{k}_{t}$ on the number of deaths, is usually suggested in order to assure a better convergence between estimated and observed deaths. The aim is to find the $\hat{k}_{t}$ such that $D(x,t)=E(x,t)exp(\hat{a}_{x}+\hat{b}_{x}\cdot\hat{k}_{t})$.\\
 
-Alternative frameworks have been proposed over the years in order to improve some drawbacks of original Lee-Carter model (in particular see \cite{Al},\cite{LM}, \cite{BMS}, \cite{BDV}, \cite{RH}, \cite{CBD}, \cite{Plat})
+Alternative frameworks have been proposed over the years in order to improve some drawbacks of original Lee-Carter model (in particular see \cite{LM}, \cite{BMS}, \cite{BDV}, \cite{RH}, \cite{CBD}, \cite{Plat})
 
 The one - year survival probability at age $x$ during calendar year $t$ is
 expressed by Equation~(\ref{eq:Probability}). Equation~(\ref{eq:Probability})
@@ -357,7 +357,7 @@ wxt <- genWeightMat(ages = ages.fit,  years = ita.StMoMoData.Ini$years,clip = 3)
 
 \subsection{Fitting models}
 
-The code below fits the Lee Carter models as well as the Reinshaw Haberman (RH) and the Cairn Blake Down (CBD) one \cite{Cairns2007;Renshaw2006} ones. 
+The code below fits the Lee Carter models as well as the Reinshaw Haberman (RH) and the Cairn Blake Down (CBD) one \cite{Cairns2007,Renshaw2006} ones. 
 
 <<r_stmomofit, keep.source=TRUE, eval=FALSE>>=
 #fitting the models

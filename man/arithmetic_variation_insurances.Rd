@@ -121,7 +121,7 @@ Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A., Nesbitt, C. J. (1997
 \seealso{
 \code{\link{Axn}} (level benefit), \code{\link{AExn}}, \code{\link{Exn}}, \code{\link{axn}}
 
-Other life-contingency APVs: 
+Other life-contingency APVs:
 \code{\link{endowment_trio}}
 }
 \concept{life-contingency APVs}

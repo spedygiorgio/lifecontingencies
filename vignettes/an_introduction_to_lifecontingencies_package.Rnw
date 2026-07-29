@@ -85,7 +85,7 @@ statistical programming environment \citep{rSoftware} has become the
 primary reference software for academics. Even in a business context,
 \proglang{R} is now considered a valid alternative to affirmed
 proprietary packages for statistics and data analysis, namely
-\proglang{SAS} \citep{SAS}, \proglang{MATLAB} \citep{MATLAB} and
+\proglang{SAS} \citep{sas}, \proglang{MATLAB} \citep{matlab} and
 \proglang{SPSS} \citep{SPSS}. Some packages for actuarial applications
 have already been developed within \proglang{R}. However, most of them
 mainly focus on non-life insurance. In fact, non-life insurance
@@ -95,7 +95,7 @@ distributions and perform credibility analysis are provided within the
 package \pkg{actuar} \citep{Dutang2008}. This package represents the
 computational side of the classical actuarial textbook on loss
 distribution \citep{klugman2009loss}. The package \pkg{ChainLadder}
-\citep{chainLadder} provides functions that are capable of estimating
+\citep{ChainLadder} provides functions that are capable of estimating
 loss reserves for non-life insurance. Generalized linear models
 (GLMs), widely used in non-life insurance rate-making, can be fit by
 functions bundled within base \proglang{R} distributions. The
