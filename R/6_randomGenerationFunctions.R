@@ -693,7 +693,14 @@ rmdt<-function(n=1,object, x=0,t=1,t0="alive", include.t0=TRUE) {
 	if (!.require_markovchain("rmdt")) {
 		return(invisible(NULL))
 	}
-	mcList<-as(object, "markovchainList")
+	if (methods::canCoerce(object, "markovchainList")) {
+		mcList <- as(object, "markovchainList")
+	} else {
+		mcList <- .mdt_to_markovchain_list(object)
+	}
+	if (is.null(mcList)) {
+		return(invisible(NULL))
+	}
 	initialVal<-rep(t0,n)
 	endSim<-min(t,getOmega(object)-x)
 	row.names<-character()

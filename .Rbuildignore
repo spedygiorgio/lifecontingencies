@@ -8,3 +8,6 @@
 ^README-.*\.png$
 ^LICENSE\.md$
 ^\.github$
+^.*\.log$
+^.*\.log\..*$
+^logs$

@@ -1044,10 +1044,10 @@ table as non - homogeneous discrete Markov chain by means of
 
 <<toMarkovChain, keep.source=TRUE>>=
 data(soa08)
-if (requireNamespace("markovchain", quietly = TRUE)) {
+if (requireNamespace("markovchain", quietly = TRUE) && methods::canCoerce(soa08, "markovchainList")) {
   soa08Mc<-as(soa08,"markovchainList")
 } else {
-  warning("Install the 'markovchain' package to build markovchainList objects.")
+  message("'markovchain' package or S4 coercion method unavailable: skipping lifetable -> markovchainList conversion.")
 }
 @
 
@@ -1874,10 +1874,10 @@ print(valdezMdt)
  
 <<md3b, keep.source=TRUE>>=
 valdezDf<-as(valdezMdt,"data.frame")
-if (requireNamespace("markovchain", quietly = TRUE)) {
+if (requireNamespace("markovchain", quietly = TRUE) && methods::canCoerce(valdezMdt, "markovchainList")) {
   valdezMarkovChainList<-as(valdezMdt,"markovchainList")
 } else {
-  warning("Install the 'markovchain' package to build markovchainList objects.")
+  message("'markovchain' package or S4 coercion method unavailable: skipping mdt -> markovchainList conversion.")
 }
 @
 

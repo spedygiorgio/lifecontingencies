@@ -9,7 +9,7 @@
 \alias{getOmega,lifetable-method}
 \alias{head,lifetable-method}
 \alias{initialize,lifetable-method}
-\alias{plot,lifetable,ANY-method}
+\alias{plot,lifetable-method}
 \alias{print,lifetable-method}
 \alias{show,lifetable-method}
 \alias{summary,lifetable-method}
@@ -39,7 +39,7 @@ Two vectors are needed. The age vector and the population at risk vector.
      \item{coerce}{\code{signature(from = "lifetable", to = "numeric")}: brings to numeric }
     \item{coerce}{\code{signature(from = "data.frame", to = "lifetable")}: brings to life table }
       \item{getOmega}{\code{signature(object = "lifetable")}: returns the maximum attainable life age }
-    \item{plot}{\code{signature(x = "lifetable", y = "ANY")}: plot method}
+    \item{plot}{\code{signature(x = "lifetable")}: plot method}
    \item{head}{\code{signature(x = "lifetable")}: head method }
     \item{print}{\code{signature(x = "lifetable")}: method to print the survival probability implied in the table }
     \item{show}{\code{signature(object = "lifetable")}: identical to \code{plot} method }

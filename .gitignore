@@ -1,7 +1,23 @@
 .Rproj.user
 .Rhistory
 .RData
-.log
+*.log
+*.log.*
+logs/
+# LaTeX / Sweave artifacts
+*.aux
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+*.bcf
+*.run.xml
 #*.Rproj
 .DS_Store
 lifecontingenciesongithub.Rproj

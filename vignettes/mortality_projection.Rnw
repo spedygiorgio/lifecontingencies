@@ -1,5 +1,6 @@
 \documentclass[nojss]{jss}
 \usepackage{lifecon,actuarialsymbol,graphicx,amsmath,hyperref}
+\usepackage{Sweave}
 \usepackage[utf8]{inputenc}
 % \usepackage{draftwatermark}
 % \SetWatermarkText{Draft}
@@ -58,6 +59,7 @@ this paper are mechanical and intended for didactic purposes.}
 }
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 
 
