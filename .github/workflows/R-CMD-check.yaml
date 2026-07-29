@@ -109,7 +109,7 @@ jobs:
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-resave-data","--compact-vignettes=gs+qpdf")'
+          build_args: 'c("--no-resave-data","--compact-vignettes=both")'
           args: 'c("--as-cran")'
           error-on: '"error"'
 
