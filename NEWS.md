@@ -1,3 +1,5 @@
+# lifecontingencies 1.4.5
+
 # lifecontingencies 1.4.4
 
 The `presentValue` function has been enhanced to perform calculations using `Rcpp`. Also, its documentation has been written using roxygen 2.
