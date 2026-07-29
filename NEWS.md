@@ -1,4 +1,3 @@
-# lifecontingencies 1.4.6
+# lifecontingencies 1.5.0
 
-* Revised classes definitions
-* Fixed bibliographic typhos
+* Revised creations of the object
