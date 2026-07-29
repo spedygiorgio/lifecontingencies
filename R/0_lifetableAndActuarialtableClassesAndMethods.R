@@ -139,20 +139,20 @@ setValidity("lifetable",
 #function to create lifetable cols
 .createLifeTableCols<-function(object)
 {
-	omega<-length(object@lx)+1
 	#vector used to obtain px
 	lxplus<-object@lx[2:length(object@lx)]
 	lxplus<-c(lxplus,0)
-	#ex
+	# Under UDD (fxt = 0.5 in Lxt), Lx = lx - 0.5*dx = (lx + lx+1)/2.
+	Lx <- 0.5 * (object@lx + lxplus)
+	# Tx is the backward cumulative sum of Lx.
+	Tx <- rev(cumsum(rev(Lx)))
+	# ex is intentionally computed via exn() to keep this output aligned
+	# with the package's expected-lifetime implementation.
 	lenlx=length(object@lx)
-	Tx=numeric(lenlx)
-	Lx=numeric(lenlx)
 	exni=numeric(lenlx)
-	for(i in 1:lenlx) Tx[i]=sum(object@lx[i:lenlx])
-	#for(i in 1:lenlx) Lx[i]=Lxt(object=object, x=i) # 1:lenlx prima object@x
-	for(i in 1:lenlx) exni[i]=exn(object=object, x=i-1,type="curtate") #prima x=i e come sopra e c'era complete
-	out<-data.frame(x=object@x, lx=object@lx,px=lxplus/object@lx, 
-			ex=exni)
+	for(i in seq_len(lenlx)) exni[i]=exn(object=object, x=i-1,type="curtate") #prima x=i e come sopra e c'era complete
+	out<-data.frame(x=object@x, lx=object@lx,px=lxplus/object@lx,
+			Lx=Lx, Tx=Tx, ex=exni)
 	#remove last row
 	out<-out[1:(nrow(out)-1),]
 	rownames(out)=NULL
@@ -224,25 +224,20 @@ setMethod("tail",
 #internal function to create the actuarial table object
 .createActuarialTableCols<-function(object)
 {
-	omega<-length(object@lx)+1
 	#vector used to obtain px
 	lxplus<-object@lx[2:length(object@lx)]
 	lxplus<-c(lxplus,0)
 	#Dx
 	Dx=object@lx*(1+object@interest)^(-object@x)
-	lnDx=length(Dx)
 	#Cx
 	dx=object@lx-lxplus
 	Cx=dx*(1+object@interest)^(-object@x-1)	
-	#Nx
-	Nx=numeric(length(Dx))
-	for(i in 1:length(Dx)) Nx[i]=sum(Dx[i:lnDx])
+	#Nx: cumulative commutation sum from last age backward.
+	Nx=rev(cumsum(rev(Dx)))
 	#Mx
 	Mx=Dx-(object@interest/(1+object@interest))*Nx
-	#Rx
-	Rx=numeric(length(Mx))
-	lnMx=length(Mx)
-	for(i in 1:length(Rx)) Rx[i]=sum(Mx[i:lnMx])
+	#Rx: cumulative sum of Mx from last age backward.
+	Rx=rev(cumsum(rev(Mx)))
 	out<-data.frame(x=object@x, lx=object@lx, Dx=Dx, Nx=Nx, Cx=Cx,
 			Mx=Mx, Rx=Rx)
 	rownames(out)=NULL
