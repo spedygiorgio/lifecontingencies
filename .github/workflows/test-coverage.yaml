@@ -22,14 +22,22 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr
+          extra-packages: |
+            any::covr
+            any::DT
+            any::htmltools
           needs: coverage
 
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(type = "tests")
           print(cov)
-          covr::report(cov, file = "coverage.html")
+          if (requireNamespace("DT", quietly = TRUE) && requireNamespace("htmltools", quietly = TRUE)) {
+            covr::report(cov, file = "coverage.html")
+          } else {
+            message("DT/htmltools not available, skipping HTML report generation.")
+            writeLines("Coverage report skipped: DT/htmltools missing.", "coverage.html")
+          }
         shell: Rscript {0}
 
       - name: Upload coverage report
