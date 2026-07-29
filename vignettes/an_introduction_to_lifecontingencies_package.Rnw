@@ -1819,7 +1819,7 @@ The probability that a life $x$ will leave the group within one year as a result
 Examples in this paper are worked on slides provided in \cite{valdezSlides}.
 
 We create a \code{mdt} class object. We can use the first example found on
-\cite[p. 4]{valdezSlide}.
+\cite[p. 4]{valdezSlides}.
 
 <<mdt1,  keep.source=TRUE>>=
 valdezDf<-data.frame(

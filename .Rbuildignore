@@ -10,4 +10,12 @@
 ^\.github$
 ^.*\.log$
 ^.*\.log\..*$
+^.*\.aux$
+^.*\.bbl$
+^.*\.blg$
+^.*\.out$
+^.*\.toc$
 ^logs$
+^.*\.dll$
+^.*\.o$
+^.*\.synctex\.gz$
