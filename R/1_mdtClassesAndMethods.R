@@ -21,36 +21,50 @@
 ###         multiple decrement
 ###
 
+.MDT_DEFAULT_NAME <- "sample multiple decrement table"
+.MDT_DEFAULT_TABLE <- data.frame(
+	x = seq(0, 2, 1),
+	lx = c(1000, 500, 200),
+	c1 = c(200, 200, 100),
+	c2 = c(300, 100, 100)
+)
+# Backward completion uses a fixed survival ratio for synthetic rows.
+.MDT_BOTTOM_COMPLETION_SURVIVAL <- 0.99
+
 #defines the multiple decrement class
 #at least three or more slots, x, lx and the causes...
 setClass("mdt",
-		representation(name="character",table="data.frame"),
-		prototype(name="sample multiple decrement table",table=data.frame(x=seq(0,2,1),
-						lx=c(1000,500,200),c1=c(200,200,100),c2=c(300,100,100)))
+		slots = c(name = "character", table = "data.frame")
 )
 #defines the validity of a multiple decrement table
 setValidity("mdt",
 		function(object){
-			#verify it contains x and lx
-			check<-FALSE
-			namesOfTable<-names(object@table)
-			check1<-is.element("x",namesOfTable) & is.element("lx",namesOfTable)
-			if (!check1) cat("Missing x or lx")
-			#cat("check1",check1,"\n")
-			#check that x is a sequence from 0 to max 
-			#check2<-setequal(object@table$x,seq(min(object@table$x),max(object@table$x),by=1))
-			check2<-setequal(object@table$x,seq(0,max(object@table$x),by=1))
-			if (!check2) cat("Check the x sequence")
-			#cat("check2",check2,"\n")
-			#check the sum of the dx to be equal to lx0
-			onlyDecrements<-object@table[,setdiff(namesOfTable,c("x","lx"))]
-			check3<-(sum(onlyDecrements)==object@table$lx[1])
-			#cat(object@table$lx[1],"\n")
-			#cat(sum(onlyDecrements),"\n")
-			if (!check3) cat("Check the lx")
-			#cat("check3",check3,"\n")
-			check<-check1&check2&check3
-			return(check)
+			# Collect all validation failures to ease debugging in validObject().
+			check <- character(0)
+			namesOfTable <- names(object@table)
+			if(!all(c("x", "lx") %in% namesOfTable)) {
+				check <- c(check, "Missing x or lx")
+			}
+
+			if(all(c("x", "lx") %in% namesOfTable)) {
+				# Check that x is a consecutive sequence from 0 to max(x).
+				if(!setequal(object@table$x, seq(0, max(object@table$x), by = 1))) {
+					check <- c(check, "Check the x sequence")
+				}
+
+				# drop = FALSE preserves matrix/data.frame semantics with one decrement.
+				# Check that the total decrements are equal to initial lx.
+				onlyDecrements <- object@table[, setdiff(namesOfTable, c("x", "lx")), drop = FALSE]
+				if(sum(onlyDecrements) != object@table$lx[1]) {
+					check <- c(check, "Check the lx")
+				}
+			}
+
+			if(length(check) == 0) {
+				TRUE
+			} else {
+				check
+			}
 		}
 )
 
@@ -58,11 +72,11 @@ setValidity("mdt",
 
 setMethod("initialize",
 		signature(.Object = "mdt"),
-		function (.Object, name,table,...) 
+		function (.Object,
+		          name = .MDT_DEFAULT_NAME,
+		          table = .MDT_DEFAULT_TABLE,
+		          ...) 
 		{
-			if(missing(table)) table=data.frame(x=seq(0,2,1),
-						lx=c(1000,500,200),c1=c(200,200,100),c2=c(300,100,100))	
-			if(missing(name)) name="sample multiple decrement table"
 			table<-.tableSanitizer(decrementDf=table)
 			callNextMethod(.Object=.Object, name =name, table=table,...)
 		}
@@ -83,16 +97,17 @@ out<-setdiff(names(object@table),c("x","lx"))
 
 .isProb<-function(prob)
 {
-  if((prob>1)|(prob<0)) return(FALSE) else return(TRUE)
+	if((prob > 1) || (prob < 0)) return(FALSE) else return(TRUE)
 }
 
 #tento caricare la tavola
 .tableSanitizer<-function(decrementDf)
 {
+	# Standardize partially specified decrement tables into a full internal layout.
 	out<-decrementDf
 	namesOfTable<-names(decrementDf)
 	decrementIds<-which(!(namesOfTable %in% c("lx","x")))
-	pureDecrements<-decrementDf[,decrementIds]
+	pureDecrements<-decrementDf[,decrementIds, drop = FALSE]
 	#add the lx columnd
 	if(!("lx" %in% namesOfTable))
 	{
@@ -100,7 +115,7 @@ out<-setdiff(names(object@table),c("x","lx"))
 		lx[1]<-sum(pureDecrements)
 		for(i in 2:length(lx))
 		{
-			lx[i]=lx[i-1]-sum(pureDecrements[i-1,])
+			lx[i]=lx[i-1]-sum(pureDecrements[i-1,, drop = FALSE])
 			
 		}
 		out$lx<-lx
@@ -121,14 +136,15 @@ out<-setdiff(names(object@table),c("x","lx"))
 		x2Complete<-seq(from=0,to=(min(decrementDf$x)-1))
 		lx2Complete<-numeric(length(x2Complete))
 		lxLast<-decrementDf$lx[1]
-		for(i in length(lx2Complete):1)
+		for(i in rev(seq_along(lx2Complete)))
 		{
-			lx2Complete[i]<-lxLast/(1-0.01)
+			# Reconstruct previous lx values by applying the fixed synthetic survival.
+			lx2Complete[i]<-lxLast/.MDT_BOTTOM_COMPLETION_SURVIVAL
 			lxLast<-lx2Complete[i]
 		}
 		dx2Add<- -diff(c(lx2Complete,decrementDf$lx[1]))
 		decrements2complete<-matrix(0,nrow=length(dx2Add),ncol=ncol(decrementDf),
-				dimnames=list(NULL,c("x","lx",names(decrementDf[,decrementIds]))))
+				dimnames=list(NULL,c("x","lx",colnames(decrementDf)[decrementIds])))
 		decrements2complete[,1]<-x2Complete #writing x
 		decrements2complete[,2]<-lx2Complete #writing lx
 		decrements2complete[,3]<-dx2Add #writing on the first decrement
@@ -139,12 +155,13 @@ out<-setdiff(names(object@table),c("x","lx"))
 	}
 	#complete the table for top
 	maxage<-which(out$x==max(out$x))
-	pureDecrements<-out[,decrementIds]
-	lastCheck<-(rowSums(pureDecrements[maxage,])==out$lx[maxage])
+	pureDecrements<-out[,decrementIds, drop = FALSE]
+	lastCheck<-(rowSums(pureDecrements[maxage,, drop = FALSE])==out$lx[maxage])
 	if (!lastCheck) {
-		decrements2complete<-matrix(0,nrow=1,ncol=ncol(decrementDf),dimnames=list(NULL,c("x","lx",names(decrementDf[,decrementIds]))))
+		# Add one terminal row so that all remaining lives are decremented.
+		decrements2complete<-matrix(0,nrow=1,ncol=ncol(decrementDf),dimnames=list(NULL,c("x","lx",colnames(decrementDf)[decrementIds])))
 		decrements2complete[1,1]<-max(out$x)+1
-		decrements2complete[1,2]<-out$lx[1]-sum(out[,decrementIds])
+		decrements2complete[1,2]<-out$lx[1]-sum(out[,decrementIds, drop = FALSE])
 		decrements2complete[1,3]<-decrements2complete[1,2]
 		outMatrix<-rbind(out,decrements2complete)
 		out<-as.data.frame(outMatrix)
@@ -159,7 +176,7 @@ out<-setdiff(names(object@table),c("x","lx"))
 {
 	namesOfTable<-names(decrementDf)
 	decrementIds<-which(!(namesOfTable %in% c("lx","x")))
-	pureDecrements<-decrementDf[,decrementIds]
+	pureDecrements<-decrementDf[,decrementIds, drop = FALSE]
 	probs<-pureDecrements/decrementDf$lx
 	rownames(probs)<-decrementDf$x
 	invisible(probs)

@@ -125,7 +125,7 @@ theoretical concepts exposed in textbooks like the classical
 actuarial mathematics and \cite{broverman2008mathematics} for
 financial mathematics. Package \pkg{lifecontingencies} is available from
 the Comprehensive \proglang{R} Archive Network at
-\url{http://CRAN.R-project.org/package=lifecontingencies}. The examples used throughout this
+\url{https://cran.r-project.org/package=lifecontingencies}. The examples used throughout this
 paper have been taken from \cite{mathFinAct} and \cite{finanMLC}, both
 freely available financial and actuarial mathematics textbooks. The
 paper is structured as follows: Section~\ref{sec:statistics} outlines

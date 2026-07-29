@@ -19,3 +19,13 @@
 ^.*\.dll$
 ^.*\.o$
 ^.*\.synctex\.gz$
+^Meta$
+^vignettes/.*-concordance\.tex$
+^vignettes/.*\.aux$
+^vignettes/.*\.bbl$
+^vignettes/.*\.blg$
+^vignettes/.*\.log$
+^vignettes/.*\.out$
+^vignettes/.*\.synctex\.gz$
+^vignettes/.*\.tex$
+^vignettes/.*\.pdf$

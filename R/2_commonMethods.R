@@ -6,27 +6,17 @@
 
 setGeneric("getOmega", function(object) standardGeneric("getOmega")) #Method to get the last attainable age
 
+# For multiple decrement tables, omega is the largest age stored in table$x.
 setMethod("getOmega","mdt", 
 		function(object) {
-			out=numeric(1)
-	#		out=max(object@x)
-			out=max(object@table$x)
-			return(out)}
+			max(object@table$x)
+		}
 )
 
 
+# For life tables, omega is the largest age stored in slot x.
 setMethod("getOmega","lifetable", 
 		function(object) {
-			out=numeric(1)
-#		out=max(object@x)
-			out=max(object@x)
-			return(out)}
-)
-
-setMethod("getOmega","actuarialtable", 
-		function(object) {
-			out=numeric(1)
-			out=max(object@x)
-			return(out)
+			max(object@x)
 		}
 )
