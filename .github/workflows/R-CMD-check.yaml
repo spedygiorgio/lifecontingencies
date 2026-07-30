@@ -54,10 +54,18 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install qpdf ghostscript gettext || true
+          # Ensure gettext is installed; fail the job if installation fails so we don't proceed with missing headers
+          brew install qpdf ghostscript gettext
+          # On macOS Homebrew does not always symlink gettext into /usr/local, force link so build tools can find headers.
+          # If link fails (e.g., because of permissions), we still export flags pointing at the Homebrew prefix.
+          brew link --force gettext || true
+          # Export flags so configure/Makefile can find headers/libs
           echo "CPPFLAGS=-I/opt/homebrew/opt/gettext/include" >> $GITHUB_ENV
           echo "LDFLAGS=-L/opt/homebrew/opt/gettext/lib" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/opt/homebrew/opt/gettext/lib/pkgconfig" >> $GITHUB_ENV
+          # Sanity check: verify the header is present
+          ls -l /opt/homebrew/opt/gettext/include || true
+          test -f /opt/homebrew/opt/gettext/include/libintl.h
 
       - name: Install system deps (Windows)
         if: runner.os == 'Windows'
