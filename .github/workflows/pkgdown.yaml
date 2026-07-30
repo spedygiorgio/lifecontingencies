@@ -33,7 +33,14 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: devel
           use-public-rspm: true
+
+      # Dipendenze R, inclusi pkgdown e il pacchetto locale
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, any::tinytex, local::.
+          needs: website
 
       # TinyTeX per compilare le vignette Sweave in PDF
       - uses: r-lib/actions/setup-tinytex@v2
@@ -53,12 +60,6 @@ jobs:
           if (Sys.which("tlmgr") != "") {
             tinytex::tlmgr_install(pkgs, .quiet = TRUE)
           }
-
-      # Dipendenze R, inclusi pkgdown e il pacchetto locale
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, any::tinytex, local::.
-          needs: website
 
       # (Opzionale) tools per comprimere PDF (di solito già presenti)
       - name: Ensure PDF tools (Ubuntu)

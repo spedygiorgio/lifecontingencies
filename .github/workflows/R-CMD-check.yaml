@@ -43,22 +43,7 @@ jobs:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
 
-      # ---------- Dipendenze R ----------
-      - name: Install R package dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: |
-            any::rcmdcheck
-            any::knitr
-            any::rmarkdown
-            any::tinytex
-          needs: check
-          cache-version: 2
-
-      # ---------- TinyTeX + system deps ----------
-      - name: Setup TinyTeX (all OS)
-        uses: r-lib/actions/setup-tinytex@v2
-
+      # ---------- System deps before R package install ----------
       - name: Install system deps (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -79,6 +64,22 @@ jobs:
         run: |
           choco install -y ghostscript
           choco install -y qpdf
+
+      # ---------- Dipendenze R ----------
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            any::knitr
+            any::rmarkdown
+            any::tinytex
+          needs: check
+          cache-version: 2
+
+      # ---------- TinyTeX + system deps ----------
+      - name: Setup TinyTeX (all OS)
+        uses: r-lib/actions/setup-tinytex@v2
 
       # LaTeX packages necessari per le tue vignette (.Rnw)
       - name: Install LaTeX packages (TinyTeX)
