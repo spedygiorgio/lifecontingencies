@@ -41,8 +41,8 @@ jobs:
       
       - name: Install dependencies
         run: |
-          install.packages(c("devtools", "rmarkdown", "knitr"))
-          devtools::install_dev_deps()
+          install.packages(c("devtools", "remotes", "rmarkdown", "knitr"))
+          remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       
       - name: Check R package
