@@ -30,7 +30,6 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       _R_CHECK_CRAN_INCOMING_REMOTE_: false
-      # Evita problemi con parallel durante i check
       _R_CHECK_LIMIT_CORES_: true
       R_CHECK_NUM_CORES: 1
 
@@ -43,7 +42,6 @@ jobs:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
 
-      # ---------- System deps before R package install ----------
       - name: Install system deps (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -55,12 +53,28 @@ jobs:
         run: |
           brew install qpdf ghostscript gettext
           GETTEXT_PREFIX="$(brew --prefix gettext)"
-          echo "CPPFLAGS=-I${GETTEXT_PREFIX}/include" >> "$GITHUB_ENV"
-          echo "LDFLAGS=-L${GETTEXT_PREFIX}/lib" >> "$GITHUB_ENV"
-          echo "PKG_CONFIG_PATH=${GETTEXT_PREFIX}/lib/pkgconfig" >> "$GITHUB_ENV"
+          GETTEXT_INCLUDE="${GETTEXT_PREFIX}/include"
+          GETTEXT_LIB="${GETTEXT_PREFIX}/lib"
+          test -f "${GETTEXT_INCLUDE}/libintl.h"
+
           echo "Homebrew prefix: $(brew --prefix)"
           echo "gettext prefix: ${GETTEXT_PREFIX}"
-          test -f "${GETTEXT_PREFIX}/include/libintl.h"
+          echo "gettext include: ${GETTEXT_INCLUDE}"
+
+          # GITHUB_ENV is useful for normal configure/make steps, but R package
+          # compilation through pak may not propagate CPPFLAGS into package Makevars.
+          # Put the gettext include/library paths in R's user Makevars as well.
+          mkdir -p "${HOME}/.R"
+          cat > "${HOME}/.R/Makevars" <<EOF
+CPPFLAGS += -I${GETTEXT_INCLUDE}
+PKG_CPPFLAGS += -I${GETTEXT_INCLUDE}
+LDFLAGS += -L${GETTEXT_LIB}
+PKG_LIBS += -L${GETTEXT_LIB} -lintl
+EOF
+
+          echo "CPPFLAGS=-I${GETTEXT_INCLUDE}" >> "$GITHUB_ENV"
+          echo "LDFLAGS=-L${GETTEXT_LIB}" >> "$GITHUB_ENV"
+          echo "PKG_CONFIG_PATH=${GETTEXT_LIB}/pkgconfig" >> "$GITHUB_ENV"
 
       - name: Install system deps (Windows)
         if: runner.os == 'Windows'
@@ -68,7 +82,6 @@ jobs:
           choco install -y ghostscript
           choco install -y qpdf
 
-      # ---------- Dipendenze R ----------
       # setup-r-dependencies already caches the R package library.
       - name: Install R package dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
@@ -81,9 +94,6 @@ jobs:
           needs: check
           cache-version: 3
 
-      # ---------- TinyTeX cache ----------
-      # TinyTeX is platform-specific, so include OS/architecture in the key.
-      # The package list is also part of the key: changing it creates a fresh cache.
       - name: Cache TinyTeX
         id: tinytex-cache
         uses: actions/cache@v4
@@ -114,8 +124,6 @@ jobs:
           cat("TinyTeX root:", root, "\n")
           cat("tlmgr:", Sys.which("tlmgr"), "\n")
 
-      # Install the exact LaTeX dependencies used by the package.
-      # On a cache hit tlmgr_install is effectively a no-op for already installed packages.
       - name: Install LaTeX packages (TinyTeX)
         shell: Rscript {0}
         run: |
@@ -125,8 +133,6 @@ jobs:
           tinytex::tlmgr_install(pkgs, .quiet = TRUE)
           cat("Installed/verified", length(pkgs), "LaTeX packages.\n")
 
-      # Save the freshly provisioned TinyTeX before R CMD check so a failing check
-      # does not force the next run to reinstall the entire TeX distribution.
       - name: Save TinyTeX cache
         if: steps.tinytex-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -137,7 +143,6 @@ jobs:
             ~/AppData/Roaming/TinyTeX
           key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
 
-      # ---------- CHECK con build vignette solo su Linux ----------
       - name: Check (build vignettes)
         if: runner.os == 'Linux'
         uses: r-lib/actions/check-r-package@v2
@@ -147,8 +152,6 @@ jobs:
           args: 'c("--as-cran")'
           error-on: '"error"'
 
-      # ---------- CHECK senza vignette su macOS ----------
-      # macOS still runs the full package check, but avoids the expensive vignette build.
       - name: Check (no vignettes on macOS)
         if: runner.os == 'macOS'
         uses: r-lib/actions/check-r-package@v2
@@ -158,7 +161,6 @@ jobs:
           args: 'c("--as-cran")'
           error-on: '"error"'
 
-      # ---------- CHECK senza vignette su Windows ----------
       - name: Check (no vignettes on Windows)
         if: runner.os == 'Windows'
         uses: r-lib/actions/check-r-package@v2
