@@ -125,6 +125,18 @@ jobs:
           tinytex::tlmgr_install(pkgs, .quiet = TRUE)
           cat("Installed/verified", length(pkgs), "LaTeX packages.\n")
 
+      # Save the freshly provisioned TinyTeX before R CMD check so a failing check
+      # does not force the next run to reinstall the entire TeX distribution.
+      - name: Save TinyTeX cache
+        if: steps.tinytex-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.TinyTeX
+            ~/Library/TinyTeX
+            ~/AppData/Roaming/TinyTeX
+          key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+
       # ---------- CHECK con build vignette solo su Linux ----------
       - name: Check (build vignettes)
         if: runner.os == 'Linux'
