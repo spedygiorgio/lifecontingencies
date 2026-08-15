@@ -61,9 +61,6 @@ jobs:
           echo "gettext prefix: ${GETTEXT_PREFIX}"
           echo "gettext include: ${GETTEXT_INCLUDE}"
 
-          # GITHUB_ENV is useful for normal configure/make steps, but R package
-          # compilation through pak may not propagate CPPFLAGS into package Makevars.
-          # Put the gettext include/library paths in R's user Makevars as well.
           mkdir -p "${HOME}/.R"
           cat > "${HOME}/.R/Makevars" <<EOF
 CPPFLAGS += -I${GETTEXT_INCLUDE}
@@ -82,7 +79,6 @@ EOF
           choco install -y ghostscript
           choco install -y qpdf
 
-      # setup-r-dependencies already caches the R package library.
       - name: Install R package dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -143,29 +139,56 @@ EOF
             ~/AppData/Roaming/TinyTeX
           key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
 
-      - name: Check (build vignettes)
-        if: runner.os == 'Linux'
-        uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
-          build_args: 'c("--no-resave-data","--compact-vignettes=both")'
-          args: 'c("--as-cran")'
-          error-on: '"error"'
+      # Build the actual source package explicitly. This makes R CMD build a
+      # first-class CI gate and ensures the subsequent check runs on exactly
+      # the tarball that would be distributed to CRAN.
+      - name: Build source package
+        shell: Rscript {0}
+        run: |
+          os <- Sys.info()[["sysname"]]
+          rbin <- file.path(R.home("bin"), if (os == "Windows") "R.exe" else "R")
+          build_args <- c("CMD", "build", ".", "--no-resave-data")
+          if (os != "Linux") {
+            build_args <- c(build_args, "--no-build-vignettes")
+          } else {
+            build_args <- c(build_args, "--compact-vignettes=both")
+          }
 
-      - name: Check (no vignettes on macOS)
-        if: runner.os == 'macOS'
-        uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
-          build_args: 'c("--no-resave-data","--no-build-vignettes","--compact-vignettes=both")'
-          args: 'c("--as-cran")'
-          error-on: '"error"'
+          status <- system2(rbin, build_args)
+          if (!identical(status, 0L)) stop("R CMD build failed with status ", status)
 
-      - name: Check (no vignettes on Windows)
-        if: runner.os == 'Windows'
-        uses: r-lib/actions/check-r-package@v2
+          tarballs <- list.files(pattern = "^lifecontingencies_.*\\.tar\\.gz$", full.names = TRUE)
+          if (length(tarballs) != 1L) {
+            stop("Expected exactly one lifecontingencies source tarball, found: ",
+                 paste(tarballs, collapse = ", "))
+          }
+          tarball <- normalizePath(tarballs[[1]], winslash = "/", mustWork = TRUE)
+          cat("Built source package:", tarball, "\n")
+          cat("R_SOURCE_TARBALL=", tarball, "\n", sep = "",
+              file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+
+      # Check the built source tarball rather than the repository working tree.
+      # R CMD check installs/loads the package and runs examples and testthat,
+      # so this also verifies that the distributable package is compilable.
+      - name: Check built source package
+        shell: Rscript {0}
+        run: |
+          tarball <- Sys.getenv("R_SOURCE_TARBALL")
+          if (!nzchar(tarball) || !file.exists(tarball)) {
+            stop("Built source tarball is unavailable: ", tarball)
+          }
+          result <- rcmdcheck::rcmdcheck(
+            path = tarball,
+            args = "--as-cran",
+            error_on = "error",
+            check_dir = "check"
+          )
+          print(result)
+
+      - name: Upload Linux source package
+        if: runner.os == 'Linux' && always()
+        uses: actions/upload-artifact@v4
         with:
-          upload-snapshots: true
-          build_args: 'c("--no-resave-data","--no-build-vignettes")'
-          args: 'c("--as-cran")'
-          error-on: '"error"'
+          name: lifecontingencies-source-package
+          path: lifecontingencies_*.tar.gz
+          if-no-files-found: error
