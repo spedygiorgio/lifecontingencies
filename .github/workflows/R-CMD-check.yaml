@@ -92,7 +92,7 @@ jobs:
             ~/.TinyTeX
             ~/Library/TinyTeX
             ~/AppData/Roaming/TinyTeX
-          key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+          key: tinytex-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
 
       - name: Setup TinyTeX
         if: steps.tinytex-cache.outputs.cache-hit != 'true'
@@ -131,7 +131,7 @@ jobs:
             ~/.TinyTeX
             ~/Library/TinyTeX
             ~/AppData/Roaming/TinyTeX
-          key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+          key: tinytex-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
 
       - name: Diagnose TeX installation (Linux)
         if: runner.os == 'Linux'
@@ -143,21 +143,28 @@ jobs:
           cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
           cat("TinyTeX root: ", tinytex::tinytex_root(), "\n", sep = "")
 
+      - name: Build vignettes
+        shell: Rscript {0}
+        run: |
+          dir.create("inst/doc", recursive = TRUE, showWarnings = FALSE)
+          tools::buildVignettes(dir = ".", tangle = FALSE, clean = FALSE)
+          outputs <- list.files("inst/doc", full.names = TRUE)
+          if (!length(outputs)) stop("Vignette build produced no files in inst/doc")
+          cat("Vignette outputs:\n")
+          print(outputs)
+
       - name: Build source package
         shell: Rscript {0}
         run: |
           os <- Sys.info()[["sysname"]]
           rbin <- file.path(R.home("bin"), if (os == "Windows") "R.exe" else "R")
-          build_args <- c("CMD", "build", ".", "--no-resave-data")
-          if (os != "Linux") {
-            build_args <- c(build_args, "--no-build-vignettes")
-          } else {
-            build_args <- c(build_args, "--compact-vignettes=both")
-          }
+          build_args <- c("CMD", "build", ".", "--no-resave-data", "--no-build-vignettes")
           status <- system2(rbin, build_args)
           if (!identical(status, 0L)) stop("R CMD build failed with status ", status)
           tarballs <- list.files(pattern = "^lifecontingencies_.*\\.tar\\.gz$", full.names = TRUE)
-          if (length(tarballs) != 1L) stop("Expected exactly one lifecontingencies source tarball, found: ", paste(tarballs, collapse = ", "))
+          if (length(tarballs) != 1L) {
+            stop("Expected exactly one lifecontingencies source tarball, found: ", paste(tarballs, collapse = ", "))
+          }
           tarball <- normalizePath(tarballs[[1]], winslash = "/", mustWork = TRUE)
           cat("Built source package:", tarball, "\n")
           cat("R_SOURCE_TARBALL=", tarball, "\n", sep = "", file = Sys.getenv("GITHUB_ENV"), append = TRUE)
