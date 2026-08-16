@@ -2,9 +2,10 @@ name: R-CMD-check
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,37 +14,38 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Fast validation for pull requests: enough to catch most regressions quickly.
 jobs:
   R-CMD-check:
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.config.os }}
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,  r: 'devel' }
-          - { os: macos-latest,   r: 'devel' }
-          - { os: windows-latest, r: 'devel' }
+          - { os: ubuntu-latest,  r: 'release' }
+          - { os: ubuntu-latest,  r: 'devel', http-user-agent: 'release' }
+          - { os: windows-latest, r: 'release' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       _R_CHECK_CRAN_INCOMING_REMOTE_: false
-      # Evita problemi con parallel durante i check
       _R_CHECK_LIMIT_CORES_: true
       R_CHECK_NUM_CORES: 1
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      # ---------- System deps before R package install ----------
       - name: Install system deps (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -53,27 +55,15 @@ jobs:
       - name: Install system deps (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew update
-          # Ensure gettext is installed; fail the job if installation fails so we don't proceed with missing headers
           brew install qpdf ghostscript gettext
-          # On macOS Homebrew does not always symlink gettext into /usr/local, force link so build tools can find headers.
-          # If link fails (e.g., because of permissions), we still export flags pointing at the Homebrew prefix.
           brew link --force gettext || true
-          # Export flags so configure/Makefile can find headers/libs
-          echo "CPPFLAGS=-I/opt/homebrew/opt/gettext/include" >> $GITHUB_ENV
-          echo "LDFLAGS=-L/opt/homebrew/opt/gettext/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=/opt/homebrew/opt/gettext/lib/pkgconfig" >> $GITHUB_ENV
-          # Sanity check: verify the header is present
-          ls -l /opt/homebrew/opt/gettext/include || true
-          test -f /opt/homebrew/opt/gettext/include/libintl.h
 
       - name: Install system deps (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          choco install -y ghostscript
-          choco install -y qpdf
+          choco install -y ghostscript qpdf
 
-      # ---------- Dipendenze R ----------
       - name: Install R package dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -83,22 +73,15 @@ jobs:
             any::rmarkdown
             any::tinytex
           needs: check
-          cache-version: 2
+          cache: true
+          cache-version: 3
 
-      # ---------- TinyTeX + system deps ----------
-      - name: Setup TinyTeX (all OS)
+      - name: Setup TinyTeX
         uses: r-lib/actions/setup-tinytex@v2
 
-      # LaTeX packages necessari per le tue vignette (.Rnw)
-      - name: Install LaTeX packages (TinyTeX)
+      - name: Install LaTeX packages
         shell: Rscript {0}
         run: |
-          if (!requireNamespace("tinytex", quietly = TRUE)) {
-            install.packages("tinytex", repos = "https://cloud.r-project.org")
-          }
-          if (!tinytex::is_tinytex()) {
-            tinytex::install_tinytex()
-          }
           pkgs <- c(
             "pict2e","grfext","everyshi","graphics","etoolbox","kvoptions","xcolor",
             "collection-latexrecommended","collection-latexextra","collection-fontsrecommended",
@@ -108,12 +91,9 @@ jobs:
             "biblatex","csquotes","ulem","parskip","titlesec","wrapfig","longtable","makecell",
             "multirow","colortbl","pgf","tikz","xkeyval","changepage"
           )
-          if (Sys.which("tlmgr") != "") {
-            tinytex::tlmgr_install(pkgs, .quiet = TRUE)
-          }
+          if (Sys.which("tlmgr") != "") tinytex::tlmgr_install(pkgs, .quiet = TRUE)
 
-      # ---------- CHECK con build vignette su Linux/macOS ----------
-      - name: Check (build vignettes)
+      - name: Check package
         if: runner.os != 'Windows'
         uses: r-lib/actions/check-r-package@v2
         with:
@@ -122,8 +102,7 @@ jobs:
           args: 'c("--as-cran")'
           error-on: '"error"'
 
-      # ---------- CHECK senza vignette su Windows ----------
-      - name: Check (no vignettes on Windows)
+      - name: Check package without vignettes on Windows
         if: runner.os == 'Windows'
         uses: r-lib/actions/check-r-package@v2
         with:
@@ -132,32 +111,129 @@ jobs:
           args: 'c("--as-cran")'
           error-on: '"error"'
 
-      # ---------- Build VIGNETTES su Windows *dopo* install (per aggirare il problema parallel) ----------
-      - name: Build vignettes on Windows (post-install)
+      - name: Build vignettes on Windows after package installation
         if: runner.os == 'Windows'
         shell: Rscript {0}
         run: |
-          # Installa il pacchetto locale senza costruire le vignette
-          if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes", repos = "https://cloud.r-project.org")
+          if (!requireNamespace("remotes", quietly = TRUE)) {
+            install.packages("remotes", repos = "https://cloud.r-project.org")
+          }
           remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
-
-          # Percorso installazione
           pkg_path <- find.package("lifecontingencies")
-
-          # Costruisce le vignette nell'installazione (inst/doc)
           tools::buildVignettes(dir = pkg_path)
-
-          # Stampa elenco dei PDF generati
           cat("Built vignettes:\n")
           print(list.files(file.path(pkg_path, "doc"), pattern = "\\.pdf$", full.names = TRUE))
 
-      # Carica come artifact i PDF delle vignette generati su Windows
-      - name: Upload Windows vignettes
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+  # Complete matrix: executed after changes reach the default branch, or manually.
+  R-CMD-check-full:
+    name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest, r: 'release' }
+          - { os: ubuntu-latest, r: 'devel', http-user-agent: 'release' }
+          - { os: windows-latest, r: 'release' }
+          - { os: windows-latest, r: 'devel', http-user-agent: 'release' }
+          - { os: macos-latest, r: 'release' }
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      _R_CHECK_CRAN_INCOMING_REMOTE_: false
+      _R_CHECK_LIMIT_CORES_: true
+      R_CHECK_NUM_CORES: 1
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
         with:
-          name: windows-vignettes
-          path: |
-            ${R_HOME}\library\lifecontingencies\doc\*.pdf
-            ${R_HOME}\library\lifecontingencies\doc\*.html
-          if-no-files-found: ignore
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Install system deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf ghostscript
+
+      - name: Install system deps (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install qpdf ghostscript gettext
+          brew link --force gettext || true
+          echo "CPPFLAGS=-I$(brew --prefix gettext)/include" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$(brew --prefix gettext)/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$(brew --prefix gettext)/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: Install system deps (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install -y ghostscript qpdf
+
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            any::knitr
+            any::rmarkdown
+            any::tinytex
+          needs: check
+          cache: true
+          cache-version: 3
+
+      - name: Setup TinyTeX
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install LaTeX packages
+        shell: Rscript {0}
+        run: |
+          pkgs <- c(
+            "pict2e","grfext","everyshi","graphics","etoolbox","kvoptions","xcolor",
+            "collection-latexrecommended","collection-latexextra","collection-fontsrecommended",
+            "ae","inconsolata","upquote","courier","fancyvrb","framed","titling","booktabs",
+            "geometry","hyperref","url","microtype","graphicx","thumbpdf","float","caption",
+            "subcaption","babel-english","amsmath","amssymb","mathtools","siunitx","natbib",
+            "biblatex","csquotes","ulem","parskip","titlesec","wrapfig","longtable","makecell",
+            "multirow","colortbl","pgf","tikz","xkeyval","changepage"
+          )
+          if (Sys.which("tlmgr") != "") tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+      - name: Check package
+        if: runner.os != 'Windows'
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data","--compact-vignettes=both")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
+
+      - name: Check package without vignettes on Windows
+        if: runner.os == 'Windows'
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data","--no-build-vignettes")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
+
+      - name: Build vignettes on Windows after package installation
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          if (!requireNamespace("remotes", quietly = TRUE)) {
+            install.packages("remotes", repos = "https://cloud.r-project.org")
+          }
+          remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
+          pkg_path <- find.package("lifecontingencies")
+          tools::buildVignettes(dir = pkg_path)
+          cat("Built vignettes:\n")
+          print(list.files(file.path(pkg_path, "doc"), pattern = "\\.pdf$", full.names = TRUE))
