@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lifecontingencies</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.2</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@
                         <h4 data-toc-skip class="author">Gian Paolo
 Clemente</h4>
             <address class="author_afil">
-      Catholic University of Milan<br><h4 data-toc-skip class="date">16 September, 2025</h4>
+      Catholic University of Milan<br><h4 data-toc-skip class="date">16 August, 2026</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/spedygiorgio/lifecontingencies/blob/master/vignettes/pensionfunding.Rmd" class="external-link"><code>vignettes/pensionfunding.Rmd</code></a></small>
       <div class="hidden name"><code>pensionfunding.Rmd</code></div>
@@ -143,7 +143,7 @@ expressed as a pension annuity
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>x</mi></msub><annotation encoding="application/x-tex">b_{x}</annotation></semantics></math>,
 starting at age
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>,
-increasing annualy at the revaualion rate
+annually increasing at the rate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
 and payable until death:
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi>x</mi></msub><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>δ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>x</mi><mo>−</mo><mi>β</mi></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>β</mi><mo>−</mo><mi>α</mi></mrow><mi>t</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>s</mi><mi>β</mi></msub></mrow><annotation encoding="application/x-tex">\begin{equation}
@@ -161,7 +161,7 @@ flat rate
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>x</mi></msub><mo>=</mo><msub><mi>s</mi><mrow><mi>x</mi><mo>−</mo><mn>1</mn></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\begin{equation}
 s_{x}=s_{x-1}(1+j)
 \end{equation}</annotation></semantics></math> This evolution of
-earnings, desibed by the rate
+earnings, defined by the rate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>,
 is usually considered to include two components:
 </div>
@@ -175,8 +175,8 @@ cost method defines the annual normal cost on the basis of portion of
 pension benefit matured at the valuation date. Accrued Benefits Funding
 Methods are indeed a major category of funding methods in which the
 Actuarial Liability for active members is based on pensionable service
-accrued up to the valuation date or to the end of the Control Period,
-asappropriate. Differences between the various Accrued Benefits Funding
+accrued up to the valuation date or to the end of the Control Period, as
+appropriate. Differences between the various Accrued Benefits Funding
 Methods arise from the treatment of decrements in membership and
 increases in pensionable pay when calculating the Actuarial Liabilities
 for active members. This affects the value placed not only on the
@@ -208,7 +208,7 @@ respectively,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>i</mi><mrow><mi>a</mi><mi>p</mi></mrow></msup><annotation encoding="application/x-tex">i^{ap}</annotation></semantics></math>
 is the technical financial rate in the accumulation period,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mfrac><mrow><mn>1</mn><mo>+</mo><msup><mi>i</mi><mrow><mi>p</mi><mi>p</mi></mrow></msup></mrow><mrow><mn>1</mn><mo>+</mo><mi>δ</mi></mrow></mfrac><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">u=\frac{1+i^{pp}}{1+\delta}-1</annotation></semantics></math>
-is a syntethic index function of the technical financial rate
+is a synthetic index function of the technical financial rate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>i</mi><mrow><mi>p</mi><mi>p</mi></mrow></msup><annotation encoding="application/x-tex">i^{pp}</annotation></semantics></math>
 in the payment period and the indexation of the pension amount. Notice
 that
@@ -545,9 +545,9 @@ It is indeed easy to prove that both methods lead to the same rates when
 <span>    type <span class="op">=</span> <span class="st">"p"</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CUM"</span>, <span class="st">"PUM"</span>, <span class="st">"IEAM (constant rate)"</span>, <span class="st">"IEAM (constant premium)"</span><span class="op">)</span>,</span>
 <span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pensionfunding_files/figure-html/calcandshow-1.png" width="700">
+<p><img src="pensionfunding_files/figure-html/calcandshow-1.png" class="r-plt" alt="" width="700">
 According to the mathematical reserve, we observe in the following
-figure the different behaviour in the accumulation period.</p>
+figure the different behavior in the accumulation period.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">CUMmr</span><span class="op">(</span><span class="va">lt</span>, <span class="va">x</span>, <span class="va">beta</span>, <span class="va">i</span>, <span class="va">j</span>, <span class="va">t</span>, <span class="va">k</span>, delta <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1]  0.000000000  0.006294153  0.014425118  0.024794687  0.037884301</span></span>
@@ -583,41 +583,35 @@ figure the different behaviour in the accumulation period.</p>
 <span><span class="co">#&gt; [73] 36.91623049 36.18391764 35.40201650 34.92868406 34.24606279 33.47370537</span></span>
 <span><span class="co">#&gt; [79] 33.37143233 32.03000695 31.16473271 21.73520292  0.00000000</span></span>
 <span><span class="fu">IEAMmr</span><span class="op">(</span><span class="va">lt</span>, <span class="va">x</span>, <span class="va">beta</span>, <span class="va">i</span>, <span class="va">j</span>, <span class="va">t</span>, <span class="va">k</span>, delta <span class="op">=</span> <span class="fl">0.03</span>, type <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] 4.440892e-16 8.994257e-02 1.925698e-01 3.092323e-01 4.414268e-01</span></span>
-<span><span class="co">#&gt;  [6] 5.907917e-01 7.591110e-01 9.483436e-01 1.160610e+00 1.398215e+00</span></span>
-<span><span class="co">#&gt; [11] 1.663804e+00 1.960217e+00 2.290740e+00 2.658950e+00 3.068884e+00</span></span>
-<span><span class="co">#&gt; [16] 3.524802e+00 4.031206e+00 4.592767e+00 5.215158e+00 5.905308e+00</span></span>
-<span><span class="co">#&gt; [21] 6.671225e+00 7.521333e+00 8.464569e+00 9.511545e+00 1.067381e+01</span></span>
-<span><span class="co">#&gt; [26] 1.196274e+01 1.339248e+01 1.497992e+01 1.674333e+01 1.870671e+01</span></span>
-<span><span class="co">#&gt; [31] 2.089515e+01 2.333748e+01 2.606302e+01 2.911159e+01 3.252407e+01</span></span>
-<span><span class="co">#&gt; [36] 3.633779e+01 4.059181e+01 4.536618e+01 5.075851e+01 5.693145e+01</span></span>
-<span><span class="co">#&gt; [41] 6.401300e+01 6.395004e+01 6.378631e+01 6.345821e+01 6.301087e+01</span></span>
-<span><span class="co">#&gt; [46] 6.247042e+01 6.189296e+01 6.123408e+01 6.054121e+01 5.977567e+01</span></span>
-<span><span class="co">#&gt; [51] 5.897898e+01 5.806849e+01 5.719078e+01 5.626723e+01 5.528178e+01</span></span>
-<span><span class="co">#&gt; [56] 5.423776e+01 5.316170e+01 5.210345e+01 5.103011e+01 4.994843e+01</span></span>
-<span><span class="co">#&gt; [61] 4.886082e+01 4.777188e+01 4.669411e+01 4.562325e+01 4.457432e+01</span></span>
-<span><span class="co">#&gt; [66] 4.354057e+01 4.252925e+01 4.154622e+01 4.058842e+01 3.963004e+01</span></span>
-<span><span class="co">#&gt; [71] 3.867269e+01 3.775907e+01 3.691623e+01 3.618392e+01 3.540202e+01</span></span>
-<span><span class="co">#&gt; [76] 3.492868e+01 3.424606e+01 3.347371e+01 3.337143e+01 3.203001e+01</span></span>
-<span><span class="co">#&gt; [81] 3.116473e+01 2.173520e+01 0.000000e+00</span></span>
+<span><span class="co">#&gt;  [1]  0.00000000  0.08994257  0.19256976  0.30923231  0.44142685  0.59079165</span></span>
+<span><span class="co">#&gt;  [7]  0.75911099  0.94834358  1.16060969  1.39821522  1.66380407  1.96021696</span></span>
+<span><span class="co">#&gt; [13]  2.29074024  2.65894988  3.06888371  3.52480160  4.03120552  4.59276656</span></span>
+<span><span class="co">#&gt; [19]  5.21515823  5.90530820  6.67122483  7.52133267  8.46456911  9.51154468</span></span>
+<span><span class="co">#&gt; [25] 10.67380757 11.96273780 13.39247873 14.97992449 16.74332963 18.70671071</span></span>
+<span><span class="co">#&gt; [31] 20.89514921 23.33747683 26.06301660 29.11158789 32.52407014 36.33778548</span></span>
+<span><span class="co">#&gt; [37] 40.59180712 45.36618297 50.75851160 56.93144664 64.01300154 63.95004239</span></span>
+<span><span class="co">#&gt; [43] 63.78630843 63.45820810 63.01087176 62.47041792 61.89295531 61.23408159</span></span>
+<span><span class="co">#&gt; [49] 60.54120787 59.77567496 58.97898058 58.06849015 57.19077973 56.26723093</span></span>
+<span><span class="co">#&gt; [55] 55.28178010 54.23776384 53.16170302 52.10344874 51.03010589 49.94843346</span></span>
+<span><span class="co">#&gt; [61] 48.86081659 47.77187516 46.69410533 45.62324770 44.57431547 43.54057362</span></span>
+<span><span class="co">#&gt; [67] 42.52925373 41.54622245 40.58842490 39.63003990 38.67268684 37.75906920</span></span>
+<span><span class="co">#&gt; [73] 36.91623049 36.18391764 35.40201650 34.92868406 34.24606279 33.47370537</span></span>
+<span><span class="co">#&gt; [79] 33.37143233 32.03000695 31.16473271 21.73520292  0.00000000</span></span>
 <span><span class="fu">IEAMmr</span><span class="op">(</span><span class="va">lt</span>, <span class="va">x</span>, <span class="va">beta</span>, <span class="va">i</span>, <span class="va">j</span>, <span class="va">t</span>, <span class="va">k</span>, delta <span class="op">=</span> <span class="fl">0.03</span>, type <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] 4.440892e-16 1.936447e-01 4.029806e-01 6.292776e-01 8.739418e-01</span></span>
-<span><span class="co">#&gt;  [6] 1.138491e+00 1.424546e+00 1.733873e+00 2.068339e+00 2.429942e+00</span></span>
-<span><span class="co">#&gt; [11] 2.821056e+00 3.244157e+00 3.702213e+00 4.198391e+00 4.736307e+00</span></span>
-<span><span class="co">#&gt; [16] 5.319617e+00 5.952047e+00 6.637279e+00 7.380133e+00 8.186823e+00</span></span>
-<span><span class="co">#&gt; [21] 9.064614e+00 1.002086e+01 1.106312e+01 1.220065e+01 1.344336e+01</span></span>
-<span><span class="co">#&gt; [26] 1.480039e+01 1.628376e+01 1.790815e+01 1.968913e+01 2.164821e+01</span></span>
-<span><span class="co">#&gt; [31] 2.380714e+01 2.619094e+01 2.882417e+01 3.174190e+01 3.497900e+01</span></span>
-<span><span class="co">#&gt; [36] 3.856538e+01 4.253181e+01 4.695055e+01 5.190948e+01 5.755963e+01</span></span>
-<span><span class="co">#&gt; [41] 6.401300e+01 6.395004e+01 6.378631e+01 6.345821e+01 6.301087e+01</span></span>
-<span><span class="co">#&gt; [46] 6.247042e+01 6.189296e+01 6.123408e+01 6.054121e+01 5.977567e+01</span></span>
-<span><span class="co">#&gt; [51] 5.897898e+01 5.806849e+01 5.719078e+01 5.626723e+01 5.528178e+01</span></span>
-<span><span class="co">#&gt; [56] 5.423776e+01 5.316170e+01 5.210345e+01 5.103011e+01 4.994843e+01</span></span>
-<span><span class="co">#&gt; [61] 4.886082e+01 4.777188e+01 4.669411e+01 4.562325e+01 4.457432e+01</span></span>
-<span><span class="co">#&gt; [66] 4.354057e+01 4.252925e+01 4.154622e+01 4.058842e+01 3.963004e+01</span></span>
-<span><span class="co">#&gt; [71] 3.867269e+01 3.775907e+01 3.691623e+01 3.618392e+01 3.540202e+01</span></span>
-<span><span class="co">#&gt; [76] 3.492868e+01 3.424606e+01 3.347371e+01 3.337143e+01 3.203001e+01</span></span>
-<span><span class="co">#&gt; [81] 3.116473e+01 2.173520e+01 0.000000e+00</span></span>
+<span><span class="co">#&gt;  [1]  0.0000000  0.1936447  0.4029806  0.6292776  0.8739418  1.1384908</span></span>
+<span><span class="co">#&gt;  [7]  1.4245463  1.7338732  2.0683388  2.4299421  2.8210562  3.2441568</span></span>
+<span><span class="co">#&gt; [13]  3.7022125  4.1983914  4.7363071  5.3196171  5.9520471  6.6372791</span></span>
+<span><span class="co">#&gt; [19]  7.3801329  8.1868229  9.0646136 10.0208575 11.0631187 12.2006518</span></span>
+<span><span class="co">#&gt; [25] 13.4433595 14.8003889 16.2837558 17.9081477 19.6891318 21.6482116</span></span>
+<span><span class="co">#&gt; [31] 23.8071374 26.1909399 28.8241745 31.7418983 34.9790012 38.5653801</span></span>
+<span><span class="co">#&gt; [37] 42.5318115 46.9505459 51.9094765 57.5596319 64.0130015 63.9500424</span></span>
+<span><span class="co">#&gt; [43] 63.7863084 63.4582081 63.0108718 62.4704179 61.8929553 61.2340816</span></span>
+<span><span class="co">#&gt; [49] 60.5412079 59.7756750 58.9789806 58.0684901 57.1907797 56.2672309</span></span>
+<span><span class="co">#&gt; [55] 55.2817801 54.2377638 53.1617030 52.1034487 51.0301059 49.9484335</span></span>
+<span><span class="co">#&gt; [61] 48.8608166 47.7718752 46.6941053 45.6232477 44.5743155 43.5405736</span></span>
+<span><span class="co">#&gt; [67] 42.5292537 41.5462224 40.5884249 39.6300399 38.6726868 37.7590692</span></span>
+<span><span class="co">#&gt; [73] 36.9162305 36.1839176 35.4020165 34.9286841 34.2460628 33.4737054</span></span>
+<span><span class="co">#&gt; [79] 33.3714323 32.0300070 31.1647327 21.7352029  0.0000000</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="../reference/getOmega.html">getOmega</a></span><span class="op">(</span><span class="va">lt</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">CUMmr</span><span class="op">(</span><span class="va">lt</span>, <span class="va">x</span>, <span class="va">beta</span>, <span class="va">i</span>, <span class="va">j</span>, <span class="va">t</span>, <span class="va">k</span>, delta <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"age"</span>,</span>
 <span>    ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Mathematical reserve"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="../reference/getOmega.html">getOmega</a></span><span class="op">(</span><span class="va">lt</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">PUMmr</span><span class="op">(</span><span class="va">lt</span>, <span class="va">x</span>, <span class="va">beta</span>, <span class="va">i</span>, <span class="va">j</span>, <span class="va">t</span>, <span class="va">k</span>, delta <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span>,</span>
@@ -628,7 +622,7 @@ figure the different behaviour in the accumulation period.</p>
 <span>    type <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"p"</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CUM"</span>, <span class="st">"PUM"</span>, <span class="st">"IEAM (constant rate)"</span>, <span class="st">"IEAM (constant premium)"</span><span class="op">)</span>,</span>
 <span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pensionfunding_files/figure-html/calc2andshow-1.png" width="700"></p>
+<p><img src="pensionfunding_files/figure-html/calc2andshow-1.png" class="r-plt" alt="" width="700"></p>
 </div>
   </div>
 
@@ -647,7 +641,7 @@ figure the different behaviour in the accumulation period.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer>
