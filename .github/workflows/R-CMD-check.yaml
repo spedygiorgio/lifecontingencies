@@ -124,7 +124,7 @@ EOF
         shell: Rscript {0}
         run: |
           pkgs <- trimws(readLines(".github/tinytex-packages.txt"))
-          pkgs <- pkgs[nzchar(pkgs)]
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, "#")]
           if (!tinytex::is_tinytex()) stop("TinyTeX is not available")
           tinytex::tlmgr_install(pkgs, .quiet = TRUE)
           cat("Installed/verified", length(pkgs), "LaTeX packages.\n")
@@ -139,9 +139,6 @@ EOF
             ~/AppData/Roaming/TinyTeX
           key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
 
-      # Build the actual source package explicitly. This makes R CMD build a
-      # first-class CI gate and ensures the subsequent check runs on exactly
-      # the tarball that would be distributed to CRAN.
       - name: Build source package
         shell: Rscript {0}
         run: |
@@ -167,9 +164,6 @@ EOF
           cat("R_SOURCE_TARBALL=", tarball, "\n", sep = "",
               file = Sys.getenv("GITHUB_ENV"), append = TRUE)
 
-      # Check the built source tarball rather than the repository working tree.
-      # R CMD check installs/loads the package and runs examples and testthat,
-      # so this also verifies that the distributable package is compilable.
       - name: Check built source package
         shell: Rscript {0}
         run: |
