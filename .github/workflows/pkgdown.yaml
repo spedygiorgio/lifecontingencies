@@ -22,23 +22,15 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      R_KEEP_PKG_SOURCE: yes
-      _R_CHECK_CRAN_INCOMING_REMOTE_: false
-      _R_CHECK_LIMIT_CORES_: true
-      R_CHECK_NUM_CORES: 1
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: r-lib/actions/setup-pandoc@v2
-
       - uses: quarto-dev/quarto-actions/setup@v2
-
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: devel
           use-public-rspm: true
-
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
@@ -53,10 +45,7 @@ jobs:
         id: tinytex-cache
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.TinyTeX
-            ~/Library/TinyTeX
-            ~/AppData/Roaming/TinyTeX
+          path: ~/.TinyTeX
           key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
 
       - name: Setup TinyTeX
@@ -93,8 +82,7 @@ jobs:
           cat("pdflatex: ", Sys.which("pdflatex"), "\n", sep = "")
           cat("xelatex: ", Sys.which("xelatex"), "\n", sep = "")
           cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
-          print(tinytex::tinytex_root())
-          tinytex::tlmgr_update()
+          cat("TinyTeX root: ", tinytex::tinytex_root(), "\n", sep = "")
 
       - name: Build vignettes (PDF) and stage for pkgdown
         shell: Rscript {0}
@@ -102,14 +90,12 @@ jobs:
           dir.create("inst/doc", recursive = TRUE, showWarnings = FALSE)
           tools::buildVignettes(dir = ".", tangle = FALSE, clean = FALSE)
 
-          if (dir.exists("inst/doc")) {
-            pdfs <- list.files("inst/doc", pattern = "\\.pdf$", full.names = TRUE)
-            if (length(pdfs) == 0L) stop("Vignette build produced no PDF files")
-            tools::compactPDF("inst/doc", qpdf = "qpdf")
-            dir.create("docs/articles", recursive = TRUE, showWarnings = FALSE)
-            ok <- file.copy(pdfs, file.path("docs/articles", basename(pdfs)), overwrite = TRUE)
-            if (!all(ok)) stop("Failed to copy one or more vignette PDFs to docs/articles")
-          }
+          pdfs <- list.files("inst/doc", pattern = "\\.pdf$", full.names = TRUE)
+          if (length(pdfs) == 0L) stop("Vignette build produced no PDF files")
+          tools::compactPDF("inst/doc", qpdf = "qpdf")
+          dir.create("docs/articles", recursive = TRUE, showWarnings = FALSE)
+          ok <- file.copy(pdfs, file.path("docs/articles", basename(pdfs)), overwrite = TRUE)
+          if (!all(ok)) stop("Failed to copy one or more vignette PDFs to docs/articles")
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
