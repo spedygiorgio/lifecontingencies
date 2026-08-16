@@ -89,7 +89,6 @@ jobs:
         run: |
           dir.create("inst/doc", recursive = TRUE, showWarnings = FALSE)
           tools::buildVignettes(dir = ".", tangle = FALSE, clean = FALSE)
-
           pdfs <- list.files("inst/doc", pattern = "\\.pdf$", full.names = TRUE)
           if (length(pdfs) == 0L) stop("Vignette build produced no PDF files")
           tools::compactPDF("inst/doc", qpdf = "qpdf")
