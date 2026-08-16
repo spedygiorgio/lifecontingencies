@@ -46,7 +46,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.TinyTeX
-          key: tinytex-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+          key: tinytex-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
 
       - name: Setup TinyTeX
         if: steps.tinytex-cache.outputs.cache-hit != 'true'
@@ -84,21 +84,10 @@ jobs:
           cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
           cat("TinyTeX root: ", tinytex::tinytex_root(), "\n", sep = "")
 
-      - name: Build vignettes (PDF) and stage for pkgdown
+      - name: Build site
         shell: Rscript {0}
         run: |
-          dir.create("inst/doc", recursive = TRUE, showWarnings = FALSE)
-          tools::buildVignettes(dir = ".", tangle = FALSE, clean = FALSE)
-          pdfs <- list.files("inst/doc", pattern = "\\.pdf$", full.names = TRUE)
-          if (length(pdfs) == 0L) stop("Vignette build produced no PDF files")
-          tools::compactPDF("inst/doc", qpdf = "qpdf")
-          dir.create("docs/articles", recursive = TRUE, showWarnings = FALSE)
-          ok <- file.copy(pdfs, file.path("docs/articles", basename(pdfs)), overwrite = TRUE)
-          if (!all(ok)) stop("Failed to copy one or more vignette PDFs to docs/articles")
-
-      - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
-        shell: Rscript {0}
+          pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
