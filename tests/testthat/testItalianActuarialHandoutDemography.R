@@ -38,19 +38,10 @@ italy1998_male <- new(
 
 context("Italian actuarial handout: demographic examples")
 
-# Handout p. 21: Exercise 1.
 test_that("Exercise 1: one-life survival and death probabilities", {
-  # p_40 = l_41 / l_40
   expect_equal(round(pxt(italy1998_male, x = 40, t = 1), 6), 0.998404)
-
-  # _25p_40 = l_65 / l_40
   expect_equal(round(pxt(italy1998_male, x = 40, t = 25), 6), 0.857098)
-
-  # _30q_40 = (l_40 - l_70) / l_40
   expect_equal(round(1 - pxt(italy1998_male, x = 40, t = 30), 6), 0.235609)
-
-  # Probability of surviving from age 40 to 80 and then dying between
-  # exact ages 80 and 81: _40p_40 * q_80 = d_80 / l_40.
   expect_equal(
     round(
       pxt(italy1998_male, x = 40, t = 40) *
@@ -61,47 +52,27 @@ test_that("Exercise 1: one-life survival and death probabilities", {
   )
 })
 
-# Handout p. 22: Exercise 2.
-# The exercise uses l_x values from the same mortality table.
 test_that("Exercise 2: survival probabilities from tabular l_x values", {
-  # Values explicitly reported in the handout solution:
-  # l_30 = 97,776; l_36 = 97,031; l_45 = 95,592; l_51 = 93,821.
   expect_equal(italy1998_male@lx[31], 97776)
   expect_equal(italy1998_male@lx[37], 97031)
   expect_equal(italy1998_male@lx[46], 95592)
   expect_equal(italy1998_male@lx[52], 93821)
 
-  # _6p_30 = l_36 / l_30
   expect_equal(
     round(pxt(italy1998_male, x = 30, t = 6), 6),
     round(97031 / 97776, 6)
   )
-
-  # _15p_36 = l_51 / l_36
   expect_equal(
     round(pxt(italy1998_male, x = 36, t = 15), 6),
     round(93821 / 97031, 6)
   )
-
-  # _21p_30 = l_51 / l_30
   expect_equal(
     round(pxt(italy1998_male, x = 30, t = 21), 6),
     round(93821 / 97776, 6)
   )
 
-  # Equivalent direct calculation from the table.
-  expect_equal(
-    round(pxt(italy1998_male, x = 30, t = 6), 6),
-    0.992379
-  )
-
-  expect_equal(
-    round(pxt(italy1998_male, x = 36, t = 15), 6),
-    0.966918
-  )
-
-  expect_equal(
-    round(pxt(italy1998_male, x = 30, t = 21), 6),
-    0.959524
-  )
+  # Values rounded to six decimals from the ISTAT lx column.
+  expect_equal(round(pxt(italy1998_male, x = 30, t = 6), 6), 0.992381)
+  expect_equal(round(pxt(italy1998_male, x = 36, t = 15), 6), 0.966918)
+  expect_equal(round(pxt(italy1998_male, x = 30, t = 21), 6), 0.959550)
 })
