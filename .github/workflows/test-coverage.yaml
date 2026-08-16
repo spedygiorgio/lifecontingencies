@@ -44,27 +44,18 @@ jobs:
           install.packages(".", repos = NULL, type = "source", quiet = TRUE)
           library(lifecontingencies)
           data(demoIta)
-          sim02 <- demoIta$SIM02
-          sim02 <- sim02[!is.na(sim02) & sim02 != 0]
-          tab <- new("actuarialtable", x = seq(0, length(sim02) - 1), lx = sim02, interest = 0.04)
-          out <- c(
-            paste("Ex4", round(30000 * Exn(tab, x = 30, n = 20), 2)),
-            paste("Ex5", round(16000 * Exn(tab, x = 35, n = 30), 2)),
-            paste("Ex6", round(26000 / Exn(tab, x = 40, n = 22), 2)),
-            paste("Ex9", round(15000 / Exn(tab, x = 32, n = 20), 2)),
-            paste("Ex12", round(15000 / Exn(tab, x = 50, n = 20), 2)),
-            paste("Ex11", round(20000 * Exn(tab, x = 27, n = 23) + 35000 * Exn(tab, x = 27, n = 33), 2)),
-            paste("Ex13_due", round(20000 * axn(tab, x = 46), 2)),
-            paste("Ex13_immediate", round(20000 * axn(tab, x = 46, payment = "immediate"), 2)),
-            paste("Ex14", round(12000 * axn(tab, x = 36, m = 24), 2)),
-            paste("Ex15_immediate", round(12000 * axn(tab, x = 36, n = 25, payment = "immediate"), 2)),
-            paste("Ex15_deferred", round(12000 * axn(tab, x = 36, n = 20, m = 12), 2)),
-            paste("Ex16_immediate", round(22000 * axn(tab, x = 46, n = 25, payment = "immediate"), 2)),
-            paste("Ex16_deferred", round(22000 * axn(tab, x = 46, n = 20, m = 2), 2)),
-            paste("Ex17_whole", round(100000 * Axn(tab, x = 28), 2)),
-            paste("Ex17_temp", round(100000 * Axn(tab, x = 28, n = 37), 2)),
-            paste("Ex17_deferred", round(100000 * Axn(tab, x = 28, n = 37, m = 37), 2))
-          )
+          cols <- c("SIM92", "SIM02", "SIM00", "SIM81", "SIM61", "SIM71", "SIM51", "SIM31", "RG48M", "IPS55M")
+          out <- unlist(lapply(cols, function(col) {
+            lx <- demoIta[[col]]
+            lx <- lx[!is.na(lx) & lx != 0]
+            tab <- new("actuarialtable", x = seq(0, length(lx) - 1), lx = lx, interest = 0.04)
+            c(
+              paste(col, "Ex4", round(30000 * Exn(tab, x = 30, n = 20), 2)),
+              paste(col, "Ex5", round(16000 * Exn(tab, x = 35, n = 30), 2)),
+              paste(col, "Ex13", round(20000 * axn(tab, x = 46), 2)),
+              paste(col, "Ex17", round(100000 * Axn(tab, x = 28), 2))
+            )
+          }))
           writeLines(out, "benchmark-values.txt")
           writeLines(capture.output(sessionInfo()), "session-info.txt")
 
