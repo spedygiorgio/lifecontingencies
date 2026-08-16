@@ -2,9 +2,10 @@ name: R-CMD-check
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,18 +14,20 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Fast validation for pull requests: enough to catch most regressions quickly.
 jobs:
   R-CMD-check:
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    if: github.event_name == 'pull_request'
     runs-on: ${{ matrix.config.os }}
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,  r: 'devel' }
-          - { os: macos-latest,   r: 'devel' }
-          - { os: windows-latest, r: 'devel' }
+          - { os: ubuntu-latest,  r: 'release' }
+          - { os: ubuntu-latest,  r: 'devel', http-user-agent: 'release' }
+          - { os: windows-latest, r: 'release' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -40,6 +43,111 @@ jobs:
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Install system deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf ghostscript
+
+      - name: Install system deps (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install -y ghostscript qpdf
+
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            any::knitr
+            any::rmarkdown
+            any::tinytex
+          needs: check
+          cache: true
+          cache-version: 3
+
+      - name: Setup TinyTeX
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install LaTeX packages
+        shell: Rscript {0}
+        run: |
+          pkgs <- c(
+            "pict2e","grfext","everyshi","graphics","etoolbox","kvoptions","xcolor",
+            "collection-latexrecommended","collection-latexextra","collection-fontsrecommended",
+            "ae","inconsolata","upquote","courier","fancyvrb","framed","titling","booktabs",
+            "geometry","hyperref","url","microtype","graphicx","thumbpdf","float","caption",
+            "subcaption","babel-english","amsmath","amssymb","mathtools","siunitx","natbib",
+            "biblatex","csquotes","ulem","parskip","titlesec","wrapfig","longtable","makecell",
+            "multirow","colortbl","pgf","tikz","xkeyval","changepage"
+          )
+          if (Sys.which("tlmgr") != "") tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+      - name: Check package
+        if: runner.os != 'Windows'
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data","--compact-vignettes=both")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
+
+      - name: Check package without vignettes on Windows
+        if: runner.os == 'Windows'
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data","--no-build-vignettes")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
+
+      - name: Build vignettes on Windows after package installation
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          if (!requireNamespace("remotes", quietly = TRUE)) {
+            install.packages("remotes", repos = "https://cloud.r-project.org")
+          }
+          remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
+          pkg_path <- find.package("lifecontingencies")
+          tools::buildVignettes(dir = pkg_path)
+          cat("Built vignettes:\n")
+          print(list.files(file.path(pkg_path, "doc"), pattern = "\\.pdf$", full.names = TRUE))
+
+  # Complete matrix: executed after changes reach the default branch, or manually.
+  R-CMD-check-full:
+    name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest, r: 'release' }
+          - { os: ubuntu-latest, r: 'devel', http-user-agent: 'release' }
+          - { os: windows-latest, r: 'release' }
+          - { os: windows-latest, r: 'devel', http-user-agent: 'release' }
+          - { os: macos-latest, r: 'release' }
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      _R_CHECK_CRAN_INCOMING_REMOTE_: false
+      _R_CHECK_LIMIT_CORES_: true
+      R_CHECK_NUM_CORES: 1
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
       - name: Install system deps (Linux)
@@ -69,9 +177,8 @@ jobs:
 
       - name: Install system deps (Windows)
         if: runner.os == 'Windows'
-        run: |
-          choco install -y ghostscript
-          choco install -y qpdf
+        shell: pwsh
+        run: choco install -y ghostscript qpdf
 
       - name: Install R package dependencies
         uses: r-lib/actions/setup-r-dependencies@v2

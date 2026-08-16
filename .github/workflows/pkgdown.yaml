@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: pkgdown-${{ github.ref }}
+  group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -22,6 +22,8 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      NO_COLOR: "1"
+      R_CLI_NUM_COLORS: "1"
 
     steps:
       - uses: actions/checkout@v7
@@ -40,6 +42,7 @@ jobs:
             any::tinytex
             local::.
           needs: website
+          cache: true
 
       - name: Cache TinyTeX
         id: tinytex-cache
