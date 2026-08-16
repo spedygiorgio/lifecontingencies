@@ -4,7 +4,7 @@ library(lifecontingencies)
 # Source: ISTAT, Tavole di mortalità della popolazione italiana,
 # Tavola 1.12, Maschi, Anno 1998. The table was published in 2002 and is
 # the mortality basis shown in the handout "Tecnica attuariale per le
-# assicurazioni", p. 14 and used for the calculations on p. 21.
+# assicurazioni", p. 14 and used for the calculations on pp. 21-22.
 #
 # The handout calls it "Tavola di mortalità Italia maschi 2002", but the
 # source page reports Periodo dei dati: Anno 1998 and Anno di edizione: 2002.
@@ -61,6 +61,47 @@ test_that("Exercise 1: one-life survival and death probabilities", {
   )
 })
 
-# The source values used in Exercise 2 are also present in the same ISTAT
-# table (l30=97776, l36=97031, l45=95592, l51=93821), so this fixture can be
-# reused when the remaining demographic exercises are added.
+# Handout p. 22: Exercise 2.
+# The exercise uses l_x values from the same mortality table.
+test_that("Exercise 2: survival probabilities from tabular l_x values", {
+  # Values explicitly reported in the handout solution:
+  # l_30 = 97,776; l_36 = 97,031; l_45 = 95,592; l_51 = 93,821.
+  expect_equal(italy1998_male@lx[31], 97776)
+  expect_equal(italy1998_male@lx[37], 97031)
+  expect_equal(italy1998_male@lx[46], 95592)
+  expect_equal(italy1998_male@lx[52], 93821)
+
+  # _6p_30 = l_36 / l_30
+  expect_equal(
+    round(pxt(italy1998_male, x = 30, t = 6), 6),
+    round(97031 / 97776, 6)
+  )
+
+  # _15p_36 = l_51 / l_36
+  expect_equal(
+    round(pxt(italy1998_male, x = 36, t = 15), 6),
+    round(93821 / 97031, 6)
+  )
+
+  # _21p_30 = l_51 / l_30
+  expect_equal(
+    round(pxt(italy1998_male, x = 30, t = 21), 6),
+    round(93821 / 97776, 6)
+  )
+
+  # Equivalent direct calculation from the table.
+  expect_equal(
+    round(pxt(italy1998_male, x = 30, t = 6), 6),
+    0.992379
+  )
+
+  expect_equal(
+    round(pxt(italy1998_male, x = 36, t = 15), 6),
+    0.966918
+  )
+
+  expect_equal(
+    round(pxt(italy1998_male, x = 30, t = 21), 6),
+    0.959524
+  )
+})
