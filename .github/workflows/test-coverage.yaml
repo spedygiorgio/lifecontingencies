@@ -38,37 +38,6 @@ jobs:
           cache: true
           cache-version: 2
 
-      - name: Diagnose benchmark values
-        shell: Rscript {0}
-        run: |
-          install.packages(".", repos = NULL, type = "source", quiet = TRUE)
-          library(lifecontingencies)
-          data(demoIta)
-          cols <- c("SIM92", "SIM02", "SIM00", "SIM81", "SIM61", "SIM71", "SIM51", "SIM31", "RG48M", "IPS55M")
-          out <- unlist(lapply(cols, function(col) {
-            lx <- demoIta[[col]]
-            lx <- lx[!is.na(lx) & lx != 0]
-            tab <- new("actuarialtable", x = seq(0, length(lx) - 1), lx = lx, interest = 0.04)
-            c(
-              paste(col, "Ex4", round(30000 * Exn(tab, x = 30, n = 20), 2)),
-              paste(col, "Ex5", round(16000 * Exn(tab, x = 35, n = 30), 2)),
-              paste(col, "Ex13", round(20000 * axn(tab, x = 46), 2)),
-              paste(col, "Ex17", round(100000 * Axn(tab, x = 28), 2))
-            )
-          }))
-          writeLines(out, "benchmark-values.txt")
-          writeLines(capture.output(sessionInfo()), "session-info.txt")
-
-      - name: Upload benchmark diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-diagnostics
-          path: |
-            benchmark-values.txt
-            session-info.txt
-          if-no-files-found: error
-
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(type = "tests")
