@@ -2,7 +2,10 @@ library(lifecontingencies)
 
 context("Present value engine")
 
-reference_present_value <- function(cashFlows, timeIds, interestRates, probabilities, power = 1) {
+# This is intentionally the R implementation that predates .presentValueC.
+# It is kept here as an independent numerical reference for the native kernel.
+reference_present_value <- function(cashFlows, timeIds, interestRates,
+                                    probabilities, power = 1) {
   rates <- rep(interestRates, length.out = length(timeIds))
   discounts <- (1 + rates)^(-timeIds)
   sum((cashFlows^power) * (discounts^power) * probabilities)
@@ -75,4 +78,71 @@ test_that("presentValue defaults probabilities to one", {
                            timeIds = times,
                            interestRates = rate)
   expect_identical(implicit, explicit)
+})
+
+# Test the C++ kernel itself against the historical R implementation.  The
+# rates are recycled exactly as presentValue() does before calling the kernel.
+test_that("presentValueC agrees with the historical R implementation", {
+  cases <- list(
+    list(
+      cf = c(100, -30, 50, 70),
+      times = c(0, 0.5, 3, 6.25),
+      rates = 0.035,
+      probs = c(1, 0.9, 0.8, 0.65),
+      power = 1
+    ),
+    list(
+      cf = c(10, 20, 30, 110),
+      times = c(1, 2, 4, 7),
+      rates = c(0.02, 0.021, 0.024, 0.028),
+      probs = c(0.995, 0.99, 0.97, 0.95),
+      power = 1
+    ),
+    list(
+      cf = c(3, 5, 7),
+      times = c(1, 2, 3),
+      rates = c(0.01, 0.015, 0.02),
+      probs = c(0.9, 0.8, 0.7),
+      power = 2
+    )
+  )
+
+  for (case in cases) {
+    rates <- rep(case$rates, length.out = length(case$times))
+    expected <- reference_present_value(
+      case$cf, case$times, case$rates, case$probs, case$power
+    )
+    actual <- lifecontingencies:::.presentValueC(
+      cashFlows = case$cf,
+      timeIds = case$times,
+      interestRates = rates,
+      probabilities = case$probs,
+      power = case$power
+    )
+    expect_equal(actual, expected, tolerance = 1e-12)
+  }
+})
+
+test_that("presentValueC agrees with the R reference over randomized cases", {
+  set.seed(20260817)
+
+  for (rep in seq_len(100)) {
+    n <- sample(1:50, 1)
+    cf <- rnorm(n, mean = 10, sd = 25)
+    times <- sort(runif(n, min = 0, max = 30))
+    rates <- sample(c(0.01, 0.015, 0.02, 0.025), sample(1:3, 1), replace = TRUE)
+    probs <- runif(n, min = 0.1, max = 1)
+    power <- sample(c(0.5, 1, 2), 1)
+
+    expected <- reference_present_value(cf, times, rates, probs, power)
+    actual <- lifecontingencies:::.presentValueC(
+      cashFlows = cf,
+      timeIds = times,
+      interestRates = rep(rates, length.out = n),
+      probabilities = probs,
+      power = power
+    )
+
+    expect_equal(actual, expected, tolerance = 1e-12)
+  }
 })
