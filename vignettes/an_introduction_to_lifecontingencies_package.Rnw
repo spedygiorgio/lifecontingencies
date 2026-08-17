@@ -2059,6 +2059,74 @@ axn(DAT,65,10,payment="arrears")
 @
 
 
+\section{Software engineering and package architecture}
+\label{sec:software-engineering}
+
+Although \pkg{lifecontingencies} is primarily presented as a collection of
+actuarial and demographic functions, its implementation follows the standard
+architecture of an \proglang{R} package and combines interpreted
+\proglang{R} code with compiled code where computational efficiency is
+important.  This separation makes it possible to maintain a high-level,
+user-facing \proglang{R} interface while implementing selected numerical
+operations in compiled \proglang{C++} code.
+
+The main components of the source tree can be summarized as follows:
+
+\begin{verbatim}
+lifecontingencies/
+  R/                    R functions and classes
+  src/                  C++ implementations
+  tests/
+    testthat.R          entry point for package tests
+    testthat/           automated test suite
+  inst/
+    benchmarks/         performance-oriented development benchmarks
+  vignettes/             package documentation and examples
+\end{verbatim}
+
+The \proglang{R} directory contains the public-facing functions and the
+implementation of the package's actuarial and demographic classes.  The
+\proglang{C++} code in \code{src/} is used for selected computationally
+intensive operations.  The interface between \proglang{R} and \proglang{C++}
+is provided by the \pkg{Rcpp} package \citep{Eddelbuettel2011Rcpp}.  This
+approach allows performance-critical numerical computations to be compiled
+while retaining the \proglang{R} API used by package users.
+
+The compiled backend is treated as an implementation detail rather than as a
+separate user-facing API.  Consequently, changes to the computational backend
+can be validated against the established \proglang{R} implementations and
+against the package's actuarial identities and numerical properties.  When an
+independent historical \proglang{R} implementation is available, regression
+tests can use it as a reference implementation.  This is particularly useful
+when replacing a frequently called \proglang{R} computation with a compiled
+implementation: the objective is to improve execution time without changing
+the mathematical result.
+
+Automated testing is organized using the \pkg{testthat} framework
+\citep{Wickham2011testthat}.  The files under \code{tests/testthat/} contain
+functional, regression, validation, and defensive-programming tests.  The
+test suite is executed as part of the package checking and continuous
+integration process.  This provides an additional safeguard against
+unintentional changes in numerical results or in the public behaviour of the
+package.
+
+Performance measurements are kept separate from the functional test suite.
+Benchmark scripts are useful during development for comparing alternative
+implementations, in particular interpreted \proglang{R} and compiled
+\proglang{C++} implementations, but execution time is inherently dependent on
+the hardware and software environment.  Such measurements are therefore not
+used as pass/fail criteria for the standard package tests.
+
+This architecture separates four complementary concerns: the actuarial
+interface and mathematical implementation in \proglang{R}, computationally
+intensive numerical kernels in \proglang{C++}, automated correctness checks
+through \pkg{testthat}, and performance evaluation through dedicated
+benchmarks.  Together with continuous integration, this structure supports
+the long-term maintenance of the package while allowing computational
+optimizations without changing its user-facing interface.
+
+
+
 \section{Discussion}\label{sec:discussion}
 \subsection{Advantages, limitations, and future perspectives}
 
