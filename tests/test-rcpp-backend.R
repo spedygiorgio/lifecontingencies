@@ -51,14 +51,37 @@ test_cases <- list(
 for (case in test_cases) {
   expected <- do.call(reference_present_value, case)
   actual_public <- do.call(presentValue, case)
-  actual_cpp <- do.call(lifecontingencies:::.presentValueC, case)
+
+  # The public R wrapper recycles interestRates before calling the native
+  # kernel. Reproduce that historical behaviour before testing .presentValueC.
+  case_cpp <- case
+  case_cpp$interestRates <- rep(
+    case$interestRates,
+    length.out = length(case$timeIds)
+  )
+  actual_cpp <- do.call(lifecontingencies:::.presentValueC, case_cpp)
 
   stopifnot(all.equal(actual_public, expected, tolerance = 1e-12))
   stopifnot(all.equal(actual_cpp, expected, tolerance = 1e-12))
 }
 
-# Scalar interest rate recycling, as performed by the public R wrapper.
+# Randomized regression test against the historical R implementation.
 set.seed(123)
+for (power in c(1, 2, 3)) {
+  cf <- rnorm(50, mean = 5, sd = 20)
+  times <- seq(0.25, by = 0.25, length.out = length(cf))
+  rates <- runif(length(cf), min = 0.005, max = 0.06)
+  probs <- runif(length(cf), min = 0.2, max = 1)
+
+  expected <- reference_present_value(cf, times, rates, probs, power)
+  actual_cpp <- lifecontingencies:::.presentValueC(
+    cf, times, rates, probs, power
+  )
+
+  stopifnot(all.equal(actual_cpp, expected, tolerance = 1e-10))
+}
+
+# Scalar interest rate recycling, as performed by the public R wrapper.
 cf <- rnorm(50, mean = 5, sd = 20)
 times <- seq(0.25, by = 0.25, length.out = length(cf))
 probs <- runif(length(cf), min = 0.2, max = 1)
@@ -141,7 +164,7 @@ for (payment in c("due", "arrears", "immediate", "advance")) {
   stopifnot(all.equal(new_n, old_n, tolerance = 1e-10))
 
   new_m <- axn(soa08Act, x = 33, n = 30, m = 0:10, payment = payment)
-  old_m <- axn_old_m(soa08Act, x = 33, n = 30, m = 0:10, payment = payment)
+  old_m <- axn_old_m(soa08Act, x = 33, m = 0:10, n = 30, payment = payment)
   stopifnot(all.equal(new_m, old_m, tolerance = 1e-10))
 }
 
