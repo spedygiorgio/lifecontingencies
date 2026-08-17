@@ -122,3 +122,28 @@ stopifnot(inherits(
   try(presentValue(c(1, 2), c(1, 2), 0.03, c(1)), silent = TRUE),
   "try-error"
 ))
+
+# Native backend rejects malformed vector inputs instead of relying on
+# unchecked indexing.
+stopifnot(inherits(
+  try(lifecontingencies:::.mult2sum(c(1, 2), c(1)), silent = TRUE),
+  "try-error"
+))
+stopifnot(inherits(
+  try(lifecontingencies:::.mult3sum(c(1, 2), c(1), c(1, 2)), silent = TRUE),
+  "try-error"
+))
+stopifnot(inherits(
+  try(lifecontingencies:::.presentValueC(
+    c(1, 2), c(1, 2), c(0.03), c(1, 1), 1
+  ), silent = TRUE),
+  "try-error"
+))
+
+# Invalid payment frequencies are rejected by the native actuarial kernels.
+for (bad_k in c(0, -1, NA_real_, NaN, Inf)) {
+  stopifnot(inherits(
+    try(lifecontingencies:::.fAxnCpp(40, 30, 10, 0.04, 2, bad_k), silent = TRUE),
+    "try-error"
+  ))
+}
