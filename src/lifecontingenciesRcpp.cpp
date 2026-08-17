@@ -73,16 +73,16 @@ double presentValueC(NumericVector cashFlows,
   double total = 0.0;
   R_xlen_t n = cashFlows.size();
 
-  for (R_xlen_t i = 0; i < n; ++i) {
-    if (power == 1.0) {
-      // Common case: avoid the second pow() entirely.
+  if (power == 1.0) {
+    // Common case: keep the hot loop branch-free and use only one pow().
+    for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
         std::pow(1.0 + interestRates[i], -timeIds[i]);
       total += cashFlows[i] * discountFactor * probabilities[i];
-    } else {
-      // Algebraically combine the two discounting powers into one pow().
-      // This reduces the expensive power evaluations from two to one while
-      // preserving the same mathematical expression.
+    }
+  } else {
+    // Algebraically combine the discounting powers into one pow().
+    for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
         std::pow(1.0 + interestRates[i], -timeIds[i] * power);
       double term = std::pow(cashFlows[i], power) *
