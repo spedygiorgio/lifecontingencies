@@ -3,108 +3,164 @@ require(lifecontingencies)
 data("soa08Act")
 
 # -----------------------------------------------------------------------------
-# The C++ kernels are implementation details of the classical actuarial
-# functions.  The most important regression criterion is therefore numerical
-# agreement with the corresponding R implementation, not just agreement with
-# the same formula reproduced in C++.
+# Regression tests for the Rcpp backend.
+#
+# The primary criterion is numerical agreement with the corresponding
+# historical R implementation, where that implementation exists.
 # -----------------------------------------------------------------------------
 
-# Pure endowment: C++ kernel vs the classical Exn calculation.
-exn_cases <- expand.grid(
-  x = c(30, 60, 85),
-  n = c(5, 10, 20),
-  i = c(0.03, 0.06)
-)
-for (j in seq_len(nrow(exn_cases))) {
-  z <- exn_cases[j, ]
-  T <- z$x + z$n
-  cpp <- lifecontingencies:::.fExnCpp(T, z$x, z$n, z$i)
-  r <- Exn(soa08Act, x = z$x, n = z$n, i = z$i)
-  # The C++ kernel is a one-state survival kernel; for an arbitrary life table
-  # its direct value is used below only for the deterministic zero/discount
-  # cases. The public-function comparison is done for the native actuarial
-  # kernels whose corresponding legacy R implementations are available.
-  stopifnot(is.finite(cpp), is.finite(r))
+# -----------------------------------------------------------------------------
+# presentValue / presentValueC
+#
+# This is the R implementation that presentValueC() replaced in PR #39:
+#   v <- (1 + interestRates)^(-timeIds)
+#   sum(((cashFlows^power) * (v^power)) * probabilities)
+#
+# Keep this reference independent from the C++ implementation.
+# -----------------------------------------------------------------------------
+reference_present_value <- function(cashFlows, timeIds, interestRates,
+                                    probabilities, power = 1) {
+  v <- (1 + interestRates)^(-timeIds)
+  sum(((cashFlows^power) * (v^power)) * probabilities)
 }
 
-# -----------------------------------------------------------------------------
-# Axn: compare the current native implementation with the classical R
-# implementation used by the package's historical tests.
-# This follows tests/test-computation-time-act-capital.R, which compares
-# Axnvect with Axnold over age, term, deferment and payment frequency.
-# -----------------------------------------------------------------------------
-AXn <- Vectorize(lifecontingencies:::Axnold, "x")
-AxN <- Vectorize(lifecontingencies:::Axnold, "n")
-AxnM <- Vectorize(lifecontingencies:::Axnold, "m")
+test_cases <- list(
+  list(
+    cashFlows = c(100, -30, 50, 70),
+    timeIds = c(0, 0.5, 3, 6.25),
+    interestRates = 0.035,
+    probabilities = c(1, 0.9, 0.8, 0.65),
+    power = 1
+  ),
+  list(
+    cashFlows = c(10, 10, 10, 10, 10, 10, 110),
+    timeIds = 1:7,
+    interestRates = c(0.02, 0.021, 0.0225, 0.024, 0.0255, 0.027, 0.028),
+    probabilities = rep(0.995, 7),
+    power = 1
+  ),
+  list(
+    cashFlows = c(3, 5, 7),
+    timeIds = c(1, 2, 3),
+    interestRates = c(0.01, 0.015, 0.02),
+    probabilities = c(0.9, 0.8, 0.7),
+    power = 2
+  )
+)
 
-# Public/native implementation vs legacy/classical R implementation.
+for (case in test_cases) {
+  expected <- do.call(reference_present_value, case)
+  actual_public <- do.call(presentValue, case)
+  actual_cpp <- do.call(lifecontingencies:::.presentValueC, case)
+
+  stopifnot(all.equal(actual_public, expected, tolerance = 1e-12))
+  stopifnot(all.equal(actual_cpp, expected, tolerance = 1e-12))
+}
+
+# Scalar interest rate recycling, as performed by the public R wrapper.
+set.seed(123)
+cf <- rnorm(50, mean = 5, sd = 20)
+times <- seq(0.25, by = 0.25, length.out = length(cf))
+probs <- runif(length(cf), min = 0.2, max = 1)
+expected <- reference_present_value(cf, times, 0.018, probs)
+stopifnot(all.equal(
+  presentValue(cf, times, 0.018, probs),
+  expected,
+  tolerance = 1e-10
+))
+
+# -----------------------------------------------------------------------------
+# Axn: current implementation vs the historical Axnold implementation.
+#
+# This follows tests/test-computation-time-act-capital.R.
+# -----------------------------------------------------------------------------
+Axn_old_x <- Vectorize(lifecontingencies:::Axnold, "x")
+Axn_old_n <- Vectorize(lifecontingencies:::Axnold, "n")
+Axn_old_m <- Vectorize(lifecontingencies:::Axnold, "m")
+
 x_cases <- c(30:35 + 0.5, 60, 65, 80, 85)
+
 for (k in c(1, 2, 4)) {
   new <- Axn(soa08Act, x = x_cases, n = 10, i = 0.06, k = k)
-  old <- AXn(soa08Act, x = x_cases, n = 10, i = 0.06, k = k)
+  old <- Axn_old_x(soa08Act, x = x_cases, n = 10, i = 0.06, k = k)
   stopifnot(all.equal(new, old, tolerance = 1e-10))
 }
 
-# Variation over term and deferment, mirroring the historical tests.
 for (k in c(1, 2, 4)) {
   new_n <- Axn(soa08Act, x = 33, n = 1:20, i = 0.06, k = k)
-  old_n <- AxN(soa08Act, x = 33, n = 1:20, i = 0.06, k = k)
+  old_n <- Axn_old_n(soa08Act, x = 33, n = 1:20, i = 0.06, k = k)
   stopifnot(all.equal(new_n, old_n, tolerance = 1e-10))
 
   new_m <- Axn(soa08Act, x = 33, n = 20, m = 0:10, i = 0.06, k = k)
-  old_m <- AxnM(soa08Act, x = 33, n = 20, m = 0:10, i = 0.06, k = k)
+  old_m <- Axn_old_m(soa08Act, x = 33, n = 20, m = 0:10, i = 0.06, k = k)
   stopifnot(all.equal(new_m, old_m, tolerance = 1e-10))
 }
 
-# A direct classical actuarial benchmark from the existing test suite.
-# The package historically checks the value against Bowers (p. 339).
+# Historical actuarial benchmark from the existing test suite (Bowers p. 339).
 stopifnot(
   abs(Axn(soa08Act, x = 30, i = 0.06, k = 4) - 0.1048) < 5e-4
 )
 
+# Explicit cases from the historical test:
+# basic deferred insurance, non-integer ages and k > 1.
+AxncheckR <- function(object, x, m, n) {
+  i <- object@interest
+  f <- function(t)
+    pxt(object, x = x, t = t) * qxt(object, x = x + t, t = 1)
+  prob <- sapply(m:(m + n - 1), f)
+  rowSums(prob / ((1 + i)^(m + 1):(m + n)))
+}
+
+stopifnot(all.equal(
+  Axn(soa08Act, x = 65:66, n = 1, m = 1),
+  AxncheckR(soa08Act, x = 65:66, m = 1, n = 1),
+  tolerance = 1e-10
+))
+
+x <- 30:35 + 1 / 2
+stopifnot(all.equal(
+  Axn(soa08Act, x = x),
+  Axn_old_x(soa08Act, x = x),
+  tolerance = 1e-10
+))
+
 # -----------------------------------------------------------------------------
-# axn: compare the current implementation with the classical R axnold
-# implementation for due and immediate payments, including the vectorized
-# age/term/deferment checks used by the package's existing tests.
+# axn: current implementation vs the historical axnold implementation.
 # -----------------------------------------------------------------------------
-aXn <- Vectorize(lifecontingencies:::axnold, "x")
-axN <- Vectorize(lifecontingencies:::axnold, "n")
-axnM <- Vectorize(lifecontingencies:::axnold, "m")
+axn_old_x <- Vectorize(lifecontingencies:::axnold, "x")
+axn_old_n <- Vectorize(lifecontingencies:::axnold, "n")
+axn_old_m <- Vectorize(lifecontingencies:::axnold, "m")
 
 for (payment in c("due", "arrears", "immediate", "advance")) {
   new_x <- axn(soa08Act, x = 1:100, payment = payment)
-  old_x <- aXn(soa08Act, x = 1:100, payment = payment)
+  old_x <- axn_old_x(soa08Act, x = 1:100, payment = payment)
   stopifnot(all.equal(new_x, old_x, tolerance = 1e-10))
 
   new_n <- axn(soa08Act, x = 33, n = 10:30, payment = payment)
-  old_n <- axN(soa08Act, x = 33, n = 10:30, payment = payment)
+  old_n <- axn_old_n(soa08Act, x = 33, n = 10:30, payment = payment)
   stopifnot(all.equal(new_n, old_n, tolerance = 1e-10))
 
   new_m <- axn(soa08Act, x = 33, n = 30, m = 0:10, payment = payment)
-  old_m <- axnM(soa08Act, x = 33, n = 30, m = 0:10, payment = payment)
+  old_m <- axn_old_m(soa08Act, x = 33, n = 30, m = 0:10, payment = payment)
   stopifnot(all.equal(new_m, old_m, tolerance = 1e-10))
 }
 
-# High-age and non-integer-age cases, explicitly retained from the historical
-# actuarial-function tests.
 x <- 85:90
 stopifnot(all.equal(
   axn(soa08Act, x = x, payment = "advance"),
-  aXn(soa08Act, x = x, payment = "advance"),
+  axn_old_x(soa08Act, x = x, payment = "advance"),
   tolerance = 1e-10
 ))
 
 x <- 30:35 + 1 / 2
 stopifnot(all.equal(
   axn(soa08Act, x = x, payment = "advance"),
-  aXn(soa08Act, x = x, payment = "advance"),
+  axn_old_x(soa08Act, x = x, payment = "advance"),
   tolerance = 1e-10
 ))
 
 # -----------------------------------------------------------------------------
-# Native helper kernels: verify their numerical values on deterministic cases
-# against the corresponding actuarial identities. These are secondary checks;
-# the public-function comparisons above are the primary regression criterion.
+# Native helper kernels: deterministic checks of their numerical identities.
 # -----------------------------------------------------------------------------
 T <- 40
 age <- 30
@@ -140,26 +196,44 @@ stopifnot(all.equal(
   tolerance = 1e-12
 ))
 
+stopifnot(all.equal(
+  lifecontingencies:::.fAExnCpp(T, age, years, i, k),
+  if ((T >= age) && (T <= age + years - 1 / k))
+    (1 + i)^(-(T - age + 1 / k))
+  else
+    (1 + i)^(-years),
+  tolerance = 1e-12
+))
+
 # -----------------------------------------------------------------------------
-# Rcpp input validation: native entry points must reject malformed vectors
-# rather than relying on unchecked indexing.
+# Native input validation.
 # -----------------------------------------------------------------------------
 stopifnot(inherits(
   try(lifecontingencies:::.mult2sum(c(1, 2), c(1)), silent = TRUE),
   "try-error"
 ))
+
 stopifnot(inherits(
   try(lifecontingencies:::.mult3sum(c(1, 2), c(1), c(1, 2)), silent = TRUE),
   "try-error"
 ))
+
 stopifnot(inherits(
-  try(lifecontingencies:::.presentValueC(c(1, 2), c(1, 2), c(0.03), c(1, 1), 1), silent = TRUE),
+  try(
+    lifecontingencies:::.presentValueC(
+      c(1, 2), c(1, 2), c(0.03), c(1, 1), 1
+    ),
+    silent = TRUE
+  ),
   "try-error"
 ))
 
 for (bad_k in c(0, -1, NA_real_, NaN, Inf)) {
   stopifnot(inherits(
-    try(lifecontingencies:::.fAxnCpp(40, 30, 10, 0.04, 2, bad_k), silent = TRUE),
+    try(
+      lifecontingencies:::.fAxnCpp(40, 30, 10, 0.04, 2, bad_k),
+      silent = TRUE
+    ),
     "try-error"
   ))
 }
