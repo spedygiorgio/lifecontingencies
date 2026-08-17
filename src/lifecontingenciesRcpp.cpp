@@ -75,9 +75,17 @@ double presentValueC(NumericVector cashFlows,
 
   for (R_xlen_t i = 0; i < n; ++i) {
     double discountFactor = std::pow(1.0 + interestRates[i], -timeIds[i]);
-    double term = std::pow(cashFlows[i], power) *
-      std::pow(discountFactor, power) * probabilities[i];
-    total += term;
+
+    // power = 1 is by far the common case for present values.  Avoid the
+    // second pow() call while preserving the original R calculation exactly
+    // at the level of its mathematical operations.
+    if (power == 1.0) {
+      total += cashFlows[i] * discountFactor * probabilities[i];
+    } else {
+      double term = std::pow(cashFlows[i], power) *
+        std::pow(discountFactor, power) * probabilities[i];
+      total += term;
+    }
   }
 
   return total;
