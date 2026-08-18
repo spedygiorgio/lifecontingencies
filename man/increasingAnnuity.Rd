@@ -2,59 +2,62 @@
 \alias{increasingAnnuity}
 
 \title{
-	Increasing annuity.
+\tIncreasing annuity.
 }
 \description{
-	This function evaluates non - stochastic increasing annuities.
+\tThis function evaluates non - stochastic increasing annuities.
 }
 \usage{
-	increasingAnnuity(i, n, type = "immediate")
+\tincreasingAnnuity(i, n, type = "immediate")
 }
 
 \arguments{
   \item{i}{
-	A numeric value representing the interest rate.
+\tA numeric value representing the interest rate.
 }
   \item{n}{
-	The number of periods.
+\tThe number of periods.
 }
   \item{type}{
-The Payment type, either \code{"advance"} for the annuity due (default)
-or \code{"arrears"} for the annuity immediate.
-Alternatively, one can use \code{"due"} or \code{"immediate"}
-	respectively (can be abbreviated).
+The payment type. Use \code{"immediate"} (default) for an annuity-immediate,
+where payments are made at the end of each period, or \code{"due"} for an
+annuity-due, where payments are made at the beginning of each period.
+For compatibility, \code{"arrears"} is an alias for \code{"immediate"} and
+\code{"advance"} is an alias for \code{"due"} (can be abbreviated).
 }
 }
 \details{
-	An increasing annuity shows the following flow of payments: \eqn{1,2,\ldots,n-1,n}
+\tAn increasing annuity shows the following flow of payments: \eqn{1,2,\ldots,n-1,n}.
+\tFor an annuity-immediate these payments occur at times \eqn{1,2,\ldots,n};
+\tfor an annuity-due they occur at times \eqn{0,1,\ldots,n-1}.
 }
 \value{
-	The value of the annuity.
+\tThe value of the annuity.
 }
 \references{
 Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 
-	2008, ACTEX Publications.
+\t2008, ACTEX Publications.
 }
 \author{
-	Giorgio A. Spedicato
+\tGiorgio A. Spedicato
 }
 \note{
-	This function calls internally \code{presentValue} function.
+\tThis function calls internally \code{presentValue} function.
 }
 
 \section{Warning }{
-	The function is provided as is, without any guarantee regarding the accuracy of calculation. We disclaim any liability for eventual 
-	losses arising from direct or indirect use of this software.
+\tThe function is provided as is, without any guarantee regarding the accuracy of calculation. We disclaim any liability for eventual 
+\tlosses arising from direct or indirect use of this software.
 }
 
 \seealso{
 \code{\link{decreasingAnnuity}},\code{\link{IAxn}}
 }
 \examples{
-	#the present value of 1,2,...,n-1, n sequence of payments, 
-	#payable at the end of the period
-	#for 10 periods is
-	increasingAnnuity(i=0.03, n=10)
-	#assuming a 3% interest rate
+\t#the present value of 1,2,...,n-1, n sequence of payments, 
+\t#payable at the end of the period
+\t#for 10 periods is
+\tincreasingAnnuity(i=0.03, n=10)
+\t#assuming a 3% interest rate
 }
 
