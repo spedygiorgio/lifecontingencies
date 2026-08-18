@@ -13,5 +13,5 @@
 \description{Produces a ggplot2 representation of the number of survivors by age. The method is defined for \code{lifetable}; S3 dispatch also makes it available for S4 subclasses such as \code{actuarialtable}.}
 \examples{
 lt <- new("lifetable", x = 0:3, lx = c(100, 90, 50, 10))
-autoplot(lt)
+ggplot2::autoplot(lt)
 }
