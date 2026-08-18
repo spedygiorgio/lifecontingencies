@@ -8,7 +8,7 @@
 #' @param ... Additional arguments passed to `ggplot2::geom_line()`.
 #'
 #' @return A `ggplot2` plot object.
-#' @importFrom ggplot2 autoplot ggplot aes geom_line labs
+#' @importFrom ggplot2 autoplot
 #' @export
 setMethod(
   "autoplot",
