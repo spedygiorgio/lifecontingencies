@@ -43,13 +43,7 @@ jobs:
         if: runner.os == 'Linux' && matrix.config.r == 'devel'
         shell: bash
         run: |
-          for file in /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/*.sources; do
-            if [ -f "$file" ]; then
-              sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' "$file"
-            fi
-          done
-          echo "Ubuntu APT sources used for R-devel:"
-          grep -R "archive.ubuntu.com\|azure.archive.ubuntu.com" /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.d/* 2>/dev/null || true
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -143,7 +137,7 @@ jobs:
           - { os: ubuntu-latest,  r: 'devel', http-user-agent: 'release' }
           - { os: windows-latest, r: 'release' }
           - { os: windows-latest, r: 'devel', http-user-agent: 'release' }
-          - { os: macos-latest, r: 'release' }
+          - { os: macos-latest,  r: 'release' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -159,13 +153,7 @@ jobs:
         if: runner.os == 'Linux' && matrix.config.r == 'devel'
         shell: bash
         run: |
-          for file in /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/*.sources; do
-            if [ -f "$file" ]; then
-              sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' "$file"
-            fi
-          done
-          echo "Ubuntu APT sources used for R-devel:"
-          grep -R "archive.ubuntu.com\|azure.archive.ubuntu.com" /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.d/* 2>/dev/null || true
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -288,8 +276,14 @@ jobs:
         run: |
           dir.create("inst/doc", recursive = TRUE, showWarnings = FALSE)
           tools::buildVignettes(dir = ".", tangle = FALSE, clean = FALSE)
-          outputs <- list.files("inst/doc", full.names = TRUE)
-          if (!length(outputs)) stop("Vignette build produced no files in inst/doc")
+          outputs <- character()
+          for (dir in c("inst/doc", "doc")) {
+            if (dir.exists(dir)) {
+              outputs <- c(outputs, list.files(dir, full.names = TRUE, recursive = FALSE))
+            }
+          }
+          outputs <- unique(outputs)
+          if (!length(outputs)) stop("Vignette build produced no output files")
           cat("Vignette outputs:\n")
           print(outputs)
 
