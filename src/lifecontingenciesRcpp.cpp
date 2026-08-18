@@ -74,14 +74,32 @@ double presentValueC(NumericVector cashFlows,
   R_xlen_t n = cashFlows.size();
 
   if (power == 1.0) {
-    // Common case: keep the hot loop branch-free and use only one pow().
+    // Common case: branch-free hot loop with one pow() per observation.
     for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
         std::pow(1.0 + interestRates[i], -timeIds[i]);
       total += cashFlows[i] * discountFactor * probabilities[i];
     }
+  } else if (power == 2.0) {
+    // Avoid pow(cashFlow, 2): multiplication is exact for the same
+    // floating-point operands and substantially cheaper.
+    for (R_xlen_t i = 0; i < n; ++i) {
+      double discountFactor =
+        std::pow(1.0 + interestRates[i], -2.0 * timeIds[i]);
+      double cashFlow = cashFlows[i];
+      total += (cashFlow * cashFlow) * discountFactor * probabilities[i];
+    }
+  } else if (power == 3.0) {
+    // Same specialization for the next common integer power.
+    for (R_xlen_t i = 0; i < n; ++i) {
+      double discountFactor =
+        std::pow(1.0 + interestRates[i], -3.0 * timeIds[i]);
+      double cashFlow = cashFlows[i];
+      total += (cashFlow * cashFlow * cashFlow) *
+        discountFactor * probabilities[i];
+    }
   } else {
-    // Algebraically combine the discounting powers into one pow().
+    // Generic power: retain the current algebraically equivalent path.
     for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
         std::pow(1.0 + interestRates[i], -timeIds[i] * power);
