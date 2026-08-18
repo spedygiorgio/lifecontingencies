@@ -20,6 +20,7 @@ Depends:
     R (>= 4.1.0),
     methods
 Imports:
+    ggplot2,
     parallel,
     utils,
     Rcpp (>= 1.0.0),

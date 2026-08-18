@@ -196,6 +196,8 @@ reliable historical data, like social security bureaus. It is common
 practice for actuaries to start from these life tables and adapt them
 to the insurer's portfolio actual experience.
 
+
+
 Classical financial mathematics deals with monetary amounts that can
 be available at different times. The present value of a series of cash
 flows, expressed by Equation~\ref{eq:CF}, is probably the most
@@ -1072,6 +1074,51 @@ plot(soa08Act, type="l",col="steelblue")
 \label{fig:SoaLt}
 \end{center}
 \end{figure}
+
+
+\subsection{Visualising life tables}
+
+Life tables can be visualized directly using the \code{autoplot()} method
+provided by the package. The method follows the \code{autoplot()} interface
+used by \pkg{ggplot2} \citep{Wickham2016ggplot2}, and returns a
+\code{ggplot} object. This makes it possible to obtain a graphical
+representation of the number of survivors at each age while retaining the
+usual \pkg{ggplot2} facilities for further customization.
+
+For example, the following code creates a simple life table and plots the
+number of survivors as a function of age:
+
+<<autoplot-lifetable, fig=TRUE, echo=TRUE>>=
+library(lifecontingencies)
+
+lt <- new("lifetable",
+          x = 0:3,
+          lx = c(100, 90, 50, 10))
+
+ggplot2::autoplot(lt)
+@
+
+The same method is available for \code{actuarialtable} objects because
+\code{actuarialtable} is defined as a subclass of \code{lifetable}.
+Consequently, no separate plotting method is required for actuarial tables:
+
+<<autoplot-actuarialtable, fig=TRUE, echo=TRUE>>=
+ggplot2::autoplot(soa08Act)
+@
+
+The plot focuses on the demographic component of the table, namely the
+survivor function represented by $l_x$. The interest rate stored in an
+\code{actuarialtable} affects actuarial calculations but does not alter this
+basic demographic visualisation. Additional arguments supplied through
+\code{...} are passed to \code{geom_line()}, allowing the graphical
+appearance of the curve to be customised using standard \pkg{ggplot2}
+syntax.
+
+The method therefore provides a convenient bridge between the
+life-contingencies classes of the package and the broader \pkg{ggplot2}
+visualisation ecosystem.
+
+
 
 \clearpage
 
