@@ -66,6 +66,7 @@ benchmark_case <- function(n, power = 1, scalar_rate = FALSE) {
 results <- do.call(rbind, c(
   lapply(c(100, 1000, 10000, 100000), benchmark_case, power = 1),
   lapply(c(100, 1000, 10000, 100000), benchmark_case, power = 2),
+  lapply(c(100, 1000, 10000, 100000), benchmark_case, power = 3),
   lapply(c(1000, 10000, 100000), benchmark_case,
          power = 1, scalar_rate = TRUE)
 ))
