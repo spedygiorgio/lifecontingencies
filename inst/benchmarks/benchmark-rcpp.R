@@ -46,8 +46,11 @@ benchmark_case <- function(n, power = 1, scalar_rate = FALSE) {
     time_unit = "ms"
   )
 
-  r_median <- as.numeric(timing$median[timing$expression == "R"])
-  cpp_median <- as.numeric(timing$median[timing$expression == "Rcpp"])
+  # bench::mark() stores the expression labels as the actual expressions.
+  # Use the fixed row positions because the benchmark contains exactly two
+  # expressions and avoids brittle string matching against deparsed calls.
+  r_median <- as.numeric(timing$median[[1]])
+  cpp_median <- as.numeric(timing$median[[2]])
 
   data.frame(
     n = n,
