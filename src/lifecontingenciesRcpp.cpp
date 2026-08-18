@@ -73,16 +73,34 @@ double presentValueC(NumericVector cashFlows,
   double total = 0.0;
   R_xlen_t n = cashFlows.size();
 
-  for (R_xlen_t i = 0; i < n; ++i) {
-    if (power == 1.0) {
-      // Common case: avoid the second pow() entirely.
+  if (power == 1.0) {
+    // Common case: no per-element branch and one pow() per observation.
+    for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
         std::pow(1.0 + interestRates[i], -timeIds[i]);
       total += cashFlows[i] * discountFactor * probabilities[i];
-    } else {
-      // Algebraically combine the two discounting powers into one pow().
-      // This reduces the expensive power evaluations from two to one while
-      // preserving the same mathematical expression.
+    }
+  } else if (power == 2.0) {
+    // Avoid pow() for the common integer square case.
+    for (R_xlen_t i = 0; i < n; ++i) {
+      double discountFactor =
+        std::pow(1.0 + interestRates[i], -timeIds[i] * power);
+      double cashFlow = cashFlows[i];
+      total += cashFlow * cashFlow * discountFactor * probabilities[i];
+    }
+  } else if (power == 3.0) {
+    // Avoid pow() for the common integer cube case.
+    for (R_xlen_t i = 0; i < n; ++i) {
+      double discountFactor =
+        std::pow(1.0 + interestRates[i], -timeIds[i] * power);
+      double cashFlow = cashFlows[i];
+      total += cashFlow * cashFlow * cashFlow *
+        discountFactor * probabilities[i];
+    }
+  } else {
+    // General power: preserve the mathematical formulation with one
+    // discounting pow() per observation.
+    for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
         std::pow(1.0 + interestRates[i], -timeIds[i] * power);
       double term = std::pow(cashFlows[i], power) *
