@@ -4,9 +4,8 @@ library(lifecontingencies)
 # was replaced by presentValueC() with the current native implementation.
 # This file is intentionally not run by testthat or R CMD check.
 #
-# The benchmark uses bench::mark() rather than elapsed wall-clock times from
-# system.time(). This avoids zero elapsed times, Inf/NaN speed-ups, and gives
-# a more stable comparison on GitHub Actions runners.
+# bench::mark() is used instead of coarse wall-clock measurements so that
+# small cases do not produce zero elapsed times or Inf/NaN speed-ups.
 if (!requireNamespace("bench", quietly = TRUE)) {
   stop("Package 'bench' is required to run this development benchmark.")
 }
@@ -35,27 +34,20 @@ benchmark_case <- function(n, power = 1, scalar_rate = FALSE) {
   )
   stopifnot(all.equal(actual, expected, tolerance = 1e-10))
 
-  r_expr <- quote(
-    reference_present_value(
-      cashFlows, timeIds, interestRates, probabilities, power
-    )
-  )
-  cpp_expr <- quote(
-    lifecontingencies:::.presentValueC(
-      cashFlows, timeIds, rates_cpp, probabilities, power
-    )
-  )
-
   timing <- bench::mark(
-    R = eval(r_expr),
-    Rcpp = eval(cpp_expr),
+    R = reference_present_value(
+      cashFlows, timeIds, interestRates, probabilities, power
+    ),
+    Rcpp = lifecontingencies:::.presentValueC(
+      cashFlows, timeIds, rates_cpp, probabilities, power
+    ),
     iterations = 30,
     check = FALSE,
     time_unit = "ms"
   )
 
-  r_median <- as.numeric(timing$median[timing$expression == "eval(r_expr)"])
-  cpp_median <- as.numeric(timing$median[timing$expression == "eval(cpp_expr)"])
+  r_median <- as.numeric(timing$median[timing$expression == "R"])
+  cpp_median <- as.numeric(timing$median[timing$expression == "Rcpp"])
 
   data.frame(
     n = n,
@@ -76,3 +68,8 @@ results <- do.call(rbind, c(
 ))
 
 print(results, row.names = FALSE)
+
+cat("\nSummary (n >= 10000):\n")
+summary_rows <- results[results$n >= 10000, ]
+print(summary_rows[, c("n", "power", "scalar_rate", "r_median_ms",
+                       "cpp_median_ms", "speedup")], row.names = FALSE)
