@@ -16,7 +16,7 @@
 #' @method autoplot lifetable
 #' @examples
 #' lt <- new("lifetable", x = 0:3, lx = c(100, 90, 50, 10))
-#' autoplot(lt)
+#' ggplot2::autoplot(lt)
 autoplot.lifetable <- function(object, ...) {
   data <- data.frame(x = object@x, lx = object@lx)
 
