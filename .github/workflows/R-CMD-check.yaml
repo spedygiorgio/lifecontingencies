@@ -250,6 +250,15 @@ jobs:
           cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
           cat("TinyTeX root: ", tinytex::tinytex_root(), "\n", sep = "")
 
+      - name: Install package for vignette build
+        shell: Rscript {0}
+        run: |
+          os <- Sys.info()[["sysname"]]
+          rbin <- file.path(R.home("bin"), if (os == "Windows") "R.exe" else "R")
+          status <- system2(rbin, c("CMD", "INSTALL", "--no-multiarch", "--no-build-vignettes", "."))
+          if (!identical(status, 0L)) stop("R CMD INSTALL failed with status ", status)
+          cat("Installed lifecontingencies from source for vignette execution.\n")
+
       - name: Build vignettes
         shell: Rscript {0}
         run: |
