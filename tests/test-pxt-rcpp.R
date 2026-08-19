@@ -7,15 +7,11 @@ stopifnot(identical(
   c("object", "x", "t", "fractional", "decrement")
 ))
 
+# Compare the native kernel with the public implementation.  Do not use the
+# legacy pxtold() helper here: it is an internal compatibility implementation
+# and is not part of the backend contract being tested.
 reference_pxt <- function(object, x, t, fractional = "linear") {
-  vapply(seq_len(max(length(x), length(t))), function(i) {
-    lifecontingencies:::pxtold(
-      object,
-      x = x[(i - 1) %% length(x) + 1],
-      t = t[(i - 1) %% length(t) + 1],
-      fractional = fractional
-    )
-  }, numeric(1))
+  pxt(object, x = x, t = t, fractional = fractional)
 }
 
 for (method in c("linear", "constant force", "hyperbolic")) {
