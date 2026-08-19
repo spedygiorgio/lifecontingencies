@@ -78,19 +78,54 @@ jobs:
       - name: Setup TinyTeX
         uses: r-lib/actions/setup-tinytex@v2
 
+      # Explicitly verify TinyTeX on Windows. The PR job builds Sweave
+      # vignettes after package installation, so pdflatex must be available
+      # to the R subprocess that runs tools::buildVignettes().
+      - name: Ensure TinyTeX and pdflatex are available
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          if (!requireNamespace("tinytex", quietly = TRUE)) {
+            install.packages("tinytex", repos = "https://cloud.r-project.org")
+          }
+
+          if (!nzchar(Sys.which("pdflatex"))) {
+            root <- tryCatch(tinytex::tinytex_root(), error = function(e) "")
+            if (nzchar(root) && dir.exists(root)) {
+              tinytex::use_tinytex(from = root)
+            }
+          }
+
+          if (!nzchar(Sys.which("pdflatex"))) {
+            tinytex::install_tinytex()
+            tinytex::use_tinytex()
+          }
+
+          cat("TinyTeX root:", tinytex::tinytex_root(), "\n")
+          cat("pdflatex:", Sys.which("pdflatex"), "\n")
+          cat("tlmgr:", Sys.which("tlmgr"), "\n")
+
+          if (!nzchar(Sys.which("pdflatex"))) {
+            stop("pdflatex is not available after TinyTeX setup")
+          }
+
       - name: Install LaTeX packages
         shell: Rscript {0}
         run: |
-          pkgs <- c(
-            "pict2e","grfext","everyshi","graphics","etoolbox","kvoptions","xcolor",
-            "collection-latexrecommended","collection-latexextra","collection-fontsrecommended",
-            "ae","inconsolata","upquote","courier","fancyvrb","framed","titling","booktabs",
-            "geometry","hyperref","url","microtype","graphicx","thumbpdf","float","caption",
-            "subcaption","babel-english","amsmath","amssymb","mathtools","siunitx","natbib",
-            "biblatex","csquotes","ulem","parskip","titlesec","wrapfig","longtable","makecell",
-            "multirow","colortbl","pgf","tikz","xkeyval","changepage"
-          )
-          if (Sys.which("tlmgr") != "") tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+          pkgs <- trimws(readLines(".github/tinytex-packages.txt"))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, "#")]
+
+          if (!tinytex::is_tinytex()) {
+            stop("TinyTeX is not available")
+          }
+
+          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+          if (!nzchar(Sys.which("pdflatex"))) {
+            stop("pdflatex is not available after LaTeX package installation")
+          }
+
+          cat("Installed/verified", length(pkgs), "LaTeX packages.\n")
 
       - name: Check package
         if: runner.os != 'Windows'
@@ -117,11 +152,33 @@ jobs:
           if (!requireNamespace("remotes", quietly = TRUE)) {
             install.packages("remotes", repos = "https://cloud.r-project.org")
           }
-          remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
+
+          tinytex::use_tinytex()
+
+          if (!nzchar(Sys.which("pdflatex"))) {
+            stop("pdflatex is not available before vignette build")
+          }
+
+          remotes::install_local(
+            ".",
+            build_vignettes = FALSE,
+            upgrade = "never",
+            dependencies = TRUE
+          )
+
           pkg_path <- find.package("lifecontingencies")
+
+          cat("pdflatex:", Sys.which("pdflatex"), "\n")
+          cat("TinyTeX root:", tinytex::tinytex_root(), "\n")
+
           tools::buildVignettes(dir = pkg_path)
+
           cat("Built vignettes:\n")
-          print(list.files(file.path(pkg_path, "doc"), pattern = "\\.pdf$", full.names = TRUE))
+          print(list.files(
+            file.path(pkg_path, "doc"),
+            pattern = "\\.pdf$",
+            full.names = TRUE
+          ))
 
   # Complete matrix: executed after changes reach the default branch, or manually.
   R-CMD-check-full:
@@ -177,12 +234,7 @@ jobs:
           GETTEXT_LIB="${GETTEXT_PREFIX}/lib"
           test -f "${GETTEXT_INCLUDE}/libintl.h"
           mkdir -p "${HOME}/.R"
-          printf '%s\n' \
-            "CPPFLAGS += -I${GETTEXT_INCLUDE}" \
-            "PKG_CPPFLAGS += -I${GETTEXT_INCLUDE}" \
-            "LDFLAGS += -L${GETTEXT_LIB}" \
-            "PKG_LIBS += -L${GETTEXT_LIB} -lintl" \
-            > "${HOME}/.R/Makevars"
+          printf '%s\n'             "CPPFLAGS += -I${GETTEXT_INCLUDE}"             "PKG_CPPFLAGS += -I${GETTEXT_INCLUDE}"             "LDFLAGS += -L${GETTEXT_LIB}"             "PKG_LIBS += -L${GETTEXT_LIB} -lintl"             > "${HOME}/.R/Makevars"
           echo "CPPFLAGS=-I${GETTEXT_INCLUDE}" >> "$GITHUB_ENV"
           echo "LDFLAGS=-L${GETTEXT_LIB}" >> "$GITHUB_ENV"
           echo "PKG_CONFIG_PATH=${GETTEXT_LIB}/pkgconfig" >> "$GITHUB_ENV"
