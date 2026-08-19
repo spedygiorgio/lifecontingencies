@@ -117,11 +117,61 @@ jobs:
           if (!requireNamespace("remotes", quietly = TRUE)) {
             install.packages("remotes", repos = "https://cloud.r-project.org")
           }
-          remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
+
+          if (!requireNamespace("tinytex", quietly = TRUE)) {
+            install.packages("tinytex", repos = "https://cloud.r-project.org")
+          }
+
+          # setup-tinytex normally puts TinyTeX on PATH. If it did not,
+          # locate the standard Windows installation explicitly.
+          tinytex_roots <- unique(c(
+            file.path(Sys.getenv("APPDATA"), "TinyTeX"),
+            file.path(Sys.getenv("USERPROFILE"), "AppData", "Roaming", "TinyTeX"),
+            path.expand("~/.TinyTeX")
+          ))
+
+          root <- tinytex_roots[
+            vapply(
+              tinytex_roots,
+              function(x) file.exists(file.path(x, "bin", "windows", "pdflatex.exe")),
+              logical(1)
+            )
+          ]
+
+          if (!length(root)) {
+            root <- file.path(Sys.getenv("APPDATA"), "TinyTeX")
+            tinytex::install_tinytex(dir = root, force = TRUE)
+          } else {
+            root <- root[[1]]
+          }
+
+          root <- normalizePath(root, winslash = "/", mustWork = TRUE)
+          tinytex::use_tinytex(from = root)
+
+          pdflatex <- Sys.which("pdflatex")
+          if (!nzchar(pdflatex) || !file.exists(pdflatex)) {
+            stop("pdflatex is not available after TinyTeX setup. TinyTeX root: ", root)
+          }
+
+          cat("TinyTeX root: ", root, "\n", sep = "")
+          cat("pdflatex: ", pdflatex, "\n", sep = "")
+          cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
+
+          remotes::install_local(
+            ".",
+            build_vignettes = FALSE,
+            upgrade = "never",
+            dependencies = TRUE
+          )
+
           pkg_path <- find.package("lifecontingencies")
           tools::buildVignettes(dir = pkg_path)
           cat("Built vignettes:\n")
-          print(list.files(file.path(pkg_path, "doc"), pattern = "\\.pdf$", full.names = TRUE))
+          print(list.files(
+            file.path(pkg_path, "doc"),
+            pattern = "\\.pdf$",
+            full.names = TRUE
+          ))
 
   # Complete matrix: executed after changes reach the default branch, or manually.
   R-CMD-check-full:
