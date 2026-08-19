@@ -3,7 +3,7 @@
 \title{Function to evaluate the accumulated value.}
 \description{This function returns the value at time n of a series of equally spaced payments of 1.}
 \usage{
-accumulatedValue(i, n, m = 0, k, type = "immediate")
+accumulatedValue(i, n, m = 0, k = 1, type = "immediate")
 }
 \arguments{
 \item{i}{Effective interest rate expressed in decimal form. E.g. 0.03 means 3\%.}
