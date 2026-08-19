@@ -10,7 +10,9 @@ increasingAnnuity(i, n, type = "immediate")
 \item{n}{The number of periods.}
 \item{type}{The payment type. Use \code{"immediate"} (default) for an annuity-immediate, where payments are made at the end of each period, or \code{"due"} for an annuity-due, where payments are made at the beginning of each period. For compatibility, \code{"arrears"} is an alias for \code{"immediate"} and \code{"advance"} is an alias for \code{"due"} (can be abbreviated).}
 }
-\details{An increasing annuity shows the following flow of payments: \eqn{1,2,\ldots,n-1,n}. For an annuity-immediate these payments occur at times \eqn{1,2,\ldots,n}; for an annuity-due they occur at times \eqn{0,1,\ldots,n-1}.}
+\details{An increasing annuity shows the following flow of payments: \eqn{1,2,\ldots,n-1,n}.
+For an annuity-immediate these payments occur at times \eqn{1,2,\ldots,n};
+for an annuity-due they occur at times \eqn{0,1,\ldots,n-1}.}
 \value{The value of the annuity.}
 \references{Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.}
 \author{Giorgio A. Spedicato}
