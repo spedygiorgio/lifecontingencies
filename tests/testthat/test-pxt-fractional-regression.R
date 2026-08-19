@@ -1,82 +1,169 @@
 library(testthat)
 library(lifecontingencies)
 
-# AMLCR Exercise 3.2 (Dickson, Hardy & Waters, Actuarial Mathematics
-# for Life Contingent Risks): published life-table extract and solutions.
-# The table is used here as an independent numerical oracle for fractional
-# survival probabilities; the expected values are not computed by pxt().
+# Independent regression tests for fractional-age probabilities.
+#
+# The numerical oracles below are derived from published actuarial examples,
+# using the standard UDD (linear), constant-force, and Balducci (hyperbolic)
+# formulas independently of pxt().
 
-test_that("pxt fractional-age probabilities agree with published values", {
-  x <- 52:60
-  lx <- c(89948, 89089, 88176, 87208, 86181,
-          85093, 83940, 82719, 81429)
-  table <- new("lifetable", name = "AMLCRExercise3.2", x = x, lx = lx)
+# ============================================================
+# Test 1: published example with fractional starting and ending ages
+#
+# q26 = 0.0213, q27 = 0.0232, q28 = 0.0254
+# Target: _1.75 p_26.5
+# ============================================================
 
-  # Published results (solutions to Exercise 3.2):
-  # 0.2 q_52.4: 0.00191732 (UDD), 0.00191733 (constant force)
-  # 5.7 p_52.4: 0.9354217  (UDD), 0.9354230  (constant force)
-  # 3.2|2.5 q_52.4: 0.0309572 (UDD), 0.0309502 (constant force)
-  expect_equal(
-    pxt(table, x = 52.4, t = 0.2, fractional = "linear"),
-    1 - 0.0019173165603473263,
-    tolerance = 1e-10
-  )
-  expect_equal(
-    pxt(table, x = 52.4, t = 0.2, fractional = "constant force"),
-    1 - 0.0019173306705693172,
-    tolerance = 1e-10
-  )
+test_that("published fractional-age example agrees with all assumptions", {
+  q26 <- 0.0213
+  q27 <- 0.0232
+  q28 <- 0.0254
 
-  expect_equal(
-    pxt(table, x = 52.4, t = 5.7, fractional = "linear"),
-    0.935421698041614,
-    tolerance = 1e-10
-  )
-  expect_equal(
-    pxt(table, x = 52.4, t = 5.7, fractional = "constant force"),
-    0.935423024785478,
-    tolerance = 1e-10
+  expected <- c(
+    linear =
+      (1 - 0.5 * q26 / (1 - 0.5 * q26)) *
+      (1 - q27) *
+      (1 - 0.25 * q28),
+    `constant force` =
+      (1 - q26)^0.5 *
+      (1 - q27) *
+      (1 - q28)^0.25,
+    hyperbolic =
+      (1 - 0.5 * q26) *
+      (1 - q27) *
+      ((1 - q28) / (1 - 0.75 * q28))
   )
 
-  # The deferred probability is included as an end-to-end check of
-  # fractional starting age, fractional duration, and composition of
-  # survival/death probabilities.
-  expect_equal(
-    pxt(table, x = 52.4, t = 3.2, fractional = "linear") *
-      (1 - pxt(table, x = 55.6, t = 2.5, fractional = "linear")),
-    0.030957185138230,
-    tolerance = 1e-10
+  table <- new(
+    "lifetable",
+    name = "PublishedFractionalAgeExample",
+    x = 26:29,
+    lx = 100000 * cumprod(c(1, 1 - q26, 1 - q27, 1 - q28))
   )
+
+  actual <- c(
+    linear = pxt(
+      table, x = 26.5, t = 1.75, fractional = "linear"
+    ),
+    `constant force` = pxt(
+      table, x = 26.5, t = 1.75, fractional = "constant force"
+    ),
+    hyperbolic = pxt(
+      table, x = 26.5, t = 1.75, fractional = "hyperbolic"
+    )
+  )
+
+  expect_equal(actual, expected, tolerance = 1e-10)
+
   expect_equal(
-    pxt(table, x = 52.4, t = 3.2, fractional = "constant force") *
-      (1 - pxt(table, x = 55.6, t = 2.5, fractional = "constant force")),
-    0.030950242839583,
+    actual,
+    c(
+      linear = 0.9601491859139839,
+      `constant force` = 0.9601454912633326,
+      hyperbolic = 0.9601412856598195
+    ),
     tolerance = 1e-10
   )
 })
 
-test_that("hyperbolic fractional-age probabilities are stable", {
-  x <- 52:60
-  lx <- c(89948, 89089, 88176, 87208, 86181,
-          85093, 83940, 82719, 81429)
-  table <- new("lifetable", name = "AMLCRExercise3.2", x = x, lx = lx)
+# ============================================================
+# Test 2: isolate the two fractional endpoints of the same example
+# ============================================================
 
-  # Hyperbolic/Balducci values are independently calculated from the same
-  # published life-table extract and the standard fractional-age formula.
-  expect_equal(
-    pxt(table, x = 52.4, t = 0.2, fractional = "hyperbolic"),
-    0.998075302932531,
-    tolerance = 1e-10
+test_that("fractional starting and ending age components are stable", {
+  q26 <- 0.0213
+  q28 <- 0.0254
+
+  table <- new(
+    "lifetable",
+    name = "PublishedFractionalAgeExample",
+    x = 26:29,
+    lx = 100000 * cumprod(c(1, 1 - q26, 1 - 0.0232, 1 - q28))
   )
-  expect_equal(
-    pxt(table, x = 52.4, t = 5.7, fractional = "hyperbolic"),
-    0.935403622195132,
-    tolerance = 1e-10
+
+  expected_start <- c(
+    linear = 1 - 0.5 * q26 / (1 - 0.5 * q26),
+    `constant force` = (1 - q26)^0.5,
+    hyperbolic = 1 - 0.5 * q26
   )
+
+  actual_start <- c(
+    linear = pxt(table, 26.5, 0.5, fractional = "linear"),
+    `constant force` = pxt(table, 26.5, 0.5, fractional = "constant force"),
+    hyperbolic = pxt(table, 26.5, 0.5, fractional = "hyperbolic")
+  )
+
+  expect_equal(actual_start, expected_start, tolerance = 1e-10)
+
+  expected_end <- c(
+    linear = 1 - 0.25 * q28,
+    `constant force` = (1 - q28)^0.25,
+    hyperbolic = (1 - q28) / (1 - 0.75 * q28)
+  )
+
+  actual_end <- c(
+    linear = pxt(table, 28, 0.25, fractional = "linear"),
+    `constant force` = pxt(table, 28, 0.25, fractional = "constant force"),
+    hyperbolic = pxt(table, 28, 0.25, fractional = "hyperbolic")
+  )
+
+  expect_equal(actual_end, expected_end, tolerance = 1e-10)
+})
+
+# ============================================================
+# Test 3: PFA92C20 example
+#
+# Published values:
+#   l63 = 9775.888
+#   l65 = 9703.708
+#   q62 = 0.002885
+#   q65 = 0.004681
+# Target: _3 p_62.5
+# ============================================================
+
+test_that("PFA92C20 fractional-age example agrees with published data", {
+  q62 <- 0.002885
+  q65 <- 0.004681
+  l63 <- 9775.888
+  l65 <- 9703.708
+
+  l62 <- l63 / (1 - q62)
+  l64 <- l65 / (1 - q65)
+  l66 <- l65 * (1 - q65)
+
+  table <- new(
+    "lifetable",
+    name = "PFA92C20",
+    x = 62:66,
+    lx = c(l62, l63, l64, l65, l66)
+  )
+
+  expected <- c(
+    linear =
+      ((1 - q62) / (1 - 0.5 * q62)) *
+      (l65 / l63) *
+      (1 - 0.5 * q65),
+    `constant force` =
+      (1 - q62)^0.5 *
+      (l65 / l63) *
+      (1 - q65)^0.5
+  )
+
+  actual <- c(
+    linear = pxt(table, 62.5, 3, fractional = "linear"),
+    `constant force` = pxt(
+      table, 62.5, 3, fractional = "constant force"
+    )
+  )
+
+  expect_equal(actual, expected, tolerance = 1e-10)
+
   expect_equal(
-    pxt(table, x = 52.4, t = 3.2, fractional = "hyperbolic") *
-      (1 - pxt(table, x = 55.6, t = 2.5, fractional = "hyperbolic")),
-    0.030974217743776,
+    actual,
+    c(
+      linear = 0.9888627180661481,
+      `constant force` = 0.9888611485707346
+    ),
     tolerance = 1e-10
   )
 })
