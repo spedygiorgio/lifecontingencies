@@ -105,7 +105,10 @@ jobs:
             valid <- root
           } else valid <- valid[[1]]
           valid <- normalizePath(valid, winslash = "/", mustWork = TRUE)
-          tinytex::use_tinytex(from = valid)
+          texbin <- file.path(valid, "bin", "windows")
+          if (!file.exists(file.path(texbin, "pdflatex.exe"))) stop("pdflatex.exe is missing from TinyTeX root: ", valid)
+          Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
+          if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
           pdflatex <- Sys.which("pdflatex")
           if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available after TinyTeX setup. Root: ", valid)
           remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
@@ -186,7 +189,7 @@ jobs:
             ~/.TinyTeX
             ~/Library/TinyTeX
             ~/AppData/Roaming/TinyTeX
-          key: tinytex-v3-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+          key: tinytex-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
       - name: Setup TinyTeX
         if: steps.tinytex-cache.outputs.cache-hit != 'true'
         uses: r-lib/actions/setup-tinytex@v2
@@ -197,14 +200,25 @@ jobs:
           os <- Sys.info()[["sysname"]]
           root <- switch(os, Linux = path.expand("~/.TinyTeX"), Darwin = path.expand("~/Library/TinyTeX"), Windows = file.path(Sys.getenv("APPDATA"), "TinyTeX"))
           if (!dir.exists(root)) stop("Cached TinyTeX directory not found: ", root)
-          tinytex::use_tinytex(from = root)
+          if (os == "Windows") {
+            texbin <- file.path(root, "bin", "windows")
+            if (!file.exists(file.path(texbin, "pdflatex.exe"))) stop("Cached TinyTeX pdflatex.exe not found: ", texbin)
+            Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
+            if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
+          } else {
+            tinytex::use_tinytex(from = root)
+          }
       - name: Ensure TinyTeX and pdflatex are available
         shell: Rscript {0}
         run: |
           if (!requireNamespace("tinytex", quietly = TRUE)) install.packages("tinytex", repos = "https://cloud.r-project.org")
           os <- Sys.info()[["sysname"]]
           roots <- switch(os, Linux = path.expand("~/.TinyTeX"), Darwin = path.expand("~/Library/TinyTeX"), Windows = unique(c(file.path(Sys.getenv("APPDATA"), "TinyTeX"), file.path(Sys.getenv("USERPROFILE"), "AppData", "Roaming", "TinyTeX"), path.expand("~/.TinyTeX"))))
-          valid <- roots[vapply(roots, function(x) if (os == "Windows") file.exists(file.path(x, "bin", "windows", "pdflatex.exe")) else dir.exists(x) && file.exists(Sys.which("pdflatex")), logical(1))]
+          if (os == "Windows") {
+            valid <- roots[vapply(roots, function(x) file.exists(file.path(x, "bin", "windows", "pdflatex.exe")), logical(1))]
+          } else {
+            valid <- roots[vapply(roots, function(x) dir.exists(x), logical(1))]
+          }
           if (!length(valid) || !nzchar(Sys.which("pdflatex"))) {
             root <- roots[[1]]
             if (dir.exists(root)) unlink(root, recursive = TRUE, force = TRUE)
@@ -212,7 +226,13 @@ jobs:
             valid <- root
           } else valid <- valid[[1]]
           valid <- normalizePath(valid, winslash = "/", mustWork = TRUE)
-          tinytex::use_tinytex(from = valid)
+          if (os == "Windows") {
+            texbin <- file.path(valid, "bin", "windows")
+            Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
+            if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
+          } else {
+            tinytex::use_tinytex(from = valid)
+          }
           pdflatex <- Sys.which("pdflatex")
           if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available after TinyTeX bootstrap. Root: ", valid)
           cat("TinyTeX root: ", valid, "\n", sep = "")
@@ -233,7 +253,7 @@ jobs:
             ~/.TinyTeX
             ~/Library/TinyTeX
             ~/AppData/Roaming/TinyTeX
-          key: tinytex-v3-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+          key: tinytex-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
       - name: Diagnose TeX installation
         shell: Rscript {0}
         run: |
@@ -278,10 +298,3 @@ jobs:
           if (!nzchar(tarball) || !file.exists(tarball)) stop("Built source tarball is unavailable: ", tarball)
           result <- rcmdcheck::rcmdcheck(path = tarball, args = "--as-cran", error_on = "error", check_dir = "check")
           print(result)
-      - name: Upload Linux source package
-        if: runner.os == 'Linux' && always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: lifecontingencies-source-package
-          path: lifecontingencies_*.tar.gz
-          if-no-files-found: error
