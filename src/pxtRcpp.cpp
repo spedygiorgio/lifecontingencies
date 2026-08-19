@@ -41,7 +41,6 @@ NumericVector pxtCpp(NumericVector x, NumericVector t, NumericVector lx,
     double lfxu1 = L(floor_x + floor_u + 1);
 
     double floor_u_p_floor_x = lfxu / lfx;
-    double floor_up1_p_floor_x = lfxu1 / lfx;
     double one_p_floor_xu = (lfxu == 0.0) ? 0.0 : lfxu1 / lfxu;
     double one_p_floor_x = lfx1 / lfx;
 
