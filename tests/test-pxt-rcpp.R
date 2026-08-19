@@ -3,8 +3,12 @@ data(soa08Act)
 
 reference_pxt <- function(object, x, t, fractional = "linear") {
   vapply(seq_len(max(length(x), length(t))), function(i) {
-    pxtold(object, x = x[(i - 1) %% length(x) + 1],
-          t = t[(i - 1) %% length(t) + 1], fractional = fractional)
+    lifecontingencies:::pxtold(
+      object,
+      x = x[(i - 1) %% length(x) + 1],
+      t = t[(i - 1) %% length(t) + 1],
+      fractional = fractional
+    )
   }, numeric(1))
 }
 
