@@ -231,6 +231,18 @@ stopifnot(all.equal(
 # -----------------------------------------------------------------------------
 # Native input validation.
 # -----------------------------------------------------------------------------
+stopifnot(all.equal(
+  lifecontingencies:::.mult2sum(c(1, 2, 3), c(4, 5, 6)),
+  sum(c(1, 2, 3) * c(4, 5, 6)),
+  tolerance = 1e-12
+))
+
+stopifnot(all.equal(
+  lifecontingencies:::.mult3sum(c(1, -2, 3), c(4, 5, -6), c(2, 3, 4)),
+  sum(c(1, -2, 3) * c(4, 5, -6) * c(2, 3, 4)),
+  tolerance = 1e-12
+))
+
 stopifnot(inherits(
   try(lifecontingencies:::.mult2sum(c(1, 2), c(1)), silent = TRUE),
   "try-error"

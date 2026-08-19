@@ -37,9 +37,12 @@ double mult3sum(NumericVector x, NumericVector y, NumericVector z)
 
   double total = 0.0;
   R_xlen_t n = x.size();
+  const double* xp = REAL(x);
+  const double* yp = REAL(y);
+  const double* zp = REAL(z);
 
   for (R_xlen_t i = 0; i < n; ++i) {
-    total += x[i] * y[i] * z[i];
+    total += xp[i] * yp[i] * zp[i];
   }
   return total;
 }
@@ -51,9 +54,11 @@ double mult2sum(NumericVector x, NumericVector y)
 
   double total = 0.0;
   R_xlen_t n = x.size();
+  const double* xp = REAL(x);
+  const double* yp = REAL(y);
 
   for (R_xlen_t i = 0; i < n; ++i) {
-    total += x[i] * y[i];
+    total += xp[i] * yp[i];
   }
   return total;
 }
@@ -72,39 +77,43 @@ double presentValueC(NumericVector cashFlows,
 
   double total = 0.0;
   R_xlen_t n = cashFlows.size();
+  const double* cashFlowsPtr = REAL(cashFlows);
+  const double* timeIdsPtr = REAL(timeIds);
+  const double* interestRatesPtr = REAL(interestRates);
+  const double* probabilitiesPtr = REAL(probabilities);
 
   if (power == 1.0) {
     // Common case: no per-element branch and one pow() per observation.
     for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
-        std::pow(1.0 + interestRates[i], -timeIds[i]);
-      total += cashFlows[i] * discountFactor * probabilities[i];
+        std::pow(1.0 + interestRatesPtr[i], -timeIdsPtr[i]);
+      total += cashFlowsPtr[i] * discountFactor * probabilitiesPtr[i];
     }
   } else if (power == 2.0) {
     // Avoid pow() for the common integer square case.
     for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
-        std::pow(1.0 + interestRates[i], -timeIds[i] * power);
-      double cashFlow = cashFlows[i];
-      total += cashFlow * cashFlow * discountFactor * probabilities[i];
+        std::pow(1.0 + interestRatesPtr[i], -timeIdsPtr[i] * power);
+      double cashFlow = cashFlowsPtr[i];
+      total += cashFlow * cashFlow * discountFactor * probabilitiesPtr[i];
     }
   } else if (power == 3.0) {
     // Avoid pow() for the common integer cube case.
     for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
-        std::pow(1.0 + interestRates[i], -timeIds[i] * power);
-      double cashFlow = cashFlows[i];
+        std::pow(1.0 + interestRatesPtr[i], -timeIdsPtr[i] * power);
+      double cashFlow = cashFlowsPtr[i];
       total += cashFlow * cashFlow * cashFlow *
-        discountFactor * probabilities[i];
+        discountFactor * probabilitiesPtr[i];
     }
   } else {
     // General power: preserve the mathematical formulation with one
     // discounting pow() per observation.
     for (R_xlen_t i = 0; i < n; ++i) {
       double discountFactor =
-        std::pow(1.0 + interestRates[i], -timeIds[i] * power);
-      double term = std::pow(cashFlows[i], power) *
-        discountFactor * probabilities[i];
+        std::pow(1.0 + interestRatesPtr[i], -timeIdsPtr[i] * power);
+      double term = std::pow(cashFlowsPtr[i], power) *
+        discountFactor * probabilitiesPtr[i];
       total += term;
     }
   }
