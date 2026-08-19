@@ -1,6 +1,12 @@
 library(lifecontingencies)
 data(soa08Act)
 
+# The public pxt() signature must remain unchanged.
+stopifnot(identical(
+  names(formals(pxt)),
+  c("object", "x", "t", "fractional", "decrement")
+))
+
 reference_pxt <- function(object, x, t, fractional = "linear") {
   vapply(seq_len(max(length(x), length(t))), function(i) {
     lifecontingencies:::pxtold(
