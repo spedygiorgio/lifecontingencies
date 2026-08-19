@@ -19,7 +19,8 @@ for an annuity-due they occur at times \eqn{0,1,\ldots,n-1}.}
 \note{This function calls internally \code{presentValue} function.}
 \seealso{\code{\link{decreasingAnnuity}}, \code{\link{IAxn}}}
 \examples{
-# The present value of 1, 2, ..., n-1, n sequence of payments payable at the end of the period for 10 periods is
+# The present value of an increasing sequence of payments payable at the end
+# of each period for 10 periods is
 increasingAnnuity(i = 0.03, n = 10)
 # Assuming a 3\% interest rate
 }
