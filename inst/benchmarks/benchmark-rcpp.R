@@ -4,36 +4,112 @@ if (!requireNamespace("bench", quietly = TRUE)) {
   stop("Package 'bench' is required to run this development benchmark.")
 }
 
-reference_present_value <- function(cashFlows, timeIds, interestRates,
-                                    probabilities, power = 1) {
-  v <- (1 + interestRates)^(-timeIds)
-  sum((cashFlows^power) * (v^power) * probabilities)
+data("soa08Act")
+
+# Benchmark the native pxt kernel against an independent R implementation of
+# the same calculation. This deliberately bypasses the public pxt() wrapper
+# so that the benchmark measures the computational kernel rather than wrapper
+# overhead.
+reference_pxt_kernel <- function(x, t, lx, omega, fractional_method) {
+  nx <- length(x)
+  nt <- length(t)
+  n <- max(nx, nt)
+
+  if (nx == 0 || nt == 0) {
+    return(numeric(0))
+  }
+
+  x <- rep(x, length.out = n)
+  t <- rep(t, length.out = n)
+  out <- numeric(n)
+
+  get_lx <- function(age) {
+    if (age < 0 || age > omega || age == omega + 1) {
+      return(0)
+    }
+    lx[age + 1L]
+  }
+
+  for (i in seq_len(n)) {
+    xi <- x[i]
+    ti <- t[i]
+
+    if (xi < 0 || ti < 0) {
+      stop("Check x or t domain")
+    }
+
+    floor_x <- floor(xi)
+    eps_x <- xi - floor_x
+    u <- ti + eps_x
+    floor_u <- floor(u)
+    eps_u <- u - floor_u
+
+    ix <- as.integer(floor_x)
+    ix1 <- ix + 1L
+    ixu <- ix + as.integer(floor_u)
+    ixu1 <- ixu + 1L
+
+    lfx <- get_lx(ix)
+    if (lfx == 0) {
+      out[i] <- 0
+      next
+    }
+
+    lfx1 <- get_lx(ix1)
+    lfxu <- get_lx(ixu)
+    lfxu1 <- get_lx(ixu1)
+
+    floor_u_p_floor_x <- lfxu / lfx
+    one_p_floor_xu <- if (lfxu == 0) 0 else lfxu1 / lfxu
+    one_p_floor_x <- lfx1 / lfx
+
+    if (fractional_method == 0L) {
+      u_p_floor_x <- floor_u_p_floor_x *
+        (1 - eps_u * (1 - one_p_floor_xu))
+    } else if (fractional_method == 1L) {
+      u_p_floor_x <- floor_u_p_floor_x *
+        one_p_floor_xu^eps_u
+    } else {
+      u_p_floor_x <- floor_u_p_floor_x * one_p_floor_xu /
+        (1 - (1 - eps_u) * (1 - one_p_floor_xu))
+    }
+
+    if (fractional_method == 0L) {
+      eps_x_p_floor_x <- 1 - eps_x * (1 - one_p_floor_x)
+    } else if (fractional_method == 1L) {
+      eps_x_p_floor_x <- one_p_floor_x^eps_x
+    } else {
+      eps_x_p_floor_x <- one_p_floor_x /
+        (1 - (1 - eps_x) * (1 - one_p_floor_x))
+    }
+
+    out[i] <- u_p_floor_x / eps_x_p_floor_x
+  }
+
+  out
 }
 
 set.seed(2026)
 
-benchmark_case <- function(n, power = 1, scalar_rate = FALSE) {
-  cashFlows <- rnorm(n, mean = 100, sd = 25)
-  timeIds <- seq_len(n)
-  interestRates <- if (scalar_rate) 0.03 else runif(n, 0.01, 0.06)
-  rates_cpp <- rep(interestRates, length.out = n)
-  probabilities <- runif(n, 0.5, 1)
+lx <- soa08Act@lx
+omega <- getOmega(soa08Act)
 
-  expected <- reference_present_value(
-    cashFlows, timeIds, interestRates, probabilities, power
+benchmark_pxt_case <- function(n, fractional_method, scalar_x = FALSE,
+                               scalar_t = FALSE) {
+  x <- if (scalar_x) 40.5 else runif(n, 20, 80.5)
+  t <- if (scalar_t) 5.25 else runif(n, 0.25, 10.75)
+
+  expected <- reference_pxt_kernel(
+    x, t, lx, omega, fractional_method
   )
-  actual <- lifecontingencies:::.presentValueC(
-    cashFlows, timeIds, rates_cpp, probabilities, power
+  actual <- lifecontingencies:::.pxtCpp(
+    x, t, lx, omega, fractional_method
   )
-  stopifnot(all.equal(actual, expected, tolerance = 1e-10))
+  stopifnot(all.equal(actual, expected, tolerance = 1e-12))
 
   timing <- bench::mark(
-    R = reference_present_value(
-      cashFlows, timeIds, interestRates, probabilities, power
-    ),
-    Rcpp = lifecontingencies:::.presentValueC(
-      cashFlows, timeIds, rates_cpp, probabilities, power
-    ),
+    R = reference_pxt_kernel(x, t, lx, omega, fractional_method),
+    Rcpp = lifecontingencies:::.pxtCpp(x, t, lx, omega, fractional_method),
     iterations = 30,
     check = FALSE,
     time_unit = "ms"
@@ -44,8 +120,9 @@ benchmark_case <- function(n, power = 1, scalar_rate = FALSE) {
 
   data.frame(
     n = n,
-    power = power,
-    scalar_rate = scalar_rate,
+    fractional_method = fractional_method,
+    scalar_x = scalar_x,
+    scalar_t = scalar_t,
     iterations = 30,
     r_median_ms = r_median,
     cpp_median_ms = cpp_median,
@@ -53,60 +130,26 @@ benchmark_case <- function(n, power = 1, scalar_rate = FALSE) {
   )
 }
 
-benchmark_sum_case <- function(n) {
-  x <- rnorm(n)
-  y <- rnorm(n)
-  z <- rnorm(n)
-
-  expected2 <- sum(x * y)
-  expected3 <- sum(x * y * z)
-  actual2 <- lifecontingencies:::.mult2sum(x, y)
-  actual3 <- lifecontingencies:::.mult3sum(x, y, z)
-  stopifnot(all.equal(actual2, expected2, tolerance = 1e-10))
-  stopifnot(all.equal(actual3, expected3, tolerance = 1e-10))
-
-  timing <- bench::mark(
-    R_mult2 = sum(x * y),
-    Rcpp_mult2 = lifecontingencies:::.mult2sum(x, y),
-    R_mult3 = sum(x * y * z),
-    Rcpp_mult3 = lifecontingencies:::.mult3sum(x, y, z),
-    iterations = 30,
-    check = FALSE,
-    time_unit = "ms"
-  )
-
-  data.frame(
-    n = n,
-    r_mult2_median_ms = as.numeric(timing$median[[1]]),
-    cpp_mult2_median_ms = as.numeric(timing$median[[2]]),
-    mult2_speedup = as.numeric(timing$median[[1]]) /
-      as.numeric(timing$median[[2]]),
-    r_mult3_median_ms = as.numeric(timing$median[[3]]),
-    cpp_mult3_median_ms = as.numeric(timing$median[[4]]),
-    mult3_speedup = as.numeric(timing$median[[3]]) /
-      as.numeric(timing$median[[4]])
-  )
-}
-
-present_value_results <- do.call(rbind, c(
-  lapply(c(100, 1000, 10000, 100000), benchmark_case, power = 1),
-  lapply(c(100, 1000, 10000, 100000), benchmark_case, power = 2),
-  lapply(c(100, 1000, 10000, 100000), benchmark_case, power = 3),
-  lapply(c(1000, 10000, 100000), benchmark_case,
-         power = 1, scalar_rate = TRUE)
+pxt_results <- do.call(rbind, c(
+  lapply(c(100, 1000, 10000, 100000), benchmark_pxt_case,
+         fractional_method = 0L),
+  lapply(c(100, 1000, 10000, 100000), benchmark_pxt_case,
+         fractional_method = 1L),
+  lapply(c(100, 1000, 10000, 100000), benchmark_pxt_case,
+         fractional_method = 2L),
+  lapply(c(1000, 10000, 100000), benchmark_pxt_case,
+         fractional_method = 0L, scalar_x = TRUE, scalar_t = TRUE),
+  lapply(c(1000, 10000, 100000), benchmark_pxt_case,
+         fractional_method = 1L, scalar_x = TRUE, scalar_t = TRUE),
+  lapply(c(1000, 10000, 100000), benchmark_pxt_case,
+         fractional_method = 2L, scalar_x = TRUE, scalar_t = TRUE)
 ))
 
-sum_results <- do.call(rbind, lapply(
-  c(1000, 10000, 100000), benchmark_sum_case
-))
+cat("\npxtCpp benchmark:\n")
+print(pxt_results, row.names = FALSE)
 
-cat("\nPresent-value benchmark:\n")
-print(present_value_results, row.names = FALSE)
-
-cat("\nPresent-value summary (n >= 10000):\n")
-summary_rows <- present_value_results[present_value_results$n >= 10000, ]
-print(summary_rows[, c("n", "power", "scalar_rate", "r_median_ms",
-                       "cpp_median_ms", "speedup")], row.names = FALSE)
-
-cat("\nVector multiplication/sum benchmark:\n")
-print(sum_results, row.names = FALSE)
+cat("\npxtCpp summary (n >= 10000):\n")
+summary_rows <- pxt_results[pxt_results$n >= 10000, ]
+print(summary_rows[, c("n", "fractional_method", "scalar_x", "scalar_t",
+                       "r_median_ms", "cpp_median_ms", "speedup")],
+      row.names = FALSE)
