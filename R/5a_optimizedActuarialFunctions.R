@@ -1,43 +1,16 @@
-# Optimized implementations of the three standard APVs.
-# These wrappers preserve the public API while moving the EV inner loops to
-# one C++ call per actuarial function.  The original R implementations remain
-# available in 5_actuarialFunctions.R and the legacy scalar versions in 5b/.
+#############################################################################
+# Optimized implementations of the classical one-life APVs.
+#
+# Keep the public API and presentValue() as the final valuation layer.  These
+# implementations optimize the R path without introducing separate Rcpp
+# kernels for axn/Axn/AExn.  pxt() retains its existing Rcpp backend.
+#############################################################################
 
-.actuarial_fractional_method <- function(dots) {
-  fractional <- if (!is.null(dots$fractional)) dots$fractional else "linear"
-  fractional <- testfractionnalarg(fractional)
-  switch(fractional,
-         "linear" = 0L,
-         "constant force" = 1L,
-         "hyperbolic" = 2L,
-         stop("Unsupported fractional assumption"))
-}
-
-.actuarial_lx <- function(actuarialtable) {
-  if (!(class(actuarialtable) %in% c("lifetable", "actuarialtable")))
-    stop("Error! Only lifetable and actuarialtable classes are accepted")
-  as.numeric(actuarialtable@lx)
-}
-
-.axn_r_fallback <- function(actuarialtable, x, n, i, m, k, power, payment, dots) {
-  one <- function(j) {
-    if (n[j] <= 0) return(0)
-    if (payment == "immediate")
-      times <- m[j] + seq(from = 1 / k, to = n[j], by = 1 / k)
-    else
-      times <- m[j] + seq(from = 0, to = n[j] - 1 / k, by = 1 / k)
-    probs <- do.call(pxt, c(list(object = actuarialtable, x = x[j], t = times), dots))
-    presentValue(rep(1 / k, length(times)), times, i, probs, power)
-  }
-  vapply(seq_along(x), one, numeric(1))
-}
-
-#' Optimized survival annuity.
-#' @keywords internal
 axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                 k = 1, type = "EV", power = 1, payment = "advance", ...) {
   if (!(class(actuarialtable) %in% c("lifetable", "actuarialtable")))
     stop("Error! Only lifetable, actuarialtable classes are accepted")
+
   type <- testtyperesarg(type)
   payment <- testpaymentarg(payment)
   if (missing(x)) stop("Missing x")
@@ -48,41 +21,80 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if (missing(m)) m <- 0
   if (missing(n))
     n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
-  if (length(x) == 0 || length(n) == 0 || length(m) == 0)
-    stop("x, n and m must not be empty")
 
-  ntot <- max(length(x), length(n), length(m))
-  x <- rep(x, length.out = ntot)
-  n <- rep(n, length.out = ntot)
-  m <- rep(m, length.out = ntot)
-  if (any(!is.finite(x)) || any(!is.finite(n)) || any(!is.finite(m)))
-    stop("infinite values provided in x, n or m")
+  if (length(x) <= 0) stop("x is of length zero")
   if (any(x < 0, n < 0, m < 0)) stop("Check x, n or m")
 
-  if (type == "ST") {
-    return(vapply(seq_len(ntot), function(j)
-      rLifeContingencies(n = 1, lifecontingency = "axn",
-                         object = actuarialtable, x = x[j], t = n[j],
-                         i = i, m = m[j], k = k, payment = payment),
-      numeric(1)))
+  ntot <- max(length(x), length(n), length(m))
+  if (length(x) != ntot || length(n) != ntot || length(m) != ntot) {
+    if (length(x) != ntot)
+      warning("x argument has been recycled to match the maximum length of x, m and n")
+    if (length(n) != ntot)
+      warning("n argument has been recycled to match the maximum length of x, m and n")
+    if (length(m) != ntot)
+      warning("m argument has been recycled to match the maximum length of x, m and n")
+    x <- rep(x, length.out = ntot)
+    n <- rep(n, length.out = ntot)
+    m <- rep(m, length.out = ntot)
   }
 
-  dots <- list(...)
-  fractional_method <- .actuarial_fractional_method(dots)
-  if (!is.null(dots$decrement))
-    return(.axn_r_fallback(actuarialtable, x, n, i, m, k, power, payment, dots))
+  if (type == "ST") {
+    out <- numeric(ntot)
+    for (j in seq_len(ntot)) {
+      out[j] <- rLifeContingencies(
+        n = 1, lifecontingency = "axn", object = actuarialtable,
+        x = x[j], t = n[j], i = i, m = m[j], k = k, payment = payment
+      )
+    }
+    return(out)
+  }
+  if (type != "EV") stop("wrong result type")
 
-  .axnCpp(x, n, m, i, k, if (payment == "immediate") 0L else 1L,
-          fractional_method, power, .actuarial_lx(actuarialtable),
-          getOmega(actuarialtable))
+  # Optimization 1: cache deterministic payment/time grids by (n, m).
+  keys <- paste(n, m, sep = "\r")
+  key_levels <- unique(keys)
+  grids <- vector("list", length(key_levels))
+  names(grids) <- key_levels
+  for (g in seq_along(key_levels)) {
+    idx <- match(key_levels[g], keys)
+    if (n[idx] <= 0) {
+      grids[[g]] <- list(payments = numeric(0), times = numeric(0))
+    } else {
+      times <- if (payment == "immediate")
+        m[idx] + seq(from = 1 / k, to = n[idx], by = 1 / k)
+      else if (payment == "due")
+        m[idx] + seq(from = 0, to = n[idx] - 1 / k, by = 1 / k)
+      else stop("wrong payment type")
+      grids[[g]] <- list(payments = rep(1 / k, length(times)), times = times)
+    }
+  }
+
+  # Optimization 2: preallocate the result and use one tight loop instead of
+  # constructing a nested closure and an sapply result for each observation.
+  out <- numeric(ntot)
+  for (j in seq_len(ntot)) {
+    grid <- grids[[keys[j]]]
+    if (!length(grid$times)) {
+      out[j] <- 0
+      next
+    }
+    probs <- pxt(actuarialtable, x[j], grid$times, ...)
+    out[j] <- presentValue(
+      cashFlows = grid$payments,
+      timeIds = grid$times,
+      interestRates = i,
+      probabilities = probs,
+      power = power
+    )
+  }
+  out
 }
 
-#' Optimized life insurance APV.
-#' @keywords internal
 Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                 k = 1, type = "EV", power = 1, ...) {
   if (!(class(actuarialtable) %in% c("lifetable", "actuarialtable")))
     stop("Error! Only lifetable, actuarialtable classes are accepted")
+
   type <- testtyperesarg(type)
   if (missing(x)) stop("Missing x")
   if (length(k) > 1) {
@@ -92,46 +104,77 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if (missing(m)) m <- 0
   if (missing(n))
     n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
-  if (length(x) == 0 || length(n) == 0 || length(m) == 0)
-    stop("x, n and m must not be empty")
 
-  ntot <- max(length(x), length(n), length(m))
-  x <- rep(x, length.out = ntot)
-  n <- rep(n, length.out = ntot)
-  m <- rep(m, length.out = ntot)
-  if (any(!is.finite(x)) || any(!is.finite(n)) || any(!is.finite(m)))
-    stop("infinite values provided in x, n or m")
+  if (length(x) <= 0) stop("x is of length zero")
   if (any(x < 0, n < 0, m < 0)) stop("Check x, n or m")
 
+  ntot <- max(length(x), length(n), length(m))
+  if (length(x) != ntot || length(n) != ntot || length(m) != ntot) {
+    if (length(x) != ntot)
+      warning("x argument has been recycled to match the maximum length of x, m and n")
+    if (length(n) != ntot)
+      warning("n argument has been recycled to match the maximum length of x, m and n")
+    if (length(m) != ntot)
+      warning("m argument has been recycled to match the maximum length of x, m and n")
+    x <- rep(x, length.out = ntot)
+    n <- rep(n, length.out = ntot)
+    m <- rep(m, length.out = ntot)
+  }
+
   if (type == "ST") {
-    return(vapply(seq_len(ntot), function(j)
-      rLifeContingencies(n = 1, lifecontingency = "Axn",
-                         object = actuarialtable, x = x[j], t = n[j],
-                         i = i, m = m[j], k = k), numeric(1)))
-  }
-
-  dots <- list(...)
-  fractional_method <- .actuarial_fractional_method(dots)
-  if (!is.null(dots$decrement)) {
-    one <- function(j) {
-      if (n[j] <= 0) return(0)
-      times <- m[j] + seq(from = 0, to = n[j] - 1 / k, by = 1 / k)
-      probs <- do.call(pxt, c(list(object = actuarialtable, x = x[j], t = times), dots)) *
-        do.call(qxt, c(list(object = actuarialtable,
-                            x = x[j] + times, t = 1 / k), dots))
-      presentValue(rep(1, length(times)), times + 1 / k, i, probs, power)
+    out <- numeric(ntot)
+    for (j in seq_len(ntot)) {
+      out[j] <- rLifeContingencies(
+        n = 1, lifecontingency = "Axn", object = actuarialtable,
+        x = x[j], t = n[j], i = i, m = m[j], k = k
+      )
     }
-    return(vapply(seq_len(ntot), one, numeric(1)))
+    return(out)
+  }
+  if (type != "EV") stop("wrong result type")
+
+  keys <- paste(n, m, sep = "\r")
+  key_levels <- unique(keys)
+  grids <- vector("list", length(key_levels))
+  names(grids) <- key_levels
+  for (g in seq_along(key_levels)) {
+    idx <- match(key_levels[g], keys)
+    if (n[idx] <= 0) {
+      grids[[g]] <- list(payments = numeric(0), times = numeric(0))
+    } else {
+      times <- m[idx] + seq(from = 0, to = n[idx] - 1 / k, by = 1 / k)
+      grids[[g]] <- list(payments = rep(1, length(times)), times = times)
+    }
   }
 
-  .AxnCpp(x, n, m, i, k, fractional_method, power,
-          .actuarial_lx(actuarialtable), getOmega(actuarialtable))
+  out <- numeric(ntot)
+  for (j in seq_len(ntot)) {
+    grid <- grids[[keys[j]]]
+    if (!length(grid$times)) {
+      out[j] <- 0
+      next
+    }
+    times <- grid$times
+    # q_{x+t}^{(1/k)} = 1 - p_{x+t}^{(1/k)} under the same fractional
+    # convention, so p_x(t)q_{x+t}(1/k) = p_x(t)-p_x(t+1/k).
+    p0 <- pxt(actuarialtable, x[j], times, ...)
+    p1 <- pxt(actuarialtable, x[j], times + 1 / k, ...)
+    probs <- p0 - p1
+    out[j] <- presentValue(
+      cashFlows = grid$payments,
+      timeIds = times + 1 / k,
+      interestRates = i,
+      probabilities = probs,
+      power = power
+    )
+  }
+  out
 }
 
-#' Optimized n-year endowment insurance APV.
-#' @keywords internal
-AExn <- function(actuarialtable, x, n, i = actuarialtable@interest,
-                 k = 1, type = "EV", power = 1) {
+# AExn deliberately keeps the existing decomposition: this preserves the
+# public semantics while automatically benefiting from the optimized Axn().
+AExn <- function(actuarialtable, x, n, i = actuarialtable@interest, k = 1,
+                 type = "EV", power = 1) {
   if (!(class(actuarialtable) %in% c("lifetable", "actuarialtable")))
     stop("Error! Need an actuarial actuarialtable")
   if (missing(x)) stop("Error! Need age!")
@@ -140,27 +183,17 @@ AExn <- function(actuarialtable, x, n, i = actuarialtable@interest,
   if (missing(n)) n <- getOmega(actuarialtable) - x - 1
   if (any(x < 0, n < 0)) stop("Error! Negative parameters")
 
+  if (type == "EV") {
+    return(Axn(actuarialtable, x = x, n = n, i = i, m = 0,
+               k = k, type = "EV", power = power) +
+             Exn(actuarialtable, x = x, n = n, i = i,
+                 type = "EV", power = power))
+  }
   if (type == "ST") {
-    if (length(x) != 1 || length(n) != 1)
-      stop("type='ST' requires scalar x and n")
-    return(rLifeContingencies(n = 1, lifecontingency = "AExn",
-                              object = actuarialtable, x = x, t = n,
-                              i = i, k = k))
+    return(rLifeContingencies(
+      n = 1, lifecontingency = "AExn", object = actuarialtable,
+      x = x, t = n, i = i, k = k
+    ))
   }
-
-  x <- as.numeric(x)
-  n <- rep(n, length.out = length(x))
-  if (any(n == 0)) {
-    out <- numeric(length(x))
-    zero <- n == 0
-    out[zero] <- 1
-    if (any(!zero)) {
-      out[!zero] <- .AExnCpp(x[!zero], n[!zero], i, k, 0L, power,
-                             .actuarial_lx(actuarialtable), getOmega(actuarialtable))
-    }
-    return(out)
-  }
-
-  .AExnCpp(x, n, i, k, 0L, power,
-           .actuarial_lx(actuarialtable), getOmega(actuarialtable))
+  stop("wrong result type")
 }
