@@ -10,7 +10,6 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                 k = 1, type = "EV", power = 1, payment = "advance", ...) {
   if (!(class(actuarialtable) %in% c("lifetable", "actuarialtable")))
     stop("Error! Only lifetable, actuarialtable classes are accepted")
-
   type <- testtyperesarg(type)
   payment <- testpaymentarg(payment)
   if (missing(x)) stop("Missing x")
@@ -21,18 +20,14 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if (missing(m)) m <- 0
   if (missing(n))
     n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
-
   if (length(x) <= 0) stop("x is of length zero")
   if (any(x < 0, n < 0, m < 0)) stop("Check x, n or m")
 
   ntot <- max(length(x), length(n), length(m))
   if (length(x) != ntot || length(n) != ntot || length(m) != ntot) {
-    if (length(x) != ntot)
-      warning("x argument has been recycled to match the maximum length of x, m and n")
-    if (length(n) != ntot)
-      warning("n argument has been recycled to match the maximum length of x, m and n")
-    if (length(m) != ntot)
-      warning("m argument has been recycled to match the maximum length of x, m and n")
+    if (length(x) != ntot) warning("x argument has been recycled to match the maximum length of x, m and n")
+    if (length(n) != ntot) warning("n argument has been recycled to match the maximum length of x, m and n")
+    if (length(m) != ntot) warning("m argument has been recycled to match the maximum length of x, m and n")
     x <- rep(x, length.out = ntot)
     n <- rep(n, length.out = ntot)
     m <- rep(m, length.out = ntot)
@@ -40,12 +35,10 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
 
   if (type == "ST") {
     out <- numeric(ntot)
-    for (j in seq_len(ntot)) {
-      out[j] <- rLifeContingencies(
-        n = 1, lifecontingency = "axn", object = actuarialtable,
-        x = x[j], t = n[j], i = i, m = m[j], k = k, payment = payment
-      )
-    }
+    for (j in seq_len(ntot))
+      out[j] <- rLifeContingencies(n = 1, lifecontingency = "axn",
+        object = actuarialtable, x = x[j], t = n[j], i = i,
+        m = m[j], k = k, payment = payment)
     return(out)
   }
   if (type != "EV") stop("wrong result type")
@@ -79,13 +72,7 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
       next
     }
     probs <- pxt(actuarialtable, x[j], grid$times, ...)
-    out[j] <- presentValue(
-      cashFlows = grid$payments,
-      timeIds = grid$times,
-      interestRates = i,
-      probabilities = probs,
-      power = power
-    )
+    out[j] <- presentValue(grid$payments, grid$times, i, probs, power)
   }
   out
 }
@@ -94,7 +81,6 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                 k = 1, type = "EV", power = 1, ...) {
   if (!(class(actuarialtable) %in% c("lifetable", "actuarialtable")))
     stop("Error! Only lifetable, actuarialtable classes are accepted")
-
   type <- testtyperesarg(type)
   if (missing(x)) stop("Missing x")
   if (length(k) > 1) {
@@ -104,18 +90,14 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if (missing(m)) m <- 0
   if (missing(n))
     n <- pmax(ceiling((getOmega(actuarialtable) + 1 - x - m) * k) / k, 0)
-
   if (length(x) <= 0) stop("x is of length zero")
   if (any(x < 0, n < 0, m < 0)) stop("Check x, n or m")
 
   ntot <- max(length(x), length(n), length(m))
   if (length(x) != ntot || length(n) != ntot || length(m) != ntot) {
-    if (length(x) != ntot)
-      warning("x argument has been recycled to match the maximum length of x, m and n")
-    if (length(n) != ntot)
-      warning("n argument has been recycled to match the maximum length of x, m and n")
-    if (length(m) != ntot)
-      warning("m argument has been recycled to match the maximum length of x, m and n")
+    if (length(x) != ntot) warning("x argument has been recycled to match the maximum length of x, m and n")
+    if (length(n) != ntot) warning("n argument has been recycled to match the maximum length of x, m and n")
+    if (length(m) != ntot) warning("m argument has been recycled to match the maximum length of x, m and n")
     x <- rep(x, length.out = ntot)
     n <- rep(n, length.out = ntot)
     m <- rep(m, length.out = ntot)
@@ -123,16 +105,14 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
 
   if (type == "ST") {
     out <- numeric(ntot)
-    for (j in seq_len(ntot)) {
-      out[j] <- rLifeContingencies(
-        n = 1, lifecontingency = "Axn", object = actuarialtable,
-        x = x[j], t = n[j], i = i, m = m[j], k = k
-      )
-    }
+    for (j in seq_len(ntot))
+      out[j] <- rLifeContingencies(n = 1, lifecontingency = "Axn",
+        object = actuarialtable, x = x[j], t = n[j], i = i, m = m[j], k = k)
     return(out)
   }
   if (type != "EV") stop("wrong result type")
 
+  # Reuse deterministic grids exactly as in axn().
   keys <- paste(n, m, sep = "\r")
   key_levels <- unique(keys)
   grids <- vector("list", length(key_levels))
@@ -155,11 +135,9 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
       next
     }
     times <- grid$times
-    # q_{x+t}^{(1/k)} = 1 - p_{x+t}^{(1/k)} under the same fractional
-    # convention, so p_x(t)q_{x+t}(1/k) = p_x(t)-p_x(t+1/k).
-    p0 <- pxt(actuarialtable, x[j], times, ...)
-    p1 <- pxt(actuarialtable, x[j], times + 1 / k, ...)
-    probs <- p0 - p1
+    # Preserve the exact historical pxt()*qxt() fractional convention.
+    probs <- pxt(actuarialtable, x = x[j], t = times, ...) *
+      qxt(actuarialtable, x = x[j] + times, t = 1 / k, ...)
     out[j] <- presentValue(
       cashFlows = grid$payments,
       timeIds = times + 1 / k,
