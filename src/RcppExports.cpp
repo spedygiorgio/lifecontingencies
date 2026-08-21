@@ -45,8 +45,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type timeIds(timeIdsSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type interestRates(interestRatesSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type probabilities(probabilitiesSEXP);
-    Rcpp::traits::input_parameter< double >::type power(powerSEXP);
-    rcpp_result_gen = Rcpp::wrap(presentValueC(cashFlows, timeIds, interestRates, probabilities, power));
+    rcpp_result_gen = Rcpp::wrap(presentValueC(cashFlows, timeIds, interestRates, probabilities, Rcpp::as<double>(powerSEXP)));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -105,8 +104,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type T(TSEXP);
     Rcpp::traits::input_parameter< double >::type y(ySEXP);
     Rcpp::traits::input_parameter< double >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type i(iSEXP);
     Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
     Rcpp::traits::input_parameter< double >::type k(kSEXP);
     rcpp_result_gen = Rcpp::wrap(fDAxnCpp(T, y, n, i, m, k));
     return rcpp_result_gen;
@@ -133,12 +132,70 @@ RcppExport SEXP _lifecontingencies_pxtCpp(SEXP xSEXP, SEXP tSEXP, SEXP lxSEXP, S
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type lx(lxSEXP);
     Rcpp::traits::input_parameter< double >::type omega(omegaSEXP);
     Rcpp::traits::input_parameter< int >::type fractional_method(fractional_methodSEXP);
     rcpp_result_gen = Rcpp::wrap(pxtCpp(x, t, lx, omega, fractional_method));
+    return rcpp_result_gen;
+END_RCPP
+}
+// axnCpp
+NumericVector axnCpp(NumericVector x, NumericVector n, NumericVector m, double i, double k, int payment, int fractional_method, double power, NumericVector lx, double omega);
+RcppExport SEXP _lifecontingencies_axnCpp(SEXP xSEXP, SEXP nSEXP, SEXP mSEXP, SEXP iSEXP, SEXP kSEXP, SEXP paymentSEXP, SEXP fractional_methodSEXP, SEXP powerSEXP, SEXP lxSEXP, SEXP omegaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type payment(paymentSEXP);
+    Rcpp::traits::input_parameter< int >::type fractional_method(fractional_methodSEXP);
+    Rcpp::traits::input_parameter< double >::type power(powerSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lx(lxSEXP);
+    Rcpp::traits::input_parameter< double >::type omega(omegaSEXP);
+    rcpp_result_gen = Rcpp::wrap(axnCpp(x, n, m, i, k, payment, fractional_method, power, lx, omega));
+    return rcpp_result_gen;
+END_RCPP
+}
+// AxnCpp
+NumericVector AxnCpp(NumericVector x, NumericVector n, NumericVector m, double i, double k, int fractional_method, double power, NumericVector lx, double omega);
+RcppExport SEXP _lifecontingencies_AxnCpp(SEXP xSEXP, SEXP nSEXP, SEXP mSEXP, SEXP iSEXP, SEXP kSEXP, SEXP fractional_methodSEXP, SEXP powerSEXP, SEXP lxSEXP, SEXP omegaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type fractional_method(fractional_methodSEXP);
+    Rcpp::traits::input_parameter< double >::type power(powerSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lx(lxSEXP);
+    Rcpp::traits::input_parameter< double >::type omega(omegaSEXP);
+    rcpp_result_gen = Rcpp::wrap(AxnCpp(x, n, m, i, k, fractional_method, power, lx, omega));
+    return rcpp_result_gen;
+END_RCPP
+}
+// AExnCpp
+NumericVector AExnCpp(NumericVector x, NumericVector n, double i, double k, int fractional_method, double power, NumericVector lx, double omega);
+RcppExport SEXP _lifecontingencies_AExnCpp(SEXP xSEXP, SEXP nSEXP, SEXP iSEXP, SEXP kSEXP, SEXP fractional_methodSEXP, SEXP powerSEXP, SEXP lxSEXP, SEXP omegaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type fractional_method(fractional_methodSEXP);
+    Rcpp::traits::input_parameter< double >::type power(powerSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lx(lxSEXP);
+    Rcpp::traits::input_parameter< double >::type omega(omegaSEXP);
+    rcpp_result_gen = Rcpp::wrap(AExnCpp(x, n, i, k, fractional_method, power, lx, omega));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -153,6 +210,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_fDAxnCpp", (DL_FUNC) &_lifecontingencies_fDAxnCpp, 6},
     {"_lifecontingencies_fAExnCpp", (DL_FUNC) &_lifecontingencies_fAExnCpp, 5},
     {"_lifecontingencies_pxtCpp", (DL_FUNC) &_lifecontingencies_pxtCpp, 5},
+    {"_lifecontingencies_axnCpp", (DL_FUNC) &_lifecontingencies_axnCpp, 10},
+    {"_lifecontingencies_AxnCpp", (DL_FUNC) &_lifecontingencies_AxnCpp, 9},
+    {"_lifecontingencies_AExnCpp", (DL_FUNC) &_lifecontingencies_AExnCpp, 8},
     {NULL, NULL, 0}
 };
 
