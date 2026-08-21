@@ -22,7 +22,7 @@ autoplot.lifetable <- function(object, ...) {
 
   ggplot2::ggplot(
     data,
-    ggplot2::aes(x = data[["x"]], y = data[["lx"]])
+    ggplot2::aes(x = .data[["x"]], y = .data[["lx"]])
   ) +
     ggplot2::geom_line(...) +
     ggplot2::labs(
