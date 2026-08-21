@@ -13,8 +13,8 @@ AExn_legacy <- function(x, n, k = 1, i = soa08Act@interest) {
   }, numeric(1))
 }
 
-median_time <- function(expr, reps = 20L) {
-  z <- replicate(reps, system.time(force(expr))["elapsed"])
+median_time <- function(expr_fun, reps = 20L) {
+  z <- replicate(reps, system.time(expr_fun())["elapsed"])
   unname(median(z))
 }
 
@@ -41,14 +41,17 @@ results <- do.call(rbind, lapply(names(cases), function(size_name) {
   x <- cases[[size_name]]
   rbind(
     cbind(case = size_name,
-          benchmark_case("axn", axn(soa08Act, x = x, n = 20, k = 4),
-                         axn_legacy(soa08Act, x = x, n = 20, k = 4))),
+          benchmark_case("axn",
+                         function() axn(soa08Act, x = x, n = 20, k = 4),
+                         function() axn_legacy(soa08Act, x = x, n = 20, k = 4))),
     cbind(case = size_name,
-          benchmark_case("Axn", Axn(soa08Act, x = x, n = 20, k = 4),
-                         Axn_legacy(soa08Act, x = x, n = 20, k = 4))),
+          benchmark_case("Axn",
+                         function() Axn(soa08Act, x = x, n = 20, k = 4),
+                         function() Axn_legacy(soa08Act, x = x, n = 20, k = 4))),
     cbind(case = size_name,
-          benchmark_case("AExn", AExn(soa08Act, x = x, n = 20, k = 4),
-                         AExn_legacy(x, n = 20, k = 4)))
+          benchmark_case("AExn",
+                         function() AExn(soa08Act, x = x, n = 20, k = 4),
+                         function() AExn_legacy(x, n = 20, k = 4)))
   )
 }))
 
