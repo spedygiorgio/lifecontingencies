@@ -1,3 +1,19 @@
+test_that("optimized axn preserves the public signature", {
+  expect_identical(
+    names(formals(axn)),
+    c("actuarialtable", "x", "n", "i", "m", "k", "type",
+      "power", "payment", "...")
+  )
+  expect_identical(
+    names(formals(Axn)),
+    c("actuarialtable", "x", "n", "i", "m", "k", "type", "power", "...")
+  )
+  expect_identical(
+    names(formals(AExn)),
+    c("actuarialtable", "x", "n", "i", "k", "type", "power")
+  )
+})
+
 test_that("optimized axn matches legacy implementation", {
   legacy <- Vectorize(lifecontingencies:::axnold, "x")
   x <- c(30, 45, 60, 75)
@@ -45,15 +61,21 @@ test_that("optimized AExn equals Axn plus Exn", {
 
 test_that("fractional mortality assumptions agree with pxt/qxt", {
   x <- c(30.5, 45.25, 60.75)
-  n <- c(10.5, 15.25, 20.75)
+  # k = 2, so contract terms must lie on the half-year payment grid.
+  n <- c(10.5, 15.0, 20.5)
+
   for (fractional in c("linear", "constant force", "hyperbolic")) {
     expected_axn <- vapply(seq_along(x), function(j) {
-      times <- seq(from = 1 / 2, to = n[j], by = 1 / 2)
+      times <- seq(from = 0.5, to = n[j], by = 0.5)
       p <- pxt(soa08Act, x = x[j], t = times, fractional = fractional)
-      presentValue(rep(1 / 2, length(times)), times,
-                   soa08Act@interest, p)
+      presentValue(
+        cashFlows = rep(0.5, length(times)),
+        timeIds = times,
+        interestRates = soa08Act@interest,
+        probabilities = p
+      )
     }, numeric(1))
-    # The public axn API accepts fractional assumptions through ... .
+
     expect_equal(
       axn(soa08Act, x = x, n = n, k = 2,
           payment = "immediate", fractional = fractional),
