@@ -36,15 +36,3 @@
 .pxtCpp <- function(x, t, lx, omega, fractional_method) {
     .Call(`_lifecontingencies_pxtCpp`, x, t, lx, omega, fractional_method)
 }
-
-.axnCpp <- function(x, n, m, i, k, payment, fractional_method, power, lx, omega) {
-    .Call(`_lifecontingencies_axnCpp`, x, n, m, i, k, payment, fractional_method, power, lx, omega)
-}
-
-.AxnCpp <- function(x, n, m, i, k, fractional_method, power, lx, omega) {
-    .Call(`_lifecontingencies_AxnCpp`, x, n, m, i, k, fractional_method, power, lx, omega)
-}
-
-.AExnCpp <- function(x, n, i, k, fractional_method, power, lx, omega) {
-    .Call(`_lifecontingencies_AExnCpp`, x, n, i, k, fractional_method, power, lx, omega)
-}
