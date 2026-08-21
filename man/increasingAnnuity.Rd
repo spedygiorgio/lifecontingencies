@@ -10,14 +10,17 @@ increasingAnnuity(i, n, type = "immediate")
 \item{n}{The number of periods.}
 \item{type}{The payment type. Use \code{"immediate"} (default) for an annuity-immediate, where payments are made at the end of each period, or \code{"due"} for an annuity-due, where payments are made at the beginning of each period. For compatibility, \code{"arrears"} is an alias for \code{"immediate"} and \code{"advance"} is an alias for \code{"due"} (can be abbreviated).}
 }
-\details{An increasing annuity shows the following flow of payments: \eqn{1,2,\ldots,n-1,n}. For an annuity-immediate these payments occur at times \eqn{1,2,\ldots,n}; for an annuity-due they occur at times \eqn{0,1,\ldots,n-1}.}
+\details{An increasing annuity shows the following flow of payments: \eqn{1,2,\ldots,n-1,n}.
+For an annuity-immediate these payments occur at times \eqn{1,2,\ldots,n};
+for an annuity-due they occur at times \eqn{0,1,\ldots,n-1}.}
 \value{The value of the annuity.}
 \references{Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.}
 \author{Giorgio A. Spedicato}
 \note{This function calls internally \code{presentValue} function.}
 \seealso{\code{\link{decreasingAnnuity}}, \code{\link{IAxn}}}
 \examples{
-# The present value of 1, 2, ..., n-1, n sequence of payments payable at the end of the period for 10 periods is
+# The present value of an increasing sequence of payments payable at the end
+# of each period for 10 periods is
 increasingAnnuity(i = 0.03, n = 10)
 # Assuming a 3\% interest rate
 }

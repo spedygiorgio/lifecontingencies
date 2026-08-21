@@ -33,3 +33,7 @@
     .Call(`_lifecontingencies_fAExnCpp`, T, y, n, i, k)
 }
 
+.pxtCpp <- function(x, t, lx, omega, fractional_method) {
+    .Call(`_lifecontingencies_pxtCpp`, x, t, lx, omega, fractional_method)
+}
+

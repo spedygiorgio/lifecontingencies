@@ -6,7 +6,7 @@
 using namespace Rcpp;
 
 #ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<true>& Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
@@ -127,6 +127,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pxtCpp
+NumericVector pxtCpp(NumericVector x, NumericVector t, NumericVector lx, double omega, int fractional_method);
+RcppExport SEXP _lifecontingencies_pxtCpp(SEXP xSEXP, SEXP tSEXP, SEXP lxSEXP, SEXP omegaSEXP, SEXP fractional_methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lx(lxSEXP);
+    Rcpp::traits::input_parameter< double >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< int >::type fractional_method(fractional_methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(pxtCpp(x, t, lx, omega, fractional_method));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_mult3sum", (DL_FUNC) &_lifecontingencies_mult3sum, 3},
@@ -137,6 +152,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_fIAxnCpp", (DL_FUNC) &_lifecontingencies_fIAxnCpp, 6},
     {"_lifecontingencies_fDAxnCpp", (DL_FUNC) &_lifecontingencies_fDAxnCpp, 6},
     {"_lifecontingencies_fAExnCpp", (DL_FUNC) &_lifecontingencies_fAExnCpp, 5},
+    {"_lifecontingencies_pxtCpp", (DL_FUNC) &_lifecontingencies_pxtCpp, 5},
     {NULL, NULL, 0}
 };
 
