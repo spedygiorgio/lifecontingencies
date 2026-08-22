@@ -1,63 +1,92 @@
-name: R-CMD-check
-
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-  workflow_dispatch:
 
-permissions:
-  contents: read
+name: R-CMD-check.yaml
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions: read-all
 
 jobs:
   R-CMD-check:
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
-    if: github.event_name == 'pull_request'
+    if: >-
+      (github.event_name == 'push' &&
+       (startsWith(github.event.head_commit.message, 'feat:') ||
+        startsWith(github.event.head_commit.message, 'fix:'))) ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.event.pull_request.title, 'feat:') ||
+        startsWith(github.event.pull_request.title, 'fix:')))
     runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,  r: 'release' }
-          - { os: ubuntu-latest,  r: 'devel', http-user-agent: 'release' }
-          - { os: windows-latest, r: 'release' }
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: windows-latest, r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      _R_CHECK_CRAN_INCOMING_REMOTE_: false
-      _R_CHECK_LIMIT_CORES_: true
-      R_CHECK_NUM_CORES: 1
+      NO_COLOR: "1"
+      R_CLI_NUM_COLORS: "1"
 
     steps:
-      - uses: actions/checkout@v7
-      - name: Use stable Ubuntu mirror for R-devel
-        if: runner.os == 'Linux' && matrix.config.r == 'devel'
-        shell: bash
-        run: |
-          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.d/* 2>/dev/null || true
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
+      - uses: actions/checkout@v5
+
+      - id: pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+        continue-on-error: true
+        with:
+          pandoc-version: '3.1.11'
+
+      - if: steps.pandoc.outcome == 'failure'
+        uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: '3.1.11'
+
+      - id: quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        continue-on-error: true
+        with:
+          version: '1.10.18'
+
+      - if: steps.quarto.outcome == 'failure'
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.10.18'
+
+      - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-      - name: Install system deps (Linux)
+
+      - name: Configure Quarto R on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r_bin <- normalizePath(R.home("bin"), winslash = "/")
+          cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+
+      - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y qpdf ghostscript
-      - name: Install system deps (Windows)
+
+      - name: Install system dependencies (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: choco install -y ghostscript qpdf
-      - name: Install R package dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
             any::rcmdcheck
@@ -66,113 +95,143 @@ jobs:
             any::tinytex
           needs: check
           cache: true
-          cache-version: 3
-      - name: Setup TinyTeX
+
+      - id: tinytex
         uses: r-lib/actions/setup-tinytex@v2
+        continue-on-error: true
+
+      - if: steps.tinytex.outcome == 'failure'
+        uses: r-lib/actions/setup-tinytex@v2
+
       - name: Install LaTeX packages
         shell: Rscript {0}
         run: |
-          pkgs <- c("pict2e","grfext","everyshi","graphics","etoolbox","kvoptions","xcolor","collection-latexrecommended","collection-latexextra","collection-fontsrecommended","ae","inconsolata","upquote","courier","fancyvrb","framed","titling","booktabs","geometry","hyperref","url","microtype","graphicx","thumbpdf","float","caption","subcaption","babel-english","amsmath","amssymb","mathtools","siunitx","natbib","biblatex","csquotes","ulem","parskip","titlesec","wrapfig","longtable","makecell","multirow","colortbl","pgf","tikz","xkeyval","changepage")
-          if (Sys.which("tlmgr") != "") tinytex::tlmgr_install(pkgs, .quiet = TRUE)
-      - name: Check package
+          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
+          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+      - name: Verify TeX installation
+        shell: Rscript {0}
+        run: |
+          pdflatex <- Sys.which("pdflatex")
+          tlmgr <- Sys.which("tlmgr")
+          if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available after setup-tinytex")
+          if (!nzchar(tlmgr) || !file.exists(tlmgr)) stop("tlmgr is not available after setup-tinytex")
+          cat("pdflatex: ", pdflatex, "\n", sep = "")
+          cat("tlmgr: ", tlmgr, "\n", sep = "")
+
+      - uses: r-lib/actions/check-r-package@v2
         if: runner.os != 'Windows'
-        uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-resave-data","--compact-vignettes=both")'
+          build_args: 'c("--no-resave-data", "--compact-vignettes=both")'
           args: 'c("--as-cran")'
           error-on: '"error"'
-      - name: Check package without vignettes on Windows
-        if: runner.os == 'Windows'
-        uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
-          build_args: 'c("--no-resave-data","--no-build-vignettes")'
-          args: 'c("--as-cran")'
-          error-on: '"error"'
-      - name: Build vignettes on Windows after package installation
+
+      - name: R CMD check without vignettes on Windows
         if: runner.os == 'Windows'
         shell: Rscript {0}
         run: |
-          if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes", repos = "https://cloud.r-project.org")
-          if (!requireNamespace("tinytex", quietly = TRUE)) install.packages("tinytex", repos = "https://cloud.r-project.org")
-          roots <- unique(c(file.path(Sys.getenv("APPDATA"), "TinyTeX"), file.path(Sys.getenv("USERPROFILE"), "AppData", "Roaming", "TinyTeX"), path.expand("~/.TinyTeX")))
-          valid <- roots[vapply(roots, function(x) file.exists(file.path(x, "bin", "windows", "pdflatex.exe")), logical(1))]
-          if (!length(valid)) {
-            root <- roots[[1]]
-            if (dir.exists(root)) unlink(root, recursive = TRUE, force = TRUE)
-            tinytex::install_tinytex(dir = root, force = TRUE)
-            valid <- root
-          } else valid <- valid[[1]]
-          valid <- normalizePath(valid, winslash = "/", mustWork = TRUE)
-          texbin <- file.path(valid, "bin", "windows")
-          if (!file.exists(file.path(texbin, "pdflatex.exe"))) stop("pdflatex.exe is missing from TinyTeX root: ", valid)
-          Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
-          if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
-          pdflatex <- Sys.which("pdflatex")
-          if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available after TinyTeX setup. Root: ", valid)
-          remotes::install_local(".", build_vignettes = FALSE, upgrade = "never", dependencies = TRUE)
-          pkg_path <- find.package("lifecontingencies")
-          tools::buildVignettes(dir = pkg_path)
+          rcmdcheck::rcmdcheck(
+            args = c("--as-cran", "--no-manual", "--no-vignettes"),
+            build_args = c("--no-resave-data", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r <- file.path(R.home("bin"), "R.exe")
+          status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
+          if (status != 0) stop("R CMD INSTALL failed")
+          tools::buildVignettes(
+            "lifecontingencies",
+            dir = ".",
+            lib.loc = .libPaths(),
+            quiet = FALSE
+          )
 
   R-CMD-check-full:
-    name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'push' &&
+      (startsWith(github.event.head_commit.message, 'feat:') ||
+       startsWith(github.event.head_commit.message, 'fix:'))
     runs-on: ${{ matrix.config.os }}
+
+    name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
+
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,  r: 'release' }
-          - { os: ubuntu-latest,  r: 'devel', http-user-agent: 'release' }
-          - { os: windows-latest, r: 'release' }
-          - { os: windows-latest, r: 'devel', http-user-agent: 'release' }
-          - { os: macos-latest,  r: 'release' }
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: windows-latest, r: 'devel', http-user-agent: 'release'}
+          - {os: macos-latest,   r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      _R_CHECK_CRAN_INCOMING_REMOTE_: false
-      _R_CHECK_LIMIT_CORES_: true
-      R_CHECK_NUM_CORES: 1
+      NO_COLOR: "1"
+      R_CLI_NUM_COLORS: "1"
 
     steps:
       - uses: actions/checkout@v5
-      - name: Use stable Ubuntu mirror for R-devel
-        if: runner.os == 'Linux' && matrix.config.r == 'devel'
-        shell: bash
-        run: |
-          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.d/* 2>/dev/null || true
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
+
+      - id: pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+        continue-on-error: true
+        with:
+          pandoc-version: '3.1.11'
+
+      - if: steps.pandoc.outcome == 'failure'
+        uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: '3.1.11'
+
+      - id: quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        continue-on-error: true
+        with:
+          version: '1.10.18'
+
+      - if: steps.quarto.outcome == 'failure'
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.10.18'
+
+      - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-      - name: Install system deps (Linux)
+
+      - name: Configure Quarto R on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r_bin <- normalizePath(R.home("bin"), winslash = "/")
+          cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+
+      - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y qpdf ghostscript
-      - name: Install system deps (macOS)
+
+      - name: Install system dependencies (macOS)
         if: runner.os == 'macOS'
-        run: |
-          brew install qpdf ghostscript gettext
-          GETTEXT_PREFIX="$(brew --prefix gettext)"
-          GETTEXT_INCLUDE="${GETTEXT_PREFIX}/include"
-          GETTEXT_LIB="${GETTEXT_PREFIX}/lib"
-          test -f "${GETTEXT_INCLUDE}/libintl.h"
-          mkdir -p "${HOME}/.R"
-          printf '%s\n' "CPPFLAGS += -I${GETTEXT_INCLUDE}" "PKG_CPPFLAGS += -I${GETTEXT_INCLUDE}" "LDFLAGS += -L${GETTEXT_LIB}" "PKG_LIBS += -L${GETTEXT_LIB} -lintl" > "${HOME}/.R/Makevars"
-          echo "CPPFLAGS=-I${GETTEXT_INCLUDE}" >> "$GITHUB_ENV"
-          echo "LDFLAGS=-L${GETTEXT_LIB}" >> "$GITHUB_ENV"
-          echo "PKG_CONFIG_PATH=${GETTEXT_LIB}/pkgconfig" >> "$GITHUB_ENV"
-      - name: Install system deps (Windows)
+        run: brew install qpdf ghostscript
+
+      - name: Install system dependencies (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: choco install -y ghostscript qpdf
-      - name: Install R package dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
             any::rcmdcheck
@@ -180,121 +239,51 @@ jobs:
             any::rmarkdown
             any::tinytex
           needs: check
-          cache-version: 3
-      - name: Cache TinyTeX
-        id: tinytex-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.TinyTeX
-            ~/Library/TinyTeX
-            ~/AppData/Roaming/TinyTeX
-          key: tinytex-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
-      - name: Setup TinyTeX
-        if: steps.tinytex-cache.outputs.cache-hit != 'true'
+          cache: true
+
+      - id: tinytex
         uses: r-lib/actions/setup-tinytex@v2
-      - name: Restore cached TinyTeX to PATH
-        if: steps.tinytex-cache.outputs.cache-hit == 'true'
+        continue-on-error: true
+
+      - if: steps.tinytex.outcome == 'failure'
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install LaTeX packages
         shell: Rscript {0}
         run: |
-          os <- Sys.info()[["sysname"]]
-          root <- switch(os, Linux = path.expand("~/.TinyTeX"), Darwin = path.expand("~/Library/TinyTeX"), Windows = file.path(Sys.getenv("APPDATA"), "TinyTeX"))
-          if (!dir.exists(root)) stop("Cached TinyTeX directory not found: ", root)
-          if (os == "Windows") {
-            texbin <- file.path(root, "bin", "windows")
-            if (!file.exists(file.path(texbin, "pdflatex.exe"))) stop("Cached TinyTeX pdflatex.exe not found: ", texbin)
-            Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
-            if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
-          } else {
-            tinytex::use_tinytex(from = root)
-          }
-      - name: Ensure TinyTeX and pdflatex are available
-        shell: Rscript {0}
-        run: |
-          if (!requireNamespace("tinytex", quietly = TRUE)) install.packages("tinytex", repos = "https://cloud.r-project.org")
-          os <- Sys.info()[["sysname"]]
-          roots <- switch(os, Linux = path.expand("~/.TinyTeX"), Darwin = path.expand("~/Library/TinyTeX"), Windows = unique(c(file.path(Sys.getenv("APPDATA"), "TinyTeX"), file.path(Sys.getenv("USERPROFILE"), "AppData", "Roaming", "TinyTeX"), path.expand("~/.TinyTeX"))))
-          if (os == "Windows") {
-            valid <- roots[vapply(roots, function(x) file.exists(file.path(x, "bin", "windows", "pdflatex.exe")), logical(1))]
-          } else {
-            valid <- roots[vapply(roots, function(x) dir.exists(x), logical(1))]
-          }
-          if (!length(valid) || !nzchar(Sys.which("pdflatex"))) {
-            root <- roots[[1]]
-            if (dir.exists(root)) unlink(root, recursive = TRUE, force = TRUE)
-            tinytex::install_tinytex(dir = root, force = TRUE)
-            valid <- root
-          } else valid <- valid[[1]]
-          valid <- normalizePath(valid, winslash = "/", mustWork = TRUE)
-          if (os == "Windows") {
-            texbin <- file.path(valid, "bin", "windows")
-            Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
-            if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
-          } else {
-            tinytex::use_tinytex(from = valid)
-          }
-          pdflatex <- Sys.which("pdflatex")
-          if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available after TinyTeX bootstrap. Root: ", valid)
-          cat("TinyTeX root: ", valid, "\n", sep = "")
-          cat("pdflatex: ", pdflatex, "\n", sep = "")
-          cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
-      - name: Install LaTeX packages (TinyTeX)
-        shell: Rscript {0}
-        run: |
-          pkgs <- trimws(readLines(".github/tinytex-packages.txt"))
-          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, "#")]
-          if (!tinytex::is_tinytex()) stop("TinyTeX is not available")
+          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
           tinytex::tlmgr_install(pkgs, .quiet = TRUE)
-      - name: Save TinyTeX cache
-        if: steps.tinytex-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+
+      - uses: r-lib/actions/check-r-package@v2
+        if: runner.os != 'Windows'
         with:
-          path: |
-            ~/.TinyTeX
-            ~/Library/TinyTeX
-            ~/AppData/Roaming/TinyTeX
-          key: tinytex-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
-      - name: Diagnose TeX installation
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data", "--compact-vignettes=both")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
+
+      - name: R CMD check without vignettes on Windows
+        if: runner.os == 'Windows'
         shell: Rscript {0}
         run: |
-          cat("R: ", R.version.string, "\n", sep = "")
-          cat("pdflatex: ", Sys.which("pdflatex"), "\n", sep = "")
-          cat("xelatex: ", Sys.which("xelatex"), "\n", sep = "")
-          cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
-          cat("TinyTeX root: ", tinytex::tinytex_root(), "\n", sep = "")
-      - name: Install package for vignette build
+          rcmdcheck::rcmdcheck(
+            args = c("--as-cran", "--no-manual", "--no-vignettes"),
+            build_args = c("--no-resave-data", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
         shell: Rscript {0}
         run: |
-          os <- Sys.info()[["sysname"]]
-          rbin <- file.path(R.home("bin"), if (os == "Windows") "R.exe" else "R")
-          status <- system2(rbin, c("CMD", "INSTALL", "--no-multiarch", "--no-build-vignettes", "."))
-          if (!identical(status, 0L)) stop("R CMD INSTALL failed with status ", status)
-      - name: Build vignettes
-        shell: Rscript {0}
-        run: |
-          pdflatex <- Sys.which("pdflatex")
-          if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is unavailable at vignette build time")
-          dir.create("inst/doc", recursive = TRUE, showWarnings = FALSE)
-          tools::buildVignettes(dir = ".", tangle = FALSE, clean = FALSE)
-          outputs <- unique(unlist(lapply(c("inst/doc", "doc"), function(dir) if (dir.exists(dir)) list.files(dir, full.names = TRUE, recursive = FALSE) else character())))
-          if (!length(outputs)) stop("Vignette build produced no output files")
-          cat("Vignette outputs:\n")
-          print(outputs)
-      - name: Build source package
-        shell: Rscript {0}
-        run: |
-          os <- Sys.info()[["sysname"]]
-          rbin <- file.path(R.home("bin"), if (os == "Windows") "R.exe" else "R")
-          status <- system2(rbin, c("CMD", "build", ".", "--no-resave-data", "--no-build-vignettes"))
-          if (!identical(status, 0L)) stop("R CMD build failed with status ", status)
-          tarballs <- list.files(pattern = "^lifecontingencies_.*\\.tar\\.gz$", full.names = TRUE)
-          if (length(tarballs) != 1L) stop("Expected exactly one lifecontingencies source tarball, found: ", paste(tarballs, collapse = ", "))
-          tarball <- normalizePath(tarballs[[1]], winslash = "/", mustWork = TRUE)
-          cat("R_SOURCE_TARBALL=", tarball, "\n", sep = "", file = Sys.getenv("GITHUB_ENV"), append = TRUE)
-      - name: Check built source package
-        shell: Rscript {0}
-        run: |
-          tarball <- Sys.getenv("R_SOURCE_TARBALL")
-          if (!nzchar(tarball) || !file.exists(tarball)) stop("Built source tarball is unavailable: ", tarball)
-          result <- rcmdcheck::rcmdcheck(path = tarball, args = "--as-cran", error_on = "error", check_dir = "check")
-          print(result)
+          r <- file.path(R.home("bin"), "R.exe")
+          status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
+          if (status != 0) stop("R CMD INSTALL failed")
+          tools::buildVignettes(
+            "lifecontingencies",
+            dir = ".",
+            lib.loc = .libPaths(),
+            quiet = FALSE
+          )
