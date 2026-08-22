@@ -85,7 +85,6 @@ for (k in c(1, 2, 4, 12)) {
   )
 }
 
-# Explicit recycling is tested separately.
 assert_close(
   axn(soa08Act, x = x_check, n = 20, i = interest, m = 2, k = 4),
   axn_legacy(x_check, n = 20, m = 2, k = 4),
@@ -97,7 +96,6 @@ assert_close(
   "Axn/scalar n,m recycling"
 )
 
-# Fractional mortality assumptions are compared with their direct formulas.
 for (fractional in c("linear", "constant force", "hyperbolic")) {
   times <- 2 + seq(from = 0.5, to = 10, by = 0.5)
   p <- pxt(soa08Act, x = rep(60, length(times)), t = times,
@@ -164,12 +162,15 @@ raw <- do.call(rbind, lapply(names(cases), function(case_name) {
 raw$median_ms <- as.numeric(raw$median)
 raw$itr_per_sec <- as.numeric(raw$`itr/sec`)
 raw$memory_mb <- as.numeric(raw$mem_alloc) / 1024^2
+raw$expression_name <- vapply(raw$expression, function(e) {
+  paste(deparse(e), collapse = "")
+}, character(1))
 
 summary <- do.call(rbind, lapply(split(raw,
                                       list(raw$case, raw$function_name),
                                       drop = TRUE), function(z) {
-  opt <- z[z$expression == "optimized", ][1, ]
-  old <- z[z$expression == "legacy", ][1, ]
+  opt <- z[z$expression_name == "optimized", ][1, ]
+  old <- z[z$expression_name == "legacy", ][1, ]
   data.frame(
     case = opt$case,
     function_name = opt$function_name,
