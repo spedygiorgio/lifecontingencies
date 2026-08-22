@@ -153,6 +153,12 @@ jobs:
             quiet = FALSE
           )
 
+      - name: Validate vignette sources explicitly
+        if: runner.os == 'ubuntu-latest' && matrix.config.r == 'release'
+        shell: Rscript {0}
+        run: |
+          source(".github/scripts/check-vignettes.R")
+
   R-CMD-check-full:
     if: >-
       github.event_name == 'push' &&
