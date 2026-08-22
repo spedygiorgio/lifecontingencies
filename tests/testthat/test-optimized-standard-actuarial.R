@@ -63,14 +63,23 @@ test_that("optimized APVs support power and fractional assumptions", {
 
   for (fractional in c("linear", "constant force", "hyperbolic")) {
     for (power in c(1, 2)) {
-      expected_ax <- axnold(tab, x = 60, n = 12, m = 2, k = 4,
-                            power = power)
+      times_ax <- 2 + seq(from = 1 / 4, to = 12, by = 1 / 4)
+      p_ax <- pxt(tab, x = rep(60, length(times_ax)), t = times_ax,
+                  fractional = fractional)
+      expected_ax <- sum((1 / 4)^power *
+        (1 + tab@interest)^(-times_ax * power) * p_ax)
       actual_ax <- axn(tab, x = 60, n = 12, m = 2, k = 4,
                        power = power, fractional = fractional)
       expect_equal(actual_ax, expected_ax, tolerance = 1e-10)
 
-      expected_A <- Axnold(tab, x = 60, n = 12, m = 2, k = 4,
-                            power = power)
+      times_A <- 2 + seq(from = 0, to = 12 - 1 / 4, by = 1 / 4)
+      p_A <- pxt(tab, x = rep(60, length(times_A)), t = times_A,
+                 fractional = fractional)
+      p_next <- pxt(tab, x = rep(60, length(times_A)) + times_A,
+                     t = rep(1 / 4, length(times_A)),
+                     fractional = fractional)
+      expected_A <- sum((1 + tab@interest)^(-(times_A + 1 / 4) * power) *
+        p_A * (1 - p_next))
       actual_A <- Axn(tab, x = 60, n = 12, m = 2, k = 4,
                       power = power, fractional = fractional)
       expect_equal(actual_A, expected_A, tolerance = 1e-10)
