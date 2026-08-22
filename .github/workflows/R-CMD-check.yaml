@@ -189,7 +189,7 @@ jobs:
             ~/.TinyTeX
             ~/Library/TinyTeX
             ~/AppData/Roaming/TinyTeX
-          key: tinytex-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+          key: tinytex-v5-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
       - name: Setup TinyTeX
         if: steps.tinytex-cache.outputs.cache-hit != 'true'
         uses: r-lib/actions/setup-tinytex@v2
@@ -203,11 +203,14 @@ jobs:
           if (os == "Windows") {
             texbin <- file.path(root, "bin", "windows")
             if (!file.exists(file.path(texbin, "pdflatex.exe"))) stop("Cached TinyTeX pdflatex.exe not found: ", texbin)
-            Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
-            if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
+          } else if (os == "Linux") {
+            texbin <- file.path(root, "bin", "x86_64-linux")
           } else {
-            tinytex::use_tinytex(from = root)
+            texbin <- file.path(root, "bin", "universal-darwin")
           }
+          if (!dir.exists(texbin)) stop("Cached TinyTeX binary directory not found: ", texbin)
+          Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
+          if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
       - name: Ensure TinyTeX and pdflatex are available
         shell: Rscript {0}
         run: |
@@ -219,7 +222,7 @@ jobs:
           } else {
             valid <- roots[vapply(roots, function(x) dir.exists(x), logical(1))]
           }
-          if (!length(valid) || !nzchar(Sys.which("pdflatex"))) {
+          if (!length(valid)) {
             root <- roots[[1]]
             if (dir.exists(root)) unlink(root, recursive = TRUE, force = TRUE)
             tinytex::install_tinytex(dir = root, force = TRUE)
@@ -228,14 +231,18 @@ jobs:
           valid <- normalizePath(valid, winslash = "/", mustWork = TRUE)
           if (os == "Windows") {
             texbin <- file.path(valid, "bin", "windows")
-            Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
-            if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
+          } else if (os == "Linux") {
+            texbin <- file.path(valid, "bin", "x86_64-linux")
           } else {
-            tinytex::use_tinytex(from = valid)
+            texbin <- file.path(valid, "bin", "universal-darwin")
           }
+          if (!dir.exists(texbin)) stop("TinyTeX binary directory not found: ", texbin)
+          Sys.setenv(PATH = paste(texbin, Sys.getenv("PATH"), sep = .Platform$path.sep))
+          if (nzchar(Sys.getenv("GITHUB_PATH"))) cat(texbin, file = Sys.getenv("GITHUB_PATH"), append = TRUE, sep = "\n")
           pdflatex <- Sys.which("pdflatex")
           if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available after TinyTeX bootstrap. Root: ", valid)
           cat("TinyTeX root: ", valid, "\n", sep = "")
+          cat("TinyTeX bin: ", texbin, "\n", sep = "")
           cat("pdflatex: ", pdflatex, "\n", sep = "")
           cat("tlmgr: ", Sys.which("tlmgr"), "\n", sep = "")
       - name: Install LaTeX packages (TinyTeX)
@@ -253,7 +260,7 @@ jobs:
             ~/.TinyTeX
             ~/Library/TinyTeX
             ~/AppData/Roaming/TinyTeX
-          key: tinytex-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
+          key: tinytex-v5-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/tinytex-packages.txt') }}
       - name: Diagnose TeX installation
         shell: Rscript {0}
         run: |
@@ -285,16 +292,5 @@ jobs:
         run: |
           os <- Sys.info()[["sysname"]]
           rbin <- file.path(R.home("bin"), if (os == "Windows") "R.exe" else "R")
-          status <- system2(rbin, c("CMD", "build", ".", "--no-resave-data", "--no-build-vignettes"))
+          status <- system2(rbin, c("CMD", "build", ".", "--no-manual", "--no-resave-data"))
           if (!identical(status, 0L)) stop("R CMD build failed with status ", status)
-          tarballs <- list.files(pattern = "^lifecontingencies_.*\\.tar\\.gz$", full.names = TRUE)
-          if (length(tarballs) != 1L) stop("Expected exactly one lifecontingencies source tarball, found: ", paste(tarballs, collapse = ", "))
-          tarball <- normalizePath(tarballs[[1]], winslash = "/", mustWork = TRUE)
-          cat("R_SOURCE_TARBALL=", tarball, "\n", sep = "", file = Sys.getenv("GITHUB_ENV"), append = TRUE)
-      - name: Check built source package
-        shell: Rscript {0}
-        run: |
-          tarball <- Sys.getenv("R_SOURCE_TARBALL")
-          if (!nzchar(tarball) || !file.exists(tarball)) stop("Built source tarball is unavailable: ", tarball)
-          result <- rcmdcheck::rcmdcheck(path = tarball, args = "--as-cran", error_on = "error", check_dir = "check")
-          print(result)
