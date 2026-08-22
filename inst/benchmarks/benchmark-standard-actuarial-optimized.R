@@ -1,9 +1,6 @@
 # Performance benchmark for the optimized standard one-life APVs.
 # Run from the repository root with:
 #   Rscript inst/benchmarks/benchmark-standard-actuarial-optimized.R
-#
-# The benchmark loads the current checkout, rather than an arbitrary installed
-# version of lifecontingencies.
 
 if (!requireNamespace("bench", quietly = TRUE))
   stop("Package 'bench' is required. Install it with install.packages('bench').")
@@ -11,77 +8,66 @@ if (!requireNamespace("pkgload", quietly = TRUE))
   stop("Package 'pkgload' is required. Install it with install.packages('pkgload').")
 
 pkgload::load_all(".", quiet = TRUE)
-data(soa08Act)
+library(bench)
+
+data(soaLt)
+soa08Act <- with(soaLt, new("actuarialtable", interest = 0.06,
+                            x = x, lx = Ix, name = "SOA2008"))
 interest <- as.numeric(soa08Act@interest)
 
-# Historical scalar references. These deliberately execute one contract at a
-# time, so that the benchmark measures the benefit of vectorized orchestration
-# in the optimized public functions.
-axn_legacy <- function(x, n, m = 0, k = 1, payment = "advance", ...) {
+axn_legacy <- function(x, n, m = 0, k = 1, payment = "advance", power = 1) {
   ntot <- max(length(x), length(n), length(m))
   x <- rep(x, length.out = ntot)
   n <- rep(n, length.out = ntot)
   m <- rep(m, length.out = ntot)
   vapply(seq_len(ntot), function(j) {
-    lifecontingencies:::axnold(
-      soa08Act, x = x[j], n = n[j], m = m[j], k = k,
-      i = interest, payment = payment, ...
-    )
+    axnold(soa08Act, x = x[j], n = n[j], m = m[j], k = k,
+           i = interest, payment = payment, power = power)
   }, numeric(1))
 }
 
-Axn_legacy <- function(x, n, m = 0, k = 1, ...) {
+Axn_legacy <- function(x, n, m = 0, k = 1, power = 1) {
   ntot <- max(length(x), length(n), length(m))
   x <- rep(x, length.out = ntot)
   n <- rep(n, length.out = ntot)
   m <- rep(m, length.out = ntot)
   vapply(seq_len(ntot), function(j) {
-    lifecontingencies:::Axnold(
-      soa08Act, x = x[j], n = n[j], m = m[j], k = k,
-      i = interest, ...
-    )
+    Axnold(soa08Act, x = x[j], n = n[j], m = m[j], k = k,
+           i = interest, power = power)
   }, numeric(1))
 }
 
-AExn_legacy <- function(x, n, k = 1, ...) {
+AExn_legacy <- function(x, n, k = 1, power = 1) {
   ntot <- max(length(x), length(n))
   x <- rep(x, length.out = ntot)
   n <- rep(n, length.out = ntot)
   vapply(seq_len(ntot), function(j) {
-    lifecontingencies:::Axnold(
-      soa08Act, x = x[j], n = n[j], i = interest, k = k, ...
-    ) + Exn(soa08Act, x = x[j], n = n[j], i = interest)
+    Axnold(soa08Act, x = x[j], n = n[j], i = interest, k = k,
+           power = power) +
+      Exn(soa08Act, x = x[j], n = n[j], i = interest, power = power)
   }, numeric(1))
 }
 
 assert_close <- function(new, old, label, tolerance = 1e-10) {
-  if (length(new) != length(old)) {
-    stop(sprintf("Correctness check failed for %s: different output lengths.", label))
-  }
+  if (length(new) != length(old))
+    stop(sprintf("Correctness failed for %s: different output lengths.", label))
   if (!isTRUE(all.equal(new, old, tolerance = tolerance))) {
     max_error <- max(abs(new - old), na.rm = TRUE)
-    stop(sprintf(
-      "Correctness check failed for %s (max abs. error = %.17g).",
-      label, max_error
-    ))
+    stop(sprintf("Correctness failed for %s (max abs. error = %.17g).",
+                 label, max_error))
   }
-  invisible(TRUE)
 }
 
 cat("Checking numerical correctness before benchmarking...\n")
 x_check <- c(30, 45, 60, 75)
-n_check <- rep(20, length(x_check))
-m_check <- rep(2, length(x_check))
+n_check <- c(10, 15, 20, 25)
+m_check <- c(0, 1, 2, 3)
 
-# Explicit i is intentional: it makes the benchmark independent of the
-# actuarialtable default-interest dispatch and tests the same numerical input
-# in optimized and legacy paths.
 for (payment in c("advance", "due", "immediate", "arrears")) {
   assert_close(
     axn(soa08Act, x = x_check, n = n_check, i = interest, m = m_check,
         k = 4, payment = payment),
-    axn_legacy(x_check, n = n_check, m = m_check, k = 4,
-               payment = payment),
+    axn_legacy(x_check, n = n_check, m = m_check, k = 4, payment = payment),
     paste0("axn/payment=", payment)
   )
 }
@@ -99,47 +85,27 @@ for (k in c(1, 2, 4, 12)) {
   )
 }
 
-# Vary x, n and m simultaneously. This tests the vectorized parameter path.
-x_vec <- c(30, 45, 60, 75)
-n_vec <- c(10, 15, 20, 25)
-m_vec <- c(0, 1, 2, 3)
-assert_close(
-  axn(soa08Act, x = x_vec, n = n_vec, i = interest, m = m_vec, k = 4),
-  axn_legacy(x_vec, n = n_vec, m = m_vec, k = 4),
-  "axn/vectorized n,m"
-)
-assert_close(
-  Axn(soa08Act, x = x_vec, n = n_vec, i = interest, m = m_vec, k = 4),
-  Axn_legacy(x_vec, n = n_vec, m = m_vec, k = 4),
-  "Axn/vectorized n,m"
-)
-
-# Explicit recycling is tested separately from the performance checks.
+# Explicit recycling is tested separately.
 assert_close(
   axn(soa08Act, x = x_check, n = 20, i = interest, m = 2, k = 4),
   axn_legacy(x_check, n = 20, m = 2, k = 4),
   "axn/scalar n,m recycling"
 )
+assert_close(
+  Axn(soa08Act, x = x_check, n = 20, i = interest, m = 2, k = 4),
+  Axn_legacy(x_check, n = 20, m = 2, k = 4),
+  "Axn/scalar n,m recycling"
+)
 
-# Fractional mortality assumptions must still pass through pxt/qxt.
+# Fractional mortality assumptions are compared with their direct formulas.
 for (fractional in c("linear", "constant force", "hyperbolic")) {
-  expected_axn <- vapply(seq_along(x_check), function(j) {
-    times <- seq(0.5, 10, by = 0.5)
-    presentValue(
-      cashFlows = rep(0.5, length(times)),
-      timeIds = times,
-      interestRates = interest,
-      probabilities = pxt(
-        soa08Act, x = x_check[j], t = times, fractional = fractional
-      )
-    )
-  }, numeric(1))
-  assert_close(
-    axn(soa08Act, x = x_check, n = rep(10, length(x_check)),
-        i = interest, k = 2, payment = "immediate", fractional = fractional),
-    expected_axn,
-    paste0("axn/fractional=", fractional)
-  )
+  times <- 2 + seq(from = 0.5, to = 10, by = 0.5)
+  p <- pxt(soa08Act, x = rep(60, length(times)), t = times,
+           fractional = fractional)
+  expected <- sum((1 / 2) * (1 + interest)^(-times) * p)
+  actual <- axn(soa08Act, x = 60, n = 10, m = 2, i = interest, k = 2,
+                payment = "immediate", fractional = fractional)
+  assert_close(actual, expected, paste0("axn/fractional=", fractional))
 }
 
 cat("All correctness checks passed.\n\n")
