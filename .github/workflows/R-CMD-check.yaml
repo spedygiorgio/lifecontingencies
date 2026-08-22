@@ -1,0 +1,110 @@
+name: R-CMD-check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  R-CMD-check:
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest, r: 'release' }
+          - { os: ubuntu-latest, r: 'devel', http-user-agent: 'release' }
+          - { os: windows-latest, r: 'release' }
+          - { os: macos-latest, r: 'release' }
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      _R_CHECK_CRAN_INCOMING_REMOTE_: false
+      _R_CHECK_LIMIT_CORES_: true
+      R_CHECK_NUM_CORES: 1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use stable Ubuntu mirror for R-devel
+        if: runner.os == 'Linux' && matrix.config.r == 'devel'
+        shell: bash
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.d/* 2>/dev/null || true
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf ghostscript
+
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install qpdf ghostscript
+
+      - name: Install system dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install -y ghostscript qpdf
+
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            any::knitr
+            any::rmarkdown
+            any::tinytex
+          needs: check
+          cache: true
+          cache-version: 4
+
+      - name: Setup TinyTeX
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install LaTeX packages
+        shell: Rscript {0}
+        run: |
+          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
+          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+      - name: Verify TeX installation
+        shell: Rscript {0}
+        run: |
+          pdflatex <- Sys.which('pdflatex')
+          tlmgr <- Sys.which('tlmgr')
+          if (!nzchar(pdflatex) || !file.exists(pdflatex)) {
+            stop('pdflatex is not available after setup-tinytex. PATH=', Sys.getenv('PATH'))
+          }
+          if (!nzchar(tlmgr) || !file.exists(tlmgr)) {
+            stop('tlmgr is not available after setup-tinytex. PATH=', Sys.getenv('PATH'))
+          }
+          cat('pdflatex: ', pdflatex, '\n', sep = '')
+          cat('tlmgr: ', tlmgr, '\n', sep = '')
+
+      - name: Check package
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data", "--compact-vignettes=both")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
