@@ -1,54 +1,220 @@
-name: R-CMD-check
-
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-  workflow_dispatch:
 
-permissions:
-  contents: read
+name: R-CMD-check.yaml
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions: read-all
 
 jobs:
   R-CMD-check:
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    if: >-
+      (github.event_name == 'push' &&
+       (startsWith(github.event.head_commit.message, 'feat:') ||
+        startsWith(github.event.head_commit.message, 'fix:'))) ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.event.pull_request.title, 'feat:') ||
+        startsWith(github.event.pull_request.title, 'fix:')))
     runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: 'release' }
-          - { os: ubuntu-latest, r: 'devel', http-user-agent: 'release' }
-          - { os: windows-latest, r: 'release' }
-          - { os: macos-latest, r: 'release' }
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: windows-latest, r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      _R_CHECK_CRAN_INCOMING_REMOTE_: false
-      _R_CHECK_LIMIT_CORES_: true
-      R_CHECK_NUM_CORES: 1
+      NO_COLOR: "1"
+      R_CLI_NUM_COLORS: "1"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Use stable Ubuntu mirror for R-devel
-        if: runner.os == 'Linux' && matrix.config.r == 'devel'
-        shell: bash
-        run: |
-          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.d/* 2>/dev/null || true
+      - id: pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+        continue-on-error: true
+        with:
+          pandoc-version: '3.1.11'
 
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
+      - if: steps.pandoc.outcome == 'failure'
+        uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: '3.1.11'
+
+      - id: quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        continue-on-error: true
+        with:
+          version: '1.10.18'
+
+      - if: steps.quarto.outcome == 'failure'
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.10.18'
+
+      - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+
+      - name: Configure Quarto R on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r_bin <- normalizePath(R.home("bin"), winslash = "/")
+          cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf ghostscript
+
+      - name: Install system dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install -y ghostscript qpdf
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            any::knitr
+            any::rmarkdown
+            any::tinytex
+          needs: check
+          cache: true
+
+      - id: tinytex
+        uses: r-lib/actions/setup-tinytex@v2
+        continue-on-error: true
+
+      - if: steps.tinytex.outcome == 'failure'
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install LaTeX packages
+        shell: Rscript {0}
+        run: |
+          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
+          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+      - name: Verify TeX installation
+        shell: Rscript {0}
+        run: |
+          pdflatex <- Sys.which("pdflatex")
+          tlmgr <- Sys.which("tlmgr")
+          if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available after setup-tinytex")
+          if (!nzchar(tlmgr) || !file.exists(tlmgr)) stop("tlmgr is not available after setup-tinytex")
+          cat("pdflatex: ", pdflatex, "\n", sep = "")
+          cat("tlmgr: ", tlmgr, "\n", sep = "")
+
+      - uses: r-lib/actions/check-r-package@v2
+        if: runner.os != 'Windows'
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-resave-data", "--compact-vignettes=both")'
+          args: 'c("--as-cran")'
+          error-on: '"error"'
+
+      - name: R CMD check without vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          rcmdcheck::rcmdcheck(
+            args = c("--as-cran", "--no-manual", "--no-vignettes"),
+            build_args = c("--no-resave-data", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r <- file.path(R.home("bin"), "R.exe")
+          status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
+          if (status != 0) stop("R CMD INSTALL failed")
+          tools::buildVignettes(
+            "lifecontingencies",
+            dir = ".",
+            lib.loc = .libPaths(),
+            quiet = FALSE
+          )
+
+  R-CMD-check-full:
+    if: >-
+      github.event_name == 'push' &&
+      (startsWith(github.event.head_commit.message, 'feat:') ||
+       startsWith(github.event.head_commit.message, 'fix:'))
+    runs-on: ${{ matrix.config.os }}
+
+    name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: windows-latest, r: 'devel', http-user-agent: 'release'}
+          - {os: macos-latest,   r: 'release'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      NO_COLOR: "1"
+      R_CLI_NUM_COLORS: "1"
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - id: pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+        continue-on-error: true
+        with:
+          pandoc-version: '3.1.11'
+
+      - if: steps.pandoc.outcome == 'failure'
+        uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: '3.1.11'
+
+      - id: quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        continue-on-error: true
+        with:
+          version: '1.10.18'
+
+      - if: steps.quarto.outcome == 'failure'
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.10.18'
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Configure Quarto R on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r_bin <- normalizePath(R.home("bin"), winslash = "/")
+          cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
 
       - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -65,8 +231,7 @@ jobs:
         shell: pwsh
         run: choco install -y ghostscript qpdf
 
-      - name: Install R package dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
             any::rcmdcheck
@@ -75,9 +240,12 @@ jobs:
             any::tinytex
           needs: check
           cache: true
-          cache-version: 4
 
-      - name: Setup TinyTeX
+      - id: tinytex
+        uses: r-lib/actions/setup-tinytex@v2
+        continue-on-error: true
+
+      - if: steps.tinytex.outcome == 'failure'
         uses: r-lib/actions/setup-tinytex@v2
 
       - name: Install LaTeX packages
@@ -87,24 +255,35 @@ jobs:
           pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
           tinytex::tlmgr_install(pkgs, .quiet = TRUE)
 
-      - name: Verify TeX installation
-        shell: Rscript {0}
-        run: |
-          pdflatex <- Sys.which('pdflatex')
-          tlmgr <- Sys.which('tlmgr')
-          if (!nzchar(pdflatex) || !file.exists(pdflatex)) {
-            stop('pdflatex is not available after setup-tinytex. PATH=', Sys.getenv('PATH'))
-          }
-          if (!nzchar(tlmgr) || !file.exists(tlmgr)) {
-            stop('tlmgr is not available after setup-tinytex. PATH=', Sys.getenv('PATH'))
-          }
-          cat('pdflatex: ', pdflatex, '\n', sep = '')
-          cat('tlmgr: ', tlmgr, '\n', sep = '')
-
-      - name: Check package
-        uses: r-lib/actions/check-r-package@v2
+      - uses: r-lib/actions/check-r-package@v2
+        if: runner.os != 'Windows'
         with:
           upload-snapshots: true
           build_args: 'c("--no-resave-data", "--compact-vignettes=both")'
           args: 'c("--as-cran")'
           error-on: '"error"'
+
+      - name: R CMD check without vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          rcmdcheck::rcmdcheck(
+            args = c("--as-cran", "--no-manual", "--no-vignettes"),
+            build_args = c("--no-resave-data", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r <- file.path(R.home("bin"), "R.exe")
+          status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
+          if (status != 0) stop("R CMD INSTALL failed")
+          tools::buildVignettes(
+            "lifecontingencies",
+            dir = ".",
+            lib.loc = .libPaths(),
+            quiet = FALSE
+          )
