@@ -3,7 +3,7 @@
 #   Rscript inst/benchmarks/benchmark-standard-actuarial-optimized.R
 #
 # The benchmark loads the current checkout, rather than an arbitrary installed
-# version of lifecontingencies. This is important when testing a feature branch.
+# version of lifecontingencies.
 
 if (!requireNamespace("bench", quietly = TRUE))
   stop("Package 'bench' is required. Install it with install.packages('bench').")
@@ -12,14 +12,16 @@ if (!requireNamespace("pkgload", quietly = TRUE))
 
 pkgload::load_all(".", quiet = TRUE)
 data(soa08Act)
+interest <- as.numeric(soa08Act@interest)
 
-# Scalar legacy references. These intentionally reproduce the historical
-# one-observation-at-a-time execution path.
+# Historical scalar references. These deliberately execute one contract at a
+# time, so that the benchmark measures the benefit of vectorized orchestration
+# in the optimized public functions.
 axn_legacy <- function(x, n, m = 0, k = 1, payment = "advance", ...) {
   vapply(seq_along(x), function(j) {
     lifecontingencies:::axnold(
       soa08Act, x = x[j], n = n, m = m, k = k,
-      payment = payment, ...
+      i = interest, payment = payment, ...
     )
   }, numeric(1))
 }
@@ -27,16 +29,16 @@ axn_legacy <- function(x, n, m = 0, k = 1, payment = "advance", ...) {
 Axn_legacy <- function(x, n, m = 0, k = 1, ...) {
   vapply(seq_along(x), function(j) {
     lifecontingencies:::Axnold(
-      soa08Act, x = x[j], n = n, m = m, k = k, ...
+      soa08Act, x = x[j], n = n, m = m, k = k, i = interest, ...
     )
   }, numeric(1))
 }
 
-AExn_legacy <- function(x, n, k = 1, i = soa08Act@interest, ...) {
+AExn_legacy <- function(x, n, k = 1, ...) {
   vapply(seq_along(x), function(j) {
     lifecontingencies:::Axnold(
-      soa08Act, x = x[j], n = n, i = i, k = k, ...
-    ) + Exn(soa08Act, x = x[j], n = n, i = i)
+      soa08Act, x = x[j], n = n, i = interest, k = k, ...
+    ) + Exn(soa08Act, x = x[j], n = n, i = interest)
   }, numeric(1))
 }
 
@@ -53,68 +55,103 @@ assert_close <- function(new, old, label, tolerance = 1e-10) {
 
 cat("Checking numerical correctness before benchmarking...\n")
 x_check <- c(30, 45, 60, 75)
+n_check <- rep(20, length(x_check))
+m_check <- rep(2, length(x_check))
 
+# Explicit i is intentional: it makes the benchmark independent of the
+# actuarialtable default-interest dispatch and tests the same numerical input
+# in optimized and legacy paths.
 for (payment in c("advance", "due", "immediate", "arrears")) {
   assert_close(
-    axn(soa08Act, x = x_check, n = 20, m = 2, k = 4, payment = payment),
-    axn_legacy(soa08Act, x = x_check, n = 20, m = 2, k = 4, payment = payment),
+    axn(soa08Act, x = x_check, n = n_check, i = interest, m = m_check,
+        k = 4, payment = payment),
+    axn_legacy(x_check, n = n_check, m = m_check, k = 4,
+               payment = payment),
     paste0("axn/payment=", payment)
   )
 }
 
 for (k in c(1, 2, 4, 12)) {
   assert_close(
-    Axn(soa08Act, x = x_check, n = 20, m = 2, k = k),
-    Axn_legacy(soa08Act, x = x_check, n = 20, m = 2, k = k),
+    Axn(soa08Act, x = x_check, n = n_check, i = interest, m = m_check, k = k),
+    Axn_legacy(x_check, n = n_check, m = m_check, k = k),
     paste0("Axn/k=", k)
   )
   assert_close(
-    AExn(soa08Act, x = x_check, n = 20, k = k),
-    AExn_legacy(x_check, n = 20, k = k),
+    AExn(soa08Act, x = x_check, n = n_check, i = interest, k = k),
+    AExn_legacy(x_check, n = n_check, k = k),
     paste0("AExn/k=", k)
   )
 }
 
-# Vary x, n and m simultaneously. This specifically tests the optimized
-# grouping of deterministic payment/time grids.
+# Vary x, n and m simultaneously. This tests the vectorized parameter path.
 x_vec <- c(30, 45, 60, 75)
 n_vec <- c(10, 15, 20, 25)
 m_vec <- c(0, 1, 2, 3)
 assert_close(
-  axn(soa08Act, x = x_vec, n = n_vec, m = m_vec, k = 4),
+  axn(soa08Act, x = x_vec, n = n_vec, i = interest, m = m_vec, k = 4),
   vapply(seq_along(x_vec), function(j)
     lifecontingencies:::axnold(
-      soa08Act, x = x_vec[j], n = n_vec[j], m = m_vec[j], k = 4
+      soa08Act, x = x_vec[j], n = n_vec[j], i = interest,
+      m = m_vec[j], k = 4
     ), numeric(1)),
   "axn/vectorized n,m"
 )
 assert_close(
-  Axn(soa08Act, x = x_vec, n = n_vec, m = m_vec, k = 4),
+  Axn(soa08Act, x = x_vec, n = n_vec, i = interest, m = m_vec, k = 4),
   vapply(seq_along(x_vec), function(j)
     lifecontingencies:::Axnold(
-      soa08Act, x = x_vec[j], n = n_vec[j], m = m_vec[j], k = 4
+      soa08Act, x = x_vec[j], n = n_vec[j], i = interest,
+      m = m_vec[j], k = 4
     ), numeric(1)),
   "Axn/vectorized n,m"
 )
 
+# Explicit recycling is tested separately from the performance checks.
+assert_close(
+  axn(soa08Act, x = x_check, n = 20, i = interest, m = 2, k = 4),
+  axn_legacy(x_check, n = 20, m = 2, k = 4),
+  "axn/scalar n,m recycling"
+)
+
 # Fractional mortality assumptions must still be passed through pxt/qxt.
 for (fractional in c("linear", "constant force", "hyperbolic")) {
-  expected <- vapply(x_check, function(xx) {
-    times <- seq(0.5, 10, by = 0.5)
+  n_frac <- rep(10, length(x_check))
+  expected_axn <- vapply(seq_along(x_check), function(j) {
+    times <- seq(0.5, n_frac[j], by = 0.5)
     presentValue(
       cashFlows = rep(0.5, length(times)),
       timeIds = times,
-      interestRates = soa08Act@interest,
+      interestRates = interest,
       probabilities = pxt(
-        soa08Act, x = xx, t = times, fractional = fractional
+        soa08Act, x = x_check[j], t = times, fractional = fractional
       )
     )
   }, numeric(1))
   assert_close(
-    axn(soa08Act, x = x_check, n = 10, k = 2, payment = "immediate",
-        fractional = fractional),
-    expected,
+    axn(soa08Act, x = x_check, n = n_frac, i = interest, k = 2,
+        payment = "immediate", fractional = fractional),
+    expected_axn,
     paste0("axn/fractional=", fractional)
+  )
+
+  expected_Axn <- vapply(seq_along(x_check), function(j) {
+    times <- seq(0, n_frac[j] - 0.5, by = 0.5)
+    p <- pxt(soa08Act, x = x_check[j], t = times, fractional = fractional)
+    q <- qxt(soa08Act, x = x_check[j] + times, t = 0.5,
+             fractional = fractional)
+    presentValue(
+      cashFlows = rep(1, length(times)),
+      timeIds = times + 0.5,
+      interestRates = interest,
+      probabilities = p * q
+    )
+  }, numeric(1))
+  assert_close(
+    Axn(soa08Act, x = x_check, n = n_frac, i = interest, k = 2,
+        fractional = fractional),
+    expected_Axn,
+    paste0("Axn/fractional=", fractional)
   )
 }
 
@@ -127,11 +164,14 @@ cases <- list(
   ages_5000 = seq(20, 90, length.out = 5000)
 )
 
-benchmark_one <- function(case_name, function_name, x, new_expr, old_expr,
+# Build closures rather than eval() expressions. This avoids accidental
+# environment/name capture and lets bench::mark evaluate exactly the same
+# calls repeatedly.
+benchmark_one <- function(case_name, function_name, x, new_fun, old_fun,
                           iterations) {
   b <- bench::mark(
-    optimized = eval(new_expr),
-    legacy = eval(old_expr),
+    optimized = new_fun(),
+    legacy = old_fun(),
     iterations = iterations,
     check = FALSE,
     memory = TRUE,
@@ -143,23 +183,25 @@ benchmark_one <- function(case_name, function_name, x, new_expr, old_expr,
 }
 
 run_case <- function(case_name, x, iterations) {
+  n <- rep(20, length(x))
+  m <- rep(0, length(x))
   rbind(
     benchmark_one(
       case_name, "axn", x,
-      quote(axn(soa08Act, x = x, n = 20, k = 4)),
-      quote(axn_legacy(x, n = 20, k = 4)),
+      function() axn(soa08Act, x = x, n = n, i = interest, m = m, k = 4),
+      function() axn_legacy(x, n = n, m = m, k = 4),
       iterations
     ),
     benchmark_one(
       case_name, "Axn", x,
-      quote(Axn(soa08Act, x = x, n = 20, k = 4)),
-      quote(Axn_legacy(x, n = 20, k = 4)),
+      function() Axn(soa08Act, x = x, n = n, i = interest, m = m, k = 4),
+      function() Axn_legacy(x, n = n, m = m, k = 4),
       iterations
     ),
     benchmark_one(
       case_name, "AExn", x,
-      quote(AExn(soa08Act, x = x, n = 20, k = 4)),
-      quote(AExn_legacy(x, n = 20, k = 4)),
+      function() AExn(soa08Act, x = x, n = n, i = interest, k = 4),
+      function() AExn_legacy(x, n = n, k = 4),
       iterations
     )
   )
