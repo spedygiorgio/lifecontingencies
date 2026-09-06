@@ -678,14 +678,23 @@ qxyzt <- function(tablesList,x,t, status="joint",fractional=rep("linear",length(
 
 .qxyznt <- function(tablesList,x,n,t=1, status="joint")
 {
-	out=numeric(1)
+	numTables <- length(tablesList)
+	# n is now allowed to be a vector: build the (length(n) x numTables)
+	# deferral-time matrix once, so a caller looping over many deferral
+	# times can get all probabilities from a single pxyzt()/qxyzt() call
+	# instead of one call per time point (each of which repeats S4
+	# dispatch and argument validation). Scalar n keeps working exactly
+	# as before (a 1-row matrix).
+	tmat <- matrix(n, nrow = length(n), ncol = numTables)
 	if(status=="joint")
 	{
-		y=x+n
-		out=pxyzt(tablesList=tablesList,x=x,t=n, status=status)*qxyzt(tablesList=tablesList,x=y,t=t, status=status)
+		y <- tmat + matrix(x, nrow = length(n), ncol = numTables, byrow = TRUE)
+		out <- pxyzt(tablesList=tablesList,x=x,t=tmat, status=status) *
+		       qxyzt(tablesList=tablesList,x=y,t=t, status=status)
 	} else { #last
-		y=n+t
-		out=pxyzt(tablesList=tablesList,x=x,t=n, status=status)-pxyzt(tablesList=tablesList,x=x,t=y, status=status)
+		ymat <- tmat + t
+		out <- pxyzt(tablesList=tablesList,x=x,t=tmat, status=status) -
+		       pxyzt(tablesList=tablesList,x=x,t=ymat, status=status)
 	}
 	return(out)
 }
