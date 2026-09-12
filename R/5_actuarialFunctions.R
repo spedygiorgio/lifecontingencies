@@ -484,11 +484,16 @@ axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",pow
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
     if (payment == "immediate")
       times = times + 1 / k
-    for (j in 1:length(times))
-      probs[j] = pxyzt(
-        tablesList = tablesList,x = x,
-        t = times[j],status = status
-      )
+    # pxyzt() already accepts a full vector/matrix of times (it dispatches
+    # to the vectorised pxt()/.pxtCpp() kernel per table). Calling it once
+    # with all `times` avoids length(times) redundant R/S4-level calls
+    # (argument re-validation, status/fractional checks, etc.) that were
+    # previously repeated on every iteration for identical inputs.
+    probs <- pxyzt(
+      tablesList = tablesList, x = x,
+      t = matrix(times, nrow = length(times), ncol = numTables),
+      status = status
+    )
     discounts = (1 + interest) ^ -times #prima asteriskato
     #out<-sum(payments*discounts*probs)
     if (type == "EV") {
@@ -654,16 +659,14 @@ Axyn <- function(tablex, x,tabley, y, n,i, m, k = 1, status = "joint", type = "E
     #perform calculations
     
     payments = rep(1,n * k)
-    probs = numeric(n * k)
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
     startAgex = x
     startAgey = y
     tablesList = list(tablex, tabley)
-    for (i in 1:length(times))
-      probs[i] = .qxyznt(
-        tablesList = tablesList,x = c(startAgex,startAgey),n = times[i],t = 1 /
-          k, status = status
-      )
+    probs <- .qxyznt(
+      tablesList = tablesList, x = c(startAgex, startAgey), n = times,
+      t = 1 / k, status = status
+    )
     discounts = (1 + interest) ^ -(times + 1 / k)
     
     if (type == "EV") {
@@ -728,14 +731,13 @@ Axyzn <- function(tablesList, x, n,i, m, k = 1, status = "joint", type = "EV",po
     #perform calculations
     
     payments = rep(1,n * k)
-    probs = numeric(n * k)
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
     
-    
-    for (j in 1:length(times))
-      probs[j] = .qxyznt(
-        tablesList = tablesList,x = x,n = times[j],t = 1 / k, status = status
-      )
+    # .qxyznt() now accepts the whole `times` vector at once (see patch to
+    # 3_demographicFunctions.R) instead of being called n*k times.
+    probs <- .qxyznt(
+      tablesList = tablesList, x = x, n = times, t = 1 / k, status = status
+    )
     discounts = (1 + interest) ^ -(times + 1 / k)
     
     if (type == "EV") {
@@ -869,12 +871,10 @@ IAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1,
     probs = numeric(n * k)
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
     startAge = x #we start from x
-    for (i in 1:length(times))
-      probs[i] = (
-        pxt(object = actuarialtable, x = startAge,t = times[i]) * qxt(
-          object = actuarialtable, x = startAge + times[i],t = 1 / k
-        )
-      )
+    # pxt()/qxt() already accept vector `t` (and recycle scalar x), so a
+    # single vectorised call replaces length(times) separate R/S4 calls.
+    probs <- pxt(object = actuarialtable, x = startAge, t = times) *
+      qxt(object = actuarialtable, x = startAge + times, t = 1 / k)
     discounts = (1 + interest) ^ -(times + 1 / k)
     
     if (type == "EV") {
@@ -934,12 +934,8 @@ DAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1,
     probs = numeric(n * k)
     times = m + seq(from = 0, to = (n - 1 / k),by = 1 / k)
     startAge = x #we start from x
-    for (i in 1:length(times))
-      probs[i] = (
-        pxt(object = actuarialtable, x = startAge,t = times[i]) * qxt(
-          object = actuarialtable, x = startAge + times[i],t = 1 / k
-        )
-      )
+    probs <- pxt(object = actuarialtable, x = startAge, t = times) *
+      qxt(object = actuarialtable, x = startAge + times, t = 1 / k)
     discounts = (1 + interest) ^ -(times + 1 / k)
     
     if (type == "EV") {
