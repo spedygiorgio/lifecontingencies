@@ -2110,6 +2110,227 @@ axn(DAT,65,10,payment="arrears")
 @
 
 
+\subsubsection{A worked example on real cause-of-death data, with a note on graduation (P4.2)}
+
+The examples above use small, illustrative tables. This section works
+through the full pipeline --- from an official, publicly available
+cause-specific mortality report to a validated \code{mdt} object --- using
+real data: Table 8 of \cite{ariasNVSR2013}, ``United States Life Tables
+Eliminating Certain Causes of Death, 1999--2001'', published by the U.S.
+National Center for Health Statistics. Table 8 tabulates, for 22 five-year
+(and one open-ended) age bands from birth to 100+, the number of decrements
+attributable to each of 33 causes of death out of a radix of $l_0 =
+10{,}000{,}000$.
+
+\paragraph{From an official report to a mutually exclusive partition.}
+A \code{mdt} object requires its non-\code{x}/\code{lx} columns to be a
+partition of total mortality: at every age the columns must sum to exactly
+the decrement implied by \code{lx}. The 33 causes tabulated by
+\cite{ariasNVSR2013}, however, are \emph{not} mutually exclusive: several
+rows are parent categories that contain other rows as subtypes (e.g.\
+``Malignant neoplasms'' contains site-specific cancers such as colon,
+lung, breast and prostate), and others are cross-cutting aggregates that
+overlap several disease groups (e.g.\ ``Alcohol-induced causes''). Summing
+all 33 columns as if they were disjoint would double count decrements.
+
+We therefore curate a mutually exclusive partition made of the 17
+top-level (non-nested, non-aggregate) causes of the original 33, plus a
+residual \code{other} category that closes the table to total mortality at
+every age. The columns kept are \code{septicemia}, \code{hiv},
+\code{cancer}, \code{diabetes}, \code{alzheimer}, \code{heart\_disease},
+\code{hypertension}, \code{cerebrovascular}, \code{influenza\_pneumonia},
+\code{copd}, \code{pneumonitis}, \code{liver\_disease}, \code{nephritis},
+\code{congenital}, \code{accidents}, \code{suicide} and \code{homicide};
+\code{other} is obtained, for each age band, as the total decrements minus
+the sum of these 17 columns, and is non-negative at every age band, which
+confirms no double counting remains.
+
+We embed the resulting curated, mutually exclusive 5-year table below
+(\code{partition\_sum} is the sum of the 17 named causes, kept only as a
+diagnostic column to show that \code{partition\_sum + other == total\_dx}
+at every age; it is dropped before building the \code{mdt}):
+
+<<cdc.data3, keep.source=TRUE>>=
+bandStart <- c(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65,
+               70, 75, 80, 85, 90, 95, 100)
+cdc5yr <- data.frame(
+  age_group = c("0-1", "1-5", "5-10", "10-15", "15-20", "20-25", "25-30",
+    "30-35", "35-40", "40-45", "45-50", "50-55", "55-60", "60-65",
+    "65-70", "70-75", "75-80", "80-85", "85-90", "90-95", "95-100",
+    "100 and over"),
+  lx = c(10000000.0, 9930523.0, 9917600.0, 9909689.0, 9899801.0, 9866403.0,
+    9820252.0, 9775095.0, 9720086.0, 9642151.0, 9527362.0, 9360142.0,
+    9123237.0, 8764226.0, 8233035.0, 7489085.0, 6464402.0, 5088466.0,
+    3451511.0, 1849572.0, 687944.7, 147917.1),
+  total_dx = c(69477.0, 12923.0, 7911.0, 9888.0, 33398.0, 46151.0, 45157.0,
+    55009.0, 77935.0, 114789.0, 167220.0, 236905.0, 359011.0, 531191.0,
+    743950.0, 1024683.0, 1375936.0, 1636955.0, 1601939.0, 1161627.3,
+    540027.6, 147917.1),
+  partition_sum = c(20749.0, 9384.9, 6159.0, 7847.6, 29571.0, 40140.9,
+    38078.3, 45424.2, 63928.2, 94335.2, 138926.7, 202948.7, 315395.2,
+    470524.7, 658241.3, 900367.8, 1191618.0, 1395849.7, 1344478.8,
+    958568.3, 436904.4, 116411.8),
+  other = c(48728.0, 3538.1, 1752.0, 2040.4, 3827.0, 6010.1, 7078.7,
+    9584.8, 14006.8, 20453.8, 28293.3, 33956.3, 43615.8, 60666.3,
+    85708.7, 124315.2, 184318.0, 241105.3, 257460.2, 203059.0, 103123.2,
+    31505.3),
+  septicemia = c(722.6, 247.7, 91.8, 76.5, 105.3, 194.7, 257.8, 418.8,
+    671.8, 1120.7, 1847.0, 2783.5, 4280.8, 6452.9, 9611.9, 13677.9,
+    19662.0, 23350.0, 23250.0, 15851.9, 6872.4, 1626.4),
+  hiv = c(28.3, 43.0, 58.0, 62.8, 88.2, 427.6, 1680.0, 4167.0, 6114.4,
+    6706.2, 5899.3, 4113.8, 2677.1, 1727.4, 1046.5, 539.9, 257.5, 81.0,
+    25.5, 19.5, 10.6, 2.7),
+  cancer = c(187.9, 1060.0, 1201.0, 1242.0, 1814.4, 2526.2, 3518.9,
+    6114.5, 11915.0, 23559.7, 44358.6, 77442.7, 131212.1, 198969.2,
+    267824.2, 332678.3, 368548.5, 334200.1, 233736.2, 113426.7, 35785.0,
+    6122.5),
+  diabetes = c(6.7, 16.9, 19.3, 58.8, 120.0, 277.8, 513.9, 940.3, 1524.6,
+    2623.1, 4656.5, 8029.6, 13462.8, 20843.6, 29206.0, 37986.0, 46899.8,
+    48482.2, 38608.7, 21835.1, 8005.9, 1545.5),
+  alzheimer = c(0.0, 0.0, 0.0, 0.0, 0.0, 0.9, 0.8, 2.4, 2.8, 8.6, 42.5,
+    126.0, 482.8, 1366.0, 3477.9, 9876.6, 25418.6, 49458.4, 63722.0,
+    54057.0, 25433.7, 5666.6),
+  heart_disease = c(1244.1, 496.3, 257.8, 402.5, 990.5, 1632.3, 2575.5,
+    4841.8, 9546.1, 19013.9, 33655.2, 56478.6, 92602.3, 141365.9,
+    202096.5, 288960.8, 415183.0, 537740.9, 577672.7, 457905.7, 227285.0,
+    66431.5),
+  hypertension = c(3.3, 4.2, 1.6, 3.2, 11.4, 33.8, 64.9, 138.3, 220.6,
+    485.8, 838.2, 1359.1, 1972.7, 3237.0, 4635.8, 6594.0, 10279.8,
+    14091.1, 15639.9, 12697.0, 6581.1, 1933.8),
+  cerebrovascular = c(278.6, 123.9, 71.7, 106.2, 164.9, 324.5, 513.9,
+    926.9, 1870.1, 3586.8, 5965.7, 8723.2, 13848.4, 22185.8, 34745.3,
+    58994.0, 100084.4, 145206.2, 161264.4, 122436.7, 54220.7, 12630.6),
+  influenza_pneumonia = c(755.1, 290.7, 112.0, 107.1, 166.6, 298.6, 337.8,
+    506.5, 893.9, 1322.6, 1880.1, 2539.4, 3857.3, 6272.5, 9849.1,
+    17726.2, 31608.2, 51735.7, 64665.0, 58841.1, 32133.0, 10956.1),
+  copd = c(94.0, 124.7, 112.0, 195.6, 218.0, 262.2, 313.4, 429.9, 686.0,
+    1299.8, 2657.7, 5557.3, 13792.5, 27507.5, 49137.5, 76948.9, 100455.3,
+    105576.7, 81889.6, 41622.6, 14325.5, 2877.8),
+  pneumonitis = c(31.6, 31.2, 13.7, 21.7, 25.3, 62.3, 72.4, 105.1, 131.2,
+    243.3, 336.5, 528.8, 866.2, 1408.2, 2466.9, 4832.3, 8971.9, 14562.1,
+    17864.6, 14771.2, 7068.0, 1928.4),
+  liver_disease = c(9.1, 4.2, 1.6, 4.0, 18.0, 57.1, 198.0, 769.7, 2337.2,
+    4790.8, 7989.0, 8922.6, 9780.0, 11092.9, 11344.1, 10895.8, 9658.5,
+    6664.8, 3434.6, 1153.5, 225.4, 24.3),
+  nephritis = c(383.3, 37.9, 26.6, 33.0, 62.9, 151.5, 218.2, 365.1, 599.5,
+    977.3, 1607.2, 2564.0, 4302.1, 7118.9, 11608.2, 16664.5, 24123.1,
+    29663.4, 29579.4, 21013.8, 9269.0, 2227.8),
+  congenital = c(13912.0, 1349.1, 472.9, 495.9, 573.3, 586.8, 543.4,
+    596.6, 578.2, 636.4, 732.9, 848.9, 1003.8, 1066.8, 970.3, 879.6,
+    1001.5, 1063.5, 870.6, 504.0, 236.0, 56.6),
+  accidents = c(2249.1, 4586.7, 3332.5, 3845.8, 16420.4, 19138.2,
+    14938.4, 14067.2, 15926.3, 17254.8, 16556.9, 14316.4, 13565.0,
+    13626.6, 14401.4, 17356.4, 23649.9, 29109.6, 29211.3, 21255.5,
+    9191.2, 2357.0),
+  suicide = c(0.0, 0.0, 12.9, 655.5, 3959.4, 6077.0, 6007.4, 6197.6,
+    6794.9, 7200.1, 7130.0, 6521.5, 6005.7, 4995.4, 4726.3, 4904.1,
+    5078.7, 4297.4, 2719.2, 1042.0, 214.9, 18.9),
+  homicide = c(843.2, 968.4, 373.7, 537.2, 4832.4, 8089.4, 6323.6,
+    4836.4, 4115.3, 3505.5, 2773.4, 2093.2, 1683.3, 1288.2, 1093.5,
+    852.3, 737.2, 566.6, 325.3, 135.1, 46.9, 5.4)
+)
+## sanity check: the curated partition closes exactly to total mortality
+stopifnot(all(abs(cdc5yr$partition_sum + cdc5yr$other - cdc5yr$total_dx) < 1e-6))
+@
+
+\paragraph{Graduating from 5-year bands to single years of age.}
+The \code{mdt} class requires one row per single year of age, while
+Table 8 is tabulated in 5-year bands. A modern, purpose-built way to
+``ungroup'' banded counts into single-year counts is Eilers'
+\emph{penalized composite link model} (PCLM, \cite{eilers2007pclm}),
+implemented in the \pkg{ungroup} and \pkg{DemoTools} packages; it lets the
+within-band shape --- including how the cause-of-death mix evolves within
+a band --- be estimated smoothly and is generally the preferred approach
+for this task.
+
+\textbf{This vignette does not use PCLM.} \pkg{lifecontingencies} does not
+depend on \pkg{ungroup} or \pkg{DemoTools}, and adding either as a
+\code{Suggests} purely to compile one example was judged not worth the
+extra dependency surface. Instead, we graduate \code{lx} with a monotone
+cubic Hermite interpolant (the Fritsch--Carlson method,
+\cite{fritschCarlson1980}), available in base \proglang{R} as
+\code{stats::splinefun(..., method = "monoH.FC")}, and then split each
+single-year total decrement across causes using \emph{each band's own,
+fixed cause mix} (i.e.\ the cause shares are constant within a band and
+only the total number of decrements is graduated). This is a materially
+weaker assumption than PCLM: real cause-of-death mixes drift gradually
+within a 5-year band (e.g.\ the balance between accidents and
+degenerative disease shifts within the 15--20 age band), and a
+constant-share assumption cannot reproduce that drift. The single-year
+figures produced below should therefore be read as a reasonable, fully
+reproducible, dependency-free approximation, not as a substitute for a
+proper PCLM ungrouping. Because the split is proportional to a graduated
+total that itself sums exactly across each band, the construction below
+reaggregates \emph{exactly} back to the original 5-year, cause-specific
+totals (checked below), which a naive graduation might not guarantee.
+
+<<cdc.graduate, keep.source=TRUE>>=
+causeCols <- setdiff(names(cdc5yr),
+                      c("age_group", "lx", "total_dx", "partition_sum", "other"))
+causeCols <- c(causeCols, "other")   # 17 named causes + residual
+
+## monotone Hermite (Fritsch-Carlson) graduation of lx, ages 0..100
+lxFun <- splinefun(x = bandStart, y = cdc5yr$lx, method = "monoH.FC")
+ages <- 0:100
+lxSingle <- c(lxFun(ages), 0)          # append the closing lx=0 at age 101
+dxTotalSingle <- -diff(lxSingle)       # single-year total decrements, ages 0..100
+band <- findInterval(ages, bandStart)  # which 5-year band each single age falls in
+
+cdcSingle <- data.frame(x = ages, lx = lxSingle[1:101])
+for (cs in causeCols) {
+  shareBand <- cdc5yr[[cs]] / cdc5yr$total_dx
+  cdcSingle[[cs]] <- dxTotalSingle * shareBand[band]
+}
+
+## verify exact reaggregation back to the original 5-year cause totals
+recheck <- aggregate(cdcSingle[causeCols],
+                      by = list(age_group = cdc5yr$age_group[band]), FUN = sum)
+recheck <- recheck[match(cdc5yr$age_group, recheck$age_group), ]
+max(abs(as.matrix(recheck[causeCols]) - as.matrix(cdc5yr[causeCols])))
+@
+
+\paragraph{Building and validating the \code{mdt} object.}
+The single-year table \code{cdcSingle} (columns \code{x}, \code{lx} and
+the 18 mutually exclusive causes) is now a valid input for \code{new("mdt",
+...)}; because it already spans exactly $x = 0, \ldots, 100$ and closes
+exactly to \code{lx[0]}, no meaningful synthetic bottom- or
+top-completion is needed from \code{.tableSanitizer} (described earlier
+in this section); at this scale, floating-point arithmetic can still make
+the very last row's decrements sum to a value that differs from
+\code{lx} by a fraction of a unit, in which case \code{.tableSanitizer}
+adds one further, economically negligible completion row at $x = 101$
+--- a harmless artifact of exact floating-point comparison, not a
+data or modelling error.
+
+<<cdc.build, keep.source=TRUE>>=
+cdcMdt <- new("mdt",
+              name = "NCHS US Life Table 1999-2001, cause-specific (Table 8)",
+              table = cdcSingle)
+getOmega(cdcMdt)
+getDecrements(cdcMdt)
+isTRUE(validObject(cdcMdt))
+@
+
+We can now use the same \code{dxt}/\code{qxt}/\code{pxt} functions used
+throughout this section on a real, cause-specific national life table.
+For instance, at age 70:
+
+<<cdc.compute, keep.source=TRUE>>=
+qxt(cdcMdt, x = 70, t = 1)                          # total decrement rate
+qxt(cdcMdt, x = 70, t = 1, decrement = "cancer")     # cancer only
+qxt(cdcMdt, x = 70, t = 1, decrement = "heart_disease")
+qxt(cdcMdt, x = 70, t = 1, decrement = "cancer") /
+  qxt(cdcMdt, x = 70, t = 1)                          # cancer's share of q70
+@
+
+At age 70 in this table, cancer alone accounts for roughly a third of all
+decrements, illustrating how a \code{mdt} object built this way lets
+standard \pkg{lifecontingencies} functions (\code{dxt}, \code{qxt},
+\code{pxt}, \code{Axn.mdt}, \ldots) be applied directly to official,
+cause-specific national mortality data, once the table has been reduced to
+a mutually exclusive partition and graduated to single years of age.
+
+
 \section{Software engineering and package architecture}
 \label{sec:software-engineering}
 
