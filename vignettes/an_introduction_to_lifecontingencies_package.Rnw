@@ -1900,7 +1900,11 @@ object. In particular, it verifies whether:
   d_{x-1,2} + \ldots + d_{x-1,k} \right)$ for any $x$.
   \item If the decrements (or x and lx) have been provided only for partial
   ages, the table is completed below (from 0 to $l_{x-1}$) assuming a decrement
-  rate of 0.01 for the first cause of death.
+  rate of 0.01 for the first cause of death. This rate can be changed via the
+  \code{bottomCompletionSurvival} argument of \code{new("mdt", ...)} (default
+  \code{0.99}, i.e.\ a 0.01 decrement rate, unchanged from previous releases);
+  it only affects the synthetically reconstructed ages below the lowest age
+  actually supplied and leaves all originally supplied rows untouched.
   \item if the decrements at last provided age, $\omega$, do not sum to
   $l_{\omega}$, the table is incremented by one row such as $lx_{\omega+1}=lx_{\omega}-\left( d_{\omega,1} + d_{\omega,2} + 
   \ldots + d_{\omega,j} \right)$.

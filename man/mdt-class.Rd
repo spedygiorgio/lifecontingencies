@@ -15,8 +15,12 @@
 A class to store multiple decrement tables
 }
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("mdt", name, table, ...)}.
-They store absolute decrements
+Objects can be created by calls of the form \code{new("mdt", name, table,
+bottomCompletionSurvival, ...)}. They store absolute decrements.
+\code{bottomCompletionSurvival} (default \code{0.99}) is the one-year
+survival ratio used to synthetically back-fill ages below the lowest age
+supplied in \code{table}; it does not affect rows for ages actually
+supplied.
 }
 \section{Slots}{
   \describe{
