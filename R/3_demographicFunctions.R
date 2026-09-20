@@ -453,12 +453,12 @@ exn <- function(object,x,n,type="curtate") {
 	if(missing(x)) x=0
 	if(missing(n)) n=getOmega(object)-x +1 #to avoid errors
 	if(n==0) return(0)
-	probs=numeric(n)
 	type <- testtypelifearg(type)
-	
+
 	if(type=="Kx"){
-	for(i in 1:n) probs[i]=pxt(object,x,i)
-	out=sum(probs)
+	# pxt() accetta gia' un vettore di tempi: una sola chiamata al posto
+	# di n chiamate scalari (ognuna con validazione S4 ripetuta).
+	out <- sum(pxt(object, x, 1:n))
 	} else {
 		lx=object@lx[which(object@x==x)]
 		out=Lxt(object=object, x=x,t=n)/lx
@@ -723,8 +723,10 @@ exyzt <- function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 	#curtate expectation of future lifetime
 	if(missing(t)||is.infinite(t)) term=maxAge-minAge+1 else term=t
 	#perform the calculation
-	out=0
-	for(j in 1:term) out=out+pxyzt(tablesList=tablesList,x=x,t=j, status=status,...)
+	# pxyzt() accetta t come matrice (term x numTables): una sola chiamata
+	# vettoriale al posto di `term` chiamate scalari accumulate nel loop.
+	out <- sum(pxyzt(tablesList=tablesList, x=x,
+	                 t=matrix(1:term, nrow=term, ncol=numTables), status=status,...))
 	if(type=="Tx") out=out+0.5
 	return(out)
 }
