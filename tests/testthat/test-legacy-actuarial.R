@@ -30,7 +30,7 @@ test_that("multiple-table annuity vectorization agrees with scalar implementatio
                           x = x, lx = Ix, name = "SOA2008"))
   tables <- list(tab, tab, tab)
   result <- sapply(10:90, function(y) {
-    axyznvect(tables, x = c(y, y + 1, y + 2)) ==
+    lifecontingencies:::axyznvect(tables, x = c(y, y + 1, y + 2)) ==
       axyzn(tables, x = c(y, y + 1, y + 2))
   })
   expect_true(all(result))

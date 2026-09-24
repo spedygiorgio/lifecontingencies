@@ -1,0 +1,94 @@
+From c97670f0131487e777d86598816123ee76c02140 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 24 Sep 2026 23:28:22 +0200
+Subject: [PATCH 3/3] test: qualify internal helpers so tests run outside the
+ package namespace
+
+testSimulationFunctions.R and test-legacy-actuarial.R called unexported
+functions (.fAxn, .fAExn, ..., axyznvect) without lifecontingencies:::.
+They passed under test_check() and devtools::test(), which evaluate tests
+in the package namespace, but failed with test_file()/test_dir() on the
+installed package.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01Bc6gsUsDwi4tAJ4wArX8fC
+---
+ tests/testthat/test-legacy-actuarial.R   |  2 +-
+ tests/testthat/testSimulationFunctions.R | 20 ++++++++++----------
+ 2 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/tests/testthat/test-legacy-actuarial.R b/tests/testthat/test-legacy-actuarial.R
+index 410b4de..cff4555 100644
+--- a/tests/testthat/test-legacy-actuarial.R
++++ b/tests/testthat/test-legacy-actuarial.R
+@@ -30,7 +30,7 @@ test_that("multiple-table annuity vectorization agrees with scalar implementatio
+                           x = x, lx = Ix, name = "SOA2008"))
+   tables <- list(tab, tab, tab)
+   result <- sapply(10:90, function(y) {
+-    axyznvect(tables, x = c(y, y + 1, y + 2)) ==
++    lifecontingencies:::axyznvect(tables, x = c(y, y + 1, y + 2)) ==
+       axyzn(tables, x = c(y, y + 1, y + 2))
+   })
+   expect_true(all(result))
+diff --git a/tests/testthat/testSimulationFunctions.R b/tests/testthat/testSimulationFunctions.R
+index 0e7de34..04df584 100644
+--- a/tests/testthat/testSimulationFunctions.R
++++ b/tests/testthat/testSimulationFunctions.R
+@@ -10,8 +10,8 @@ t<-seq(from=0,to=40, by=5)
+ n<-seq(from=0,to=20, by=5)
+ myParGrid<-expand.grid(T=T,y=y,k=k,i=i,m=m,t=t,n=n)
+ 
+-outR<-with(myParGrid,mapply(FUN = .fAxn,T=T,y=y,n=n,i=i,m=m,k=k))
+-outCpp<-with(myParGrid,mapply(FUN = .fAxnCpp,T=T,y=y,n=n,i=i,m=m,k=k))
++outR<-with(myParGrid,mapply(FUN = lifecontingencies:::.fAxn,T=T,y=y,n=n,i=i,m=m,k=k))
++outCpp<-with(myParGrid,mapply(FUN = lifecontingencies:::.fAxnCpp,T=T,y=y,n=n,i=i,m=m,k=k))
+ 
+ #testing Axn
+ 
+@@ -22,8 +22,8 @@ test_that("Axn", {
+ 
+ #testing IAxn
+ 
+-outR<-with(myParGrid,mapply(FUN = .fIAxn,T=T,y=y,n=n,i=i,m=m,k=k))
+-outCpp<-with(myParGrid,mapply(FUN = .fIAxnCpp,T=T,y=y,n=n,i=i,m=m,k=k))
++outR<-with(myParGrid,mapply(FUN = lifecontingencies:::.fIAxn,T=T,y=y,n=n,i=i,m=m,k=k))
++outCpp<-with(myParGrid,mapply(FUN = lifecontingencies:::.fIAxnCpp,T=T,y=y,n=n,i=i,m=m,k=k))
+ 
+ test_that("IAxn", {
+   expect_equal(outR,outCpp) 
+@@ -31,8 +31,8 @@ test_that("IAxn", {
+ 
+ #testing DAxn
+ 
+-outR<-with(myParGrid,mapply(FUN = .fDAxn,T=T,y=y,n=n,i=i,m=m,k=k))
+-outCpp<-with(myParGrid,mapply(FUN = .fDAxnCpp,T=T,y=y,n=n,i=i,m=m,k=k))
++outR<-with(myParGrid,mapply(FUN = lifecontingencies:::.fDAxn,T=T,y=y,n=n,i=i,m=m,k=k))
++outCpp<-with(myParGrid,mapply(FUN = lifecontingencies:::.fDAxnCpp,T=T,y=y,n=n,i=i,m=m,k=k))
+ 
+ test_that("DAxn", {
+   expect_equal(outR,outCpp) 
+@@ -40,8 +40,8 @@ test_that("DAxn", {
+ 
+ #testin Exn
+ 
+-outR<-with(myParGrid,mapply(FUN = .fExn,T=T,y=y,n=n,i=i))
+-outCpp<-with(myParGrid,mapply(FUN = .fExnCpp,T=T,y=y,n=n,i=i))
++outR<-with(myParGrid,mapply(FUN = lifecontingencies:::.fExn,T=T,y=y,n=n,i=i))
++outCpp<-with(myParGrid,mapply(FUN = lifecontingencies:::.fExnCpp,T=T,y=y,n=n,i=i))
+ 
+ test_that("Exn", {
+   expect_equal(outR,outCpp) 
+@@ -49,8 +49,8 @@ test_that("Exn", {
+ 
+ #testing AExn
+ 
+-outR<-with(myParGrid,mapply(FUN = .fAExn,T=T,y=y,n=n,i=i,k=k))
+-outCpp<-with(myParGrid,mapply(FUN = .fAExnCpp,T=T,y=y,n=n,i=i,k=k))
++outR<-with(myParGrid,mapply(FUN = lifecontingencies:::.fAExn,T=T,y=y,n=n,i=i,k=k))
++outCpp<-with(myParGrid,mapply(FUN = lifecontingencies:::.fAExnCpp,T=T,y=y,n=n,i=i,k=k))
+ 
+ test_that("AExn", {
+   expect_equal(outR,outCpp) 
+-- 
+2.43.0
+

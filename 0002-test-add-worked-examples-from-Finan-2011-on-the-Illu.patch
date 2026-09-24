@@ -1,0 +1,169 @@
+From f225cc42e7a26bd3de276522ccd5a543fdb7882a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 24 Sep 2026 23:25:21 +0200
+Subject: [PATCH 2/3] test: add worked examples from Finan (2011) on the
+ Illustrative Life Table
+
+Reproduce 17 worked examples from Finan, "A Reading of the Theory of Life
+Contingency Models" (Exam MLC/3L), using soa08Act: fractional ages under
+UDD, constant force and Balducci, term and deferred insurances, m-thly
+annuities, net premiums, loss variances, percentile premium and reserves.
+Examples 41.13, 41.14 and 47.2 are excluded because the printed figures are
+inconsistent with the table.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01Bc6gsUsDwi4tAJ4wArX8fC
+---
+ tests/testthat/test-published-finan-ilt.R | 140 ++++++++++++++++++++++
+ 1 file changed, 140 insertions(+)
+ create mode 100644 tests/testthat/test-published-finan-ilt.R
+
+diff --git a/tests/testthat/test-published-finan-ilt.R b/tests/testthat/test-published-finan-ilt.R
+new file mode 100644
+index 0000000..a205463
+--- /dev/null
++++ b/tests/testthat/test-published-finan-ilt.R
+@@ -0,0 +1,140 @@
++library(testthat)
++library(lifecontingencies)
++
++context("Worked examples from Finan (2011), Exam MLC, on the Illustrative Life Table")
++
++# Source: M. B. Finan, "A Reading of the Theory of Life Contingency Models:
++# A Preparation for Exam MLC/3L", Arkansas Tech University, August 2011.
++# Every example below uses the Illustrative Life Table (Bowers et al.),
++# which is shipped as soa08Act (i = 6%). Expected values are the answers
++# printed in the book, compared at the number of decimals printed there.
++#
++# Examples left out on purpose:
++# - 41.13 and 41.14: the book uses 10E75 = 0.01722, while the ILT gives
++#   10E75 = 0.2440 (v^10 l85 / l75); the printed premiums are not
++#   consistent with the table.
++# - 47.2: the book mixes up a60 and a65 and 10E60 in the intermediate
++#   steps, so the printed reserves are not reproducible.
++# - Force of mortality items (part c of Examples 24.5, 24.9, 24.15): the
++#   package has no exported function for mu(x + s).
++
++data("soa08Act", package = "lifecontingencies", envir = environment())
++ilt <- soa08Act
++d6 <- 0.06 / 1.06
++
++# the published figure, printed with `digits` decimals, must match
++expect_book <- function(computed, published, digits) {
++  expect_lte(abs(computed - published), 0.5 * 10^(-digits) + 1e-9)
++}
++
++test_that("Example 22.5: probability that (65) dies between 80 and 90", {
++  expect_book(pxt(ilt, 65, 15) - pxt(ilt, 65, 25), 0.3791, 4)
++})
++
++test_that("Example 24.5: fractional ages under UDD", {
++  f <- "linear"
++  expect_book(qxt(ilt, 80, 0.5, fractional = f), 0.04015, 5)
++  expect_book(pxt(ilt, 80, 0.5, fractional = f), 0.95985, 5)
++  expect_book(pxt(ilt, 80, 1.5, fractional = f), 0.87940, 5)
++  expect_book(qxt(ilt, 80, 1.5, fractional = f), 0.12060, 5)
++  expect_book(qxt(ilt, 80.5, 0.5, fractional = f), 0.04183, 5)
++  expect_book(qxt(ilt, 80.25, 0.5, fractional = f), 0.04097, 5)
++})
++
++test_that("Example 24.9: fractional ages under constant force", {
++  f <- "exponential"
++  expect_book(qxt(ilt, 80, 0.5, fractional = f), 0.04099, 5)
++  expect_book(pxt(ilt, 80, 0.5, fractional = f), 0.95901, 5)
++  # the book rounds intermediate factors: allow one unit in the 5th decimal
++  expect_equal(pxt(ilt, 80, 1.5, fractional = f), 0.87847, tolerance = 1e-5)
++  expect_equal(qxt(ilt, 80, 1.5, fractional = f), 0.12153, tolerance = 1e-4)
++  expect_book(qxt(ilt, 80.5, 0.5, fractional = f), 0.04099, 5)
++  expect_book(qxt(ilt, 80.25, 0.5, fractional = f), 0.04099, 5)
++})
++
++test_that("Example 24.15: fractional ages under Balducci", {
++  f <- "hyperbolic"
++  expect_book(qxt(ilt, 80, 0.5, fractional = f), 0.04183, 5)
++  expect_book(pxt(ilt, 80, 0.5, fractional = f), 0.95817, 5)
++  expect_book(pxt(ilt, 80, 1.5, fractional = f), 0.87755, 5)
++  expect_book(qxt(ilt, 80, 1.5, fractional = f), 0.12245, 5)
++  expect_book(qxt(ilt, 80.5, 0.5, fractional = f), 0.04015, 5)
++})
++
++test_that("Example 28.4: 3-year term insurance on (36)", {
++  expect_book(Axn(ilt, 36, 3), 0.0061, 4)
++})
++
++test_that("Example 31.1: quarterly whole life insurance on (30) under UDD", {
++  expect_book(Axn(ilt, 30, k = 4), 0.1048, 4)
++})
++
++test_that("Example 37.7: lottery fund for 100 lives aged 40 (normal approximation)", {
++  EY <- 10 * axn(ilt, 40)
++  expect_book(EY, 148.166, 3)
++  VarY <- 100 * (Axn(ilt, 40, i = 1.06^2 - 1) - Axn(ilt, 40)^2) / d6^2
++  # the book uses rounded A40 and 2A40 (705.55)
++  expect_equal(VarY, 705.55, tolerance = 1e-3)
++  fund <- 100 * EY + qnorm(0.95) * sqrt(100 * VarY)
++  expect_book(fund, 15254, 0)
++})
++
++test_that("Example 38.1: monthly whole life annuity-due on (60) under UDD", {
++  expect_book(axn(ilt, 60, k = 12), 10.68, 2)
++})
++
++test_that("Example 41.2: whole life premium and loss variance on (36)", {
++  expect_book(Axn(ilt, 36) / axn(ilt, 36), 0.008811, 6)
++  var_L <- (Axn(ilt, 36, i = 1.06^2 - 1) - Axn(ilt, 36)^2) / (d6 * axn(ilt, 36))^2
++  expect_book(var_L, 0.02553, 5)
++})
++
++test_that("Example 41.4: fully discrete 20-year term premium on (50)", {
++  expect_book(Axn(ilt, 50, 20) / axn(ilt, 50, 20), 0.01155, 5)
++})
++
++test_that("Example 41.12: 10-pay premium for a 20-year deferred insurance on (50)", {
++  expect_book(Axn(ilt, 50, m = 20) / axn(ilt, 50, 10), 0.01567, 5)
++})
++
++test_that("Example 42.3: semicontinuous whole life premium on (50), UDD", {
++  expect_book(0.06 / log(1.06) * Axn(ilt, 50) / axn(ilt, 50), 0.01933, 5)
++})
++
++test_that("Example 42.6: semicontinuous 20-year term premium on (50), UDD", {
++  expect_book(0.06 / log(1.06) * Axn(ilt, 50, 20) / axn(ilt, 50, 20), 0.0119, 4)
++})
++
++test_that("Example 44.1 (SOA): fund for lives aged 70 at i = 8%", {
++  v <- 1 / 1.08
++  q70 <- qxt(ilt, 70, 1); q71 <- qxt(ilt, 71, 1)
++  P <- (10 * v * q70 + 10 * v^2 * (1 - q70) * q71) / (1 - v^2 * (1 - q70) * (1 - q71))
++  # the book works with 1000 q_x rounded to two decimals (3.02132)
++  expect_equal(P, 3.02132, tolerance = 1e-4)
++  # the same premium through the package's benefit functions
++  benefits <- 10 * Axn(ilt, 70, n = 2, i = 0.08)
++  expect_equal(P, benefits / (1 - Exn(ilt, 70, 2, i = 0.08)), tolerance = 1e-10)
++})
++
++test_that("Example 45.2: 50th percentile premium for a whole life on (35)", {
++  l <- function(age) ilt@lx[ilt@x == age]
++  # smallest k with l(35 + k + 1) below half of l(35)
++  k <- min(which(sapply(0:80, function(k) l(35 + k + 1)) < 0.5 * l(35))) - 1
++  expect_equal(k, 42)
++  expect_book(1.06^-(k + 1) / annuity(0.06, k + 1, type = "advance"), 0.005031, 6)
++})
++
++test_that("Example 47.1: 10th year reserve of a whole life on (60)", {
++  P <- Axn(ilt, 60) / axn(ilt, 60)
++  expect_book(P, 0.03312, 5)
++  expect_book(Axn(ilt, 70) - P * axn(ilt, 70), 0.2311, 4)
++  var_L <- (1 + P / d6)^2 * (Axn(ilt, 70, i = 1.06^2 - 1) - Axn(ilt, 70)^2)
++  # the book plugs in the rounded premium 0.03312
++  expect_equal(var_L, 0.10364, tolerance = 1e-4)
++})
++
++test_that("Example 47.4 (SOA): Lottery Life reserve at year 10 on (25)", {
++  prem <- 0.2 * 1000 * Axn(ilt, 25) / (0.8 * axn(ilt, 25))
++  expect_book(prem, 1.258, 3)
++  expect_book(0.2 * 1000 * Axn(ilt, 35) - prem * 0.8 * axn(ilt, 35), 10.25, 2)
++})
+-- 
+2.43.0
+
