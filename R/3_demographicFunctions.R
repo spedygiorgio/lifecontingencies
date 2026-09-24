@@ -350,13 +350,20 @@ Tx <- function(object,x)
 {
 	out<-NULL
  	#checks
-	if(!is(object, "lifetable")) 
+	if(!is(object, "lifetable"))
 	  stop("Error! Need lifetable or actuarialtable objects")
 	if(missing(x)) stop("Missing x")
-	n=getOmega(object)-x
-	lives=seq(from=x,to=x+n,by=1)
-	toSum<-sapply(lives, Lxt,object=object, t=1)
-	return(sum(toSum))
+	omega <- getOmega(object)
+	#Tx(x) = sum_{k=x}^{omega} Lxt(k,1) = sum_{k=x}^{omega} (l_k - 0.5*d_k),
+	#0.5 being Lxt's default fxt. Computed here with a single vectorised
+	#pass over the lx series (previous implementation called Lxt() once per
+	#age in [x, omega], and Lxt() itself loops and calls dxt() once per age,
+	#making the whole computation O(n^2) in the number of remaining ages).
+	idx <- which(object@x >= x & object@x <= omega)
+	lxRange <- object@lx[idx]
+	dxRange <- lxRange - c(lxRange[-1], 0)
+	out <- sum(lxRange - 0.5*dxRange)
+	return(out)
 }
 
 #' @title Central mortality rate
@@ -533,12 +540,13 @@ probs2lifetable <- function(probs, radix=10000, type="px", name="ungiven")
 	if(!(type %in% c("px","qx"))) stop("Error: type must be either px or qx")
 	if(type=="px" & probs[length(probs)]!=0) probs[length(probs)+1]=0;
 	if(type=="qx" & probs[length(probs)]!=1) probs[length(probs)+1]=1;
-  lx=numeric(length(probs))
-	lx[1]=radix
-	for(i in 2:length(probs))
-	{
-		if(type=="px") lx[i]=lx[i-1]*probs[i-1] else lx[i]=lx[i-1]*(1-probs[i-1])
-	}
+	#one-year survival factor for each row; lx[i] = radix * prod of the
+	#survival factors of all preceding rows. cumprod() computes the whole
+	#series in one vectorised pass, replacing the explicit for loop that
+	#recomputed lx[i] from lx[i-1] one age at a time.
+	survivalFactors <- if(type=="px") probs else 1-probs
+	n <- length(survivalFactors)
+	lx <- radix * cumprod(c(1, survivalFactors[-n]))
 	out=new("lifetable",x=seq(0,length(probs)-1), lx=lx, name=name)
 	return(out)
 }
