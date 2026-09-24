@@ -22,8 +22,9 @@
 ###
 
 
-# TODO: Fix t=0
-# 
+# t=0 is handled explicitly below (returns 0 decrements): verified by the
+# regression tests in tests/testthat/testMultipleDecrements.R, covering
+# dxt/qxt/pxt with and without an explicit `decrement`.
 
 #decrement specific function
 
@@ -34,12 +35,17 @@
 		decrement.cols<-which(!(names(object@table) %in% c("lx","x")))
 	} else {
 		if (is.numeric(decrement)) decrement<-getDecrements(object)[decrement]
+		# Guard against a mistyped/unknown decrement name: without this check
+		# decrement.cols would silently be integer(0) and the function would
+		# return 0 instead of signalling the error, unlike pxt()/qxt() which
+		# already validate decrement via stopifnot().
+		if (!(decrement %in% names(object@table)))
+			stop("Error! Not recognized decrement type")
 		decrement.cols<-which(names(object@table)==decrement)
 	}
-	#have a check!!!
 		ages2consider<-x+0:(time-1)
 		age.rows<-which(object@table$x %in% ages2consider)
-		out<-sum(object@table[age.rows,decrement.cols])	
+		out<-sum(object@table[age.rows,decrement.cols])
 	invisible(out)
 }
 

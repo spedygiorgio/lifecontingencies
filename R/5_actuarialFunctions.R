@@ -989,15 +989,11 @@ Iaxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, type =
     
     #i an interest rate is provided the provided interest rate overrides the
     #actuarialtable interest rate
-    payments = numeric(n)
-    probs = numeric(n)
-    times = numeric(n)
-    discounts = numeric(n)
-    
     payments = seq(from = 1, to = n, by = 1)
     times = m + seq(from = 0, to = (n - 1),by = 1)
-    for (i in 1:length(times))
-      probs[i] = pxt(actuarialtable, x,times[i])
+    # pxt() accetta gia' un vettore di tempi: una sola chiamata al posto
+    # di length(times) chiamate scalari.
+    probs <- pxt(actuarialtable, x, times)
     discounts = (1 + interest) ^ -(times)
     out <- sum(((payments * discounts) ^ power) * probs)
     return(out)
