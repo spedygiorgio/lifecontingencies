@@ -21,3 +21,4 @@ logs/
 #*.Rproj
 .DS_Store
 lifecontingenciesongithub.Rproj
+*.patch
