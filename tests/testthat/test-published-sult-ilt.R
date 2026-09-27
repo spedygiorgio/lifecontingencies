@@ -19,8 +19,6 @@ context("Published life contingencies tables: SOA SULT (5%) and Illustrative Lif
 #    From age 13 onwards the ILT follows Makeham with A = 0.0007,
 #    B = 0.00005, c = 10^0.04. The package dataset soa08Act holds the ILT.
 
-# Exn() and AExn() currently accept a scalar age only, hence sapply() below.
-#
 # A published figure printed with `digits` decimals must match the computed
 # value once rounded, allowing for the half unit of rounding.
 expect_published <- function(computed, published, digits) {
@@ -76,16 +74,16 @@ test_that("SULT: 10 and 20 year temporary annuities and endowments match the SOA
   p <- sult_published
   expect_published(axn(tab, x = p$x, n = 10), p$ax10, 4)
   expect_published(axn(tab, x = p$x, n = 20), p$ax20, 4)
-  expect_published(sapply(p$x, function(a) AExn(tab, x = a, n = 10)), p$Ax10, 5)
-  expect_published(sapply(p$x, function(a) AExn(tab, x = a, n = 20)), p$Ax20, 5)
+  expect_published(AExn(tab, x = p$x, n = 10), p$Ax10, 5)
+  expect_published(AExn(tab, x = p$x, n = 20), p$Ax20, 5)
 })
 
 test_that("SULT: pure endowments match the SOA table", {
   tab <- sult_table()
   p <- sult_published
-  expect_published(sapply(p$x, function(a) Exn(tab, x = a, n = 5)), p$E5, 5)
-  expect_published(sapply(p$x, function(a) Exn(tab, x = a, n = 10)), p$E10, 5)
-  expect_published(sapply(p$x, function(a) Exn(tab, x = a, n = 20)), p$E20, 5)
+  expect_published(Exn(tab, x = p$x, n = 5), p$E5, 5)
+  expect_published(Exn(tab, x = p$x, n = 10), p$E10, 5)
+  expect_published(Exn(tab, x = p$x, n = 20), p$E20, 5)
 })
 
 test_that("SULT: premiums and derived values agree with the published table", {
@@ -159,9 +157,9 @@ check_ilt <- function(tab, lx_scale) {
   expect_published(axn(tab, x = p$x), p$ax, 4)
   expect_published(1000 * Axn(tab, x = p$x), p$Ax1000, 2)
   expect_published(1000 * Axn(tab, x = p$x, i = 1.06^2 - 1), p$A2x1000, 2)
-  expect_published(1000 * sapply(p$x, function(a) Exn(tab, x = a, n = 5)), p$E5_1000, 2)
-  expect_published(1000 * sapply(p$x, function(a) Exn(tab, x = a, n = 10)), p$E10_1000, 2)
-  expect_published(1000 * sapply(p$x, function(a) Exn(tab, x = a, n = 20)), p$E20_1000, 2)
+  expect_published(1000 * Exn(tab, x = p$x, n = 5), p$E5_1000, 2)
+  expect_published(1000 * Exn(tab, x = p$x, n = 10), p$E10_1000, 2)
+  expect_published(1000 * Exn(tab, x = p$x, n = 20), p$E20_1000, 2)
 
 }
 
