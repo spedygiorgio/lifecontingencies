@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lifecontingencies</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.1</span>
       </span>
     </div>
 
@@ -33,6 +33,9 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/compute-detail.html">Computational details of demographic functions</a>
+    </li>
+    <li>
+      <a href="../articles/multiple_decrement_tables.html">Multiple decrement tables in lifecontingencies</a>
     </li>
     <li>
       <a href="../articles/pensionfunding.html">Pension Funding with lifecontingencies</a>
@@ -63,6 +66,13 @@
       <small>Source: <a href="https://github.com/spedygiorgio/lifecontingencies/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.6.1" id="lifecontingencies-161">lifecontingencies 1.6.1<a class="anchor" aria-label="anchor" href="#lifecontingencies-161"></a></h2>
+<ul><li>
+<code><a href="../reference/endowment_trio.html">Exn()</a></code> and <code><a href="../reference/endowment_trio.html">AExn()</a></code> are now vectorized: <code>x</code>, <code>n</code> and <code>i</code> are recycled to a common length and one value per element is returned (previously a vector age raised an error).</li>
+<li>New regression tests against published tables and worked examples: SOA Standard Ultimate Life Table, Bowers’ Illustrative Life Table and Finan’s Exam MLC examples.</li>
+<li>New dedicated vignette <code>multiple_decrement_tables.Rmd</code>: the full multiple-decrement workflow (the <code>mdt</code> class, decrement probabilities, Associated Single Decrement Tables, actuarial applications, and a worked, fully reproducible example building a cause-specific <code>mdt</code> object from NCHS’s “United States Life Tables Eliminating Certain Causes of Death, 1999-2001”, Table 8, including curation of a mutually exclusive cause-of-death partition and graduation from 5-year bands to single years of age via a monotone Hermite (Fritsch-Carlson) spline on <code>lx</code>, with an explicit note that this is not a substitute for PCLM-based ungrouping). The main vignette’s “Multiple Decrement Models” section is now a short introduction pointing to it.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.5.2" id="lifecontingencies-152">lifecontingencies 1.5.2<small>2026-07-30</small><a class="anchor" aria-label="anchor" href="#lifecontingencies-152"></a></h2>
 </div>

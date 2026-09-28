@@ -24,7 +24,7 @@ axn: survival annuity (immediate/due), with deferment m and k payments per year.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lifecontingencies</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.1</span>
       </span>
     </div>
 
@@ -40,6 +40,9 @@ axn: survival annuity (immediate/due), with deferment m and k payments per year.
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/compute-detail.html">Computational details of demographic functions</a>
+    </li>
+    <li>
+      <a href="../articles/multiple_decrement_tables.html">Multiple decrement tables in lifecontingencies</a>
     </li>
     <li>
       <a href="../articles/pensionfunding.html">Pension Funding with lifecontingencies</a>
@@ -177,6 +180,8 @@ realization via <code>rLifeContingencies</code>).</p></dd>
 $$A_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)},$$
 where \(t_j = m + (j-1)/k\), computed via <code>pxt(...)</code> and <code>qxt(..., t=1/k)</code>.</p>
 <p><strong>AExn</strong>: returns <code>Axn(...) + Exn(...)</code> with aligned arguments.</p>
+<p><strong>Vectorization</strong>: <code>Exn</code> and <code>AExn</code> accept vectors for <code>x</code>, <code>n</code> and <code>i</code>;
+the arguments are recycled to a common length and one value per element is returned.</p>
 <p><strong>axn</strong>: Survival annuity with payment timing <code>"immediate"</code> (arrears) or <code>"due"</code> (advance),
 deferment <code>m</code> and <code>k</code> payments per year (see function-specific parameters).</p>
 <p><strong>axn</strong> — Survival annuity (immediate/due), with deferment <code>m</code> and <code>k</code> fractional payments.
@@ -224,11 +229,17 @@ time <code>n</code> provided survival to <code>x+n</code>.</p>
 <span class="r-in"><span><span class="fu">Axn</span><span class="op">(</span><span class="va">soa08Act</span>, x<span class="op">=</span><span class="fl">30</span>, k<span class="op">=</span><span class="fl">12</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1052722</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Several ages and terms at once:</span></span></span>
+<span class="r-in"><span><span class="fu">Exn</span><span class="op">(</span><span class="va">soa08Act</span>, x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>,<span class="fl">40</span>,<span class="fl">50</span><span class="op">)</span>, n<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">35</span>,<span class="fl">25</span>,<span class="fl">15</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1031648 0.1884862 0.3512116</span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## AExn = Axn + Exn  (legacy book-check)</span></span></span>
 <span class="r-in"><span><span class="fu">AExn</span><span class="op">(</span><span class="va">soa08Act</span>, x<span class="op">=</span><span class="fl">35</span>, n<span class="op">=</span><span class="fl">30</span>, i<span class="op">=</span><span class="fl">0.06</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2067226</span>
 <span class="r-in"><span><span class="fu">Exn</span><span class="op">(</span><span class="va">soa08Act</span>, x<span class="op">=</span><span class="fl">35</span>, n<span class="op">=</span><span class="fl">30</span>, i<span class="op">=</span><span class="fl">0.06</span><span class="op">)</span> <span class="op">+</span> <span class="fu">Axn</span><span class="op">(</span><span class="va">soa08Act</span>, x<span class="op">=</span><span class="fl">35</span>, n<span class="op">=</span><span class="fl">30</span>, i<span class="op">=</span><span class="fl">0.06</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2067226</span>
+<span class="r-in"><span><span class="fu">AExn</span><span class="op">(</span><span class="va">soa08Act</span>, x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">35</span>,<span class="fl">45</span><span class="op">)</span>, n<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>,<span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2067226 0.3448057</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## axn (survival annuity, legacy example)</span></span></span>
 <span class="r-in"><span><span class="co"># Life-long annuity for age 65:</span></span></span>

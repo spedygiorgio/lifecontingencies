@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lifecontingencies</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.1</span>
       </span>
     </div>
 
@@ -33,6 +33,9 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/compute-detail.html">Computational details of demographic functions</a>
+    </li>
+    <li>
+      <a href="../articles/multiple_decrement_tables.html">Multiple decrement tables in lifecontingencies</a>
     </li>
     <li>
       <a href="../articles/pensionfunding.html">Pension Funding with lifecontingencies</a>
@@ -71,8 +74,12 @@
 
     <div id="objects-from-the-class">
     <h2>Objects from the Class</h2>
-    <p>Objects can be created by calls of the form <code>new("mdt", name, table, ...)</code>.
-They store absolute decrements</p>
+    <p>Objects can be created by calls of the form <code>new("mdt", name, table,
+bottomCompletionSurvival, ...)</code>. They store absolute decrements.
+<code>bottomCompletionSurvival</code> (default <code>0.99</code>) is the one-year
+survival ratio used to synthetically back-fill ages below the lowest age
+supplied in <code>table</code>; it does not affect rows for ages actually
+supplied.</p>
     </div>
     <div id="slots">
     <h2>Slots</h2>
