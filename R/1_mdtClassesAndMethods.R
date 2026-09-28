@@ -28,7 +28,12 @@
 	c1 = c(200, 200, 100),
 	c2 = c(300, 100, 100)
 )
-# Backward completion uses a fixed survival ratio for synthetic rows.
+# Default survival ratio used to back-fill synthetic rows below the lowest
+# age actually supplied (e.g. a table starting at age 50 gets ages 0-49
+# reconstructed assuming this constant one-year survival). Kept as the
+# default for backward compatibility; callers can override it via the
+# `bottomCompletionSurvival` argument of new("mdt", ...) -- see
+# .tableSanitizer() below.
 .MDT_BOTTOM_COMPLETION_SURVIVAL <- 0.99
 
 #defines the multiple decrement class
@@ -75,9 +80,10 @@ setMethod("initialize",
 		function (.Object,
 		          name = .MDT_DEFAULT_NAME,
 		          table = .MDT_DEFAULT_TABLE,
-		          ...) 
+		          bottomCompletionSurvival = .MDT_BOTTOM_COMPLETION_SURVIVAL,
+		          ...)
 		{
-			table<-.tableSanitizer(decrementDf=table)
+			table<-.tableSanitizer(decrementDf=table, bottomCompletionSurvival=bottomCompletionSurvival)
 			callNextMethod(.Object=.Object, name =name, table=table,...)
 		}
 )
@@ -101,8 +107,10 @@ out<-setdiff(names(object@table),c("x","lx"))
 }
 
 #tento caricare la tavola
-.tableSanitizer<-function(decrementDf)
+.tableSanitizer<-function(decrementDf, bottomCompletionSurvival = .MDT_BOTTOM_COMPLETION_SURVIVAL)
 {
+	if (!.isProb(bottomCompletionSurvival))
+		stop("Error! bottomCompletionSurvival must be a probability in [0,1]")
 	# Standardize partially specified decrement tables into a full internal layout.
 	out<-decrementDf
 	namesOfTable<-names(decrementDf)
@@ -138,8 +146,9 @@ out<-setdiff(names(object@table),c("x","lx"))
 		lxLast<-decrementDf$lx[1]
 		for(i in rev(seq_along(lx2Complete)))
 		{
-			# Reconstruct previous lx values by applying the fixed synthetic survival.
-			lx2Complete[i]<-lxLast/.MDT_BOTTOM_COMPLETION_SURVIVAL
+			# Reconstruct previous lx values by applying the (possibly
+			# user-supplied) synthetic survival ratio.
+			lx2Complete[i]<-lxLast/bottomCompletionSurvival
 			lxLast<-lx2Complete[i]
 		}
 		dx2Add<- -diff(c(lx2Complete,decrementDf$lx[1]))

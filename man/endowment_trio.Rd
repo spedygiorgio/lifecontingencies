@@ -92,6 +92,9 @@ where \eqn{t_j = m + (j-1)/k}, computed via \code{pxt(\dots)} and \code{qxt(\dot
 
 \strong{AExn}: returns \code{Axn(...) + Exn(...)} with aligned arguments.
 
+\strong{Vectorization}: \code{Exn} and \code{AExn} accept vectors for \code{x}, \code{n} and \code{i};
+the arguments are recycled to a common length and one value per element is returned.
+
 \strong{axn}: Survival annuity with payment timing \code{"immediate"} (arrears) or \code{"due"} (advance),
 deferment \code{m} and \code{k} payments per year (see function-specific parameters).
 
@@ -125,9 +128,13 @@ Axn(soa08Act, x=50, n=10, k=2)
 # Whole life (n inferred), monthly:
 Axn(soa08Act, x=30, k=12)
 
+# Several ages and terms at once:
+Exn(soa08Act, x=c(30,40,50), n=c(35,25,15))
+
 ## AExn = Axn + Exn  (legacy book-check)
 AExn(soa08Act, x=35, n=30, i=0.06)
 Exn(soa08Act, x=35, n=30, i=0.06) + Axn(soa08Act, x=35, n=30, i=0.06)
+AExn(soa08Act, x=c(35,45), n=c(30,20))
 
 ## axn (survival annuity, legacy example)
 # Life-long annuity for age 65:

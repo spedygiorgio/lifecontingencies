@@ -61,6 +61,9 @@
 #'
 #' \strong{AExn}: returns \code{Axn(...) + Exn(...)} with aligned arguments.
 #'
+#' \strong{Vectorization}: \code{Exn} and \code{AExn} accept vectors for \code{x}, \code{n} and \code{i};
+#' the arguments are recycled to a common length and one value per element is returned.
+#'
 #' \strong{axn}: Survival annuity with payment timing \code{"immediate"} (arrears) or \code{"due"} (advance),
 #' deferment \code{m} and \code{k} payments per year (see function-specific parameters).
 #'
@@ -84,9 +87,13 @@
 #' # Whole life (n inferred), monthly:
 #' Axn(soa08Act, x=30, k=12)
 #'
+#' # Several ages and terms at once:
+#' Exn(soa08Act, x=c(30,40,50), n=c(35,25,15))
+#'
 #' ## AExn = Axn + Exn  (legacy book-check)
 #' AExn(soa08Act, x=35, n=30, i=0.06)
 #' Exn(soa08Act, x=35, n=30, i=0.06) + Axn(soa08Act, x=35, n=30, i=0.06)
+#' AExn(soa08Act, x=c(35,45), n=c(30,20))
 #'
 #' ## axn (survival annuity, legacy example)
 #' # Life-long annuity for age 65:
@@ -99,25 +106,32 @@
 #' @export
 Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", power = 1)
   {
-    interest <- i
-    out <- numeric(1)
     if (missing(actuarialtable))
       stop("Error! Need an actuarial actuarialtable") #request an actuarial actuarialtable
+    if (missing(x))
+      stop("Error! Need age!")
+    if (missing(n))
+      stop("Error! Need the term n!")
     type <- testtyperesarg(type)
-    prob = pxt(actuarialtable,x,n)
-    discount = (1 + interest) ^ (-n)
-    #defines the outputs
-    if (type == "EV")
-      out = presentValue(
-        cashFlows = 1, timeIds = n,
-        interestRates = interest, probabilities = prob,power = power
-      )
-    else if (type == "ST")
-      out = rLifeContingencies(
-        n = 1,lifecontingency = "Exn",
-        object = actuarialtable, x = x,t = n,i = interest, m = 1,k = 1
-      )
-    #out=discount^2*prob*(1-prob)
+    # x, n and i are recycled to a common length: one value per contract
+    ntot <- max(length(x), length(n), length(i))
+    if (min(length(x), length(n), length(i)) == 0L)
+      return(numeric(0))
+    x <- rep_len(x, ntot)
+    n <- rep_len(n, ntot)
+    interest <- rep_len(i, ntot)
+    if (type == "EV") {
+      # same formula as presentValue(cashFlows = 1, timeIds = n, ...):
+      # nEx = v^(n * power) * npx
+      prob <- pxt(actuarialtable, x, n)
+      out <- prob * (1 + interest) ^ (-n * power)
+    } else if (type == "ST") {
+      out <- vapply(seq_len(ntot), function(j)
+        rLifeContingencies(
+          n = 1, lifecontingency = "Exn",
+          object = actuarialtable, x = x[j], t = n[j], i = interest[j], m = 1, k = 1
+        ), numeric(1))
+    }
     return(out)
 }
 
@@ -989,15 +1003,11 @@ Iaxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, type =
     
     #i an interest rate is provided the provided interest rate overrides the
     #actuarialtable interest rate
-    payments = numeric(n)
-    probs = numeric(n)
-    times = numeric(n)
-    discounts = numeric(n)
-    
     payments = seq(from = 1, to = n, by = 1)
     times = m + seq(from = 0, to = (n - 1),by = 1)
-    for (i in 1:length(times))
-      probs[i] = pxt(actuarialtable, x,times[i])
+    # pxt() accetta gia' un vettore di tempi: una sola chiamata al posto
+    # di length(times) chiamate scalari.
+    probs <- pxt(actuarialtable, x, times)
     discounts = (1 + interest) ^ -(times)
     out <- sum(((payments * discounts) ^ power) * probs)
     return(out)
@@ -1014,37 +1024,59 @@ Iaxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, type =
 AExn <- function(actuarialtable, x, n,i = actuarialtable@interest, k = 1, type =
              "EV",power = 1)
   {
-    out <- numeric(1)
-    interest <- i
     if (missing(actuarialtable))
       stop("Error! Need an actuarial actuarialtable")
     if (missing(x))
       stop("Error! Need age!")
     type <- testtyperesarg(type)
-    if (k < 1)
+    if (any(k < 1))
       stop("Error! Periods in a year shall be no less than 1")
     if (missing(n))
-      n = getOmega(actuarialtable) - x - 1
-    
-    if (n == 0)
-      return(1)
-    if (any(x < 0,n < 0))
+      n <- getOmega(actuarialtable) - x - 1
+    if (any(x < 0, n < 0))
       stop("Error! Negative parameters")
-    
+    # x, n and i are recycled to a common length: one value per contract
+    ntot <- max(length(x), length(n), length(i))
+    if (min(length(x), length(n), length(i)) == 0L)
+      return(numeric(0))
+    x <- rep_len(x, ntot)
+    n <- rep_len(n, ntot)
+    interest <- rep_len(i, ntot)
+    out <- numeric(ntot)
+    # a zero-term endowment pays 1 immediately
+    zero <- n == 0
+    out[zero] <- 1
+    idx <- which(!zero)
+    if (length(idx) == 0L)
+      return(out)
+
     if (type == "EV") {
-      out <-
-        Axn(
-          actuarialtable = actuarialtable, x = x, n = n, i = i,m = 0, k = k,type =
-            "EV",power = power
-        ) + Exn(
-          actuarialtable = actuarialtable, x = x, n = n, i = i,
-          type = "EV",power = power
-        )
+      if (length(unique(interest[idx])) == 1L) {
+        out[idx] <-
+          Axn(
+            actuarialtable = actuarialtable, x = x[idx], n = n[idx], i = interest[idx[1]],
+            m = 0, k = k, type = "EV", power = power
+          ) + Exn(
+            actuarialtable = actuarialtable, x = x[idx], n = n[idx], i = interest[idx],
+            type = "EV", power = power
+          )
+      } else {
+        # Axn takes a single interest rate: evaluate contract by contract
+        out[idx] <- vapply(idx, function(j)
+          Axn(
+            actuarialtable = actuarialtable, x = x[j], n = n[j], i = interest[j],
+            m = 0, k = k, type = "EV", power = power
+          ) + Exn(
+            actuarialtable = actuarialtable, x = x[j], n = n[j], i = interest[j],
+            type = "EV", power = power
+          ), numeric(1))
+      }
     } else if (type == "ST") {
-      out = rLifeContingencies(
-        n = 1,lifecontingency = "AExn",
-        object = actuarialtable, x = x,t = n,i = interest, k = k
-      )
+      out[idx] <- vapply(idx, function(j)
+        rLifeContingencies(
+          n = 1, lifecontingency = "AExn",
+          object = actuarialtable, x = x[j], t = n[j], i = interest[j], k = k
+        ), numeric(1))
     }
     return(out)
   }

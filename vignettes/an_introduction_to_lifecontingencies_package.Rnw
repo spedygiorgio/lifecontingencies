@@ -1855,18 +1855,11 @@ totalBookedCost
 
 \subsection{Multiple Decrement Models within lifecontingencies Package}
 
-Until now no \proglang{R} package provides a good tool to manage multiple decrement tables, even if \cite{deshmukh2012multiple} provides an \proglang{R} based focus on multiple decrement tables with applications in R. The topic is deeply related to multistate analysis of life histories on which \cite{willekens2014multistate} provide a very good introduction. The \pkg{lifecontingencies} package's \code{mdt} class that has been specifically engineered to manage multiple decrements models with R. Applied examples will follows.\\
-
-Following notation in \cite{finanMLC}, we provide definitions of the key quantities that allow to understand the main concepts regarding Multiple Decrement (MD) theory. Be $l_x^{(\tau )} = \sum\limits_{j = 1 \ldots m} {l_x^{(j)}}$ survivors to age $x$ that will, at future ages, be fully depleted by $m$ causes of decrement. $d_{x}^{(j)}=l_{x}^{(j)}-l_{x+1}^{(j)}$ represents the expected number of lives exiting from the population between ages $x$ and $x + 1$ due to decrement $j$. Therefore it follows that $_nd_x^{(j)} = \sum\limits_{t = 0 \ldots n - 1} {d_{x + t}^{(j)}}$.\\
-The probability that a life $x$ will leave the group within one year as a result of decrement $j$ is $_nq_x^{(j)} = \frac{{_nd_x^{(j)}}}{{l_x^{(\tau )}}}$. It follows that $q_x^{(\tau )} = \sum\limits_{j = 1}^m {q_x^{(j)}}$ and that $_tq_x^{(\tau )} = 1{ - _t}p_x^{(\tau )} = \sum\limits_j {_tq_x^{(\tau )}}$.
-
+Until now no \proglang{R} package provides a good tool to manage multiple decrement tables, even if \cite{deshmukh2012multiple} provides an \proglang{R} based focus on multiple decrement tables with applications in R. The topic is deeply related to multistate analysis of life histories on which \cite{willekens2014multistate} provide a very good introduction. The \pkg{lifecontingencies} package's \code{mdt} class has been specifically engineered to manage multiple decrements models with R.
 
 \subsubsection{The mdt class}
 
-Examples in this paper are worked on slides provided in \cite{valdezSlides}.
-
-We create a \code{mdt} class object. We can use the first example found on
-\cite[p. 4]{valdezSlides}.
+We create a \code{mdt} class object using the first example found on \cite[p. 4]{valdezSlides}.
 
 <<mdt1,  keep.source=TRUE>>=
 valdezDf<-data.frame(
@@ -1881,230 +1874,32 @@ valdezMdt<-new("mdt",name="ValdezExample",table=valdezDf)
 
 The \code{mdt} class is an S4 class object \citep{chambers2008software}
 comprised by a character slot \code{name} and a \code{data.frame} slot
-\code{table} that is composed by following columns:
-\begin{enumerate}
-  \item \code{x}: the age, from 0 to $\omega$.
-  \item \code{lx}: the subject living (at risk) at the beginning of age.
-  \item one or more colums for different causes of decrements.
- \end{enumerate}
- 
- Values within \code{table} item represents absolute number of subjects at risk at the beginning of age $x$ and dying for cause $j$ during period $x$ - $x+1$.\\
+\code{table}, made of an \code{x} (age) column, an \code{lx} (subjects at
+risk) column, and one or more columns for different causes of decrement,
+holding the absolute number of subjects dying for each cause between age
+$x$ and $x+1$. When the supplied table only spans part of the age range,
+\code{setValidity} and the internal \code{.tableSanitizer} function
+complete it below and/or above (reporting what was done on the console);
+the survival ratio used to synthetically reconstruct ages below the lowest
+one supplied can be set via the \code{bottomCompletionSurvival} argument of
+\code{new("mdt", ...)} (default \code{0.99}).
 
-Within the various methods defined within the \code{mdt} class,
-\code{setValidity} performs consistency checks to properly create the \code{mdt}
-object. In particular, it verifies whether:
-\begin{enumerate}
-  \item \code{x} and \code{lx} exist and that they are consistent. \code{x}
-  should start from 0 and flows by increments of one. The first \code{lx} value should be
-  equal to the sum of all decrements and that $l_{x}=l_{x-1}-\left( d_{x-1,1} +
-  d_{x-1,2} + \ldots + d_{x-1,k} \right)$ for any $x$.
-  \item If the decrements (or x and lx) have been provided only for partial
-  ages, the table is completed below (from 0 to $l_{x-1}$) assuming a decrement
-  rate of 0.01 for the first cause of death.
-  \item if the decrements at last provided age, $\omega$, do not sum to
-  $l_{\omega}$, the table is incremented by one row such as $lx_{\omega+1}=lx_{\omega}-\left( d_{\omega,1} + d_{\omega,2} + 
-  \ldots + d_{\omega,j} \right)$.
- \end{enumerate}
-
-As shown, when the table is sanitized the operations performed are reported on
-logs.
-
- An internal function, \code{.tableSanitizer} tries to fix the limitations on
- the input table in order it to meet the class definition requirements.
- 
- Table can be viewed thanks to a \code{print} and \code{show} method (output omitted for simplicity). Similarly, it is possible to export a \code{mdt} to a \code{data.frame} or to a \code{markovchainList} object (from \pkg{markovchain} package).
- 
-<<md3a, keep.source=TRUE, eval=FALSE>>=
-print(valdezMdt)
-@
-
- 
-<<md3b, keep.source=TRUE>>=
-valdezDf<-as(valdezMdt,"data.frame")
-if (requireNamespace("markovchain", quietly = TRUE) && methods::canCoerce(valdezMdt, "markovchainList")) {
-  valdezMarkovChainList<-as(valdezMdt,"markovchainList")
-} else {
-  message("'markovchain' package or S4 coercion method unavailable: skipping mdt -> markovchainList conversion.")
-}
-@
-
-Two specific methods have been defined for \code{mdt} class objects:
-\code{getOmega}, that returns the maximum attainable age (similar to the one of
-\code{lifetable} class), and \code{getDecrements}, that returns the decrements (by means of the names within table 
-slot different from x and lx).
-
-<<mdt4, keep.source=TRUE>>=
-getOmega(valdezMdt)
-getDecrements(valdezMdt)
-@
-
-A \code{summary} method is available as well.
-
-<<summary.mdt, keep.source=TRUE>>=
-summary(valdezMdt)
-@
-
-\subsubsection{Decrement probabilities calculation}
-
-
-The \pkg{lifecontingencies} package makes easy to compute $d_{x}^{(j)}$,
-${}_{n}d_{x}^{(j)}$ as well as ${}_{n}d_{x}^{(\tau)}$ quantities thanks to
-\code{dxt} function.
+Decrement counts and probabilities can then be computed with \code{dxt} and
+\code{qxt}:
 
 <<mdt.dx1, keep.source=TRUE>>=
 dxt(valdezMdt,x=51,decrement="other")
-dxt(valdezMdt,x=51,t=2, decrement="other")
-dxt(valdezMdt,x=51)
-@
-
-Probabilities could be computed as well.
-
-<<mdt.dx2, keep.source=TRUE>>=
-dxt(valdezMdt,x=51,t=2, decrement="other")
-pxt(valdezMdt,x=50,t=3)
 qxt(valdezMdt,x=53,t=2,decrement=1)
 @
 
-It is possible to generate random trajectories of a life subject to multiple cause of decrements as the following code shows.
-
-<<mdt.randomSamples, keep.source=TRUE>>=
-rmdt(n = 2,object = valdezMdt,x = 50,t = 2)
-@
-
-\subsubsection{Associated Single Decrement Table calculation}
-
-For each force of decrement $\mu_j \left(x+t\right)$ the Associated Single Decrement Table (ASDT) is a decrement models that assumes survivoship depends only from $j$. Within ASDT the equations shown in Equation~\ref{eq:asdt1} are true :
-
-\begin{equation}
-\begin{matrix}
-\px[t]{x}[\prime (j)] = \exp{\int_{a}^{b} \mu_j\left(x+s\right)ds} \\ 
-\qx[t]{x}[\prime (j)] = 1-\px[t]{x}[\prime (j)] \\ 
-\px[t]{x}[(\tau)] = \prod_{j=1}^m \px[t]{x}[\prime (j)]
-\end{matrix}
-\label{eq:asdt1}
-\end{equation}
-
-Assuming uniform distribution of decrements (UDD), that is $\qx[t]{x}[(j)] = t * \qx{x}[(j)], t \in \left[ 0, 1 \right]$, then Equation~\ref{eq:asdt2} is valid:
-
-
-\begin{equation}
-\px{x}[\prime (j)]  =  \left( 1 -  t*\qx{x}[(\tau)]  \right)^{ \frac{ \qx{x}[(j)] }{ \qx{x}[ (\tau) ] } } = 1 - \qx{x}[\prime (j)]
-\label{eq:asdt2}
-\end{equation}
-
-This has been implemented in the \code{qxt.prime.fromMdt} function:
-
-<<mdt.udd1, keep.source=TRUE>>=
-qxt.prime.fromMdt(object = valdezMdt,x=53, decrement="accidents")
-@
-
-
-If UDD holds also for each associated single decrement Equation~\ref{eq:asdt3} is also valid:
-
-\begin{equation}
-\qx[t]{x}[(j)] = \qx[t]{x}[\prime (j)] * \int_{0}^{t} \prod_{i \ne j}\left( 1 - s*\qx{x}[\prime (t)]  \right) ds
-\label{eq:asdt3}
-\end{equation}
-
-The Equation~\ref{eq:asdt4} is a particular case ($m=2$ and $t=1$) case of the Equation~\ref{eq:asdt3}
-
-\begin{equation}
-\qx{x}[(2)] = \qx{x}[\prime (2)]\left( 1 - 0.5* \qx{x}[\prime (1)] \right)
-\label{eq:asdt3}
-\end{equation}
-
-The \code{qxt.fromQxprime} helps in computing the Equation~\ref{eq:asdt3}. In particular, the following example replicates \cite[Example 67.2]{finanMLC}:
-
-<<mdt.udd2, keep.source=TRUE>>=
-qxt.fromQxprime(qx.prime = 0.01,other.qx.prime = c(0.03,0.06))
-@
-
-
-
-\subsubsection{Actuarial Applications}
-
-The package now offers limited capabilities to fit multiple decrement insurances, e.g. $(\lcterm{A}{x}{n})^{ (1)}$
-
-The example in \cite[p. 674]{finanMLC}, cites: A 3-year term issued to (16) pays 20,000 at the end of year of death if death results from an accident. The \code{mdt} table is below created.
-
-<<mdt.act1, keep.source=TRUE>>=
-myTable<-data.frame(x=c(16,17,18),
-  lx=c(20000,17600,14520),
-  da=c(1300,1870,2380),
-  doc=c(1100,1210,1331)
-)
-myMdt<-new("mdt",table=myTable,name="Sample")
-@
-
-The value of $(\lcterm{A}{16}{3})^{( a )}$ is below calculated
-
-<<mdt.act2, keep.source=TRUE>>=
-Axn.mdt(object=myMdt,x=16,i=.1,decrement="da")
-@
-
-
-Another example has been inspired by data found in \cite{de2016assicurazioni}. We use life tables from the quoted book and the following functions (still based on single decrement tables) to compute the APV of (constant or variable) annuity with multiple decrement. 
-The first type of annuity pays benefits are payable while the annuitant is in current state and cease upon transition to another state.
-
-<<deadifalco.1a, keep.source=TRUE>>=
-axnmdt.firsttype<-function (object, x, n, i , payment="advance", delta=0) {
-  #delta is the annuity indexing
-    out <- numeric(1)
-    if (!(class(object) %in% c("lifetable", "actuarialtable", "mdt"))) 
-      stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
-    if (missing(object)) 
-      stop("Error! Need a Multiple decrement table")
-    if (missing(x)) 
-      stop("Error! Need age!")
-    if (x > getOmega(object)) {
-      stop("Age greater than Omega")
-    }
-    if(class(object)=="mdt"){
-    if (x < min(object@table$x)) {
-      stop("Age lower than minimum age")
-    }}
-    if(class(object)=="actuarialtable"){
-      if (x < min(object@x)) {
-        stop("Age lower than minimum age")
-      }}
-    if(!(missing(i))){
-      interest <- i
-    }else{
-      if(class(object)=="actuarialtable"){
-        interest=object@interest
-      }else{
-        stop("Needed Interest Rate ")
-      }
-    }
-    if (missing(n)) 
-      n <- (getOmega(object)  - x)
-    if (n == 0) {
-      stop("Contract duration equal to zero")
-    }
-    probs = numeric(n)
-    times = seq(from = 0, to = n-1, by = 1)
-    if (payment == "arrears") times = times + 1
-    for (j in 1:length(times)) probs[j] = pxt(object, x, times[j])
-    out <- sum(apply(cbind(probs,((1 + interest)/(1+delta))^-times),1,prod))
-  return(out)
-}
-@
-
-Data and examples are taken from \cite{de2016assicurazioni}
-
-<<deadifalco.1b, keep.source=TRUE>>=
-data("de_angelis_di_falco")
-HealthyMaleTable2013 <- de_angelis_di_falco$HealthyMaleTable2013
-DAT<-new("actuarialtable", x=de_angelis_di_falco$DisabledMaleLifeTable$age, lx=de_angelis_di_falco$DisabledMaleLifeTable$'2013',
-         name="DisabledTable",i=0.03)
-axnmdt.firsttype(DAT,x=65,n=10,i=0.03,payment="arrears",delta=0.02)
-axnmdt.firsttype(DAT,65,10,payment="arrears",delta=0.02)
-axnmdt.firsttype(DAT,65,10,payment="arrears",i=0.03,delta=0.02)
-#Last case equal to axn
-axnmdt.firsttype(DAT,65,10,payment="arrears",delta=0)
-axn(DAT,65,10,payment="arrears")
-@
-
+The dedicated vignette (\code{vignette("multiple\_decrement\_tables",
+package = "lifecontingencies")}) develops this topic in full: decrement
+probability calculations, print/show/summary methods and coercion to
+\code{data.frame}/\code{markovchainList}, Associated Single Decrement
+Tables (ASDT) under the uniform distribution of decrements (UDD)
+assumption, actuarial applications (\code{Axn.mdt} and multiple-decrement
+annuities), and a complete worked example that builds a real, cause-specific
+\code{mdt} object from an official U.S.\ mortality report.
 
 \section{Software engineering and package architecture}
 \label{sec:software-engineering}
