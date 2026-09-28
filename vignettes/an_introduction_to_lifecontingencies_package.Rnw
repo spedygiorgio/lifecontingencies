@@ -48,10 +48,7 @@
 
 \Address{
   Giorgio Alfredo Spedicato\\
-  Ph.D ACAS C.STAT\\
-  Via Firenze 11
-  20037 Italy\\
-  E-mail: \email{spedygiorgio@gmail.com}\\
+  Ph.D FCAS FSA CSPA C.Stat\\
   URL: \url{https://github.com/spedygiorgio/lifecontingencies}
 }
 
