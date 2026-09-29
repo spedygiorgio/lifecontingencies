@@ -1,3 +1,8 @@
+# lifecontingencies 1.6.2
+
+* Internal performance: `Axn.mdt()`, `setAs("lifetable","numeric",...)`, `setAs("actuarialtable","numeric",...)` and `.lifetable_to_markovchain_list()` now call the already-vectorized `pxt()`/`qxt()`/`Axn()` once instead of looping over scalar calls. No change in return values (verified against the previous implementation on multiple test tables, including `mdt` and Markov-chain conversions).
+* Removed the redundant `.github/workflows/ci.yml` CI workflow, which duplicated `R-CMD-check.yaml` but lacked TinyTeX setup and could fail the vignette build.
+
 # lifecontingencies 1.6.1
 
 * `Exn()` and `AExn()` are now vectorized: `x`, `n` and `i` are recycled to a common length and one value per element is returned (previously a vector age raised an error).

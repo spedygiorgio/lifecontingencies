@@ -157,18 +157,13 @@ Axn.mdt<-function(object,x,n,i, decrement) {
   payments<-rep(1,length(times)) #payment sequence
   seqx <- x+seqk
   
-  #allocate to df
-  
-  pxk<-numeric(length(seqk))
-  qxkp1<-numeric(length(seqk))
-  probs<-numeric(length(seqk))
-  
-  
-  for (j in seqk) {
-    pxk[j+1]<-pxt(object=object,x=x,t=j)
-    qxkp1[j+1]<-qxt(object=object,x=(x+j),t=1,decrement=decrement)
-    probs[j+1]<-pxk[j+1]*qxkp1[j+1]
-  }
+  # pxt()/qxt() already accept a full vector of ages/times (they recycle
+  # x and t to a common length internally), so a single vectorised call
+  # replaces length(seqk) redundant scalar calls -- same pattern already
+  # used in IAxn()/DAxn() (R/5_actuarialFunctions.R).
+  pxk <- pxt(object=object, x=x, t=seqk)
+  qxkp1 <- qxt(object=object, x=(x+seqk), t=1, decrement=decrement)
+  probs <- pxk * qxkp1
   out<-presentValue(cashFlows=payments, timeIds=times, interestRates=i, probabilities=probs,power=1)
   return(out)
 }
