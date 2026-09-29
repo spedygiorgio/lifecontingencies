@@ -1,3 +1,8 @@
+# lifecontingencies 1.6.3
+
+* Removed fragile/dead links: the Travis-CI badge (`travis-ci.org`, discontinued free-tier domain, redundant with the existing GitHub Actions `R-CMD-check` badge) and the Depsy badge (`depsy.org`, defunct project, broken TLS certificate) in `README.md`; dropped the now-inaccessible `url` field (redirects to a Google sign-in page) from the Tim Riffe `LifeTable` bibliography entry in `vignettes/lifecontingenciesBiblio.bib`, keeping the citation itself.
+* Added `tests/_snaps` and `tests/testthat/_snaps` to `.Rbuildignore` so a stray local empty snapshot directory no longer triggers the "Removed empty directory" note during `R CMD build`.
+
 # lifecontingencies 1.6.2
 
 * Internal performance: `Axn.mdt()`, `setAs("lifetable","numeric",...)`, `setAs("actuarialtable","numeric",...)` and `.lifetable_to_markovchain_list()` now call the already-vectorized `pxt()`/`qxt()`/`Axn()` once instead of looping over scalar calls. No change in return values (verified against the previous implementation on multiple test tables, including `mdt` and Markov-chain conversions).
