@@ -305,16 +305,21 @@ setAs("actuarialtable","data.frame",
 
 setAs("lifetable","numeric",
 		function(from) {
-			out<-numeric(getOmega(from)+1)
-			for(i in 0:getOmega(from)) out[i+1]<-qxt(object=from,x=i,t=1)
+			# qxt() already accepts a vector of ages: one call replaces
+			# getOmega(from)+1 redundant scalar calls.
+			out <- qxt(object=from, x=0:getOmega(from), t=1)
 			return(out)
 		}
 )
 
 setAs("actuarialtable","numeric",
 		function(from) {
-			out<-numeric(getOmega(from))
-			for(i in 0:(getOmega(from)-2)) out[i+1]<-Axn(actuarialtable=from,x=i)
+			# Axn() is already vectorised over x: one call replaces
+			# getOmega(from)-1 redundant scalar calls. Output length and
+			# the trailing zero (index getOmega(from), never assigned by
+			# the original loop) are preserved exactly.
+			out <- numeric(getOmega(from))
+			out[1:(getOmega(from)-1)] <- Axn(actuarialtable=from, x=0:(getOmega(from)-2))
 			return(out)
 		}
 )

@@ -30,3 +30,5 @@
 ^vignettes/.*\.synctex\.gz$
 ^vignettes/.*\.tex$
 ^vignettes/.*\.pdf$
+^tests/_snaps$
+^tests/testthat/_snaps$
