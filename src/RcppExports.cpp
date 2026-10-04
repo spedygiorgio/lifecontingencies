@@ -142,6 +142,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pxtLifetableCpp
+NumericVector pxtLifetableCpp(NumericVector x, NumericVector t, NumericVector lx, double minAge, int fractional_method);
+RcppExport SEXP _lifecontingencies_pxtLifetableCpp(SEXP xSEXP, SEXP tSEXP, SEXP lxSEXP, SEXP minAgeSEXP, SEXP fractional_methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lx(lxSEXP);
+    Rcpp::traits::input_parameter< double >::type minAge(minAgeSEXP);
+    Rcpp::traits::input_parameter< int >::type fractional_method(fractional_methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(pxtLifetableCpp(x, t, lx, minAge, fractional_method));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_mult3sum", (DL_FUNC) &_lifecontingencies_mult3sum, 3},
@@ -153,6 +168,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_fDAxnCpp", (DL_FUNC) &_lifecontingencies_fDAxnCpp, 6},
     {"_lifecontingencies_fAExnCpp", (DL_FUNC) &_lifecontingencies_fAExnCpp, 5},
     {"_lifecontingencies_pxtCpp", (DL_FUNC) &_lifecontingencies_pxtCpp, 5},
+    {"_lifecontingencies_pxtLifetableCpp", (DL_FUNC) &_lifecontingencies_pxtLifetableCpp, 5},
     {NULL, NULL, 0}
 };
 

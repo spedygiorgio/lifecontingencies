@@ -141,8 +141,11 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
     
   }else #lifetable or actuarialtable
   {
-    myx <- object@x
-    mylx <- c(object@lx, 0)
+    # Native kernel: an exact port of the name-based lookup and fractional-age
+    # adjustment below (same results bit for bit, NaN cases included).
+    method <- switch(fractional, "linear" = 0L, "constant force" = 1L,
+                     "hyperbolic" = 2L)
+    return(.pxtLifetableCpp(x, t, c(object@lx, 0), object@x[1], method))
   }
   names(mylx) <- paste0("x", c(myx, omega+1))
   

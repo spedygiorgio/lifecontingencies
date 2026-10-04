@@ -37,3 +37,7 @@
     .Call(`_lifecontingencies_pxtCpp`, x, t, lx, omega, fractional_method)
 }
 
+.pxtLifetableCpp <- function(x, t, lx, minAge, fractional_method) {
+    .Call(`_lifecontingencies_pxtLifetableCpp`, x, t, lx, minAge, fractional_method)
+}
+
