@@ -1153,8 +1153,22 @@ qx20t1 <- mx2qx(mx20t1)
 c(mx20t1,qx20t1)
 @
 
+Beyond these core quantities the package also provides the dispersion of the
+future lifetime, \code{varxn} and \code{sdxn} (the variance and standard
+deviation of $\tilde K_x$ or $\tilde T_x$, the second-moment companions of
+\code{exn}), and distributional summaries of the age at death exposed through
+the usual \proglang{R} generics \code{median} and \code{quantile}, together
+with the Lexis modal age at death \code{modalAge}. The \code{Tx} and
+\code{exn} functions additionally accept an \code{fxt} argument and an
+\code{axOmega} argument that control, respectively, the within-year
+distribution of deaths and the closure of the last (open) age interval, so
+that published life tables using the open-interval convention
+$L_\omega = l_\omega / m_\omega$ can be reproduced exactly. A dedicated
+\emph{Demographic analysis with the lifecontingencies package} vignette works
+through all of these on real life tables.\\
+
 The package allows one to calculate fractional survival
-probabilities through the use of linear interpolation, constant force of mortality and hyperbolic 
+probabilities through the use of linear interpolation, constant force of mortality and hyperbolic
 Balducci's assumptions as shown by the code below.\\
 
 <<fractionalAges, keep.source=TRUE>>==

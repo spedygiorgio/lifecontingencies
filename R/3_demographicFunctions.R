@@ -335,21 +335,33 @@ Lxt <- function(object, x,t=1,fxt=0.5)
 #' @rdname other-demographic-functions
 #' @aliases Tx
 #' @title Various demographic functions
-#' 
+#'
 #' @param object a \code{lifetable} or \code{actuarialtable} object
 #' @param x age of the subject
-#' @details \code{Tx} il the sum of years lived since age \code{x} by the population of the life table, it is the sum of \code{Lx}. The function is provided as is, 
+#' @param fxt fraction of the year of age lived by those who die within the
+#'   year (so that \eqn{L_x = l_x - fxt\, d_x}, matching \code{\link{Lxt}}).
+#'   Defaults to \code{0.5} (uniform distribution of deaths).
+#' @param axOmega mean number of years lived in the last, open-ended age
+#'   interval by those still alive at the last tabulated age \eqn{\omega}
+#'   (so that \eqn{L_\omega = axOmega \cdot l_\omega}). The default,
+#'   \code{1 - fxt}, reproduces the historical behaviour of the function
+#'   (the last interval is closed assuming survivors live on average half a
+#'   year longer when \code{fxt = 0.5}). Published life tables that leave the
+#'   last interval open set \eqn{L_\omega = l_\omega / m_\omega}: pass
+#'   \code{axOmega = 1 / mOmega} to reproduce them. Only relevant when
+#'   \eqn{l_\omega > 0}.
+#' @details \code{Tx} il the sum of years lived since age \code{x} by the population of the life table, it is the sum of \code{Lx}. The function is provided as is,
 #' without any warranty regarding the accuracy of calculations. Use at own risk.
 #' @return A numeric value
 #' @references 	Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 #' @author Giorgio Alfredo Spedicato.
-#' @examples 
+#' @examples
 #' #assumes SOA example life table to be load
 #' data(soaLt)
 #' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
 #' Tx(soa08Act, 67)
 #' @export
-Tx <- function(object,x)
+Tx <- function(object,x,fxt=0.5,axOmega=1-fxt)
 {
 	out<-NULL
  	#checks
@@ -357,15 +369,19 @@ Tx <- function(object,x)
 	  stop("Error! Need lifetable or actuarialtable objects")
 	if(missing(x)) stop("Missing x")
 	omega <- getOmega(object)
-	#Tx(x) = sum_{k=x}^{omega} Lxt(k,1) = sum_{k=x}^{omega} (l_k - 0.5*d_k),
-	#0.5 being Lxt's default fxt. Computed here with a single vectorised
-	#pass over the lx series (previous implementation called Lxt() once per
-	#age in [x, omega], and Lxt() itself loops and calls dxt() once per age,
-	#making the whole computation O(n^2) in the number of remaining ages).
+	#Tx(x) = sum_{k=x}^{omega-1} (l_k - fxt*d_k) + axOmega * l_omega.
+	#Computed with a single vectorised pass over the lx series (previous
+	#implementation called Lxt() once per age in [x, omega], and Lxt() itself
+	#loops and calls dxt() once per age, making it O(n^2) in the remaining
+	#ages). With the defaults (fxt = 0.5, axOmega = 1 - fxt = 0.5) this is
+	#identical to the historical closed-interval behaviour: the last age
+	#contributes l_omega - 0.5*l_omega = 0.5*l_omega.
 	idx <- which(object@x >= x & object@x <= omega)
 	lxRange <- object@lx[idx]
-	dxRange <- lxRange - c(lxRange[-1], 0)
-	out <- sum(lxRange - 0.5*dxRange)
+	n <- length(lxRange)
+	if(n == 1L) return(axOmega * lxRange[1L])
+	dxInterior <- lxRange[-n] - lxRange[-1]
+	out <- sum(lxRange[-n] - fxt*dxInterior) + axOmega * lxRange[n]
 	return(out)
 }
 
@@ -448,6 +464,12 @@ qxtold <- function(object, x, t, fractional="linear", decrement)
 #' @param type Either \code{"Tx"}, \code{"complete"} or \code{"continuous"} for the complete
 #' (continuous) future lifetime, \code{"Kx"} or \code{"curtate"} for the curtate future lifetime
 #' (can be abbreviated). Default is \code{"curtate"}.
+#' @param fxt fraction of the year of age lived by those who die within the year, used by the
+#' \code{"complete"} branch (see \code{\link{Lxt}} and \code{\link{Tx}}). Defaults to \code{0.5}
+#' (uniform distribution of deaths); ignored by the \code{"curtate"} branch.
+#' @param axOmega mean number of years lived in the last, open-ended age interval, used by the
+#' \code{"complete"} branch when the period reaches the last tabulated age (see \code{\link{Tx}}).
+#' Defaults to \code{1 - fxt}, which reproduces the historical closed-interval behaviour.
 #'
 #' @details
 #' For \code{type = "curtate"} the function returns the (temporary) curtate expectation of life
@@ -487,12 +509,14 @@ qxtold <- function(object, x, t, fractional="linear", decrement)
 #' exn(object=soa08Act, x=50, n=20)
 #' exn(object=soa08Act, x=50, n=20, type="complete")
 #' @export
-exn <- function(object,x,n,type="curtate") {
+exn <- function(object,x,n,type="curtate",fxt=0.5,axOmega=1-fxt) {
 	out<-NULL
 	#checks
 	if(!is(object, "lifetable")) stop("Error! Need lifetable or actuarialtable objects")
 	if(missing(x)) x=0
-	if(missing(n)) n=getOmega(object)-x +1 #to avoid errors
+	omega <- getOmega(object)
+	fullLife <- missing(n)
+	if(missing(n)) n=omega-x +1 #to avoid errors
 	if(n==0) return(0)
 	type <- testtypelifearg(type)
 
@@ -502,7 +526,12 @@ exn <- function(object,x,n,type="curtate") {
 	out <- sum(pxt(object, x, 1:n))
 	} else {
 		lx=object@lx[which(object@x==x)]
-		out=Lxt(object=object, x=x,t=n)/lx
+		# Whole remaining lifespan (n missing, or n reaching past omega):
+		# route through Tx() so the open-interval assumption (fxt, axOmega)
+		# is honoured. With the defaults this equals the historical
+		# Lxt(x, omega-x+1)/lx. A strictly temporary period uses Lxt().
+		if(fullLife || (x + n > omega)) out=Tx(object=object, x=x, fxt=fxt, axOmega=axOmega)/lx
+		else out=Lxt(object=object, x=x,t=n,fxt=fxt)/lx
 	}
 	return(out)
 }

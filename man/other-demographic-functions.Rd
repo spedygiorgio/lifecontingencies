@@ -7,7 +7,7 @@
 \usage{
 Lxt(object, x, t = 1, fxt = 0.5)
 
-Tx(object, x)
+Tx(object, x, fxt = 0.5, axOmega = 1 - fxt)
 }
 \arguments{
 \item{object}{a \code{lifetable} or \code{actuarialtable} object}
@@ -16,7 +16,19 @@ Tx(object, x)
 
 \item{t}{duration of the calculation}
 
-\item{fxt}{correction constant, default 0.5}
+\item{fxt}{fraction of the year of age lived by those who die within the
+year (so that \eqn{L_x = l_x - fxt\, d_x}, matching \code{\link{Lxt}}).
+Defaults to \code{0.5} (uniform distribution of deaths).}
+
+\item{axOmega}{mean number of years lived in the last, open-ended age
+interval by those still alive at the last tabulated age \eqn{\omega}
+(so that \eqn{L_\omega = axOmega \cdot l_\omega}). The default,
+\code{1 - fxt}, reproduces the historical behaviour of the function
+(the last interval is closed assuming survivors live on average half a
+year longer when \code{fxt = 0.5}). Published life tables that leave the
+last interval open set \eqn{L_\omega = l_\omega / m_\omega}: pass
+\code{axOmega = 1 / mOmega} to reproduce them. Only relevant when
+\eqn{l_\omega > 0}.}
 }
 \value{
 A numeric value
@@ -25,7 +37,7 @@ A numeric value
 Various demographic functions
 }
 \details{
-\code{Tx} il the sum of years lived since age \code{x} by the population of the life table, it is the sum of \code{Lx}. The function is provided as is, 
+\code{Tx} il the sum of years lived since age \code{x} by the population of the life table, it is the sum of \code{Lx}. The function is provided as is,
 without any warranty regarding the accuracy of calculations. Use at own risk.
 }
 \examples{

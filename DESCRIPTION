@@ -33,14 +33,15 @@ Suggests:
     knitr,
     formatR,
     StMoMo,
-    rmarkdown
+    rmarkdown,
+    quarto
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyLoad: yes
 LazyData: true
 BugReports: https://github.com/spedygiorgio/lifecontingencies/issues
 BuildVignettes: yes
-VignetteBuilder: utils, knitr
+VignetteBuilder: utils, knitr, quarto
 URL: https://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
 Config/roxygen2/version: 8.1.0

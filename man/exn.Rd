@@ -4,7 +4,7 @@
 \alias{exn}
 \title{Expected residual life.}
 \usage{
-exn(object, x, n, type = "curtate")
+exn(object, x, n, type = "curtate", fxt = 0.5, axOmega = 1 - fxt)
 }
 \arguments{
 \item{object}{A lifetable/actuarialtable object.}
@@ -17,6 +17,14 @@ i.e. a temporary expectation. Assumed omega - x + 1 (the whole remaining lifespa
 \item{type}{Either \code{"Tx"}, \code{"complete"} or \code{"continuous"} for the complete
 (continuous) future lifetime, \code{"Kx"} or \code{"curtate"} for the curtate future lifetime
 (can be abbreviated). Default is \code{"curtate"}.}
+
+\item{fxt}{fraction of the year of age lived by those who die within the year, used by the
+\code{"complete"} branch (see \code{\link{Lxt}} and \code{\link{Tx}}). Defaults to \code{0.5}
+(uniform distribution of deaths); ignored by the \code{"curtate"} branch.}
+
+\item{axOmega}{mean number of years lived in the last, open-ended age interval, used by the
+\code{"complete"} branch when the period reaches the last tabulated age (see \code{\link{Tx}}).
+Defaults to \code{1 - fxt}, which reproduces the historical closed-interval behaviour.}
 }
 \value{
 A numeric value representing the expected life span.
