@@ -41,3 +41,39 @@
     .Call(`_lifecontingencies_pxtLifetableCpp`, x, t, lx, minAge, fractional_method)
 }
 
+.fExnCppVec <- function(T, y, n, i, nthreads = 1L) {
+    .Call(`_lifecontingencies_fExnCppVec`, T, y, n, i, nthreads)
+}
+
+.fAxnCppVec <- function(T, y, n, i, m, k = 1, nthreads = 1L) {
+    .Call(`_lifecontingencies_fAxnCppVec`, T, y, n, i, m, k, nthreads)
+}
+
+.fIAxnCppVec <- function(T, y, n, i, m, k = 1, nthreads = 1L) {
+    .Call(`_lifecontingencies_fIAxnCppVec`, T, y, n, i, m, k, nthreads)
+}
+
+.fDAxnCppVec <- function(T, y, n, i, m, k = 1, nthreads = 1L) {
+    .Call(`_lifecontingencies_fDAxnCppVec`, T, y, n, i, m, k, nthreads)
+}
+
+.fAExnCppVec <- function(T, y, n, i, k = 1, nthreads = 1L) {
+    .Call(`_lifecontingencies_fAExnCppVec`, T, y, n, i, k, nthreads)
+}
+
+.faxnCppVec <- function(T, y, n, i, m, k = 1, advance = TRUE, nthreads = 1L) {
+    .Call(`_lifecontingencies_faxnCppVec`, T, y, n, i, m, k, advance, nthreads)
+}
+
+.fAxyznCppVec <- function(deathsTimeXyz, y, n, i, m, k = 1, joint = TRUE, nthreads = 1L) {
+    .Call(`_lifecontingencies_fAxyznCppVec`, deathsTimeXyz, y, n, i, m, k, joint, nthreads)
+}
+
+.faxyznCppVec <- function(deathsTimeXyz, y, n, i, m, k = 1, joint = TRUE, advance = TRUE, nthreads = 1L) {
+    .Call(`_lifecontingencies_faxyznCppVec`, deathsTimeXyz, y, n, i, m, k, joint, advance, nthreads)
+}
+
+.hasOpenMP <- function() {
+    .Call(`_lifecontingencies_hasOpenMP`)
+}
+
