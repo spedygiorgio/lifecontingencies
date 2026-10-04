@@ -59,9 +59,9 @@ out=ifelse((x>getOmega(object)),0,dxt(object = object,
 #' @param object An object of class lifetable
 #' @param x The attained age of subject x, default value is 0
 #' @param k Number of periods within the year when it is possible death to happen, default value is 1
-#' @param type Either \code{"Tx"} for continuous future lifetime, \code{"Kx"} for curtate furture lifetime (can be abbreviated).
+#' @param type Either \code{"Tx"} for continuous future lifetime, \code{"Kx"} for curtate future lifetime (can be abbreviated).
 #' 
-#' @details Following relation holds for the future life time: \eqn{T_x=K_x+0.5}
+#' @details Under the uniform distribution of deaths assumption the complete future lifetime is the curtate one plus an independent uniform fraction of year, \eqn{T_x=K_x+U} with \eqn{U\sim Unif(0,1)}, hence \eqn{E[T_x]=E[K_x]+0.5}. For \code{type="Tx"} the function returns \eqn{K_x+0.5/k}, i.e. a deterministic mid-period fraction, so only the expected value (not the full distribution) of \eqn{T_x} is reproduced.
 #' @references 	Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 #' @note The function is provided as is, without any warranty regarding the accuracy of calculations. The author disclaims any liability for eventual 	losses arising from direct or indirect use of this software.
 #' @seealso \code{\linkS4class{lifetable}}, \code{\link{exn}}

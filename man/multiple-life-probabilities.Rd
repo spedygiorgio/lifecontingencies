@@ -27,7 +27,8 @@ fractional=rep("linear",length(tablesList)), \dots)
   \item{status}{Either \code{"joint"} for the joint-life status model or \code{"last"}
 for the last-survivor status model (can be abbreviated).}
   \item{type}{Either \code{"Tx"} for continuous future lifetime, \code{"Kx"} for 
-curtate furture lifetime (can be abbreviated).}
+curtate future lifetime (can be abbreviated). For \code{"Tx"} the complete expectation is
+evaluated under UDD, i.e. \eqn{\sum_{k=1}^{t} {}_k p_{xyz\ldots} + 0.5 (1 - {}_t p_{xyz\ldots})}.}
 \item{fractional}{Assumptions for fractional age. One of \code{"linear"}, 
   \code{"hyperbolic"}, \code{"constant force"} (can be abbreviated).}
 

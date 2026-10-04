@@ -184,6 +184,14 @@ a non-exhaustive list follows:
 \item $e_x$, the curtate expectation of life for a subject aged $x$,
   $e_x = \E[ \tilde K_x] = \sum\limits_{k = 1}^\infty
   {_k{p_x}} $.
+\item $\mathring{e}_x$, the complete expectation of life for a subject aged $x$,
+  $\mathring{e}_x = \E[ \tilde T_x] = \int_0^\infty {_t{p_x}}\,dt = T_x / l_x$,
+  with $T_x = \int_0^\infty l_{x+y}\,dy$. Under the uniform distribution of
+  deaths assumption (used by the package) $\mathring{e}_x \approx e_x + 0.5$.
+  Both quantities can also be restricted to an $n$-year period,
+  $e_{x:\lcroof{n}} = \sum_{k=1}^{n} {_k{p_x}}$ and
+  $\mathring{e}_{x:\lcroof{n}} = \int_0^n {_t{p_x}}\,dt = {_n{L_x}} / l_x$;
+  in that case $\mathring{e}_{x:\lcroof{n}} = e_{x:\lcroof{n}} + 0.5\,(1 - {_n{p_x}})$ under UDD.
 \end{itemize}
 
 The Keyfitz textbook \citep{keyfitz2005applied} provides an exhaustive
@@ -1019,9 +1027,11 @@ getOmega(exampleAct)
 
 Method \code{print} behaves differently for \code{lifetable} and 
 \code{actuarialtable} objects. In fact, when the \code{print} method is applied on a
-\code{lifetable} object, it tabulates both the one year survival probability and the complete
-expected remaining life until death. Conversely, when the \code{print} method is
-applied on a \code{lifetable} object, classical commutation
+\code{lifetable} object, it tabulates both the one year survival probability and the curtate
+expected remaining life until death (the \code{ex} column, as returned by
+\code{exn(..., type = "curtate")}; the complete expectation is
+\code{exn(..., type = "complete")}, see below). Conversely, when the \code{print} method is
+applied on an \code{actuarialtable} object, classical commutation
 functions ($D_x$, $N_x$, $C_x$, $M_x$, $R_x$), discussed later, are printed out.
 
 <<methods2, keep.source=TRUE>>=
@@ -1126,7 +1136,7 @@ valid \code{lifetable} or \code{actuariatable} objects. The functions discussed 
 
 
 The code below shows how ${}_{1}p_{20}$, ${}_{2}q_{30}$ and $\mathring{e}_{50:\lcroof{20}}$
-are calculated respectively on the IPS55 male population table 
+(the 20-year temporary complete expectation of life at age 50) are calculated respectively on the IPS55 male population table 
 
 <<probabilityAndDemographics, keep.source=TRUE>>=
 demoEx1<-pxt(ips55M,20,1)
@@ -1527,7 +1537,7 @@ The age-until-death, both in the continuous, $\tilde T_x$,  or curtate form, $\t
 distribution is intrinsic in the deaths within a life table.  Therefore, a
 dedicated function, \code{rLife}, has been designed within
 the \pkg{lifecontingencies} package to draw a sample from either  $\tilde K_x$ or $\tilde T_x$. Drawing from $K_x$ is quite simple: the distribution of the curtate future lifetime is defined as
-$\Pr \left[ {{{\tilde K}_x} = t} \right] = \frac{{{d_{x + t}}}}{{\sum\limits_{j = 0}^{\omega  - x} {{l_{x + j}}} }}$, and it is passed as a
+$\Pr \left[ {{{\tilde K}_x} = t} \right] = \frac{{{d_{x + t}}}}{{l_x}} = \frac{{{d_{x + t}}}}{{\sum\limits_{j = 0}^{\omega  - x} {{d_{x + j}}} }}$, and it is passed as a
 \code{prob} parameter to base \proglang{R} \code{sample} function. For example,
 the code below shows how the \code{rLife} function can be used to draw a sample of
 size five from the curtate future lifetime of a policyholder aged 45 as implied by

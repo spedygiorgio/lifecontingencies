@@ -11,29 +11,58 @@ exn(object, x, n, type = "curtate")
 
 \item{x}{Attained age}
 
-\item{n}{Time until which the expected life should be calculated. Assumed omega - x whether missing.}
+\item{n}{Length (in years) of the period over which the expected lifetime is computed,
+i.e. a temporary expectation. Assumed omega - x + 1 (the whole remaining lifespan) whether missing.}
 
-\item{type}{Either \code{"Tx"}, \code{"complete"} or \code{"continuous"} for continuous future lifetime, 
-\code{"Kx"} or \code{"curtate"} for curtate furture lifetime (can be abbreviated).}
+\item{type}{Either \code{"Tx"}, \code{"complete"} or \code{"continuous"} for the complete
+(continuous) future lifetime, \code{"Kx"} or \code{"curtate"} for the curtate future lifetime
+(can be abbreviated). Default is \code{"curtate"}.}
 }
 \value{
 A numeric value representing the expected life span.
 }
 \description{
-Expected residual life.
+Expected future lifetime of a life aged \eqn{x}, either over the whole remaining
+lifespan or over a temporary period of \eqn{n} years.
+}
+\details{
+For \code{type = "curtate"} the function returns the (temporary) curtate expectation of life
+\deqn{e_{x:\overline{n}|} = \sum_{k=1}^{n} {}_k p_x ,}
+that is the expected number of complete future years lived by (x) within the next \eqn{n} years.
+With \eqn{n} missing it is the curtate expectation of life \eqn{e_x = E[K_x]}.
+
+For \code{type = "complete"} the function returns the (temporary) complete expectation of life
+\deqn{\mathring{e}_{x:\overline{n}|} = \int_0^n {}_t p_x \, dt = \frac{{}_nL_x}{l_x} ,}
+evaluated under the uniform distribution of deaths (UDD) assumption within each year, i.e.
+\eqn{L_x = l_x - 0.5 d_x} (see \code{\link{Lxt}}). With \eqn{n} missing it is
+\eqn{\mathring{e}_x = T_x / l_x = E[T_x]}.
+
+Under UDD the two quantities are related by
+\eqn{\mathring{e}_{x:\overline{n}|} = e_{x:\overline{n}|} + 0.5\,(1 - {}_n p_x)}, which reduces to
+\eqn{\mathring{e}_x = e_x + 0.5} when \eqn{n} covers the whole remaining lifespan.
+
+The last tabulated age \eqn{\omega} is treated as a closed interval: those alive at \eqn{\omega}
+are assumed to die on average half a year later. Published tables that close the table with an open
+interval (e.g. \eqn{L_{\omega} = l_{\omega}/m_{\omega}}, as in the NCHS tables) can therefore
+show a slightly larger complete life expectancy.
 }
 \examples{
 #loads and show
 data(soa08Act)
+#curtate expectation of life at birth
 exn(object=soa08Act, x=0)
+#complete expectation of life at birth (curtate + 0.5 under UDD)
 exn(object=soa08Act, x=0,type="complete")
+#temporary 20-year expectations at age 50
+exn(object=soa08Act, x=50, n=20)
+exn(object=soa08Act, x=50, n=20, type="complete")
 }
 \references{
 Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., 
 Jones, D.A. and Nesbitt, C.J.
 }
 \seealso{
-\code{\linkS4class{lifetable}}
+\code{\linkS4class{lifetable}}, \code{\link{Tx}}, \code{\link{Lxt}}
 }
 \author{
 Giorgio Alfredo Spedicato
