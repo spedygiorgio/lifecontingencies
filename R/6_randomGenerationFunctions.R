@@ -414,7 +414,7 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
 {
   payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   lifecontingency <- testlifecontarg(lifecontingency)
-  advance <- (payment == "advance")
+  advance <- (payment == "due")  # testpaymentarg(): "advance"->"due", "arrears"->"immediate"
 
 	deathsTimeX = numeric(n)
 	if (k == 1)
@@ -507,7 +507,7 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
   payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   lifecontingency <- testlifecontarg2(lifecontingency)
   status <- teststatusarg(status)
-  advance <- (payment == "advance")
+  advance <- (payment == "due")  # testpaymentarg(): "advance"->"due", "arrears"->"immediate"
   joint <- (status == "joint")
 
 	numTables=length(tablesList)
@@ -528,8 +528,11 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
 	}
 
 	#fractional payment are handled using countinuous lifetime simulation
-	if(k==1) temp=x+rLifexyz(n=n,tablesList=tablesList,x=x, k=k,type="Kx")
-	else temp=x+rLifexyz(n=n,tablesList=tablesList,x=x,k=k,type="Tx") #this to handle fractional payments (assume continuous...)
+	#the issue age of each life must be added column-wise: x + <n x numTables matrix> would recycle
+	#x down the column-major storage, mixing the ages across lives when they differ
+	agesMatrix <- matrix(x, nrow=n, ncol=numTables, byrow=TRUE)
+	if(k==1) temp=agesMatrix+rLifexyz(n=n,tablesList=tablesList,x=x, k=k,type="Kx")
+	else temp=agesMatrix+rLifexyz(n=n,tablesList=tablesList,x=x,k=k,type="Tx") #this to handle fractional payments (assume continuous...)
 
 	deathsTimeX<-temp
 	if (!is.matrix(deathsTimeX)) {

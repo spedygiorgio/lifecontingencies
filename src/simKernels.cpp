@@ -23,6 +23,7 @@
 #include <Rcpp.h>
 #include <cmath>
 #include <algorithm>
+#include <vector>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -54,6 +55,9 @@ inline int resolve_threads(int nthreads) {
 inline double axn_value(double T, double y, double n, double i, double m,
                         double k, bool advance) {
   const double K = T - y;
+  if (std::isnan(K)) {
+    return K;  // propagate NA/NaN lifetimes instead of treating them as survivors
+  }
   if (K < m) {
     return 0.0;
   }
@@ -63,35 +67,53 @@ inline double axn_value(double T, double y, double n, double i, double m,
     return 0.0;
   }
   const double offset = advance ? 0.0 : step;
-  const double v = 1.0 / (1.0 + i);
-  double total = 0.0;
-  // closed-form geometric sum over times = {m, m+step, ..., upper}
-  // sum_{j=0}^{J} v^{(m + j*step) + offset} * step
-  const double n_terms_d = std::floor((upper - m) / step + 1e-9) + 1.0;
-  if (n_terms_d < 1.0) {
+  // closed-form geometric sum over times = {m, m+step, ..., upper}:
+  //   sum_{j=0}^{J} step * v^(m + offset + j*step),  v = 1 / (1 + i)
+  //   = step * v^(m+offset) * expm1(N*ln_vs) / expm1(ln_vs),  ln_vs = step * ln(v)
+  // expm1 keeps full accuracy when the step is tiny (v^step ~ 1), where the
+  // naive (1 - r^N) / (1 - r) loses all significant digits. The number of terms
+  // N is kept as a double on purpose: converting it to an integer type is
+  // undefined behaviour for huge / infinite values (n = Inf, tiny steps) and it
+  // is only ever used as an exponent.
+  const double n_terms = std::floor((upper - m) / step + 1e-9) + 1.0;
+  if (!(n_terms >= 1.0)) {
     return 0.0;
   }
-  const R_xlen_t n_terms = static_cast<R_xlen_t>(n_terms_d);
-  const double v_step = std::pow(v, step);
-  const double first = std::pow(v, m + offset);
-  if (std::fabs(v_step - 1.0) < 1e-15) {
-    total = first * static_cast<double>(n_terms);
+  const double ln_v = -std::log1p(i);
+  const double ln_vs = step * ln_v;
+  const double first = std::exp(ln_v * (m + offset));
+  double total;
+  if (ln_vs == 0.0) {            // i == 0: no discounting
+    total = first * n_terms;
   } else {
-    total = first * (1.0 - std::pow(v_step, static_cast<double>(n_terms))) /
-            (1.0 - v_step);
+    total = first * std::expm1(n_terms * ln_vs) / std::expm1(ln_vs);
   }
   return total * step;
 }
 
-inline double joint_or_last(const double* row, int ncols, bool joint) {
-  double value = row[0];
-  for (int c = 1; c < ncols; ++c) {
-    const double v = row[c];
+// Remaining-lifetime of the status for row r of a column-major nrow x ncol
+// matrix: min (joint-life) or max (last-survivor) of (death time - issue age).
+// Indices are R_xlen_t: c * nrow overflows int for matrices with more than
+// 2^31 elements. Requires ncol >= 1 (checked by the callers).
+inline double status_lifetime(const double* Mp, R_xlen_t r, R_xlen_t nrow,
+                              int ncol, const double* yv, bool joint) {
+  double value = Mp[r] - yv[0];
+  for (int c = 1; c < ncol; ++c) {
+    const double v = Mp[r + static_cast<R_xlen_t>(c) * nrow] - yv[c];
     if (joint ? (v < value) : (v > value)) {
       value = v;
     }
   }
   return value;
+}
+
+inline void check_status_matrix(const NumericMatrix& M, const NumericVector& y) {
+  if (M.ncol() < 1) {
+    stop("deathsTimeXyz must have at least one column");
+  }
+  if (y.size() != M.ncol()) {
+    stop("y must have length matching the number of columns of deathsTimeXyz");
+  }
 }
 
 } // namespace
@@ -111,6 +133,7 @@ NumericVector fExnCppVec(NumericVector T, double y, double n, double i,
   const double threshold = y + n;
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && sz > 1024)
 #endif
@@ -135,6 +158,7 @@ NumericVector fAxnCppVec(NumericVector T, double y, double n, double i,
   const double shift = -y + 1.0 / k;
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && sz > 1024)
 #endif
@@ -163,6 +187,7 @@ NumericVector fIAxnCppVec(NumericVector T, double y, double n, double i,
   const double base = 1.0 + i;
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && sz > 1024)
 #endif
@@ -192,6 +217,7 @@ NumericVector fDAxnCppVec(NumericVector T, double y, double n, double i,
   const double base = 1.0 + i;
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && sz > 1024)
 #endif
@@ -222,6 +248,7 @@ NumericVector fAExnCppVec(NumericVector T, double y, double n, double i,
   const double endow = std::pow(base, -n);
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && sz > 1024)
 #endif
@@ -247,6 +274,7 @@ NumericVector faxnCppVec(NumericVector T, double y, double n, double i,
   double* op = REAL(out);
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && sz > 1024)
 #endif
@@ -266,43 +294,27 @@ NumericVector fAxyznCppVec(NumericMatrix deathsTimeXyz, NumericVector y,
                            double n, double i, double m, double k = 1,
                            bool joint = true, int nthreads = 1) {
   check_positive_frequency(k);
-  const int nrow = deathsTimeXyz.nrow();
+  check_status_matrix(deathsTimeXyz, y);
+  const R_xlen_t nrow = deathsTimeXyz.nrow();
   const int ncol = deathsTimeXyz.ncol();
-  if (y.size() != ncol) {
-    stop("y must have length matching the number of columns of deathsTimeXyz");
-  }
   NumericVector out(nrow);
 
-  // Precompute y[c] subtracted once per column to avoid cache-unfriendly
-  // reads inside the inner loop.
-  std::vector<double> yv(ncol);
-  for (int c = 0; c < ncol; ++c) yv[c] = y[c];
+  const std::vector<double> yv(y.begin(), y.end());
+  const double* yp = yv.data();
+  const double* Mp = REAL(deathsTimeXyz);
+  double* op = REAL(out);
 
   const double low = m;
   const double high = m + n - 1.0 / k;
   const double base = 1.0 + i;
-  const double* Mp = REAL(deathsTimeXyz);
-  double* op = REAL(out);
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && nrow > 1024)
 #endif
   for (R_xlen_t r = 0; r < nrow; ++r) {
-    double K;
-    if (joint) {
-      K = Mp[r + 0 * nrow] - yv[0];
-      for (int c = 1; c < ncol; ++c) {
-        const double v = Mp[r + c * nrow] - yv[c];
-        if (v < K) K = v;
-      }
-    } else {
-      K = Mp[r + 0 * nrow] - yv[0];
-      for (int c = 1; c < ncol; ++c) {
-        const double v = Mp[r + c * nrow] - yv[c];
-        if (v > K) K = v;
-      }
-    }
+    const double K = status_lifetime(Mp, r, nrow, ncol, yp, joint);
     if (K >= low && K <= high) {
       op[r] = std::pow(base, -(K + 1.0 / k));
     } else {
@@ -318,41 +330,25 @@ NumericVector faxyznCppVec(NumericMatrix deathsTimeXyz, NumericVector y,
                            bool joint = true, bool advance = true,
                            int nthreads = 1) {
   check_positive_frequency(k);
-  const int nrow = deathsTimeXyz.nrow();
+  check_status_matrix(deathsTimeXyz, y);
+  const R_xlen_t nrow = deathsTimeXyz.nrow();
   const int ncol = deathsTimeXyz.ncol();
-  if (y.size() != ncol) {
-    stop("y must have length matching the number of columns of deathsTimeXyz");
-  }
   NumericVector out(nrow);
 
-  std::vector<double> yv(ncol);
-  for (int c = 0; c < ncol; ++c) yv[c] = y[c];
-
+  const std::vector<double> yv(y.begin(), y.end());
+  const double* yp = yv.data();
   const double* Mp = REAL(deathsTimeXyz);
   double* op = REAL(out);
 
   const int nt = resolve_threads(nthreads);
+  (void)nt;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nt) if (nt > 1 && nrow > 1024)
 #endif
   for (R_xlen_t r = 0; r < nrow; ++r) {
-    double K;
-    if (joint) {
-      K = Mp[r + 0 * nrow] - yv[0];
-      for (int c = 1; c < ncol; ++c) {
-        const double v = Mp[r + c * nrow] - yv[c];
-        if (v < K) K = v;
-      }
-    } else {
-      K = Mp[r + 0 * nrow] - yv[0];
-      for (int c = 1; c < ncol; ++c) {
-        const double v = Mp[r + c * nrow] - yv[c];
-        if (v > K) K = v;
-      }
-    }
-    // axn_value takes T and y so that K := T - y; here we already have K,
-    // so call with T = K and y = 0.
-    op[r] = axn_value(K, 0.0, n, i, m, k, advance);
+    // axn_value takes (T, y): the status lifetime K is already T - y.
+    op[r] = axn_value(status_lifetime(Mp, r, nrow, ncol, yp, joint),
+                      0.0, n, i, m, k, advance);
   }
   return out;
 }

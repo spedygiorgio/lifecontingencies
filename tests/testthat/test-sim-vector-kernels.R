@@ -201,3 +201,39 @@ test_that("parallel = TRUE produces the same result as parallel = FALSE", {
   # must agree exactly: the parallel flag only affects the payoff computation.
   expect_identical(par_run, seq_run)
 })
+
+test_that("rLifeContingencies/Xyz annuities honour payment = advance/arrears end-to-end", {
+  # Regression: the wrappers must map payment -> advance flag correctly. Compare
+  # against the scalar R reference (getLifecontingencyPv*, which uses .faxn/.faxyzn)
+  # on the very same simulated lifetimes.
+  for (k in c(1, 12)) for (pay in c("advance", "arrears")) {
+    set.seed(11)
+    got <- rLifeContingencies(n = 400, lifecontingency = "axn", object = soa08Act,
+                              x = 40, t = 20, m = 0, k = k, payment = pay)
+    set.seed(11)
+    d <- 40 + rLife(n = 400, object = soa08Act, x = 40, k = k,
+                    type = if (k == 1) "Kx" else "Tx")
+    ref <- getLifecontingencyPv(d, "axn", soa08Act, x = 40, t = 20, m = 0, k = k,
+                                payment = pay)
+    expect_equal(got, ref, tolerance = 1e-10,
+                 label = sprintf("axn k=%g payment=%s", k, pay))
+  }
+  # advance and arrears must differ (annuity-due > annuity-immediate on average)
+  set.seed(3); due <- rLifeContingencies(2000, "axn", soa08Act, x = 40, t = 20, payment = "advance")
+  set.seed(3); imm <- rLifeContingencies(2000, "axn", soa08Act, x = 40, t = 20, payment = "arrears")
+  expect_gt(mean(due), mean(imm))
+
+  tl <- list(soa08Act, soa08Act)
+  for (st in c("joint", "last")) for (pay in c("advance", "arrears")) {
+    set.seed(5)
+    got <- rLifeContingenciesXyz(n = 300, lifecontingency = "axyz", tablesList = tl,
+                                 x = c(50, 55), t = 15, m = 0, k = 1, status = st,
+                                 payment = pay)
+    set.seed(5)
+    d <- c(50, 55)[col(matrix(0, 300, 2))] + rLifexyz(300, tl, x = c(50, 55), k = 1, type = "Kx")
+    ref <- apply(d, 1, getFromNamespace(".faxyzn", "lifecontingencies"),
+                 y = c(50, 55), n = 15, i = soa08Act@interest, m = 0, k = 1,
+                 status = st, payment = pay)
+    expect_equal(got, ref, tolerance = 1e-10, label = sprintf("axyz %s %s", st, pay))
+  }
+})
