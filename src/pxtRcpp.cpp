@@ -6,9 +6,10 @@ using namespace Rcpp;
 // [[Rcpp::export(.pxtCpp)]]
 NumericVector pxtCpp(NumericVector x, NumericVector t, NumericVector lx,
                      double omega, int fractional_method) {
-  const int nx = x.size();
-  const int nt = t.size();
-  const int n = std::max(nx, nt);
+  // R_xlen_t, not int: long vectors (> 2^31 - 1 elements) would be truncated.
+  const R_xlen_t nx = x.size();
+  const R_xlen_t nt = t.size();
+  const R_xlen_t n = std::max(nx, nt);
 
   if (nx == 0 || nt == 0) {
     return NumericVector(0);
@@ -18,7 +19,7 @@ NumericVector pxtCpp(NumericVector x, NumericVector t, NumericVector lx,
 
   // Recycle x and t directly instead of materialising rep(x, n) and
   // rep(t, n). This avoids two temporary allocations for large vectors.
-  for (int i = 0; i < n; ++i) {
+  for (R_xlen_t i = 0; i < n; ++i) {
     const double xi = x[i % nx];
     const double ti = t[i % nt];
 
@@ -32,18 +33,21 @@ NumericVector pxtCpp(NumericVector x, NumericVector t, NumericVector lx,
     const double floor_u = std::floor(u);
     const double eps_u = u - floor_u;
 
-    // Ages are integer indices into lx; keep the boundary behaviour of the
-    // original kernel while avoiding a per-iteration lambda and floor calls.
-    const int ix = static_cast<int>(floor_x);
-    const int ix1 = ix + 1;
-    const int ixu = ix + static_cast<int>(floor_u);
-    const int ixu1 = ixu + 1;
+    // Ages are kept as doubles and bounds-checked in get_lx(): converting huge,
+    // infinite or NaN values to int is undefined behaviour, and indexing lx
+    // beyond its length is an out-of-bounds read when omega >= length(lx).
+    const double ix = floor_x;
+    const double ix1 = ix + 1.0;
+    const double ixu = ix + floor_u;
+    const double ixu1 = ixu + 1.0;
 
-    auto get_lx = [&](int age) {
-      if (age < 0 || age > omega || age == omega + 1) {
+    const double lx_len = static_cast<double>(lx.size());
+    auto get_lx = [&](double age) {
+      // NaN fails the first comparison and is treated as out of range.
+      if (!(age >= 0.0) || age > omega || age >= lx_len) {
         return 0.0;
       }
-      return lx[age];
+      return lx[static_cast<R_xlen_t>(age)];
     };
 
     const double lfx = get_lx(ix);

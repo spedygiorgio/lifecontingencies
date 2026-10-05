@@ -377,10 +377,22 @@ rLifexyz <- function(n,tablesList,x,k=1, type="Tx")
 #' @param i The interest rate, whose default value is the \code{actuarialtable} interest rate slot value.
 #' @param m Deferring period, default value is zero.
 #' @param k Fractional payment, default value is 1.
-#' @param parallel Uses the parallel computation facility.
-#' @param payment The Payment type, either \code{"advance"} for the annuity due (default) 
-#' or \code{"arrears"} for the annuity immediate. 
-#' Alternatively, one can use \code{"due"} or \code{"immediate"} 
+#' @param parallel Request multi-threaded (OpenMP) computation of the per-sample
+#'   payoff. This is opt-in twice: it has an effect only if
+#'   \code{parallel = TRUE} \emph{and} the option
+#'   \code{options(lifecontingencies.openmp = TRUE)} has been set by the user;
+#'   otherwise the (already vectorised) sequential kernel is used. It is also a
+#'   no-op when the installed binary was built without OpenMP support (see
+#'   \code{lifecontingencies:::.hasOpenMP()}). Simulated lifetimes are drawn
+#'   in R before the parallel region, so results are identical with and without
+#'   parallelisation for a given seed.
+#' @param nthreads Number of OpenMP threads used when parallelisation is active.
+#'   Defaults to \code{NULL}, which falls back to
+#'   \code{getOption("lifecontingencies.nthreads", 2L)}; it is never set
+#'   automatically to the number of available cores.
+#' @param payment The Payment type, either \code{"advance"} for the annuity due (default)
+#' or \code{"arrears"} for the annuity immediate.
+#' Alternatively, one can use \code{"due"} or \code{"immediate"}
 #' respectively (can be abbreviated).
 #'
 #' @return A numeric vector
@@ -397,72 +409,39 @@ rLifexyz <- function(n,tablesList,x,k=1, type="Tx")
 #' 	#check if out distribution is unbiased
 #' 	t.test(x=out, mu=APV)$p.value>0.05
 #' }
-rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@interest, 
-		m = 0, k = 1, parallel = FALSE, payment="advance") 
+rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@interest,
+		m = 0, k = 1, parallel = FALSE, nthreads = NULL, payment="advance")
 {
   payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   lifecontingency <- testlifecontarg(lifecontingency)
-  
+  advance <- (payment == "due")  # testpaymentarg(): "advance"->"due", "arrears"->"immediate"
+
 	deathsTimeX = numeric(n)
-	outs = numeric(n)
-	if (k == 1) 
-		deathsTimeX = x + rLife(n = n, object = object, x = x, 
+	if (k == 1)
+		deathsTimeX = x + rLife(n = n, object = object, x = x,
 				k = k, type = "Kx")
-	else deathsTimeX = x + rLife(n = n, object = object, x = x, 
+	else deathsTimeX = x + rLife(n = n, object = object, x = x,
 				k = k, type = "Tx")
-	if (parallel == TRUE) {
-		#require(parallel)
-		type <- if (exists("mcfork", mode = "function")) 
-					"FORK"
-				else "PSOCK"
-		cores <- getOption("mc.cores", detectCores())
-		cl <- makeCluster(cores, type = type)
-		clusterExport(cl, varlist = c("presentValue", "annuity"))
-		if (lifecontingency == "Axn") 
-			outs = parSapply(cl = cl, deathsTimeX, .fAxn, y = x, 
-					n = t, i = i, m = m, k = k)
-		else if (lifecontingency == "Exn") 
-			outs = parSapply(cl = cl, deathsTimeX, .fExn, y = x, 
-					n = t, i = i)
-		else if (lifecontingency == "IAxn") 
-			outs = parSapply(cl = cl, deathsTimeX, .fIAxn, y = x, 
-					n = t, i = i, m = m, k = k)
-		else if (lifecontingency == "DAxn") 
-			outs = parSapply(cl = cl, deathsTimeX, .fDAxn, y = x, 
-					n = t, i = i, m = m, k = k)
-		else if (lifecontingency == "AExn") 
-			outs = parSapply(cl = cl, deathsTimeX, .fAExn, y = x, 
-					n = t, i = i, k = k)
-		else if (lifecontingency == "axn") {
-			if (missing(t)) 
-				t = getOmega(object) - x - m
-			outs = parSapply(cl = cl, deathsTimeX, .faxn, y = x, 
-					n = t, i = i, m = m, k = k, payment=payment)
-		}
-		stopCluster(cl)
-	}
-	#not parallel
-	else {
-		if (lifecontingency == "Axn") 
-			outs = sapply(deathsTimeX, .fAxnCpp, y = x, n = t, i = i, 
-					m = m, k = k)
-		else if (lifecontingency == "Exn") 
-			outs = sapply(deathsTimeX, .fExnCpp, y = x, n = t, i = i)
-		else if (lifecontingency == "IAxn") 
-			outs = sapply(deathsTimeX, .fIAxnCpp, y = x, n = t, 
-					i = i, m = m, k = k)
-		else if (lifecontingency == "DAxn") 
-			outs = sapply(deathsTimeX, .fDAxnCpp, y = x, n = t, 
-					i = i, m = m, k = k)
-		else if (lifecontingency == "AExn") 
-			outs = sapply(deathsTimeX, .fAExn, y = x, n = t, 
-					i = i, k = k)
-		else if (lifecontingency == "axn") {
-			if (missing(t)) 
-				t = getOmega(object) - x - m
-			outs = sapply(deathsTimeX, .faxn, y = x, n = t, i = i, 
-					m = m, k = k, payment=payment)
-		}
+
+	nt <- .resolve_nthreads(parallel, nthreads)
+
+	if (lifecontingency == "Axn")
+		outs <- .fAxnCppVec(deathsTimeX, y = x, n = t, i = i, m = m, k = k, nthreads = nt)
+	else if (lifecontingency == "Exn")
+		outs <- .fExnCppVec(deathsTimeX, y = x, n = t, i = i, nthreads = nt)
+	else if (lifecontingency == "IAxn")
+		outs <- .fIAxnCppVec(deathsTimeX, y = x, n = t, i = i, m = m, k = k, nthreads = nt)
+	else if (lifecontingency == "DAxn")
+		outs <- .fDAxnCppVec(deathsTimeX, y = x, n = t, i = i, m = m, k = k, nthreads = nt)
+	else if (lifecontingency == "AExn")
+		outs <- .fAExnCppVec(deathsTimeX, y = x, n = t, i = i, k = k, nthreads = nt)
+	else if (lifecontingency == "axn") {
+		if (missing(t))
+			t = getOmega(object) - x - m
+		outs <- .faxnCppVec(deathsTimeX, y = x, n = t, i = i, m = m, k = k,
+		                    advance = advance, nthreads = nt)
+	} else {
+		stop("Unsupported lifecontingency ", lifecontingency)
 	}
 	return(outs)
 }
@@ -522,13 +501,15 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
 #' } 
 #' @export
 
-rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i, 
-		m=0,k=1, status="joint", parallel=FALSE, payment="advance")
+rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
+		m=0,k=1, status="joint", parallel=FALSE, nthreads=NULL, payment="advance")
 {
   payment <- testpaymentarg(payment) # "advance"->"due"; "arrears"->"immediate"
   lifecontingency <- testlifecontarg2(lifecontingency)
   status <- teststatusarg(status)
-  
+  advance <- (payment == "due")  # testpaymentarg(): "advance"->"due", "arrears"->"immediate"
+  joint <- (status == "joint")
+
 	numTables=length(tablesList)
 	#gets the missing i
 	if(missing(i)) {
@@ -544,41 +525,51 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
 		temp=omega-x-m
 		#t=min(temp) #see below correction 5th Jan 2014
 		t <- ifelse(status=="joint",min(temp),max(temp)) #FIX by Kevin Owens
-	} 	
-
-	temp=matrix(nrow=n, ncol=numTables)
-	outs=numeric(n)
-	#fractional payment are handled using countinuous lifetime simulation
-	if(k==1) temp=x+rLifexyz(n=n,tablesList=tablesList,x=x, k=k,type="Kx") 
-	else temp=x+rLifexyz(n=n,tablesList=tablesList,x=x,k=k,type="Tx") #this to handle fractional payments (assume continuous...)
-
-	deathsTimeX<-temp	
-	if(parallel==TRUE) {
-		#set up parallel library
-		#require(parallel)
-		type <- if (exists("mcfork", mode="function")) "FORK" else "PSOCK"
-		cores <- getOption("mc.cores", detectCores())
-		cl <- makeCluster(cores, type=type)
-		clusterExport(cl, varlist=c("presentValue","annuity")) #richiesto da axn
-		if(lifecontingency=="Axyz") 
-			outs<-parApply(cl=cl, deathsTimeX, 1,.fAxyzn,y=x,n=t, i=interest,m=m,k=k,status=status)
-		else if(lifecontingency=="axyz") 
-		{			
-			outs<-parApply(cl=cl,deathsTimeX, 1,.faxyzn,y=x,n=t,i=interest,m=m,k=k,status=status,payment=payment)
-		}
-		#stops the cluster
-
-		stopCluster(cl)
-	} else {
-		#serial version
-		if(lifecontingency=="Axyz") 
-			outs<-apply( deathsTimeX, 1, .fAxyzn,y=x,n=t, i=interest,m=m,k=k,status=status)
-		else if(lifecontingency=="axyz") 
-		{
-			outs<-apply(deathsTimeX, 1, .faxyzn,y=x,n=t, i=interest,m=m,k=k,status=status,payment=payment)
-		}
 	}
+
+	#fractional payment are handled using countinuous lifetime simulation
+	#the issue age of each life must be added column-wise: x + <n x numTables matrix> would recycle
+	#x down the column-major storage, mixing the ages across lives when they differ
+	agesMatrix <- matrix(x, nrow=n, ncol=numTables, byrow=TRUE)
+	if(k==1) temp=agesMatrix+rLifexyz(n=n,tablesList=tablesList,x=x, k=k,type="Kx")
+	else temp=agesMatrix+rLifexyz(n=n,tablesList=tablesList,x=x,k=k,type="Tx") #this to handle fractional payments (assume continuous...)
+
+	deathsTimeX<-temp
+	if (!is.matrix(deathsTimeX)) {
+		deathsTimeX <- matrix(deathsTimeX, nrow = n, ncol = numTables)
+	}
+	storage.mode(deathsTimeX) <- "double"
+
+	nt <- .resolve_nthreads(parallel, nthreads)
+
+	if(lifecontingency=="Axyz")
+		outs <- .fAxyznCppVec(deathsTimeX, y = as.double(x), n = t, i = interest,
+		                     m = m, k = k, joint = joint, nthreads = nt)
+	else if(lifecontingency=="axyz")
+		outs <- .faxyznCppVec(deathsTimeX, y = as.double(x), n = t, i = interest,
+		                     m = m, k = k, joint = joint, advance = advance,
+		                     nthreads = nt)
+	else
+		stop("Unsupported multi-life lifecontingency ", lifecontingency)
+
 	return(outs)
+}
+
+# Resolve the thread count passed to the OpenMP-aware kernels. Parallelism is
+# strictly opt-in: it requires parallel = TRUE AND options(lifecontingencies.openmp
+# = TRUE), and a binary built with OpenMP. In every other case returns 1.
+# The thread count is nthreads, else options(lifecontingencies.nthreads), else 2
+# (conservative default, also in line with the CRAN limit of 2 cores).
+.resolve_nthreads <- function(parallel, nthreads) {
+	if (!isTRUE(parallel)) return(1L)
+	if (!isTRUE(getOption("lifecontingencies.openmp", FALSE))) return(1L)
+	if (!isTRUE(.hasOpenMP())) return(1L)
+	if (is.null(nthreads)) {
+		nthreads <- getOption("lifecontingencies.nthreads", 2L)
+	}
+	nthreads <- suppressWarnings(as.integer(nthreads))
+	if (length(nthreads) != 1L || is.na(nthreads) || nthreads < 1L) nthreads <- 1L
+	nthreads
 }
 
 

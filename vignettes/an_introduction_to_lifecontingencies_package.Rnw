@@ -1679,6 +1679,18 @@ sample with the theoretical APV using a classical t - test. All examples refer
 to an individual aged 20 with a 40 year insurance.
 Figure~\ref{fig:Zdistrs} shows the resulting $\tilde Z$ distributions.
 
+\paragraph{Note on performance.} The present values of the simulated lives are
+computed by vectorized \proglang{C++} kernels, so that large samples are
+generated much faster than with an element-wise loop. Multi-threaded
+computation through OpenMP is available but strictly opt-in: it requires both
+\code{parallel = TRUE} and \code{options(lifecontingencies.openmp = TRUE)}; the
+number of threads is set by the \code{nthreads} argument or by
+\code{options(lifecontingencies.nthreads)} (default 2). When the option is not
+set, or the package was built without OpenMP support, the sequential kernel is
+used. Results do not depend on the number of threads, as lifetimes are drawn
+in \proglang{R} before the parallel step. All examples below use the default,
+sequential, setting.
+
 <<AxnAPVAndStochastic,keep.source=TRUE>>=
 APVAxn <- Axn(soa08Act,x=25,n=40,type="EV")
 APVAxn
