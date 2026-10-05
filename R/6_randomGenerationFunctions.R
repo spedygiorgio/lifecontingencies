@@ -377,17 +377,19 @@ rLifexyz <- function(n,tablesList,x,k=1, type="Tx")
 #' @param i The interest rate, whose default value is the \code{actuarialtable} interest rate slot value.
 #' @param m Deferring period, default value is zero.
 #' @param k Fractional payment, default value is 1.
-#' @param parallel If \code{TRUE}, OpenMP is used to parallelise the per-sample
-#'   payoff computation across threads (one C++ loop, no R-level cluster
-#'   startup). The number of threads is taken from \code{nthreads}, defaulting
-#'   to \code{getOption("lifecontingencies.nthreads", parallel::detectCores())}.
-#'   When the installed binary was built without OpenMP support the flag is a
-#'   no-op and the sequential vectorised kernel is used instead; the sequential
-#'   kernel is itself much faster than the previous scalar \code{sapply} path,
-#'   so leaving \code{parallel = FALSE} is often enough.
-#' @param nthreads Number of OpenMP threads to request when \code{parallel = TRUE}.
-#'   Ignored otherwise. Defaults to \code{NULL}, which falls back to the option
-#'   \code{lifecontingencies.nthreads} or \code{parallel::detectCores()}.
+#' @param parallel Request multi-threaded (OpenMP) computation of the per-sample
+#'   payoff. This is opt-in twice: it has an effect only if
+#'   \code{parallel = TRUE} \emph{and} the option
+#'   \code{options(lifecontingencies.openmp = TRUE)} has been set by the user;
+#'   otherwise the (already vectorised) sequential kernel is used. It is also a
+#'   no-op when the installed binary was built without OpenMP support (see
+#'   \code{lifecontingencies:::.hasOpenMP()}). Simulated lifetimes are drawn
+#'   in R before the parallel region, so results are identical with and without
+#'   parallelisation for a given seed.
+#' @param nthreads Number of OpenMP threads used when parallelisation is active.
+#'   Defaults to \code{NULL}, which falls back to
+#'   \code{getOption("lifecontingencies.nthreads", 2L)}; it is never set
+#'   automatically to the number of available cores.
 #' @param payment The Payment type, either \code{"advance"} for the annuity due (default)
 #' or \code{"arrears"} for the annuity immediate.
 #' Alternatively, one can use \code{"due"} or \code{"immediate"}
@@ -550,21 +552,20 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
 	return(outs)
 }
 
-# Resolve the thread count passed to the OpenMP-aware kernels. Returns 1 when
-# parallel = FALSE or when the shared library was built without OpenMP support;
-# otherwise returns the requested value clamped to the number of detected cores.
+# Resolve the thread count passed to the OpenMP-aware kernels. Parallelism is
+# strictly opt-in: it requires parallel = TRUE AND options(lifecontingencies.openmp
+# = TRUE), and a binary built with OpenMP. In every other case returns 1.
+# The thread count is nthreads, else options(lifecontingencies.nthreads), else 2
+# (conservative default, also in line with the CRAN limit of 2 cores).
 .resolve_nthreads <- function(parallel, nthreads) {
 	if (!isTRUE(parallel)) return(1L)
+	if (!isTRUE(getOption("lifecontingencies.openmp", FALSE))) return(1L)
 	if (!isTRUE(.hasOpenMP())) return(1L)
 	if (is.null(nthreads)) {
-		nthreads <- getOption("lifecontingencies.nthreads", NULL)
+		nthreads <- getOption("lifecontingencies.nthreads", 2L)
 	}
-	if (is.null(nthreads)) {
-		nthreads <- tryCatch(parallel::detectCores(logical = TRUE),
-		                     error = function(e) 1L)
-	}
-	nthreads <- as.integer(nthreads)
-	if (is.na(nthreads) || nthreads < 1L) nthreads <- 1L
+	nthreads <- suppressWarnings(as.integer(nthreads))
+	if (length(nthreads) != 1L || is.na(nthreads) || nthreads < 1L) nthreads <- 1L
 	nthreads
 }
 

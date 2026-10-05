@@ -155,8 +155,39 @@ test_that("rLifeContingencies gives an unbiased estimator (sanity check)", {
   expect_lt(abs(mean(out) - APV), 3 * sd(out) / sqrt(length(out)))
 })
 
+test_that(".resolve_nthreads is opt-in via options(lifecontingencies.openmp)", {
+  resolve <- getFromNamespace(".resolve_nthreads", "lifecontingencies")
+  old <- options(lifecontingencies.openmp = NULL, lifecontingencies.nthreads = NULL)
+  on.exit(options(old), add = TRUE)
+
+  # parallel = FALSE never parallelises, whatever the options say
+  options(lifecontingencies.openmp = TRUE)
+  expect_identical(resolve(FALSE, 4L), 1L)
+
+  # parallel = TRUE without the option is ignored
+  options(lifecontingencies.openmp = NULL)
+  expect_identical(resolve(TRUE, 4L), 1L)
+  options(lifecontingencies.openmp = FALSE)
+  expect_identical(resolve(TRUE, 4L), 1L)
+
+  # with the option, threads follow nthreads / option / default of 2
+  # (only meaningful if the binary was built with OpenMP)
+  options(lifecontingencies.openmp = TRUE)
+  if (lifecontingencies:::.hasOpenMP()) {
+    expect_identical(resolve(TRUE, 3L), 3L)
+    expect_identical(resolve(TRUE, NULL), 2L)
+    options(lifecontingencies.nthreads = 5L)
+    expect_identical(resolve(TRUE, NULL), 5L)
+    expect_identical(resolve(TRUE, "bad"), 1L)
+  } else {
+    expect_identical(resolve(TRUE, 3L), 1L)
+  }
+})
+
 test_that("parallel = TRUE produces the same result as parallel = FALSE", {
   skip_on_cran()
+  old <- options(lifecontingencies.openmp = TRUE, lifecontingencies.nthreads = 2L)
+  on.exit(options(old), add = TRUE)
   seed <- 20261004L
   set.seed(seed)
   seq_run <- rLifeContingencies(n = 5000, lifecontingency = "Axn",
@@ -167,7 +198,6 @@ test_that("parallel = TRUE produces the same result as parallel = FALSE", {
                                 object = soa08Act, x = 50,
                                 t = 20, m = 0, parallel = TRUE)
   # Deaths come from rLife (R-level RNG) so with the same seed the two paths
-  # must agree exactly down to the last bit — the parallel flag only affects
-  # how the payoff is computed, not the sampled lives.
+  # must agree exactly: the parallel flag only affects the payoff computation.
   expect_identical(par_run, seq_run)
 })
