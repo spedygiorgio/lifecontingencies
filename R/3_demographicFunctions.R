@@ -23,30 +23,43 @@
 
 
 
+## ---------------------------------------------------------------------------
+## dxt(), pxt() and qxt() are S4 generics (since 1.6.3) with methods for
+## "lifetable" (hence also "actuarialtable", which extends it) and "mdt".
+## Previously they were plain functions dispatching by hand on class(object);
+## the signatures and the numerical results are unchanged. A new table class
+## only needs to register its own methods. The "ANY" methods keep the
+## historical error message for unsupported objects.
+## ---------------------------------------------------------------------------
+
+.UNSUPPORTED_TABLE_MSG <- "Error! Only lifetable, actuarialtable or mdt classes are accepted"
+
 #number of deaths between age x and x+t
-dxt <- function(object, x, t, decrement) {
-  #checks
+setGeneric("dxt", function(object, x, t, decrement) standardGeneric("dxt"),
+           signature = "object")
+
+setMethod("dxt", "ANY", function(object, x, t, decrement)
+  stop(.UNSUPPORTED_TABLE_MSG))
+
+setMethod("dxt", "mdt", function(object, x, t, decrement) {
+  if (missing(x))
+    stop("Error! Missing x")
+  if (missing(t))
+    t <- 1
+  if (!missing(decrement))
+    .dxt.mdt(object = object, x = x, time = t, decrement = decrement)
+  else
+    .dxt.mdt(object = object, x = x, time = t)
+})
+
+setMethod("dxt", "lifetable", function(object, x, t, decrement) {
   out <- numeric(1)
-  if (!(class(object) %in% c("lifetable","actuarialtable","mdt")))
-    stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
   if (missing(x))
     stop("Error! Missing x")
   if (missing(t))
     t = 1
   omega = getOmega(object) #prima object+1
-  if (is(object,"mdt")) {
-    #call specific function for MDT class
-    if (!missing(decrement))
-      out <-
-        .dxt.mdt(
-          object = object, x = x, time = t, decrement = decrement
-        )
-    else
-      out <- .dxt.mdt(object = object, x = x, time = t)
-  } else {
-    #		if(missing(x)) stop("Error! Missing x")
-    #		if(missing(t)) t=1
-    #		omega=getOmega(object) #prima object+1
+  {
     #check if fractional
     if ((t %% 1) == 0) {
       lx = object@lx[which(object@x == x)]
@@ -64,37 +77,26 @@ dxt <- function(object, x, t, decrement) {
     }
   }
   return(out)
-}
+})
 
 #survival probability between age x and x+t
-pxt <- function(object, x, t, fractional = "linear", decrement)
-{
-  #checks
-  if (!(class(object) %in% c("lifetable","actuarialtable","mdt")))
-    stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
-  
-  fractional <- testfractionnalarg(fractional)
-  if(!missing(decrement))
-  {
-    stopifnot(class(decrement) %in% c("numeric", "character"))
-    #convert to character string
-    if (is.numeric(decrement)) 
-      decrement<-getDecrements(object)[decrement]
-    stopifnot(decrement %in% names(object@table))
-  }
-  
-  #class(object) %in% c("lifetable","actuarialtable") 
-  if (missing(x))
-    stop("Missing x")
+setGeneric("pxt",
+           function(object, x, t, fractional = "linear", decrement)
+             standardGeneric("pxt"),
+           signature = "object")
+
+setMethod("pxt", "ANY",
+          function(object, x, t, fractional = "linear", decrement)
+            stop(.UNSUPPORTED_TABLE_MSG))
+
+# Shared argument checks and x/t recycling for the pxt() methods.
+.pxtPrepareArgs <- function(x, t) {
   if (any(x < 0, t < 0))
     stop("Check x or t domain")
-  if (missing(t))
-    t = 1 #default 1
   if(length(x) <= 0)
     stop("x is of length zero")
   if(length(t) <= 0)
     stop("t is of length zero")
-  
   n <- max(length(t), length(x))
   if(length(t) != length(x))
   {
@@ -103,71 +105,79 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
     t <- rep(t, length.out=n)
     x <- rep(x, length.out=n)
   }
-  
-  
-  #adjustment when age x is not an integer 
+  list(x = x, t = t, n = n)
+}
+
+# Validates a (possibly multiple) decrement specification against an mdt and
+# returns the corresponding column names.
+.mdtDecrementNames <- function(object, decrement) {
+  stopifnot(class(decrement) %in% c("numeric", "integer", "character"))
+  if (is.numeric(decrement))
+    decrement <- getDecrements(object)[decrement]
+  if (length(decrement) == 0 || anyNA(decrement) ||
+      !all(decrement %in% getDecrements(object)))
+    stop("Error! Not recognized decrement type")
+  unique(decrement)
+}
+
+# Probability tq_x^(J) of leaving an mdt within t years because of any of the
+# decrements in J, vectorised over x and t. Integer ages are required;
+# fractional durations are interpolated linearly (UDD within the year), i.e.
+# tq_x^(J) = [sum_{k<floor(t)} d_{x+k}^(J) + frac(t) d_{x+floor(t)}^(J)] / l_x.
+#
+# This replaces an optimised branch of pxt() that rebuilt a pseudo "lx" from
+# the decrement-specific counts alone and returned wrong results (NaN or
+# values outside [0,1]) whenever the first row of the table had no zero cells.
+.qxtDecrementMdt <- function(object, x, t, decrement) {
+  tbl <- object@table
+  dj <- rowSums(as.matrix(tbl[, decrement, drop = FALSE]))
+  ages <- tbl$x
+  nr <- length(ages)
+  cumd <- c(0, cumsum(dj))
+  ix <- match(x, ages)
+  if (anyNA(ix))
+    stop("Error! Ages must be integers tabulated in the mdt: ",
+         paste(unique(x[is.na(ix)]), collapse = ", "))
+  t0 <- floor(t)
+  fr <- t - t0
+  endRow <- pmin(ix + t0, nr + 1L)          # exclusive end in 1..nr+1
+  num <- cumd[endRow] - cumd[ix]
+  fracRow <- ix + t0
+  fracD <- ifelse(fr > 0 & fracRow <= nr, dj[pmin(fracRow, nr)], 0)
+  as.numeric((num + fr * fracD) / tbl$lx[ix])
+}
+
+# Survival probability from an (x, lx) series with the package's fractional
+# age/duration conventions; used by the mdt method (total decrement).
+.pxtFromLxSeries <- function(myx, mylx, omega, x, t, fractional) {
+  names(mylx) <- paste0("x", c(myx, omega+1))
+
+  #adjustment when age x is not an integer
   floorx <- floor(x) #compute floor(x)
   eps_x <- x - floorx #compute epsilon x
   u <- t+eps_x #add epsilon x to time t
   flooru <- floor(u) #compute floor(u)
   eps_u <- u - flooru #compute epsilon t
-  
-  #local lifetable data closed at maximum age
-  omega <- getOmega(object)
-  if (is(object,"mdt"))
-  {  
-    if(missing(decrement))
-    {
-      myx <- object@table$x
-      mylx <- c(object@table$lx, 0)
-    }else 
-    {
-      decrement.cols <- which(names(object@table) == decrement)
-      
-      #check decrement table does not have missing/zero values
-      l0 <- object@table[1, decrement.cols]
-      #if yes use older function
-      if(any(object@table[1, -1] == 0) || any(is.na(object@table[1, -1])))
-      {
-        getqxt <- function(i)
-          .qxt.mdt(object = object, x = x[i], t = t[i], decrement = decrement)
-        return(1 - sapply(1:n, getqxt))
-      }
-      #otherwise compute lx from full decrement table containing nb of deaths
-      myx <- object@table$x
-      mydx <- object@table[, decrement.cols]
-      mylx <- c(l0-cumsum(mydx), 0)
-    }
-    
-  }else #lifetable or actuarialtable
-  {
-    # Native kernel: an exact port of the name-based lookup and fractional-age
-    # adjustment below (same results bit for bit, NaN cases included).
-    method <- switch(fractional, "linear" = 0L, "constant force" = 1L,
-                     "hyperbolic" = 2L)
-    return(.pxtLifetableCpp(x, t, c(object@lx, 0), object@x[1], method))
-  }
-  names(mylx) <- paste0("x", c(myx, omega+1))
-  
+
   #get l_floor(x) and consecutive
   l_floorx <- mylx[paste0("x", floorx)]
   l_floorxp1 <- mylx[paste0("x", floorx+1)]
   #get l_floor(x+t) and consecutive
   l_floorxu <- mylx[paste0("x", floorx+flooru)]
   l_floorxup1 <- mylx[paste0("x", floorx+flooru+1)]
-  
-  #compute one-year survival probabilites 
-  flooru_p_floorx <- l_floorxu / l_floorx 
+
+  #compute one-year survival probabilites
+  flooru_p_floorx <- l_floorxu / l_floorx
   floorup1_p_floorx <- l_floorxup1 / l_floorx
   one_p_floorxu <- l_floorxup1 / l_floorxu
-  one_p_floorx <- l_floorxp1 / l_floorx 
-  
+  one_p_floorx <- l_floorxp1 / l_floorx
+
   #may contains NA if x or x+t is above omega => set to 0
-  flooru_p_floorx[is.na(flooru_p_floorx)] <- 0 
-  floorup1_p_floorx[is.na(floorup1_p_floorx)] <- 0 
+  flooru_p_floorx[is.na(flooru_p_floorx)] <- 0
+  floorup1_p_floorx[is.na(floorup1_p_floorx)] <- 0
   one_p_floorxu[is.na(one_p_floorxu)] <- 0
   one_p_floorx[is.na(one_p_floorx)] <- 0
-  
+
   #adjustment when t is not integer
   if (fractional == "linear") {
     u_p_floorx <- flooru_p_floorx * (1 - eps_u*(1-one_p_floorxu))
@@ -177,17 +187,51 @@ pxt <- function(object, x, t, fractional = "linear", decrement)
   } else if (fractional == "hyperbolic") {
     u_p_floorx <- flooru_p_floorx * one_p_floorxu / (1 - (1-eps_u)*(1-one_p_floorxu))
   }
-  
+
   #adjustment when age x is not an integer (otherwise equal 1)
   if (fractional == "linear") {
     eps_x_p_floorx <-  1 - eps_x * (1-one_p_floorx)
   } else if (fractional == "constant force") {
-    eps_x_p_floorx <- one_p_floorx^eps_x 
+    eps_x_p_floorx <- one_p_floorx^eps_x
   } else if (fractional == "hyperbolic") {
     eps_x_p_floorx <- one_p_floorx / (1 - (1-eps_x)*(1-one_p_floorx))
   }
   as.numeric(u_p_floorx / eps_x_p_floorx)
 }
+
+setMethod("pxt", "lifetable",
+          function(object, x, t, fractional = "linear", decrement) {
+  fractional <- testfractionnalarg(fractional)
+  if (missing(x))
+    stop("Missing x")
+  if (missing(t))
+    t <- 1 #default 1
+  a <- .pxtPrepareArgs(x, t)
+  # Native kernel: an exact port of the name-based lookup and fractional-age
+  # adjustment (same results bit for bit, NaN cases included).
+  method <- switch(fractional, "linear" = 0L, "constant force" = 1L,
+                   "hyperbolic" = 2L)
+  .pxtLifetableCpp(a$x, a$t, c(object@lx, 0), object@x[1], method)
+})
+
+setMethod("pxt", "mdt",
+          function(object, x, t, fractional = "linear", decrement) {
+  fractional <- testfractionnalarg(fractional)
+  if (missing(x))
+    stop("Missing x")
+  if (missing(t))
+    t <- 1 #default 1
+  a <- .pxtPrepareArgs(x, t)
+  if (!missing(decrement)) {
+    decrement <- .mdtDecrementNames(object, decrement)
+    if (fractional != "linear" && any(a$t %% 1 != 0))
+      warning("Decrement-specific probabilities on an mdt use linear (UDD) interpolation for fractional t; 'fractional' is ignored")
+    return(1 - .qxtDecrementMdt(object, a$x, a$t, decrement))
+  }
+  .pxtFromLxSeries(myx = object@table$x, mylx = c(object@table$lx, 0),
+                   omega = getOmega(object), x = a$x, t = a$t,
+                   fractional = fractional)
+})
 
 #survival probability between age x and x+t
 pxtold <- function(object, x, t, fractional = "linear", decrement)
@@ -417,22 +461,29 @@ mxt <- function(object,x,t)
 }
 
 #death probability
-qxt <- function(object, x, t, fractional="linear", decrement)
-{
-	out<-NULL
-	#checks
-	if(!(class(object) %in% c("lifetable","actuarialtable","mdt"))) 
-	  stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
-	if(missing(x)) 
+setGeneric("qxt",
+           function(object, x, t, fractional = "linear", decrement)
+             standardGeneric("qxt"),
+           signature = "object")
+
+setMethod("qxt", "ANY",
+          function(object, x, t, fractional = "linear", decrement)
+            stop(.UNSUPPORTED_TABLE_MSG))
+
+# Same body for lifetable and mdt: complement of pxt().
+.qxtComplement <- function(object, x, t, fractional = "linear", decrement) {
+	if(missing(x))
 	  stop("Missing x")
-	if(any(x<0,t<0)) 
-	  stop("Check x or t domain")
-	if(missing(t)) 
+	if(missing(t))
 	  t<-1 #default 1
+	if(any(x<0,t<0))
+	  stop("Check x or t domain")
 	#complement of pxt
-	out <- 1 - pxt(object=object, x=x, t=t, fractional=fractional, decrement=decrement)
-	return(out)
+	1 - pxt(object=object, x=x, t=t, fractional=fractional, decrement=decrement)
 }
+
+setMethod("qxt", "lifetable", .qxtComplement)
+setMethod("qxt", "mdt", .qxtComplement)
 
 qxtold <- function(object, x, t, fractional="linear", decrement)
 {

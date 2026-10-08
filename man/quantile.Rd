@@ -2,9 +2,10 @@
 % Please edit documentation in R/9_demographicExtras.R
 \name{quantile}
 \alias{quantile}
+\alias{quantile,lifetable-method}
 \title{Quantiles of the age-at-death distribution of a life table}
 \usage{
-quantile(x, ...)
+\S4method{quantile}{lifetable}(x, probs = seq(0, 1, 0.25), age = min(x@x), names = TRUE, ...)
 }
 \arguments{
 \item{x}{A \code{lifetable} or \code{actuarialtable} object.}

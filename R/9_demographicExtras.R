@@ -130,6 +130,8 @@ NULL
 #' data(soa08Act)
 #' median(soa08Act)              # median age at death from birth
 #' median(soa08Act, age = 65)    # median age at death given survival to 65
+#' @usage \S4method{median}{lifetable}(x, na.rm = FALSE, ...)
+#' @aliases median,lifetable-method
 #' @exportMethod median
 setGeneric("median")
 setMethod("median", signature(x = "lifetable"),
@@ -159,6 +161,8 @@ setMethod("median", signature(x = "lifetable"),
 #' data(soa08Act)
 #' quantile(soa08Act)
 #' quantile(soa08Act, probs = c(0.1, 0.9), age = 65)
+#' @usage \S4method{quantile}{lifetable}(x, probs = seq(0, 1, 0.25), age = min(x@x), names = TRUE, ...)
+#' @aliases quantile,lifetable-method
 #' @exportMethod quantile
 setGeneric("quantile")
 setMethod("quantile", signature(x = "lifetable"),

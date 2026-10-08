@@ -33,6 +33,7 @@ Suggests:
     knitr,
     formatR,
     StMoMo,
+    survival,
     rmarkdown,
     quarto
 License: MIT + file LICENSE

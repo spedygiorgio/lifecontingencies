@@ -2,9 +2,10 @@
 % Please edit documentation in R/9_demographicExtras.R
 \name{median}
 \alias{median}
+\alias{median,lifetable-method}
 \title{Median age at death of a life table}
 \usage{
-median(x, na.rm = FALSE, ...)
+\S4method{median}{lifetable}(x, na.rm = FALSE, ...)
 }
 \arguments{
 \item{x}{A \code{lifetable} or \code{actuarialtable} object.}

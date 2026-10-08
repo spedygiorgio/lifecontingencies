@@ -2,34 +2,76 @@
 % Please edit documentation in R/8_mdtFunctions.R
 \name{Axn.mdt}
 \alias{Axn.mdt}
-\title{Multiple decrement life insurance}
+\alias{axn.mdt}
+\title{Multiple decrement insurances and annuities}
 \usage{
-Axn.mdt(object, x, n, i, decrement)
+Axn.mdt(object, x, n, i, decrement, benefits = 1, m = 0)
+
+axn.mdt(object, x, n, i, m = 0, k = 1, payment = "advance")
 }
 \arguments{
-\item{object}{an \code{mdt} or \code{actuarialtable} object}
+\item{object}{an \code{mdt} object}
 
-\item{x}{policyholder's age}
+\item{x}{policyholder's age (an integer age tabulated in \code{object})}
 
-\item{n}{contract duration}
+\item{n}{contract duration in years. If missing, the cover runs to the end
+of the table, i.e. \eqn{n = \omega + 1 - x - m}.}
 
 \item{i}{interest rate}
 
-\item{decrement}{decrement category}
+\item{decrement}{decrement(s) covered: one or more names (or column
+indices) among \code{getDecrements(object)}. If missing, every decrement
+is covered (insurance on the total decrement \eqn{(\tau)}).}
+
+\item{benefits}{benefit amounts, one per element of \code{decrement}
+(recycled). Default 1, i.e. a unit benefit for every covered cause.}
+
+\item{m}{deferment period in years (default 0).}
+
+\item{k}{number of annuity payments per year (default 1). Survival
+probabilities at fractional durations are interpolated linearly in
+\eqn{l^{(\tau)}_x}.}
+
+\item{payment}{\code{"advance"} (or \code{"due"}, default) or
+\code{"arrears"} (or \code{"immediate"}).}
 }
 \value{
-The scalar representing APV of the insurance
+A numeric vector of APVs (one per element of \code{x}).
 }
 \description{
-Function to evaluate multiple decrement insurances
+\code{Axn.mdt} gives the actuarial present value (APV) of a
+  term insurance on a multiple decrement table, paying at the end of the
+  year of decrement a benefit that may depend on the cause of decrement.
+  \code{axn.mdt} gives the APV of an annuity payable while the insured is
+  still in the active (no decrement yet) state.
 }
-\section{Warning}{
- The function is experimental and very basic. Testing is still needed. Use at own risk!
+\details{
+With \eqn{v = (1+i)^{-1}} the insurance APV is
+\deqn{\sum_{j \in J} b_j \sum_{h=0}^{n-1} v^{m+h+1}\,{}_{m+h}p^{(\tau)}_x\, q^{(j)}_{x+m+h},}
+which for a single cause reduces to the historical \code{Axn.mdt}. The
+annuity APV is \eqn{\frac1k \sum_{h} v^{t_h}\, {}_{t_h}p^{(\tau)}_x}, with
+payment times \eqn{t_h = m, m+1/k, \ldots, m+n-1/k} (in advance) or
+\eqn{m+1/k, \ldots, m+n} (in arrears). Benefit premiums and reserves follow
+from the equivalence principle as ratios/differences of the two.
 }
-
 \examples{
-#creates a temporary mdt
-myTable<-data.frame(x=41:43,lx=c(800,776,752),d1=rep(8,3),d2=rep(16,3))
-myMdt<-new("mdt",table=myTable,name="ciao")
-Axn.mdt(myMdt, x=41,n=2,i=.05,decrement="d2")
+# Finan (2014), Example 69.1: 3-year term on (16), i = 10\%
+myTable <- data.frame(x = 16:18, lx = c(20000, 17600, 14520),
+                      da = c(1300, 1870, 2380), doc = c(1100, 1210, 1331))
+myMdt <- new("mdt", table = myTable, name = "Finan 69.1")
+A <- Axn.mdt(myMdt, x = 16, n = 3, i = 0.10, decrement = "doc")
+a <- axn.mdt(myMdt, x = 16, n = 3, i = 0.10)
+20000 * A / a   # level annual premium: 1250
+
+# Finan (2014), Example 68.1: benefit 1 for cause 1, 2 for cause 2
+t681 <- data.frame(x = 50:51, lx = c(1200, 800),
+                   d1 = c(100, 200), d2 = c(300, 300))
+m681 <- new("mdt", table = t681)
+Axn.mdt(m681, x = 50, n = 2, i = 0.5, decrement = c("d1", "d2"),
+        benefits = c(1, 2))  # 0.6852
+
+}
+\references{
+Finan, M. B. (2014). \emph{A Reading of the Theory of Life
+  Contingency Models: A Preparation for Exam MLC/3L}, Sections 68-69.
 }

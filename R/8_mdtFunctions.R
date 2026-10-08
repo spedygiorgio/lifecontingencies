@@ -34,18 +34,25 @@
 	if(missing(decrement)) {
 		decrement.cols<-which(!(names(object@table) %in% c("lx","x")))
 	} else {
-		if (is.numeric(decrement)) decrement<-getDecrements(object)[decrement]
-		# Guard against a mistyped/unknown decrement name: without this check
-		# decrement.cols would silently be integer(0) and the function would
-		# return 0 instead of signalling the error, unlike pxt()/qxt() which
-		# already validate decrement via stopifnot().
-		if (!(decrement %in% names(object@table)))
-			stop("Error! Not recognized decrement type")
-		decrement.cols<-which(names(object@table)==decrement)
+		# Validates the name(s) (an unknown decrement is an error, not a silent
+		# 0) and accepts several decrements at once, whose counts are summed.
+		decrement <- .mdtDecrementNames(object, decrement)
+		decrement.cols<-which(names(object@table) %in% decrement)
 	}
-		ages2consider<-x+0:(time-1)
-		age.rows<-which(object@table$x %in% ages2consider)
-		out<-sum(object@table[age.rows,decrement.cols])
+		# Integer part of the duration, plus a linear (UDD) share of the next
+		# year's decrements for a fractional duration.
+		intTime <- floor(time)
+		fracTime <- time - intTime
+		if (intTime > 0) {
+			ages2consider<-x+0:(intTime-1)
+			age.rows<-which(object@table$x %in% ages2consider)
+			out<-sum(object@table[age.rows,decrement.cols])
+		}
+		if (fracTime > 0) {
+			nextRow <- which(object@table$x == x + intTime)
+			if (length(nextRow) == 1)
+				out <- out + fracTime * sum(object@table[nextRow, decrement.cols])
+		}
 	invisible(out)
 }
 
@@ -136,7 +143,11 @@ qxt.fromQxprime <-function(qx.prime, other.qx.prime, t=1) {
 #'
 #' @param object An \code{mdt} object.
 #' @param x Optional numeric vector of ages to include.  Defaults to all ages
-#'   tabulated in \code{object} except the last (which has no decrement data).
+#'   tabulated in \code{object} except the last. Note that this includes the
+#'   synthetic ages that \code{new("mdt", ...)} adds below the lowest age
+#'   supplied (e.g. ages 0-49 for a table given from age 50), whose
+#'   decrements are all attributed to the first cause: pass \code{x}
+#'   explicitly to restrict the result to the ages actually supplied.
 #' @param t Period (default 1).
 #'
 #' @return A numeric matrix with one row per age and one column per decrement.
@@ -154,8 +165,8 @@ qxt.fromQxprime <-function(qx.prime, other.qx.prime, t=1) {
 #'   other = c(4293, 5162, 5960, 6840, 7631))
 #' valdezMdt <- new("mdt", name = "ValdezExample", table = valdezDf)
 #'
-#' # Full ASDT matrix
-#' independentRatesFromMdt(valdezMdt)
+#' # ASDT matrix on the ages actually supplied
+#' independentRatesFromMdt(valdezMdt, x = 50:54)
 #'
 #' # Subset of ages
 #' independentRatesFromMdt(valdezMdt, x = 50:52)
@@ -188,7 +199,7 @@ independentRatesFromMdt <- function(object, x, t = 1) {
 #' Build an mdt object from a matrix of independent (ASDT) rates
 #'
 #' \code{buildMdtFromIndependentRates} constructs a multiple-decrement table
-#' (\code{\link{mdt}}) from a matrix of independent single-decrement rates
+#' (\code{\linkS4class{mdt}}) from a matrix of independent single-decrement rates
 #' \eqn{q'^{(j)}_x}, the inverse of \code{\link{independentRatesFromMdt}}.
 #'
 #' @details
@@ -273,49 +284,198 @@ buildMdtFromIndependentRates <- function(x, qx.primes, radix = 100000,
 
 #MDT ACTUARIAL FUNCTIONS
 
-#' @title Multiple decrement life insurance
+#' @title Multiple decrement insurances and annuities
 #' @rdname  multidecrins
-#' 
-#' @description Function to evaluate multiple decrement insurances
 #'
-#' @param object an \code{mdt} or \code{actuarialtable} object
+#' @description \code{Axn.mdt} gives the actuarial present value (APV) of a
+#'   term insurance on a multiple decrement table, paying at the end of the
+#'   year of decrement a benefit that may depend on the cause of decrement.
+#'   \code{axn.mdt} gives the APV of an annuity payable while the insured is
+#'   still in the active (no decrement yet) state.
 #'
-#' @param x policyholder's age
-#' @param n contract duration
+#' @param object an \code{mdt} object
+#' @param x policyholder's age (an integer age tabulated in \code{object})
+#' @param n contract duration in years. If missing, the cover runs to the end
+#'   of the table, i.e. \eqn{n = \omega + 1 - x - m}.
 #' @param i interest rate
-#' @param decrement decrement category 
+#' @param decrement decrement(s) covered: one or more names (or column
+#'   indices) among \code{getDecrements(object)}. If missing, every decrement
+#'   is covered (insurance on the total decrement \eqn{(\tau)}).
+#' @param benefits benefit amounts, one per element of \code{decrement}
+#'   (recycled). Default 1, i.e. a unit benefit for every covered cause.
+#' @param m deferment period in years (default 0).
+#' @param k number of annuity payments per year (default 1). Survival
+#'   probabilities at fractional durations are interpolated linearly in
+#'   \eqn{l^{(\tau)}_x}.
+#' @param payment \code{"advance"} (or \code{"due"}, default) or
+#'   \code{"arrears"} (or \code{"immediate"}).
 #'
-#' @return The scalar representing APV of the insurance
-#' 
-#' @section Warning: The function is experimental and very basic. Testing is still needed. Use at own risk!
-#' 
-#' @examples 
-#' #creates a temporary mdt
-#' myTable<-data.frame(x=41:43,lx=c(800,776,752),d1=rep(8,3),d2=rep(16,3))
-#' myMdt<-new("mdt",table=myTable,name="ciao")
-#' Axn.mdt(myMdt, x=41,n=2,i=.05,decrement="d2")
+#' @details With \eqn{v = (1+i)^{-1}} the insurance APV is
+#' \deqn{\sum_{j \in J} b_j \sum_{h=0}^{n-1} v^{m+h+1}\,{}_{m+h}p^{(\tau)}_x\, q^{(j)}_{x+m+h},}
+#' which for a single cause reduces to the historical \code{Axn.mdt}. The
+#' annuity APV is \eqn{\frac1k \sum_{h} v^{t_h}\, {}_{t_h}p^{(\tau)}_x}, with
+#' payment times \eqn{t_h = m, m+1/k, \ldots, m+n-1/k} (in advance) or
+#' \eqn{m+1/k, \ldots, m+n} (in arrears). Benefit premiums and reserves follow
+#' from the equivalence principle as ratios/differences of the two.
+#'
+#' @return A numeric vector of APVs (one per element of \code{x}).
+#'
+#' @references Finan, M. B. (2014). \emph{A Reading of the Theory of Life
+#'   Contingency Models: A Preparation for Exam MLC/3L}, Sections 68-69.
+#'
+#' @examples
+#' # Finan (2014), Example 69.1: 3-year term on (16), i = 10%
+#' myTable <- data.frame(x = 16:18, lx = c(20000, 17600, 14520),
+#'                       da = c(1300, 1870, 2380), doc = c(1100, 1210, 1331))
+#' myMdt <- new("mdt", table = myTable, name = "Finan 69.1")
+#' A <- Axn.mdt(myMdt, x = 16, n = 3, i = 0.10, decrement = "doc")
+#' a <- axn.mdt(myMdt, x = 16, n = 3, i = 0.10)
+#' 20000 * A / a   # level annual premium: 1250
+#'
+#' # Finan (2014), Example 68.1: benefit 1 for cause 1, 2 for cause 2
+#' t681 <- data.frame(x = 50:51, lx = c(1200, 800),
+#'                    d1 = c(100, 200), d2 = c(300, 300))
+#' m681 <- new("mdt", table = t681)
+#' Axn.mdt(m681, x = 50, n = 2, i = 0.5, decrement = c("d1", "d2"),
+#'         benefits = c(1, 2))  # 0.6852
+#'
+#' @export
+Axn.mdt <- function(object, x, n, i, decrement, benefits = 1, m = 0) {
+  if (!is(object, "mdt")) stop("Error! Needed Mdt")
+  if (missing(x)) stop("Error! Missing x")
+  if (missing(i)) stop("Error! Missing interest rate i")
+  decrement <- if (missing(decrement)) getDecrements(object) else
+    .mdtDecrementNames(object, decrement)
+  if (length(benefits) > length(decrement))
+    stop("Error! More benefits than decrements")
+  benefits <- rep(benefits, length.out = length(decrement))
+  if (missing(n)) n <- getOmega(object) + 1 - x - m
+  nn <- max(length(x), length(n), length(m))
+  x <- rep(x, length.out = nn); n <- rep(n, length.out = nn)
+  m <- rep(m, length.out = nn)
+  if (any(n < 0 | m < 0)) stop("Error! Check n or m")
 
-
-Axn.mdt<-function(object,x,n,i, decrement) {
-  if (missing(n)) n <- getOmega(object)-x-1
-  if (missing(decrement)) return(Axn(actuarialtable = object, x=x, n=n,i=i))
-  
-  if (!is(object,'mdt')) stop("Error! Needed Mdt")
-  if (!(decrement %in% getDecrements(object))) stop("Error! Not recognized decrement type")
-  
-  seqk <- seq(from=0, to=n-1, by=1) #period start
-  times <- 1+seqk #period when payments are due
-  payments<-rep(1,length(times)) #payment sequence
-  seqx <- x+seqk
-  
-  # pxt()/qxt() already accept a full vector of ages/times (they recycle
-  # x and t to a common length internally), so a single vectorised call
-  # replaces length(seqk) redundant scalar calls -- same pattern already
-  # used in IAxn()/DAxn() (R/5_actuarialFunctions.R).
-  pxk <- pxt(object=object, x=x, t=seqk)
-  qxkp1 <- qxt(object=object, x=(x+seqk), t=1, decrement=decrement)
-  probs <- pxk * qxkp1
-  out<-presentValue(cashFlows=payments, timeIds=times, interestRates=i, probabilities=probs,power=1)
-  return(out)
+  one <- function(x, n, m) {
+    if (n == 0) return(0)
+    seqk <- m + seq(from = 0, to = n - 1, by = 1) # period start
+    times <- seqk + 1                              # end-of-year payments
+    # pxt()/qxt() are vectorised over t and x: one call per decrement.
+    pxk <- pxt(object = object, x = x, t = seqk)
+    qmat <- vapply(decrement, function(d)
+      qxt(object = object, x = x + seqk, t = 1, decrement = d),
+      numeric(length(seqk)))
+    probs <- pxk * as.numeric(matrix(qmat, nrow = length(seqk)) %*% benefits)
+    presentValue(cashFlows = rep(1, length(times)), timeIds = times,
+                 interestRates = i, probabilities = probs, power = 1)
+  }
+  unname(mapply(one, x, n, m))
 }
 
+#' @rdname multidecrins
+#' @export
+axn.mdt <- function(object, x, n, i, m = 0, k = 1, payment = "advance") {
+  if (!is(object, "mdt")) stop("Error! Needed Mdt")
+  if (missing(x)) stop("Error! Missing x")
+  if (missing(i)) stop("Error! Missing interest rate i")
+  payment <- testpaymentarg(payment)
+  if (length(k) != 1 || !is.finite(k) || k <= 0)
+    stop("k must be a finite positive scalar")
+  if (missing(n)) n <- getOmega(object) + 1 - x - m
+  nn <- max(length(x), length(n), length(m))
+  x <- rep(x, length.out = nn); n <- rep(n, length.out = nn)
+  m <- rep(m, length.out = nn)
+  if (any(n < 0 | m < 0)) stop("Error! Check n or m")
+
+  one <- function(x, n, m) {
+    npay <- round(n * k)
+    if (npay == 0) return(0)
+    steps <- seq_len(npay) / k
+    times <- if (payment == "due") m + steps - 1 / k else m + steps
+    probs <- pxt(object = object, x = x, t = times)
+    sum((1 + i)^(-times) * probs) / k
+  }
+  unname(mapply(one, x, n, m))
+}
+
+
+#' Convert an mdt to long (time, status) format for survival analysis
+#'
+#' \code{mdtToLong} reshapes a multiple decrement table into an aggregated
+#' long data set with one row per (exit time, cause) and a \code{count}
+#' column, ready for competing-risks tools such as
+#' \code{survival::survfit(Surv(time, status) ~ 1, weights = count)}
+#' (Aalen-Johansen cumulative incidence) or for any analysis based on
+#' \code{survival::Surv}.
+#'
+#' @param object an \code{mdt} object.
+#' @param x entry age of the cohort (default: the lowest tabulated age, 0).
+#' @param t length of the follow-up in years (default: to the end of the
+#'   table). Lives still in the table at \code{x + t} are right censored.
+#' @param exitTime where in the year of age decrements are placed:
+#'   \code{"end"} (default, time \eqn{k+1} for exits in year \eqn{k}) or
+#'   \code{"mid"} (time \eqn{k + 1/2}, consistent with UDD).
+#' @param dropZero logical: drop rows with zero count (default \code{TRUE}).
+#'
+#' @return A \code{data.frame} with columns \code{time} (years since age
+#'   \code{x}), \code{age} (age at exit or censoring), \code{status} (a
+#'   factor whose first level, \code{"censored"}, is followed by the
+#'   decrement names, as expected by \code{survival::Surv} for multi-state
+#'   data) and \code{count} (number of lives, possibly non-integer).
+#'
+#' @details With \code{exitTime = "end"} the Aalen-Johansen estimate of the
+#' cumulative incidence of cause \eqn{j} at time \eqn{k} computed on the
+#' weighted long data coincides with \code{qxt(object, x, k, decrement = j)};
+#' see the multiple decrement vignette.
+#'
+#' @examples
+#' valdezDf <- data.frame(
+#'   x = 50:54,
+#'   lx = c(4832555, 4821937, 4810206, 4797185, 4782737),
+#'   heart = c(5168, 5363, 5618, 5929, 6277),
+#'   accidents = c(1157, 1206, 1443, 1679, 2152),
+#'   other = c(4293, 5162, 5960, 6840, 7631))
+#' valdezMdt <- new("mdt", name = "ValdezExample", table = valdezDf)
+#' long <- mdtToLong(valdezMdt, x = 50, t = 5)
+#' head(long)
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'   fit <- survival::survfit(survival::Surv(time, status) ~ 1,
+#'                            data = long, weights = count)
+#'   summary(fit, times = 1:5)$pstate
+#' }
+#'
+#' @export
+mdtToLong <- function(object, x, t, exitTime = c("end", "mid"),
+                      dropZero = TRUE) {
+  if (!is(object, "mdt")) stop("Error! Need an mdt object")
+  exitTime <- match.arg(exitTime)
+  tbl <- object@table
+  ages <- tbl$x
+  if (missing(x)) x <- min(ages)
+  if (length(x) != 1 || !(x %in% ages))
+    stop("Error! x must be a single age tabulated in the mdt")
+  if (missing(t)) t <- getOmega(object) + 1 - x
+  if (length(t) != 1 || t < 0 || t %% 1 != 0)
+    stop("Error! t must be a single non-negative integer")
+  decrements <- getDecrements(object)
+  rows <- which(ages >= x & ages < x + t)
+  offset <- if (exitTime == "end") 1 else 0.5
+  nr <- length(rows)
+  long <- data.frame(
+    time = rep(ages[rows] - x + offset, times = length(decrements)),
+    age = rep(ages[rows] + offset, times = length(decrements)),
+    status = rep(decrements, each = nr),
+    count = unlist(lapply(decrements, function(d) tbl[[d]][rows]),
+                   use.names = FALSE),
+    stringsAsFactors = FALSE
+  )
+  # survivors still in the table at x + t are censored there
+  survivors <- if (x + t > getOmega(object)) 0 else tbl$lx[ages == x + t]
+  long <- rbind(long, data.frame(time = t, age = x + t, status = "censored",
+                                 count = survivors,
+                                 stringsAsFactors = FALSE))
+  if (dropZero) long <- long[long$count > 0, , drop = FALSE]
+  long$status <- factor(long$status, levels = c("censored", decrements))
+  long <- long[order(long$time, long$status), , drop = FALSE]
+  rownames(long) <- NULL
+  long
+}

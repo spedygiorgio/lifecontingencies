@@ -73,11 +73,9 @@ test_that("non-mdt input is rejected", {
 # The Finan book states (checking at 5 decimals):
 #   q'(1) ≈ 0.04365, q'(2) ≈ 0.16354
 test_that("Finan Example 67.1: double decrement UDD extraction", {
-  # Build a minimal mdt with one age.  We use age 40 (not 0) so that the
-
-  # mdt constructor's backfill creates synthetic zero-decrement rows below
-  # age 40; this avoids a known edge case in the pxt() optimised path
-  # when the first table row has no zeros.
+  # Build a minimal mdt with one age, both starting at age 40 (with the
+  # synthetic backfill below it) and at age 0 (no backfill: up to 1.6.2 this
+  # case returned NaN because of a bug in the decrement branch of pxt()).
   #
   # qτ_40 = 0.20, q(1)_40 = 0.04, q(2)_40 = 0.16
   tbl67_1 <- data.frame(x = 40:41, lx = c(1000, 800),
@@ -88,6 +86,12 @@ test_that("Finan Example 67.1: double decrement UDD extraction", {
   expect_equal(round(mat["40", "d1"], 5), round(1 - 0.80^0.2, 5))
   # q'(2) = 1 - (1-0.20)^(0.16/0.20) = 1 - 0.8^0.8
   expect_equal(round(mat["40", "d2"], 5), round(1 - 0.80^0.8, 5))
+
+  mdt0 <- new("mdt", name = "Finan67.1 at 0",
+              table = data.frame(x = 0:1, lx = c(1000, 800),
+                                 d1 = c(40, 800), d2 = c(160, 0)))
+  mat0 <- independentRatesFromMdt(mdt0, x = 0)
+  expect_equal(unname(mat0[1, ]), 1 - 0.80^c(0.2, 0.8))
 })
 
 # ===========================================================================
