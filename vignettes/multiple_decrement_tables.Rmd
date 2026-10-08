@@ -192,6 +192,130 @@ $$
 qxt.fromQxprime(qx.prime = 0.01, other.qx.prime = c(0.03, 0.06))
 ```
 
+### Extracting the full ASDT matrix: `independentRatesFromMdt()`
+
+While `qxt.prime.fromMdt` returns a single scalar for one (age, decrement)
+pair, `independentRatesFromMdt` computes the full matrix of independent rates
+$q'^{(j)}_x$ for every age and every decrement in the table. This is
+convenient for inspecting and comparing rates across ages, and for the
+round-trip reconstruction described below.
+
+```{r asdt.matrix1}
+qprime <- independentRatesFromMdt(valdezMdt, x = 50:54)
+qprime
+```
+
+Each cell equals the value that `qxt.prime.fromMdt` would return for the
+same (age, decrement) pair:
+
+```{r asdt.matrix2}
+qxt.prime.fromMdt(valdezMdt, x = 53, decrement = "accidents")
+qprime["53", "accidents"]
+```
+
+A subset of ages may be specified:
+
+```{r asdt.matrix3}
+independentRatesFromMdt(valdezMdt, x = 51:52)
+```
+
+### Building an mdt from independent rates: `buildMdtFromIndependentRates()`
+
+The inverse operation — constructing a combined multiple-decrement table from
+a matrix of ASDT independent rates — is provided by
+`buildMdtFromIndependentRates`. This is useful when independent rates are
+estimated separately (e.g. from cause-specific mortality studies or from
+different data sources) and need to be combined into a single `mdt` object.
+
+For each age, the absolute (combined) rate of decrement $j$ is obtained by
+the UDD integration formula:
+$$
+q_x^{(j)} = q'^{(j)}_x \int_0^1 \prod_{i \ne j}
+\bigl(1 - s\, q'^{(i)}_x\bigr)\,ds,
+$$
+and the survivorship column is built recursively from
+$p_x^{(\tau)} = \prod_j (1 - q'^{(j)}_x)$.
+
+The following example replicates @finanMLC [Example 67.4]: three decrements
+(death, disability, retirement) over two ages, with 1000 initial lives:
+
+```{r asdt.build1}
+qp <- matrix(c(0.010, 0.030, 0.100,
+                0.013, 0.050, 0.200),
+             nrow = 2, byrow = TRUE,
+             dimnames = list(NULL, c("death", "disability", "retirement")))
+qp
+
+mdt674 <- buildMdtFromIndependentRates(
+  x = 60:61, qx.primes = qp,
+  radix = 1000, name = "Finan 67.4"
+)
+print(mdt674)
+```
+
+We can verify the key numerical results from the example.
+The combined survival probability at age 60 is
+$p^{(\tau)}_{60} = (1-0.010)(1-0.030)(1-0.100) = 0.86427$,
+giving $l^{(\tau)}_{61} = 864.27$:
+
+```{r asdt.build2}
+ptau60 <- prod(1 - qp[1, ])
+round(ptau60, 5)
+tbl674 <- mdt674@table
+round(tbl674$lx[tbl674$x == 61], 2)
+```
+
+### Round-trip: mdt $\to$ ASDT $\to$ mdt
+
+The two functions compose naturally: extracting independent rates from an
+`mdt` and then rebuilding should recover the original table (up to
+floating-point rounding).  We verify this on the Valdez example:
+
+```{r asdt.roundtrip}
+qprime <- independentRatesFromMdt(valdezMdt, x = 50:54)
+rebuilt <- buildMdtFromIndependentRates(
+  x = 50:54, qx.primes = qprime,
+  radix = valdezMdt@table$lx[valdezMdt@table$x == 50],
+  name = "Roundtrip"
+)
+
+## Compare lx
+data.frame(
+  age = 50:54,
+  original = valdezMdt@table$lx[valdezMdt@table$x %in% 50:54],
+  rebuilt  = round(rebuilt@table$lx[rebuilt@table$x %in% 50:54], 0)
+)
+```
+
+## Visualising mdt objects: `plot()`
+
+The `plot` S4 method for `mdt` objects produces a `ggplot2` visualisation
+of the decrement structure.  Three views are available:
+
+* `"area"` (default): stacked-area chart of decrement counts $d^{(j)}_x$.
+* `"bar"`: stacked bar chart of decrement counts.
+* `"probability"`: line chart of decrement-specific probabilities
+  $q^{(j)}_x = d^{(j)}_x / l^{(\tau)}_x$.
+
+```{r plot.area, fig.width=7, fig.height=4}
+plot(valdezMdt)
+```
+
+```{r plot.bar, fig.width=7, fig.height=4}
+plot(valdezMdt, type = "bar")
+```
+
+```{r plot.prob, fig.width=7, fig.height=4}
+plot(valdezMdt, type = "probability")
+```
+
+The plot method also works on larger tables; here is the CDC-based `mdt`
+object built later in this vignette, aggregated across its 18 causes:
+
+```{r plot.cdc, fig.width=7, fig.height=5, eval=FALSE}
+plot(cdcMdt, type = "probability")
+```
+
 ## Actuarial applications
 
 The package offers limited capabilities for multiple decrement insurances,

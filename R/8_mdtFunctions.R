@@ -120,6 +120,157 @@ qxt.fromQxprime <-function(qx.prime, other.qx.prime, t=1) {
   return(out)
 }
 
+#' Extract the full Associated Single Decrement Table (ASDT) from an mdt object
+#'
+#' \code{independentRatesFromMdt} returns a matrix of ASDT independent rates
+#' \eqn{q'^{(j)}_x} for every combination of age and decrement in the supplied
+#' multiple-decrement table.
+#'
+#' The independent rate for decrement \eqn{j} at age \eqn{x} is obtained under
+#' the Uniform Distribution of Deaths (UDD) assumption as
+#' \deqn{q'^{(j)}_x = 1 - \bigl(1 - q^{(\tau)}_x\bigr)^{q^{(j)}_x / q^{(\tau)}_x},}
+#' which is the same formula used by \code{\link{qxt.prime.fromMdt}} for a single
+#' age/decrement pair.  \code{independentRatesFromMdt} is a convenience wrapper
+#' that applies this extraction to all ages and all decrements at once, returning
+#' the result as a tidy matrix.
+#'
+#' @param object An \code{mdt} object.
+#' @param x Optional numeric vector of ages to include.  Defaults to all ages
+#'   tabulated in \code{object} except the last (which has no decrement data).
+#' @param t Period (default 1).
+#'
+#' @return A numeric matrix with one row per age and one column per decrement.
+#'   Row names are the ages, column names the decrement identifiers.
+#'
+#' @seealso \code{\link{qxt.prime.fromMdt}} for a single age/decrement pair,
+#'   \code{\link{buildMdtFromIndependentRates}} for the inverse operation.
+#'
+#' @examples
+#' valdezDf <- data.frame(
+#'   x = 50:54,
+#'   lx = c(4832555, 4821937, 4810206, 4797185, 4782737),
+#'   heart = c(5168, 5363, 5618, 5929, 6277),
+#'   accidents = c(1157, 1206, 1443, 1679, 2152),
+#'   other = c(4293, 5162, 5960, 6840, 7631))
+#' valdezMdt <- new("mdt", name = "ValdezExample", table = valdezDf)
+#'
+#' # Full ASDT matrix
+#' independentRatesFromMdt(valdezMdt)
+#'
+#' # Subset of ages
+#' independentRatesFromMdt(valdezMdt, x = 50:52)
+#'
+#' @export
+independentRatesFromMdt <- function(object, x, t = 1) {
+  if (!is(object, "mdt")) stop("Error! Need an mdt object")
+  decrements <- getDecrements(object)
+  allAges <- object@table$x
+  # by default, use all ages except the terminal one (which has 0 survivors remaining)
+  if (missing(x)) {
+    x <- allAges[-length(allAges)]
+  } else {
+    bad <- x[!(x %in% allAges)]
+    if (length(bad) > 0)
+      stop("Ages not in table: ", paste(bad, collapse = ", "))
+  }
+  out <- matrix(NA_real_, nrow = length(x), ncol = length(decrements),
+                dimnames = list(as.character(x), decrements))
+  for (j in decrements) {
+    for (i in seq_along(x)) {
+      out[i, j] <- qxt.prime.fromMdt(object = object, x = x[i], t = t,
+                                       decrement = j)
+    }
+  }
+  out
+}
+
+
+#' Build an mdt object from a matrix of independent (ASDT) rates
+#'
+#' \code{buildMdtFromIndependentRates} constructs a multiple-decrement table
+#' (\code{\link{mdt}}) from a matrix of independent single-decrement rates
+#' \eqn{q'^{(j)}_x}, the inverse of \code{\link{independentRatesFromMdt}}.
+#'
+#' @details
+#' For each age the combined (absolute) rate of decrement \eqn{j} is obtained by
+#' the UDD-based integration formula
+#' \deqn{q^{(j)}_x = q'^{(j)}_x \int_0^1 \prod_{i \ne j} \bigl(1 - s\,q'^{(i)}_x\bigr)\,ds,}
+#' which is the same formula used by \code{\link{qxt.fromQxprime}} for a single
+#' age.  The resulting absolute rates are multiplied by \eqn{l^{(\tau)}_x} to
+#' obtain the decrement counts, and the survivorship column is computed
+#' recursively from \eqn{p^{(\tau)}_x = \prod_j (1 - q'^{(j)}_x)}.
+#'
+#' @param x Integer vector of ages (must be consecutive and start at 0 after
+#'   internal completion by \code{new("mdt", ...)}).  If missing, ages
+#'   \code{0:(nrow(qx.primes)-1)} are used.
+#' @param qx.primes Numeric matrix of independent rates.  Rows correspond to
+#'   ages in \code{x}, columns to decrement causes. Column names, if any, become
+#'   the decrement identifiers in the resulting table; otherwise generic names
+#'   \code{d1, d2, \ldots} are used.
+#' @param radix Radix (initial cohort size). Default 100 000.
+#' @param name Character string for the table name. Default \code{"ASDT-built mdt"}.
+#'
+#' @return An \code{mdt} object.
+#'
+#' @seealso \code{\link{independentRatesFromMdt}} for the reverse extraction,
+#'   \code{\link{qxt.fromQxprime}} for the single-age formula.
+#'
+#' @examples
+#' # Finan (2014) Example 67.4:
+#' # Three decrements (death, disability, retirement) at ages 60-61.
+#' qp <- matrix(c(0.010, 0.030, 0.100,
+#'                 0.013, 0.050, 0.200), nrow = 2, byrow = TRUE,
+#'               dimnames = list(NULL, c("death", "disability", "retirement")))
+#' mdt674 <- buildMdtFromIndependentRates(x = 60:61, qx.primes = qp,
+#'                                         radix = 1000, name = "Finan 67.4")
+#' print(mdt674)
+#'
+#' @export
+buildMdtFromIndependentRates <- function(x, qx.primes, radix = 100000,
+                                          name = "ASDT-built mdt") {
+  if (!is.matrix(qx.primes))
+    qx.primes <- as.matrix(qx.primes)
+  nAges <- nrow(qx.primes)
+  nDecr <- ncol(qx.primes)
+  if (nDecr < 1) stop("At least one decrement column is required")
+  if (missing(x)) x <- seq(0L, nAges - 1L)
+  if (length(x) != nAges)
+    stop("Length of 'x' must equal nrow(qx.primes)")
+  # Column names for decrements
+  dnames <- if (!is.null(colnames(qx.primes))) colnames(qx.primes) else
+    paste0("d", seq_len(nDecr))
+
+  # Compute absolute rates from the independent rates using qxt.fromQxprime()
+  qx.abs <- matrix(0, nrow = nAges, ncol = nDecr)
+  for (i in seq_len(nAges)) {
+    for (j in seq_len(nDecr)) {
+      others <- qx.primes[i, -j, drop = TRUE]
+      qx.abs[i, j] <- qxt.fromQxprime(qx.prime = qx.primes[i, j],
+                                        other.qx.prime = others, t = 1)
+    }
+  }
+
+  # Build lx and dx columns
+  lx <- numeric(nAges)
+  lx[1] <- radix
+  for (i in seq_len(nAges - 1)) {
+    ptau <- prod(1 - qx.primes[i, ])
+    lx[i + 1] <- lx[i] * ptau
+  }
+
+  dx <- matrix(0, nrow = nAges, ncol = nDecr)
+  for (i in seq_len(nAges)) {
+    dx[i, ] <- lx[i] * qx.abs[i, ]
+  }
+
+  tbl <- data.frame(x = x, lx = lx)
+  for (j in seq_len(nDecr)) {
+    tbl[[dnames[j]]] <- dx[, j]
+  }
+  new("mdt", name = name, table = tbl)
+}
+
+
 #MDT ACTUARIAL FUNCTIONS
 
 #' @title Multiple decrement life insurance

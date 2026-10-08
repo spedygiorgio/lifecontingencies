@@ -17,6 +17,7 @@ export(accumulatedValue)
 export(annuity)
 export(axn)
 export(axyn)
+export(buildMdtFromIndependentRates)
 export(axyzn)
 export(convertible2Effective)
 export(convexity)
@@ -34,6 +35,7 @@ export(getLifecontingencyPvXyz)
 export(getOmega)
 export(head)
 export(increasingAnnuity)
+export(independentRatesFromMdt)
 export(intensity2Interest)
 export(interest2Discount)
 export(interest2Intensity)
@@ -81,7 +83,14 @@ importFrom(Rcpp,
   evalCpp,
   sourceCpp
 )
+importFrom(ggplot2,aes)
 importFrom(ggplot2,autoplot)
+importFrom(ggplot2,geom_area)
+importFrom(ggplot2,geom_col)
+importFrom(ggplot2,geom_line)
+importFrom(ggplot2,ggplot)
+importFrom(ggplot2,labs)
+importFrom(ggplot2,theme_minimal)
 importFrom(stats,
   complete.cases,
   integrate,
