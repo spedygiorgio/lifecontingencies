@@ -76,6 +76,7 @@ jobs:
               {"os":"ubuntu-latest","r":"release","vignettes":true},
               {"os":"ubuntu-latest","r":"devel","http-user-agent":"release","vignettes":false},
               {"os":"ubuntu-latest","r":"oldrel-1","vignettes":false},
+              {"os":"ubuntu-latest","r":"4.4","vignettes":false},
               {"os":"windows-latest","r":"release","vignettes":true},
               {"os":"windows-latest","r":"devel","http-user-agent":"release","vignettes":false},
               {"os":"macos-latest","r":"release","vignettes":false}
