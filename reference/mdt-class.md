@@ -46,12 +46,12 @@ actually supplied.
 - coerce:
 
   `signature(from = "mdt", to = "markovchainList")`: coercing to
-  `markovchainList` objects
+  `markovchainList` objects; available only when the optional
+  markovchain package is installed
 
 - coerce:
 
-  `signature(from = "mdt", to = "data.frame")`: coercing to
-  `markovchainList` objects
+  `signature(from = "mdt", to = "data.frame")`: coercing to `data.frame`
 
 - summary:
 

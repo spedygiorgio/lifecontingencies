@@ -204,19 +204,16 @@ the table is extended by one row such that
 <p>The internal function <code>.tableSanitizer</code> implements this
 completion logic and reports on the console what it did. The table can
 be viewed with <code>print</code> and <code>show</code> (output omitted
-here for brevity), and coerced to a <code>data.frame</code> or, if the
-<strong>markovchain</strong> package is available, to a
-<code>markovchainList</code> object:</p>
+here for brevity), and coerced to a <code>data.frame</code>. Coercion to
+a <code>markovchainList</code> object needs the
+<strong>optional</strong> <strong>markovchain</strong> package: the
+chunk below is evaluated only when that package is installed, and is
+skipped otherwise.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">valdezMdt</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">valdezDf2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">valdezMdt</span>, <span class="st">"data.frame"</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"markovchain"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
-<span>    <span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/canCoerce.html" class="external-link">canCoerce</a></span><span class="op">(</span><span class="va">valdezMdt</span>, <span class="st">"markovchainList"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">valdezMarkovChainList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">valdezMdt</span>, <span class="st">"markovchainList"</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"'markovchain' package or S4 coercion method unavailable: skipping mdt -&gt; markovchainList conversion."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<span><span class="va">valdezMarkovChainList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">valdezMdt</span>, <span class="st">"markovchainList"</span><span class="op">)</span></span></code></pre></div>
 <p>Two specific methods are defined for <code>mdt</code> objects:
 <code>getOmega</code>, returning the maximum attainable age (as for the
 <code>lifetable</code> class), and <code>getDecrements</code>, returning

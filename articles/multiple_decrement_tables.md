@@ -101,8 +101,9 @@ created. In particular it verifies that:
 The internal function `.tableSanitizer` implements this completion logic
 and reports on the console what it did. The table can be viewed with
 `print` and `show` (output omitted here for brevity), and coerced to a
-`data.frame` or, if the **markovchain** package is available, to a
-`markovchainList` object:
+`data.frame`. Coercion to a `markovchainList` object needs the
+**optional** **markovchain** package: the chunk below is evaluated only
+when that package is installed, and is skipped otherwise.
 
 ``` r
 print(valdezMdt)
@@ -110,12 +111,7 @@ print(valdezMdt)
 
 ``` r
 valdezDf2 <- as(valdezMdt, "data.frame")
-if (requireNamespace("markovchain", quietly = TRUE) &&
-    methods::canCoerce(valdezMdt, "markovchainList")) {
-  valdezMarkovChainList <- as(valdezMdt, "markovchainList")
-} else {
-  message("'markovchain' package or S4 coercion method unavailable: skipping mdt -> markovchainList conversion.")
-}
+valdezMarkovChainList <- as(valdezMdt, "markovchainList")
 ```
 
 Two specific methods are defined for `mdt` objects: `getOmega`,

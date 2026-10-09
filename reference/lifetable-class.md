@@ -37,7 +37,8 @@ vectors are needed. The age vector and the population at risk vector.
 - coerce:
 
   `signature(from = "lifetable", to = "markovchainList")`: coerce method
-  from `lifetable` to `markovchainList`
+  from `lifetable` to `markovchainList`; available only when the
+  optional markovchain package is installed
 
 - coerce:
 

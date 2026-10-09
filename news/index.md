@@ -2,6 +2,21 @@
 
 ## lifecontingencies 1.6.3
 
+- `markovchain` is now a genuinely optional dependency (`Suggests`).
+  Before, the S4 coercions to `markovchainList` were registered at
+  *build* time only if markovchain happened to be installed then, so
+  installing it later left `as(x, "markovchainList")` broken while
+  [`rmdt()`](https://spedygiorgio.github.io/lifecontingencies/reference/rmdt.md)
+  worked; they are now registered at load time (`.onLoad()`), whichever
+  order the packages were installed in. Without markovchain,
+  [`rmdt()`](https://spedygiorgio.github.io/lifecontingencies/reference/rmdt.md)
+  stops with an informative error instead of warning and returning
+  `NULL`, and the vignette chunk that needs it is skipped
+  (`eval = requireNamespace("markovchain")`); the
+  [`rmdt()`](https://spedygiorgio.github.io/lifecontingencies/reference/rmdt.md)
+  example is guarded the same way. Tests in
+  `test-optional-markovchain.R` cover both states.
+
 - Minimum supported R raised from 4.1.0 to 4.4.0 (`Depends`); the CI
   full matrix now also checks R 4.4.
 
