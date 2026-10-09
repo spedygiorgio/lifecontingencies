@@ -52,31 +52,43 @@ setMethod("dxt", "mdt", function(object, x, t, decrement) {
     .dxt.mdt(object = object, x = x, time = t)
 })
 
+# lx at the given ages, looked up by name with match(). Ages beyond the last
+# tabulated one have no survivors (lx = 0); other absent ages give NA.
+.lxAtAges <- function(object, ages) {
+  lx <- object@lx[match(ages, object@x)]
+  lx[is.na(lx) & !is.na(ages) & ages > max(object@x)] <- 0
+  lx
+}
+
+# Deaths between x and x+t for integer t (open last interval: everybody
+# alive at x dies by omega).
+.dxtLifetableInt <- function(object, x, t, omega) {
+  lx <- .lxAtAges(object, x)
+  out <- lx - .lxAtAges(object, x + t)
+  beyond <- (x + t) > omega
+  out[beyond] <- lx[beyond]
+  out
+}
+
+# Vectorised over x and t (recycled to a common length); fractional t is
+# interpolated linearly: d(x, k + f) = d(x, k) + f * d(x + k, 1).
 setMethod("dxt", "lifetable", function(object, x, t, decrement) {
-  out <- numeric(1)
   if (missing(x))
     stop("Error! Missing x")
   if (missing(t))
-    t = 1
-  omega = getOmega(object) #prima object+1
-  {
-    #check if fractional
-    if ((t %% 1) == 0) {
-      lx = object@lx[which(object@x == x)]
-      if ((x + t) > omega)
-        out = lx
-      else
-        #before >=
-        out = lx - object@lx[which(object@x == t + x)]
-    } else {
-      fracPart <- (t %% 1)
-      intPart <- t - fracPart
-      out <-
-        dxt(object = object, x = x, t = intPart) + fracPart * dxt(object = object, x =
-                                                                    x + intPart, t = 1)
-    }
-  }
-  return(out)
+    t <- 1
+  omega <- getOmega(object)
+  n <- max(length(x), length(t))
+  x <- rep(x, length.out = n)
+  t <- rep(t, length.out = n)
+  fracPart <- t %% 1
+  intPart <- t - fracPart
+  out <- .dxtLifetableInt(object, x, intPart, omega)
+  frac <- which(fracPart != 0)
+  if (length(frac) > 0)
+    out[frac] <- out[frac] + fracPart[frac] *
+      .dxtLifetableInt(object, x[frac] + intPart[frac], 1, omega)
+  out
 })
 
 #survival probability between age x and x+t
@@ -369,8 +381,8 @@ Lxt <- function(object, x,t=1,fxt=0.5)
 
 	ages=seq(from=x, to=x+t-1, by=1)
 	lifes=numeric(length(ages))
-	for(i in 1:length(ages)) lifes[i]=object@lx[which(object@x==ages[i])]
-	deaths=sapply(ages, dxt,object=object,t=1)
+	lifes=.lxAtAges(object, ages)
+	deaths=dxt(object, ages, 1)
 	toSum=lifes-fxt*deaths
 	out=sum(toSum)
 	return(out)

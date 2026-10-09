@@ -2,6 +2,7 @@
 
 * Minimum supported R raised from 4.1.0 to 4.4.0 (`Depends`); the CI full matrix now also checks R 4.4.
 
+* `dxt()` on `lifetable`/`actuarialtable` objects is now vectorised over `x` and `t` (recycled to a common length) and looks ages up with `match()` instead of `which()` per call; `Tx()` uses it instead of an `sapply()` loop. Results are unchanged on every integer and fractional case previously computed (checked bit for bit on SOA 2008 and two other tables); fractional `t` reaching beyond the last tabulated age used to return `numeric(0)` and now correctly counts no further deaths.
 * New function `independentRatesFromMdt()`: extracts the full Associated Single Decrement Table (ASDT) as a matrix of independent rates $q'^{(j)}_x$ for every combination of age and decrement in an `mdt` object, under the UDD assumption. This is the vectorized convenience wrapper around `qxt.prime.fromMdt()`.
 * New function `buildMdtFromIndependentRates()`: constructs an `mdt` object from a matrix of independent (ASDT) rates, the inverse of `independentRatesFromMdt()`. Uses the UDD integration formula via `qxt.fromQxprime()` to convert independent rates to absolute rates, then builds the survivorship column recursively.
 * New `plot()` S4 method for `mdt` objects: produces a `ggplot2` visualisation with three views — stacked area chart of decrement counts (default), stacked bar chart, or line chart of decrement-specific probabilities. Requires `ggplot2` (already in `Imports`).
