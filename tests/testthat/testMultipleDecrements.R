@@ -83,3 +83,26 @@ test_that("Axn.mdt reproduces the Finan (2014, p. 674) example", {
                expected)
   expect_equal(round(20000 * expected, 2), 4515.40)
 })
+test_that("decrement totals are matched up to rounding, not bit for bit", {
+  # A table whose decrements come from floating-point rates adds up to lx[1]
+  # only to within a few ulps, and which way it rounds depends on the
+  # platform: the round-trip table of test-mdt-asdt-functions.R balanced
+  # exactly on x86 but, on aarch64-apple-darwin (fused multiply-add), was
+  # rejected with 'invalid class "mdt" object: Check the lx'.
+  tbl <- data.frame(x = 0:2, lx = c(1000, 500, 200),
+                    c1 = c(200, 200, 100), c2 = c(300, 100, 100))
+  nudged <- tbl
+  nudged$c1[1] <- nudged$c1[1] + 8 * .Machine$double.eps * 1000
+  expect_true(sum(nudged[, c("c1", "c2")]) != nudged$lx[1])   # off by ulps
+  expect_is(new("mdt", name = "nudged", table = nudged), "mdt")
+
+  # A table that is really out of balance is still rejected.
+  broken <- tbl
+  broken$c1[1] <- broken$c1[1] + 50
+  expect_error(new("mdt", name = "broken", table = broken), "Check the lx")
+
+  # So is one off by more than the tolerance (1e-8 relative).
+  tooFar <- tbl
+  tooFar$c1[1] <- tooFar$c1[1] + 1e-4
+  expect_error(new("mdt", name = "tooFar", table = tooFar), "Check the lx")
+})
