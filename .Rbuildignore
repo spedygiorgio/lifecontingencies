@@ -32,3 +32,4 @@
 ^vignettes/.*\.pdf$
 ^tests/_snaps$
 ^tests/testthat/_snaps$
+^_pkgdown\.yml$

@@ -1,11 +1,18 @@
 library(testthat)
 library(lifecontingencies)
 
-context("pxt(): native life-table kernel is identical to the former R code")
+context("pxt(): native life-table kernel reproduces the former R code")
 
-# Former R implementation of the life-table branch of pxt(), kept verbatim
-# as the reference: the native kernel must return the very same doubles,
-# NaN results in degenerate cases included.
+# Former R implementation of the life-table branch of pxt(), kept verbatim as
+# the reference. The native kernel evaluates the same formula and returns the
+# same doubles bit for bit on most platforms, but bit-for-bit equality is not
+# portable: a compiler that contracts a * b + c into a fused multiply-add
+# (Apple clang on aarch64, for one) rounds the intermediate product
+# differently and shifts the result by a few ulps, under the "linear" and
+# "hyperbolic" assumptions which are built from products and sums. What the
+# kernel must reproduce exactly is the shape of the answer -- which entries
+# are NaN and which are zero, i.e. the degenerate cases -- and the finite
+# values to a far tighter tolerance than any actuarial use could notice.
 pxt_reference <- function(object, x, t, fractional) {
   n <- max(length(t), length(x))
   t <- rep(t, length.out = n)
@@ -42,6 +49,15 @@ pxt_reference <- function(object, x, t, fractional) {
   as.numeric(u_p_floorx / eps_x_p_floorx)
 }
 
+# Relative tolerance of 1e-12: ~1e4 ulps of head room over the handful of ulps
+# a contracted multiply-add can cost, still 1e4 times tighter than testthat's
+# own default.
+expectSamePxt <- function(got, want, info) {
+  expect_identical(is.nan(got), is.nan(want), info = paste(info, "- NaN pattern"))
+  expect_identical(got == 0, want == 0, info = paste(info, "- zeros"))
+  expect_equal(got, want, tolerance = 1e-12, info = info)
+}
+
 data("soa08Act", package = "lifecontingencies", envir = environment())
 data("AF92Lt", package = "lifecontingencies", envir = environment())
 # a table that does not start at age 0
@@ -60,9 +76,9 @@ test_that("random ages and durations, all tables and fractional assumptions", {
   t <- c(round(rexp(N, 1 / 15), sample(0:3, N, TRUE)),
          rep(c(0, 1, 1 / 12, 200), length.out = 141))
   for (nm in names(tables)) for (f in methods) {
-    expect_identical(suppressWarnings(pxt(tables[[nm]], x, t, fractional = f)),
-                     suppressWarnings(pxt_reference(tables[[nm]], x, t, f)),
-                     info = paste(nm, f))
+    expectSamePxt(suppressWarnings(pxt(tables[[nm]], x, t, fractional = f)),
+                  suppressWarnings(pxt_reference(tables[[nm]], x, t, f)),
+                  info = paste(nm, f))
   }
 })
 
@@ -72,16 +88,19 @@ test_that("boundaries: below the first age, at omega, beyond omega + 1", {
     om <- getOmega(tb)
     x <- c(0, 0.5, pmax(0, tb@x[1] - c(1, 0.5)), tb@x[1], om - 1, om - 0.5, om, om + 0.5, om + 1, om + 3)
     for (tt in list(0, 0.5, 1, 1.5, 10, c(0, 0.25, 1, 2.5, 5, 7, 9, 11, 13, 20, 50))) {
-      expect_identical(suppressWarnings(pxt(tb, x, tt, fractional = f)),
-                       suppressWarnings(pxt_reference(tb, x, tt, f)),
-                       info = paste(nm, f))
+      expectSamePxt(suppressWarnings(pxt(tb, x, tt, fractional = f)),
+                    suppressWarnings(pxt_reference(tb, x, tt, f)),
+                    info = paste(nm, f))
     }
   }
 })
 
 test_that("recycling of x and t is unchanged", {
-  expect_identical(pxt(soa08Act, 40, 0:30), pxt_reference(soa08Act, 40, 0:30, "linear"))
-  expect_identical(pxt(soa08Act, 20:50, 10), pxt_reference(soa08Act, 20:50, 10, "linear"))
-  expect_identical(qxt(soa08Act, c(30, 40.5), c(1, 2.5)),
-                   1 - pxt_reference(soa08Act, c(30, 40.5), c(1, 2.5), "linear"))
+  expectSamePxt(pxt(soa08Act, 40, 0:30), pxt_reference(soa08Act, 40, 0:30, "linear"),
+                info = "recycled t")
+  expectSamePxt(pxt(soa08Act, 20:50, 10), pxt_reference(soa08Act, 20:50, 10, "linear"),
+                info = "recycled x")
+  expectSamePxt(qxt(soa08Act, c(30, 40.5), c(1, 2.5)),
+                1 - pxt_reference(soa08Act, c(30, 40.5), c(1, 2.5), "linear"),
+                info = "qxt")
 })

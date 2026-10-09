@@ -36,6 +36,27 @@
 # .tableSanitizer() below.
 .MDT_BOTTOM_COMPLETION_SURVIVAL <- 0.99
 
+# Decrement totals are compared with lx up to a relative tolerance rather
+# than exactly. A table whose decrements come from floating-point rates
+# (buildMdtFromIndependentRates(), a graduated table, any non-integer input)
+# balances only up to rounding, and the rounding itself is platform
+# dependent: the same table that balanced to the last bit on x86 was rejected
+# with "Check the lx" on aarch64-apple-darwin, where the compiler contracts
+# a * b + c into a fused multiply-add. Integer-valued published tables are
+# unaffected (they balance exactly, well inside the tolerance).
+.MDT_BALANCE_TOL <- 1e-8
+
+# TRUE when `total` equals `reference` up to .MDT_BALANCE_TOL, relatively for
+# non-zero references and absolutely otherwise.
+.mdtBalanced <- function(total, reference) {
+  if (length(total) != 1L || length(reference) != 1L ||
+      anyNA(c(total, reference)))
+    return(FALSE)
+  scale <- max(abs(total), abs(reference))
+  if (scale == 0) return(TRUE)
+  abs(total - reference) <= .MDT_BALANCE_TOL * scale
+}
+
 #defines the multiple decrement class
 #at least three or more slots, x, lx and the causes...
 setClass("mdt",
@@ -60,7 +81,7 @@ setValidity("mdt",
 				# drop = FALSE preserves matrix/data.frame semantics with one decrement.
 				# Check that the total decrements are equal to initial lx.
 				onlyDecrements <- object@table[, setdiff(namesOfTable, c("x", "lx")), drop = FALSE]
-				if(sum(onlyDecrements) != object@table$lx[1]) {
+				if(!.mdtBalanced(sum(onlyDecrements), object@table$lx[1])) {
 					check <- c(check, "Check the lx")
 				}
 			}
@@ -165,7 +186,7 @@ out<-setdiff(names(object@table),c("x","lx"))
 	#complete the table for top
 	maxage<-which(out$x==max(out$x))
 	pureDecrements<-out[,decrementIds, drop = FALSE]
-	lastCheck<-(rowSums(pureDecrements[maxage,, drop = FALSE])==out$lx[maxage])
+	lastCheck<-.mdtBalanced(sum(pureDecrements[maxage,, drop = FALSE]), out$lx[maxage])
 	if (!lastCheck) {
 		# Add one terminal row so that all remaining lives are decremented.
 		decrements2complete<-matrix(0,nrow=1,ncol=ncol(decrementDf),dimnames=list(NULL,c("x","lx",colnames(decrementDf)[decrementIds])))
