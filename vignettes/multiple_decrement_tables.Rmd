@@ -192,13 +192,147 @@ $$
 qxt.fromQxprime(qx.prime = 0.01, other.qx.prime = c(0.03, 0.06))
 ```
 
+### Extracting the full ASDT matrix: `independentRatesFromMdt()`
+
+While `qxt.prime.fromMdt` returns a single scalar for one (age, decrement)
+pair, `independentRatesFromMdt` computes the full matrix of independent rates
+$q'^{(j)}_x$ for every age and every decrement in the table. This is
+convenient for inspecting and comparing rates across ages, and for the
+round-trip reconstruction described below.
+
+```{r asdt.matrix1}
+qprime <- independentRatesFromMdt(valdezMdt, x = 50:54)
+qprime
+```
+
+Each cell equals the value that `qxt.prime.fromMdt` would return for the
+same (age, decrement) pair:
+
+```{r asdt.matrix2}
+qxt.prime.fromMdt(valdezMdt, x = 53, decrement = "accidents")
+qprime["53", "accidents"]
+```
+
+A subset of ages may be specified:
+
+```{r asdt.matrix3}
+independentRatesFromMdt(valdezMdt, x = 51:52)
+```
+
+### Building an mdt from independent rates: `buildMdtFromIndependentRates()`
+
+The inverse operation — constructing a combined multiple-decrement table from
+a matrix of ASDT independent rates — is provided by
+`buildMdtFromIndependentRates`. This is useful when independent rates are
+estimated separately (e.g. from cause-specific mortality studies or from
+different data sources) and need to be combined into a single `mdt` object.
+
+For each age, the absolute (combined) rate of decrement $j$ is obtained by
+the UDD integration formula:
+$$
+q_x^{(j)} = q'^{(j)}_x \int_0^1 \prod_{i \ne j}
+\bigl(1 - s\, q'^{(i)}_x\bigr)\,ds,
+$$
+and the survivorship column is built recursively from
+$p_x^{(\tau)} = \prod_j (1 - q'^{(j)}_x)$.
+
+The following example replicates @finanMLC [Example 67.4]: three decrements
+(death, disability, retirement) over two ages, with 1000 initial lives:
+
+```{r asdt.build1}
+qp <- matrix(c(0.010, 0.030, 0.100,
+                0.013, 0.050, 0.200),
+             nrow = 2, byrow = TRUE,
+             dimnames = list(NULL, c("death", "disability", "retirement")))
+qp
+
+mdt674 <- buildMdtFromIndependentRates(
+  x = 60:61, qx.primes = qp,
+  radix = 1000, name = "Finan 67.4"
+)
+print(mdt674)
+```
+
+We can verify the key numerical results from the example.
+The combined survival probability at age 60 is
+$p^{(\tau)}_{60} = (1-0.010)(1-0.030)(1-0.100) = 0.86427$,
+giving $l^{(\tau)}_{61} = 864.27$:
+
+```{r asdt.build2}
+ptau60 <- prod(1 - qp[1, ])
+round(ptau60, 5)
+tbl674 <- mdt674@table
+round(tbl674$lx[tbl674$x == 61], 2)
+```
+
+### Round-trip: mdt $\to$ ASDT $\to$ mdt
+
+The two functions compose naturally: extracting independent rates from an
+`mdt` and then rebuilding should recover the original table (up to
+floating-point rounding).  We verify this on the Valdez example:
+
+```{r asdt.roundtrip}
+qprime <- independentRatesFromMdt(valdezMdt, x = 50:54)
+rebuilt <- buildMdtFromIndependentRates(
+  x = 50:54, qx.primes = qprime,
+  radix = valdezMdt@table$lx[valdezMdt@table$x == 50],
+  name = "Roundtrip"
+)
+
+## Compare lx
+data.frame(
+  age = 50:54,
+  original = valdezMdt@table$lx[valdezMdt@table$x %in% 50:54],
+  rebuilt  = round(rebuilt@table$lx[rebuilt@table$x %in% 50:54], 0)
+)
+```
+
+## Visualising mdt objects: `plot()`
+
+The `plot` S4 method for `mdt` objects produces a `ggplot2` visualisation
+of the decrement structure.  Three views are available:
+
+* `"area"` (default): stacked-area chart of decrement counts $d^{(j)}_x$.
+* `"bar"`: stacked bar chart of decrement counts.
+* `"probability"`: line chart of decrement-specific probabilities
+  $q^{(j)}_x = d^{(j)}_x / l^{(\tau)}_x$.
+
+```{r plot.area, fig.width=7, fig.height=4}
+plot(valdezMdt)
+```
+
+```{r plot.bar, fig.width=7, fig.height=4}
+plot(valdezMdt, type = "bar")
+```
+
+```{r plot.prob, fig.width=7, fig.height=4}
+plot(valdezMdt, type = "probability")
+```
+
+The plot method also works on larger tables; here is the CDC-based `mdt`
+object built later in this vignette, aggregated across its 18 causes:
+
+```{r plot.cdc, fig.width=7, fig.height=5, eval=FALSE}
+plot(cdcMdt, type = "probability")
+```
+
 ## Actuarial applications
 
-The package offers limited capabilities for multiple decrement insurances,
-e.g. $A^{1}_{x:\overline{n}|}$ restricted to a specific cause of decrement.
-The example below, from @finanMLC [p. 674], considers a 3-year term issued
-to (16) paying 20,000 at the end of the year of death if death results from
-an accident:
+Two functions value contracts on a `mdt` object. `Axn.mdt` gives the
+actuarial present value (APV) of a term insurance paying, at the end of the
+year of decrement, a benefit $b_j$ that may depend on the cause $j$:
+$$
+\sum_{j \in J} b_j \sum_{h=0}^{n-1} v^{h+1}\,{}_hp^{(\tau)}_x\, q^{(j)}_{x+h},
+$$
+where $J$ is the set of covered decrements (all of them if `decrement` is
+omitted). `axn.mdt` gives the APV of an annuity payable while the insured
+has not yet left the table, with optional deferment `m`, `k` payments per
+year and payments in advance or in arrears. Benefit premiums and reserves
+follow from the equivalence principle.
+
+The example below, from @finanMLC [Problem 68.1], considers a 3-year term
+issued to (16) paying 20,000 at the end of the year of death if death
+results from an accident:
 
 ```{r mdt.act1}
 myTable <- data.frame(
@@ -214,7 +348,41 @@ The value of $A^{1}_{16:\overline{3}|}$, restricted to decrement `da`
 (accidental death), is computed by `Axn.mdt`:
 
 ```{r mdt.act2}
-Axn.mdt(object = myMdt, x = 16, i = .1, decrement = "da")
+20000 * Axn.mdt(object = myMdt, x = 16, n = 3, i = .1, decrement = "da")
+```
+
+If `n` is omitted the cover runs to the end of the table, which here would
+include the synthetic closing row (age 19) added by `new("mdt", ...)`: for
+term covers it is safer to always pass `n`.
+
+@finanMLC [Example 69.1] uses the same table to price a level annual
+premium. Finan's printed solution uses the column of non-accidental deaths
+(1100, 1210, 1331), giving $A = 3000/20000$, $\ddot a^{(\tau)}_{16:\overline{3}|} = 2.4$
+and a premium of 1250:
+
+```{r mdt.act3}
+A691 <- Axn.mdt(myMdt, x = 16, n = 3, i = 0.10, decrement = "doc")
+a691 <- axn.mdt(myMdt, x = 16, n = 3, i = 0.10)
+c(APV = 20000 * A691, annuity = a691, premium = 20000 * A691 / a691)
+```
+
+Benefits that depend on the cause are passed through `benefits`.
+@finanMLC [Example 68.1] pays 1 for cause 1 and 2 for cause 2 over two years
+at $i = 50\%$ (printed answer 0.6852), and [Example 69.2] computes the
+benefit reserve ${}_2V = 11.091$ of a 4-year term paying 2000 for decrement 1
+and 1000 for decrement 2, with annual premium 34 and $v = 0.95$:
+
+```{r mdt.act4}
+m681 <- new("mdt", table = data.frame(x = 50:51, lx = c(1200, 800),
+                                      d1 = c(100, 200), d2 = c(300, 300)))
+Axn.mdt(m681, x = 50, n = 2, i = 0.5, decrement = c("d1", "d2"),
+        benefits = c(1, 2))
+
+m692 <- new("mdt", table = data.frame(x = 41:43, lx = c(800, 776, 752),
+                                      d1 = 8, d2 = 16))
+i692 <- 1 / 0.95 - 1
+Axn.mdt(m692, x = 42, n = 2, i = i692, decrement = c("d1", "d2"),
+        benefits = c(2000, 1000)) - 34 * axn.mdt(m692, x = 42, n = 2, i = i692)
 ```
 
 Another example is inspired by data in @de2016assicurazioni. We use life
@@ -505,5 +673,46 @@ decrements, illustrating how a `mdt` object built this way lets standard
 applied directly to official, cause-specific national mortality data, once
 the table has been reduced to a mutually exclusive partition and graduated
 to single years of age.
+
+## Competing-risks analysis: `mdtToLong()`
+
+A `mdt` object is a life-table summary of a competing-risks process. For
+analyses with standard survival tools, `mdtToLong` turns it into an
+aggregated long data set: one row per (exit time, cause), a `status` factor
+whose first level is `"censored"` (the layout expected by
+`survival::Surv` for multi-state data) and a `count` column to be used as
+case weights. Lives still in the table at the end of the follow-up are
+censored there.
+
+```{r long1}
+valdezLong <- mdtToLong(valdezMdt, x = 50, t = 5)
+head(valdezLong)
+```
+
+With exits placed at the end of the year of age (the default), the
+Aalen-Johansen estimate of the cumulative incidence of each cause computed
+by **survival** coincides with the decrement probabilities of the table:
+
+```{r long2}
+if (requireNamespace("survival", quietly = TRUE)) {
+  fit <- survival::survfit(survival::Surv(time, status) ~ 1,
+                           data = valdezLong, weights = count)
+  aj <- summary(fit, times = 1:5)$pstate[, -1]
+  colnames(aj) <- getDecrements(valdezMdt)
+  byTable <- sapply(getDecrements(valdezMdt), function(d)
+    qxt(valdezMdt, x = 50, t = 1:5, decrement = d))
+  max(abs(aj - byTable))
+}
+```
+
+The same conversion applies to the cause-specific national table built
+above, e.g. to obtain the probability that a life aged 70 eventually dies of
+cancer or of heart disease:
+
+```{r long3}
+cdcLong <- mdtToLong(cdcMdt, x = 70)
+tapply(cdcLong$count, cdcLong$status, sum)[c("cancer", "heart_disease")] /
+  cdcMdt@table$lx[cdcMdt@table$x == 70]
+```
 
 ## References

@@ -228,3 +228,95 @@ setMethod("summary",
 			cat("This is Multiple Decrements Table: ",object@name, "\n","Omega age is: ",getOmega(object), "\n", "Stored decrements are: ", getDecrements(object))
 		}
 )
+
+
+#' Plot a multiple decrement table
+#'
+#' S4 method for the \code{\link[graphics]{plot}} generic: visualises the
+#' decrement structure of an \code{mdt} object.  Three views are available:
+#' a stacked-area chart of death counts \eqn{d^{(j)}_x} (default), a stacked
+#' bar chart, or a line chart of decrement probabilities
+#' \eqn{q^{(j)}_x = d^{(j)}_x / l^{(\tau)}_x}.
+#'
+#' @param x An \code{mdt} object.
+#' @param y Not used (kept for S4 generic compatibility).
+#' @param type Character: one of \code{"area"} (default), \code{"bar"}, or
+#'   \code{"probability"}.  \code{"area"} and \code{"bar"} show stacked
+#'   decrement counts; \code{"probability"} shows decrement-specific
+#'   probabilities as lines.
+#' @param ... Further arguments (currently unused).
+#'
+#' @return A \code{ggplot2} object (returned invisibly).
+#'
+#' @examples
+#' valdezDf <- data.frame(
+#'   x = 50:54,
+#'   lx = c(4832555, 4821937, 4810206, 4797185, 4782737),
+#'   heart = c(5168, 5363, 5618, 5929, 6277),
+#'   accidents = c(1157, 1206, 1443, 1679, 2152),
+#'   other = c(4293, 5162, 5960, 6840, 7631))
+#' valdezMdt <- new("mdt", name = "ValdezExample", table = valdezDf)
+#' plot(valdezMdt)
+#' plot(valdezMdt, type = "bar")
+#' plot(valdezMdt, type = "probability")
+#'
+#' @importFrom ggplot2 ggplot aes geom_area geom_col geom_line labs theme_minimal
+#' @exportMethod plot
+setMethod("plot", signature(x = "mdt", y = "missing"),
+	function(x, y, type = c("area", "bar", "probability"), ...) {
+		type <- match.arg(type)
+		tbl <- x@table
+		decrements <- getDecrements(x)
+
+		# Only keep rows that have actual decrement data (exclude the terminal
+		# age whose lx was set to the remaining survivors but whose decrements
+		# are the last real row).
+		ages <- tbl$x[-nrow(tbl)]
+
+		# Build a long-format data frame for ggplot2
+		longDf <- data.frame(
+			age = rep(ages, times = length(decrements)),
+			decrement = rep(decrements, each = length(ages)),
+			value = unlist(lapply(decrements, function(d) tbl[[d]][-nrow(tbl)])),
+			stringsAsFactors = FALSE
+		)
+		longDf$decrement <- factor(longDf$decrement, levels = decrements)
+
+		if (type == "probability") {
+			# Divide by lx to get decrement-specific probabilities
+			lxVec <- tbl$lx[-nrow(tbl)]
+			longDf$value <- longDf$value / rep(lxVec, times = length(decrements))
+			p <- ggplot2::ggplot(longDf, ggplot2::aes(x = age, y = value,
+			                                           colour = decrement)) +
+				ggplot2::geom_line(linewidth = 0.8) +
+				ggplot2::labs(
+					title = paste0("Decrement probabilities: ", x@name),
+					x = "Age", y = expression(q[x]^{(j)}),
+					colour = "Decrement"
+				) +
+				ggplot2::theme_minimal()
+		} else if (type == "bar") {
+			p <- ggplot2::ggplot(longDf, ggplot2::aes(x = age, y = value,
+			                                           fill = decrement)) +
+				ggplot2::geom_col() +
+				ggplot2::labs(
+					title = paste0("Decrement counts: ", x@name),
+					x = "Age", y = expression(d[x]^{(j)}),
+					fill = "Decrement"
+				) +
+				ggplot2::theme_minimal()
+		} else {
+			# stacked area (default)
+			p <- ggplot2::ggplot(longDf, ggplot2::aes(x = age, y = value,
+			                                           fill = decrement)) +
+				ggplot2::geom_area() +
+				ggplot2::labs(
+					title = paste0("Decrement counts: ", x@name),
+					x = "Age", y = expression(d[x]^{(j)}),
+					fill = "Decrement"
+				) +
+				ggplot2::theme_minimal()
+		}
+		invisible(p)
+	}
+)

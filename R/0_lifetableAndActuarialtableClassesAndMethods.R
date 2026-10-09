@@ -137,20 +137,30 @@ setValidity("lifetable",
 
 
 #function to create lifetable cols
-.createLifeTableCols<-function(object)
+# exType: "curtate" (default, historical) or "complete" expectation of life.
+# fxt, axOmega: passed to Tx()/exn()/Lxt() to control the within-year and
+#   open-last-interval assumptions. The defaults (exType = "curtate",
+#   fxt = 0.5, axOmega = 0.5) reproduce the historical output exactly.
+.createLifeTableCols<-function(object, exType=c("curtate","complete"),
+		fxt=0.5, axOmega=1-fxt)
 {
+	exType <- match.arg(exType)
 	#vector used to obtain px
 	lxplus<-object@lx[2:length(object@lx)]
 	lxplus<-c(lxplus,0)
-	# Under UDD (fxt = 0.5 in Lxt), Lx = lx - 0.5*dx = (lx + lx+1)/2.
-	Lx <- 0.5 * (object@lx + lxplus)
+	# Lx = lx - fxt*dx (per-age person-years); with fxt = 0.5 this is
+	# (lx + lx+1)/2. The last, open interval uses axOmega*l_omega.
+	dx <- object@lx - lxplus
+	Lx <- object@lx - fxt*dx
+	Lx[length(Lx)] <- axOmega * object@lx[length(object@lx)]
 	# Tx is the backward cumulative sum of Lx.
 	Tx <- rev(cumsum(rev(Lx)))
-	# ex is intentionally computed via exn() to keep this output aligned
-	# with the package's expected-lifetime implementation.
+	# ex is computed via exn() to keep this output aligned with the
+	# package's expected-lifetime implementation.
 	lenlx=length(object@lx)
 	exni=numeric(lenlx)
-	for(i in seq_len(lenlx)) exni[i]=exn(object=object, x=i-1,type="curtate") #prima x=i e come sopra e c'era complete
+	for(i in seq_len(lenlx)) exni[i]=exn(object=object, x=i-1, type=exType,
+				fxt=fxt, axOmega=axOmega)
 	out<-data.frame(x=object@x, lx=object@lx,px=lxplus/object@lx,
 			Lx=Lx, Tx=Tx, ex=exni)
 	#remove last row
@@ -159,11 +169,11 @@ setValidity("lifetable",
 	return(out)
 }
 
-.printLifetable <- function(object)
+.printLifetable <- function(object, ...)
 {
 	cat(paste("Life table",object@name),"\n")
 	cat("\n")
-	print(.createLifeTableCols(object))
+	print(.createLifeTableCols(object, ...))
 	cat("\n")
 }
 
@@ -174,10 +184,15 @@ setMethod("show","lifetable", #metodo show
 		}
 )
 
-#show method 4 lifetable: prints x, lx, px, ex
+#print method for lifetable: prints x, lx, px, Lx, Tx, ex.
+#Optional arguments (exType, fxt, axOmega) are forwarded to
+#.createLifeTableCols(); with the defaults the output is unchanged. The
+#computed data.frame is returned invisibly for programmatic use, e.g.
+#  df <- print(myLifetable, exType = "complete")
 setMethod("print","lifetable", #metodo show
-		function(x){
-			.printLifetable(x)
+		function(x, ...){
+			.printLifetable(x, ...)
+			invisible(.createLifeTableCols(x, ...))
 		}
 )
 
@@ -262,7 +277,7 @@ setMethod("show","actuarialtable", #metodo show
 #print method: show clone
 
 setMethod("print","actuarialtable", #metodo show
-		function(x){
+		function(x, ...){
 			.printActuarialtable(x)
 		}
 )
@@ -305,16 +320,21 @@ setAs("actuarialtable","data.frame",
 
 setAs("lifetable","numeric",
 		function(from) {
-			out<-numeric(getOmega(from)+1)
-			for(i in 0:getOmega(from)) out[i+1]<-qxt(object=from,x=i,t=1)
+			# qxt() already accepts a vector of ages: one call replaces
+			# getOmega(from)+1 redundant scalar calls.
+			out <- qxt(object=from, x=0:getOmega(from), t=1)
 			return(out)
 		}
 )
 
 setAs("actuarialtable","numeric",
 		function(from) {
-			out<-numeric(getOmega(from))
-			for(i in 0:(getOmega(from)-2)) out[i+1]<-Axn(actuarialtable=from,x=i)
+			# Axn() is already vectorised over x: one call replaces
+			# getOmega(from)-1 redundant scalar calls. Output length and
+			# the trailing zero (index getOmega(from), never assigned by
+			# the original loop) are preserved exactly.
+			out <- numeric(getOmega(from))
+			out[1:(getOmega(from)-1)] <- Axn(actuarialtable=from, x=0:(getOmega(from)-2))
 			return(out)
 		}
 )

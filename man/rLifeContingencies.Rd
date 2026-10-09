@@ -15,6 +15,7 @@ rLifeContingencies(
   m = 0,
   k = 1,
   parallel = FALSE,
+  nthreads = NULL,
   payment = "advance"
 )
 
@@ -29,6 +30,7 @@ rLifeContingenciesXyz(
   k = 1,
   status = "joint",
   parallel = FALSE,
+  nthreads = NULL,
   payment = "advance"
 )
 }
@@ -52,7 +54,20 @@ present value of benefits definition.}
 
 \item{k}{Fractional payment, default value is 1.}
 
-\item{parallel}{Uses the parallel computation facility.}
+\item{parallel}{Request multi-threaded (OpenMP) computation of the per-sample
+payoff. This is opt-in twice: it has an effect only if
+\code{parallel = TRUE} \emph{and} the option
+\code{options(lifecontingencies.openmp = TRUE)} has been set by the user;
+otherwise the (already vectorised) sequential kernel is used. It is also a
+no-op when the installed binary was built without OpenMP support (see
+\code{lifecontingencies:::.hasOpenMP()}). Simulated lifetimes are drawn
+in R before the parallel region, so results are identical with and without
+parallelisation for a given seed.}
+
+\item{nthreads}{Number of OpenMP threads used when parallelisation is active.
+Defaults to \code{NULL}, which falls back to
+\code{getOption("lifecontingencies.nthreads", 2L)}; it is never set
+automatically to the number of available cores.}
 
 \item{payment}{The Payment type, either \code{"advance"} for the annuity due (default) 
 or \code{"arrears"} for the annuity immediate. 

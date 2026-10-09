@@ -10,6 +10,7 @@
 \alias{head,lifetable-method}
 \alias{initialize,lifetable-method}
 \alias{plot,lifetable-method}
+\alias{plot,lifetable,ANY-method}
 \alias{print,lifetable-method}
 \alias{show,lifetable-method}
 \alias{summary,lifetable-method}

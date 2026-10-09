@@ -142,6 +142,168 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pxtLifetableCpp
+NumericVector pxtLifetableCpp(NumericVector x, NumericVector t, NumericVector lx, double minAge, int fractional_method);
+RcppExport SEXP _lifecontingencies_pxtLifetableCpp(SEXP xSEXP, SEXP tSEXP, SEXP lxSEXP, SEXP minAgeSEXP, SEXP fractional_methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lx(lxSEXP);
+    Rcpp::traits::input_parameter< double >::type minAge(minAgeSEXP);
+    Rcpp::traits::input_parameter< int >::type fractional_method(fractional_methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(pxtLifetableCpp(x, t, lx, minAge, fractional_method));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fExnCppVec
+NumericVector fExnCppVec(NumericVector T, double y, double n, double i, int nthreads);
+RcppExport SEXP _lifecontingencies_fExnCppVec(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type T(TSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fExnCppVec(T, y, n, i, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fAxnCppVec
+NumericVector fAxnCppVec(NumericVector T, double y, double n, double i, double m, double k, int nthreads);
+RcppExport SEXP _lifecontingencies_fAxnCppVec(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type T(TSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fAxnCppVec(T, y, n, i, m, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fIAxnCppVec
+NumericVector fIAxnCppVec(NumericVector T, double y, double n, double i, double m, double k, int nthreads);
+RcppExport SEXP _lifecontingencies_fIAxnCppVec(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type T(TSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fIAxnCppVec(T, y, n, i, m, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fDAxnCppVec
+NumericVector fDAxnCppVec(NumericVector T, double y, double n, double i, double m, double k, int nthreads);
+RcppExport SEXP _lifecontingencies_fDAxnCppVec(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type T(TSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fDAxnCppVec(T, y, n, i, m, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fAExnCppVec
+NumericVector fAExnCppVec(NumericVector T, double y, double n, double i, double k, int nthreads);
+RcppExport SEXP _lifecontingencies_fAExnCppVec(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type T(TSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fAExnCppVec(T, y, n, i, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// faxnCppVec
+NumericVector faxnCppVec(NumericVector T, double y, double n, double i, double m, double k, bool advance, int nthreads);
+RcppExport SEXP _lifecontingencies_faxnCppVec(SEXP TSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP, SEXP advanceSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type T(TSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< bool >::type advance(advanceSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(faxnCppVec(T, y, n, i, m, k, advance, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fAxyznCppVec
+NumericVector fAxyznCppVec(NumericMatrix deathsTimeXyz, NumericVector y, double n, double i, double m, double k, bool joint, int nthreads);
+RcppExport SEXP _lifecontingencies_fAxyznCppVec(SEXP deathsTimeXyzSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP, SEXP jointSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type deathsTimeXyz(deathsTimeXyzSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< bool >::type joint(jointSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fAxyznCppVec(deathsTimeXyz, y, n, i, m, k, joint, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// faxyznCppVec
+NumericVector faxyznCppVec(NumericMatrix deathsTimeXyz, NumericVector y, double n, double i, double m, double k, bool joint, bool advance, int nthreads);
+RcppExport SEXP _lifecontingencies_faxyznCppVec(SEXP deathsTimeXyzSEXP, SEXP ySEXP, SEXP nSEXP, SEXP iSEXP, SEXP mSEXP, SEXP kSEXP, SEXP jointSEXP, SEXP advanceSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type deathsTimeXyz(deathsTimeXyzSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< bool >::type joint(jointSEXP);
+    Rcpp::traits::input_parameter< bool >::type advance(advanceSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(faxyznCppVec(deathsTimeXyz, y, n, i, m, k, joint, advance, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hasOpenMP
+bool hasOpenMP();
+RcppExport SEXP _lifecontingencies_hasOpenMP() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(hasOpenMP());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_mult3sum", (DL_FUNC) &_lifecontingencies_mult3sum, 3},
@@ -153,6 +315,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lifecontingencies_fDAxnCpp", (DL_FUNC) &_lifecontingencies_fDAxnCpp, 6},
     {"_lifecontingencies_fAExnCpp", (DL_FUNC) &_lifecontingencies_fAExnCpp, 5},
     {"_lifecontingencies_pxtCpp", (DL_FUNC) &_lifecontingencies_pxtCpp, 5},
+    {"_lifecontingencies_pxtLifetableCpp", (DL_FUNC) &_lifecontingencies_pxtLifetableCpp, 5},
+    {"_lifecontingencies_fExnCppVec", (DL_FUNC) &_lifecontingencies_fExnCppVec, 5},
+    {"_lifecontingencies_fAxnCppVec", (DL_FUNC) &_lifecontingencies_fAxnCppVec, 7},
+    {"_lifecontingencies_fIAxnCppVec", (DL_FUNC) &_lifecontingencies_fIAxnCppVec, 7},
+    {"_lifecontingencies_fDAxnCppVec", (DL_FUNC) &_lifecontingencies_fDAxnCppVec, 7},
+    {"_lifecontingencies_fAExnCppVec", (DL_FUNC) &_lifecontingencies_fAExnCppVec, 6},
+    {"_lifecontingencies_faxnCppVec", (DL_FUNC) &_lifecontingencies_faxnCppVec, 8},
+    {"_lifecontingencies_fAxyznCppVec", (DL_FUNC) &_lifecontingencies_fAxyznCppVec, 8},
+    {"_lifecontingencies_faxyznCppVec", (DL_FUNC) &_lifecontingencies_faxyznCppVec, 9},
+    {"_lifecontingencies_hasOpenMP", (DL_FUNC) &_lifecontingencies_hasOpenMP, 0},
     {NULL, NULL, 0}
 };
 

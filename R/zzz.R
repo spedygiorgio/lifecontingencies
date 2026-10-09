@@ -57,10 +57,13 @@
 #' @importFrom Rcpp sourceCpp
 #' @exportClass actuarialtable
 #' @exportClass lifetable
-#' @export accumulatedValue AExn annuity axn Axn Axn.mdt axyn Axyn axyzn Axyzn convertible2Effective convexity DAxn decreasingAnnuity 
+#' @export accumulatedValue AExn annuity axn axn.mdt Axn Axn.mdt axyn Axyn axyzn Axyzn convertible2Effective convexity DAxn decreasingAnnuity 
 #' @export discount2Interest duration dxt effective2Convertible exn Exn exyt exyzt getDecrements getLifecontingencyPv getLifecontingencyPvXyz 
 #' @export getOmega head Iaxn IAxn increasingAnnuity intensity2Interest interest2Discount interest2Intensity Isn Lxt 
 #' @export mx2qx mxt nominal2Real plot presentValue print probs2lifetable pxt pxyt pxyzt qxt.prime.fromMdt qxt.fromQxprime 
 #' @export qx2mx qxt qxyt qxyzt real2Nominal rLife rLifeContingencies rLifeContingenciesXyz rLifexyz rmdt summary tail Tx 
-#' @exportMethod coerce plot print show summary getOmega
+#' @exportMethod coerce plot print show summary getOmega dxt pxt qxt
 NULL
+
+# column names used through ggplot2::aes() in the plot() method for mdt
+utils::globalVariables(c("age", "value", "decrement"))

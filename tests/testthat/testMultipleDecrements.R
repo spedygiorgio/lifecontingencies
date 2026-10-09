@@ -74,5 +74,12 @@ test_that("Axn.mdt reproduces the Finan (2014, p. 674) example", {
     doc = c(1100, 1210, 1331)
   )
   myMdt <- new("mdt", table = myTable, name = "Sample")
-  expect_equal(round(Axn.mdt(object = myMdt, x = 16, i = .1, decrement = "da"), 4), 0.1364)
+  # Finan Problem 68.1: 3-year term paying 20,000 on accidental death,
+  # APV = 20000/20000 * (1300 v + 1870 v^2 + 2380 v^3), v = 1/1.1.
+  # (Up to 1.6.2 this test expected 0.1364, the 2-year value: the default
+  # n = omega - x - 1 silently dropped the last tabulated age.)
+  expected <- sum(c(1300, 1870, 2380) * 1.1^-(1:3)) / 20000
+  expect_equal(Axn.mdt(object = myMdt, x = 16, n = 3, i = .1, decrement = "da"),
+               expected)
+  expect_equal(round(20000 * expected, 2), 4515.40)
 })

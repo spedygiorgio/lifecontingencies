@@ -1,0 +1,216 @@
+---
+title: "Demographic analysis with the lifecontingencies package"
+author: "Giorgio Alfredo Spedicato"
+date: today
+format: html
+bibliography: lifecontingenciesBiblio.bib
+vignette: >
+  %\VignetteEngine{quarto::html}
+  %\VignetteIndexEntry{Demographic analysis with the lifecontingencies package}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+library(lifecontingencies)
+```
+
+# Scope
+
+This vignette collects the *demographic* functions of the
+**lifecontingencies** package: the quantities that describe the mortality of a
+cohort through a life table, independently of any interest rate. It complements
+the introductory vignette (which focuses on the financial and actuarial
+functions) and the multiple-decrement vignette.
+
+All of the examples below run on life tables that can be reconstructed
+exactly, so the numbers can be checked against the standard actuarial and
+demographic literature [@bowers1997actuarial; @dickson2009actuarial; @keyfitz2005applied].
+
+# Building and inspecting a life table
+
+A `lifetable` object stores a vector of ages `x` and the survivorship column
+`lx`. The illustrative Society of Actuaries table bundled with the package is
+an `actuarialtable` (a `lifetable` that additionally carries an interest
+rate), so every demographic function below works on it unchanged.
+
+```{r build}
+data(soa08Act)
+getOmega(soa08Act)          # last attainable age
+soa08Act@lx[1:5]            # survivorship at the first ages
+```
+
+Printing a `lifetable` tabulates the one-year survival probability together
+with the person-years `Lx`, the total time lived `Tx` and the expectation of
+life `ex`. The `print` method accepts optional arguments (discussed below) and
+returns the displayed `data.frame` invisibly, so it can be captured for
+further use:
+
+```{r printdf}
+lt <- new("lifetable", x = 0:5, lx = c(1000, 990, 975, 940, 880, 790),
+          name = "toy")
+df <- print(lt)
+```
+
+# Core demographic functions
+
+The basic one-year and `t`-year quantities are computed directly from the
+`lx` column.
+
+```{r core}
+pxt(soa08Act, x = 65, t = 1)     # 1-year survival probability
+qxt(soa08Act, x = 65, t = 5)     # 5-year death probability
+dxt(soa08Act, x = 65, t = 10)    # deaths between 65 and 75
+Lxt(soa08Act, x = 65, t = 1)     # person-years lived in [65, 66)
+mxt(soa08Act, x = 65, t = 1)     # central mortality rate
+Tx(soa08Act, x = 65)             # total years lived from age 65
+```
+
+The central mortality rate and the death probability are linked by the usual
+conversions:
+
+```{r mx}
+m <- mxt(soa08Act, 65, 1)
+c(mx2qx(m), qxt(soa08Act, 65, 1))
+```
+
+# Expectation of life: curtate and complete
+
+`exn` returns the expectation of future lifetime. With `type = "curtate"`
+(the default) it is the expected number of *complete* future years,
+$e_x = \sum_{k\ge 1}{}_k p_x$; with `type = "complete"` it is the expected
+*exact* future lifetime, $\mathring e_x = T_x/l_x$, evaluated under the uniform
+distribution of deaths (UDD) within each year of age. Under UDD the two are
+related by $\mathring e_x \approx e_x + 0.5$:
+
+```{r exn}
+curtate  <- exn(soa08Act, x = 0, type = "curtate")
+complete <- exn(soa08Act, x = 0, type = "complete")
+c(curtate = curtate, complete = complete, difference = complete - curtate)
+```
+
+Both forms accept a temporary horizon `n`; the temporary complete expectation
+is $\mathring e_{x:\overline{n}|} = {}_n L_x / l_x$:
+
+```{r exntemp}
+exn(soa08Act, x = 50, n = 20, type = "curtate")
+exn(soa08Act, x = 50, n = 20, type = "complete")
+```
+
+As a published check, Finan's *Exam MLC* study manual [@finanMLC]
+(Example 23.24) uses the small extract below and obtains $e_{80}=2.3$:
+
+```{r finan}
+t80 <- new("lifetable", x = 80:86,
+           lx = c(250, 217, 161, 107, 62, 28, 0), name = "Finan 23.24")
+exn(t80, 80)
+```
+
+# Within-year deaths and the open last interval
+
+`Tx` and `exn` (complete branch) expose two assumptions that matter when a
+life table is to be matched against an officially published one:
+
+* `fxt` — the fraction of the final year of age lived by those who die within
+  it, so that $L_x = l_x - fxt\, d_x$. The default `0.5` is the UDD
+  assumption.
+* `axOmega` — the mean number of years lived in the last, *open-ended* age
+  interval by those still alive at the last tabulated age $\omega$, so that
+  $L_\omega = axOmega \cdot l_\omega$. The default `1 - fxt` reproduces the
+  historical closed-interval behaviour of the package (the last age
+  contributes $0.5\, l_\omega$ when `fxt = 0.5`).
+
+Official period life tables (for example the U.S. NCHS tables) leave the last
+interval open and close it with $L_\omega = l_\omega / m_\omega$, i.e.
+`axOmega = 1 / mOmega`. The excerpt below reproduces the published closure of
+the last age of the NCHS 2019 total table ($l_{100}=2090$, $m_{100}$ implied by
+$L_{100}=4696$):
+
+```{r openinterval}
+tail2 <- new("lifetable", x = c(99, 100), lx = c(3024, 2090), name = "NCHS tail")
+mOmega <- 2090 / 4696                 # published central rate at the open age
+c(default_closed = Tx(tail2, 100),
+  open_interval  = Tx(tail2, 100, axOmega = 1 / mOmega),
+  published_L100 = 4696)
+```
+
+With the defaults the results are identical to previous versions of the
+package, so existing code is unaffected.
+
+# Dispersion of the future lifetime
+
+`varxn` and `sdxn` are the second-moment companions of `exn`: the variance and
+standard deviation of the future lifetime. For the curtate lifetime the
+variance is computed exactly from the table; for the complete lifetime it uses
+the UDD relation $\mathrm{Var}(T_x) = \mathrm{Var}(K_x) + 1/12$.
+
+```{r var}
+varxn(soa08Act, x = 65, type = "Kx")        # Var(K_65)
+sdxn(soa08Act,  x = 65, type = "Kx")        # sd(K_65)
+varxn(soa08Act, x = 65, type = "complete")  # Var(T_65) = Var(K_65) + 1/12
+```
+
+On the Finan extract the variance of the curtate lifetime is $2.394$:
+
+```{r varfinan}
+varxn(t80, 80, type = "Kx")
+```
+
+A temporary horizon is available for the curtate lifetime:
+
+```{r vartemp}
+varxn(soa08Act, x = 40, n = 20, type = "Kx")
+```
+
+# Distribution of the age at death
+
+The age at death implied by a life table has a full distribution, not only a
+mean. The package exposes it through the familiar **R** generics `median` and
+`quantile`, plus the Lexis modal age at death `modalAge`.
+
+```{r dist}
+median(soa08Act)                                   # median age at death
+quantile(soa08Act, probs = c(0.1, 0.25, 0.75, 0.9))
+modalAge(soa08Act, startAge = 10)                  # adult modal age at death
+modalAge(soa08Act, startAge = 10, interpolate = TRUE)
+```
+
+Both `median` and `quantile` can be conditioned on survival to a given age via
+the `age` argument, returning the distribution of the age at death given that
+the life has reached `age`:
+
+```{r distcond}
+median(soa08Act, age = 65)
+quantile(soa08Act, probs = c(0.25, 0.75), age = 65)
+```
+
+Because these are the standard generics, they behave as users expect: the
+median is exactly the 50% quantile, and on a de Moivre table ($l_x = \omega-x$)
+the quantiles are exact.
+
+```{r demoivre}
+dm <- new("lifetable", x = 0:100, lx = 100 - (0:100), name = "de Moivre")
+c(median = median(dm), q25 = unname(quantile(dm, 0.25)),
+  q75 = unname(quantile(dm, 0.75)))
+```
+
+# An enriched life-table printout
+
+Finally, the `print` method of a `lifetable` forwards the `exType`, `fxt` and
+`axOmega` arguments to the table it builds, so the complete expectation (and
+any non-default within-year or open-interval assumption) can be shown
+directly. (An `actuarialtable` such as `soa08Act` prints its commutation
+functions instead, so we coerce it to a plain `lifetable` here.)
+
+```{r printopts}
+ltSoa <- new("lifetable", x = soa08Act@x, lx = soa08Act@lx, name = "SOA 2008")
+head(print(ltSoa, exType = "complete"))
+```
+
+# References

@@ -1,10 +1,35 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# Site articles are the HTML vignettes (Rmd/qmd); pkgdown does not render the
+# Sweave (.Rnw) vignettes, so no LaTeX is installed here (it used to take
+# ~6 of the ~8 minutes of this job). PRs build the site without deploying it
+# and superseded PR runs are cancelled.
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - 'tests/**'
+      - 'data-raw/**'
+      - 'trash_and_old/**'
+      - 'inst/benchmarks/**'
+      - 'cran-comments.md'
+      - '.github/workflows/R-CMD-check.yaml'
+      - '.github/workflows/test-coverage.yaml'
+      - '.github/workflows/release.yaml'
+      - '.github/workflows/benchmark-rcpp.yml'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - 'tests/**'
+      - 'data-raw/**'
+      - 'trash_and_old/**'
+      - 'inst/benchmarks/**'
+      - 'cran-comments.md'
+      - '.github/workflows/R-CMD-check.yaml'
+      - '.github/workflows/test-coverage.yaml'
+      - '.github/workflows/release.yaml'
+      - '.github/workflows/benchmark-rcpp.yml'
   release:
     types: [published]
   workflow_dispatch:
@@ -14,8 +39,10 @@ name: pkgdown
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+      group: pkgdown-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       NO_COLOR: "1"
@@ -57,27 +84,9 @@ jobs:
             any::pkgdown
             any::knitr
             any::rmarkdown
-            any::tinytex
             local::.
           needs: website
           cache: true
-
-      - id: tinytex
-        uses: r-lib/actions/setup-tinytex@v2
-        continue-on-error: true
-
-      - if: steps.tinytex.outcome == 'failure'
-        uses: r-lib/actions/setup-tinytex@v2
-
-      - name: Install LaTeX packages
-        shell: Rscript {0}
-        run: |
-          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
-          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
-          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
-
-      - name: Ensure PDF tools
-        run: sudo apt-get update && sudo apt-get install -y ghostscript qpdf
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

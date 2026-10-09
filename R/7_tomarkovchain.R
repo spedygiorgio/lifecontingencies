@@ -36,8 +36,11 @@
 
 	outChains <- list()
 	ages <- seq(0, getOmega(from), 1)
-	for (i in ages) {
-		ageMc <- .qxToMc(qx = qxt(from, i, 1), age = as.character(i))
+	# qxt() already accepts a vector of ages: compute all qx values with a
+	# single call instead of one redundant call per age inside the loop.
+	qxVec <- qxt(from, ages, 1)
+	for (i in seq_along(ages)) {
+		ageMc <- .qxToMc(qx = qxVec[i], age = as.character(ages[i]))
 		outChains[[length(outChains) + 1]] <- ageMc
 	}
 	out <- new("markovchainList", markovchains = outChains, name = from@name)

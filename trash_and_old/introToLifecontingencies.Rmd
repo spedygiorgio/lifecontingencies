@@ -224,7 +224,7 @@ hist(res_lt,xlab="Residual Life Time")
 
 ```{r leecarter01, tidy=FALSE, include=FALSE, results='hide'}
 #library(demography)
-#italy.demo<-hmd.mx("ITA", username="spedicato_giorgio@yahoo.it", password="mortality")
+#italy.demo<-hmd.mx("ITA", username="yourUN", password="yourPW")
 ```
 
 
