@@ -36,7 +36,7 @@ Two vectors are needed. The age vector and the population at risk vector.
 \section{Methods}{
   \describe{
     \item{coerce}{\code{signature(from = "lifetable", to = "data.frame")}: method to create a data - frame from a lifetable object }
-     \item{coerce}{\code{signature(from = "lifetable", to = "markovchainList")}: coerce method from \code{lifetable} to \code{markovchainList} }
+     \item{coerce}{\code{signature(from = "lifetable", to = "markovchainList")}: coerce method from \code{lifetable} to \code{markovchainList}; available only when the optional \pkg{markovchain} package is installed }
      \item{coerce}{\code{signature(from = "lifetable", to = "numeric")}: brings to numeric }
     \item{coerce}{\code{signature(from = "data.frame", to = "lifetable")}: brings to life table }
       \item{getOmega}{\code{signature(object = "lifetable")}: returns the maximum attainable life age }

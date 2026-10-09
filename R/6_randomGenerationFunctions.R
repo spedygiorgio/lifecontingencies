@@ -670,27 +670,24 @@ getLifecontingencyPvXyz<-function(deathsTimeXyz,lifecontingency, tablesList, x,t
 #' @author Giorgio Alfredo Spedicato
 #' 
 #' @section Details:
-#' The functin uses \code{rmarkovchain} function from markovchain package to simulate the chain
+#' The function uses \code{rmarkovchain} from the optional markovchain package to simulate the chain: it stops with an informative error if that package is not installed.
 #' 
 #' @seealso \code{\link{rLifeContingenciesXyz}},\code{\link{rLifeContingencies}}
 #' 
 #' @examples
 #' mdtDf<-data.frame(x=c(0,1,2,3),death=c(100,50,30,10),lapse=c(150,20,2,0))
 #' myMdt<-new("mdt",name="example Mdt",table=mdtDf)
-#' ciao<-rmdt(n=5,object = myMdt,x = 0,t = 4,include.t0=FALSE,t0="alive")
+#' if (requireNamespace("markovchain", quietly = TRUE)) {
+#'   ciao<-rmdt(n=5,object = myMdt,x = 0,t = 4,include.t0=FALSE,t0="alive")
+#' }
 #' 
 
 rmdt<-function(n=1,object, x=0,t=1,t0="alive", include.t0=TRUE) {
-	if (!.require_markovchain("rmdt")) {
-		return(invisible(NULL))
-	}
+	.require_markovchain("rmdt")
 	if (methods::canCoerce(object, "markovchainList")) {
 		mcList <- as(object, "markovchainList")
 	} else {
 		mcList <- .mdt_to_markovchain_list(object)
-	}
-	if (is.null(mcList)) {
-		return(invisible(NULL))
 	}
 	initialVal<-rep(t0,n)
 	endSim<-min(t,getOmega(object)-x)

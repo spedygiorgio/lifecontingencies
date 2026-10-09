@@ -30,9 +30,7 @@
 #functions to convert a lifetable toward a MarkovChainList
 
 .lifetable_to_markovchain_list <- function(from) {
-	if (!.require_markovchain(".lifetable_to_markovchain_list")) {
-		return(invisible(NULL))
-	}
+	.require_markovchain(".lifetable_to_markovchain_list")
 
 	outChains <- list()
 	ages <- seq(0, getOmega(from), 1)
@@ -49,9 +47,7 @@
 
 .qxToMc<-function(qx, age)
 {
-	if (!.require_markovchain(".qxToMc")) {
-		return(invisible(NULL))
-	}
+	.require_markovchain(".qxToMc")
 	statesNames=c("alive","death")
 	matr=matrix(rep(0,4),nrow = 2);dimnames(matr) <- list(statesNames,statesNames)
 	matr[1,1]=1-qx
@@ -62,21 +58,10 @@
 	invisible(outMc)
 }
 
-if (requireNamespace("markovchain", quietly = TRUE)) {
-	setAs("lifetable","markovchainList",
-			function(from)
-			{
-				invisible(.lifetable_to_markovchain_list(from))
-			}
-		)
-}
-
 #function to convert a mdt to a markovchain list
 
 .mdt_to_markovchain_list <- function(from) {
-	if (!.require_markovchain(".mdt_to_markovchain_list")) {
-		return(invisible(NULL))
-	}
+	.require_markovchain(".mdt_to_markovchain_list")
 
 	outChains <- list()
 	ages <- seq(0, getOmega(from), 1)
@@ -94,9 +79,7 @@ if (requireNamespace("markovchain", quietly = TRUE)) {
 
 .qxdToMc<-function(qx,age)
 {
-	if (!.require_markovchain(".qxdToMc")) {
-		return(invisible(NULL))
-	}
+	.require_markovchain(".qxdToMc")
 	statesNames=c("alive",names(qx))
 	matr<-matrix(0,ncol=length(statesNames), nrow=length(statesNames)) #preallocate matrix
 	colnames(matr)<-statesNames
@@ -108,11 +91,14 @@ if (requireNamespace("markovchain", quietly = TRUE)) {
 	invisible(outMc)
 }
 
-if (requireNamespace("markovchain", quietly = TRUE)) {
-	setAs("mdt","markovchainList",
-			function(from)
-			{
-				invisible(.mdt_to_markovchain_list(from))
-			}
-		)
+# S4 coercions to "markovchainList". Registered by .onLoad() only when the
+# optional markovchain package is installed at load time, so that without it
+# as(x, "markovchainList") fails with R's standard "no method or default"
+# error and the vignettes skip the chunk (see the vignette's eval option).
+.registerMarkovchainCoercions <- function() {
+	methods::setAs("lifetable", "markovchainList",
+		function(from) invisible(.lifetable_to_markovchain_list(from)))
+	methods::setAs("mdt", "markovchainList",
+		function(from) invisible(.mdt_to_markovchain_list(from)))
+	invisible(TRUE)
 }

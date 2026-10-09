@@ -44,11 +44,12 @@
   library.dynam.unload("lifecontingencies", libpath)
 }
 
-# onload function: registering the vignette engine
-# .onLoad <- function(libname, pkgname) {
-#   tools::vignetteEngine("rmarkdown", weave = vweave, tangle = vtangle,
-#                         pattern = "[.]Rmd$", package = "knitr")
-# }
+# onload function: register the coercions that need the optional markovchain
+# package, if it is installed at load time (not at build time, so that
+# installing markovchain later also works)
+.onLoad <- function(libname, pkgname) {
+  if (.markovchainAvailable()) .registerMarkovchainCoercions()
+}
 
 #' @useDynLib lifecontingencies, .registration = TRUE 
 #' @import methods parallel utils

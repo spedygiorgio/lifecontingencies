@@ -1,5 +1,7 @@
 # lifecontingencies 1.6.3
 
+* `markovchain` is now a genuinely optional dependency (`Suggests`). Before, the S4 coercions to `markovchainList` were registered at *build* time only if markovchain happened to be installed then, so installing it later left `as(x, "markovchainList")` broken while `rmdt()` worked; they are now registered at load time (`.onLoad()`), whichever order the packages were installed in. Without markovchain, `rmdt()` stops with an informative error instead of warning and returning `NULL`, and the vignette chunk that needs it is skipped (`eval = requireNamespace("markovchain")`); the `rmdt()` example is guarded the same way. Tests in `test-optional-markovchain.R` cover both states.
+
 * Minimum supported R raised from 4.1.0 to 4.4.0 (`Depends`); the CI full matrix now also checks R 4.4.
 
 * Portability of floating-point comparisons (found by the macOS/aarch64 CI job, R 4.6.1, Apple clang 21): the `mdt` validity check and `.tableSanitizer()` compared the total of the decrement columns with `lx` for *exact* equality, so a table whose decrements come from floating-point rates was accepted or rejected depending on how the platform happened to round. `buildMdtFromIndependentRates()` balanced to the last bit on x86 but was rejected with `invalid class "mdt" object: Check the lx` on aarch64, where the compiler contracts `a * b + c` into a fused multiply-add. Both comparisons now allow a relative tolerance of 1e-8 (`.MDT_BALANCE_TOL`); genuinely unbalanced tables are still rejected, and integer-valued published tables are unaffected.
