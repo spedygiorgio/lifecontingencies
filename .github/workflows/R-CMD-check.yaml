@@ -151,11 +151,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qpdf ghostscript
 
-      - name: Install PDF tools (Windows)
-        if: matrix.config.vignettes && runner.os == 'Windows'
-        shell: pwsh
-        run: choco install -y ghostscript qpdf
-
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
