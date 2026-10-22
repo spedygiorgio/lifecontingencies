@@ -91,12 +91,19 @@ sdxn <- function(object, x, n, type = "Kx") {
 # Quantiles of the age-at-death distribution, conditional on being alive at
 # `age`. Linear interpolation on the l_x column (i.e. assuming a uniform
 # distribution of deaths within each year of age).
+#
+# Reviewer note: a quantile p of the age-at-death corresponds to the age x*
+# at which P(T_age <= x* - age) = p, equivalently l_{x*} = (1 - p) * l_age.
+# We bracket that value on the discrete l_x column and linearly interpolate
+# the age between the two bracketing integer ages. Returning xs[nL] when
+# the target falls below the last tabulated l_x is the conservative choice:
+# we never report an age past omega even for p close to 1.
 .ageAtDeathQuantile <- function(object, probs, age) {
 	idx <- which(object@x >= age)
 	if (length(idx) < 2L) stop("Not enough ages above 'age' to compute quantiles")
 	xs <- object@x[idx]
 	lx <- object@lx[idx]
-	l0 <- lx[1]
+	l0 <- lx[1]                              # l at the conditioning age
 	nL <- length(lx)
 	vapply(probs, function(p) {
 		if (is.na(p) || p < 0 || p > 1) return(NA_real_)
@@ -104,7 +111,8 @@ sdxn <- function(object, x, n, type = "Kx") {
 		target <- (1 - p) * l0            # l_x value reached at the quantile
 		if (target <= lx[nL]) return(xs[nL])   # quantile beyond the last age
 		j <- max(which(lx > target))      # last age with l_x strictly above target
-		# interpolate the age at which l_x equals target, between xs[j] and xs[j+1]
+		# UDD interpolation between (xs[j], lx[j]) and (xs[j+1], lx[j+1]):
+		# solve lx[j] - alpha * (lx[j] - lx[j+1]) = target for alpha in [0,1].
 		xs[j] + (lx[j] - target) / (lx[j] - lx[j + 1])
 	}, numeric(1))
 }
