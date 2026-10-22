@@ -81,7 +81,7 @@ out=ifelse((x>getOmega(object)),0,dxt(object = object,
 rLife<-function(n,object, x=0,k=1, type="Tx")
 {
 	if(missing(n)) stop("Error! Needing the n number of variates to return")
-	if((class(object) %in% c("lifetable", "actuarialtable"))==FALSE) stop("Error! Objectx needs be lifetable or actuarialtable objects")
+	if((class(object) %in% c("lifetable", "actuarialtable"))==FALSE) stop("Error! object needs to be a lifetable or actuarialtable object")
 	if(x>getOmega(object)) stop("Error! x > maximum attainable age")
   type <- testtypelifearg(type)
   
@@ -416,6 +416,9 @@ rLifeContingencies<-function (n, lifecontingency, object, x, t, i = object@inter
   lifecontingency <- testlifecontarg(lifecontingency)
   advance <- (payment == "due")  # testpaymentarg(): "advance"->"due", "arrears"->"immediate"
 
+	# Simulate the lifetimes in R before dispatching to the C++ kernel. Doing
+	# the draws here (rather than inside C++) keeps set.seed() reproducible
+	# whether or not OpenMP ends up being used by .resolve_nthreads() below.
 	deathsTimeX = numeric(n)
 	if (k == 1)
 		deathsTimeX = x + rLife(n = n, object = object, x = x,
@@ -527,7 +530,7 @@ rLifeContingenciesXyz<-function(n,lifecontingency, tablesList, x,t,i,
 		t <- ifelse(status=="joint",min(temp),max(temp)) #FIX by Kevin Owens
 	}
 
-	#fractional payment are handled using countinuous lifetime simulation
+	#fractional payments are handled using continuous lifetime simulation
 	#the issue age of each life must be added column-wise: x + <n x numTables matrix> would recycle
 	#x down the column-major storage, mixing the ages across lives when they differ
 	agesMatrix <- matrix(x, nrow=n, ncol=numTables, byrow=TRUE)

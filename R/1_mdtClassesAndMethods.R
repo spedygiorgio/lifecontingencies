@@ -111,11 +111,33 @@ setMethod("initialize",
 
 
 
-#method to return type of decrements available
+#' Decrement names of an \code{mdt} object
+#'
+#' Return the names of the decrement (cause-of-exit) columns stored in a
+#' \code{\linkS4class{mdt}} multiple-decrement table, i.e. every column in
+#' the underlying data frame other than the structural \code{x} (age) and
+#' \code{lx} (survivors) columns.
+#'
+#' @param object A \code{\linkS4class{mdt}} object.
+#'
+#' @return A character vector of decrement identifiers.
+#' @references Finan, M.B. \emph{A Reading of the Theory of Life Contingency
+#'   Models: A Preparation for Exam MLC/3L}.
+#' @author Giorgio Alfredo Spedicato
+#' @seealso \code{\link{getOmega}}, \code{\linkS4class{mdt}}
+#' @examples
+#' tableDecr <- data.frame(d1 = c(150, 160, 160), d2 = c(50, 75, 85))
+#' newMdt <- new("mdt", name = "testMDT", table = tableDecr)
+#' getDecrements(newMdt)
+#' @export
 setGeneric("getDecrements", function(object) standardGeneric("getDecrements"))
-setMethod("getDecrements","mdt", 
+
+#' @rdname getDecrements
+#' @export
+setMethod("getDecrements","mdt",
 		function(object) {
-out<-setdiff(names(object@table),c("x","lx"))
+			# Everything that is not the age or the survivor count is a decrement.
+			out <- setdiff(names(object@table), c("x","lx"))
 			return(out)
 		}
 )
@@ -127,17 +149,23 @@ out<-setdiff(names(object@table),c("x","lx"))
 	if((prob > 1) || (prob < 0)) return(FALSE) else return(TRUE)
 }
 
-#tento caricare la tavola
+# Normalise a user-supplied decrement data frame into the full canonical
+# layout expected by new("mdt", ...).
+# The input is allowed to omit lx and/or x: lx is reconstructed from the
+# decrement counts, missing lower ages are padded assuming the one-year
+# survival ratio `bottomCompletionSurvival` (constant below the lowest age
+# supplied), and a terminal row is appended if the decrements of the last
+# age don't exhaust the survivors - all missing survivors are attributed
+# to the first decrement, which is a convention, not a model.
 .tableSanitizer<-function(decrementDf, bottomCompletionSurvival = .MDT_BOTTOM_COMPLETION_SURVIVAL)
 {
 	if (!.isProb(bottomCompletionSurvival))
 		stop("Error! bottomCompletionSurvival must be a probability in [0,1]")
-	# Standardize partially specified decrement tables into a full internal layout.
 	out<-decrementDf
 	namesOfTable<-names(decrementDf)
 	decrementIds<-which(!(namesOfTable %in% c("lx","x")))
 	pureDecrements<-decrementDf[,decrementIds, drop = FALSE]
-	#add the lx columnd
+	#add the lx column if the user supplied only decrement counts
 	if(!("lx" %in% namesOfTable))
 	{
 		lx<-numeric(nrow(decrementDf))
@@ -289,18 +317,24 @@ setMethod("plot", signature(x = "mdt", y = "missing"),
 		tbl <- x@table
 		decrements <- getDecrements(x)
 
-		# Only keep rows that have actual decrement data (exclude the terminal
-		# age whose lx was set to the remaining survivors but whose decrements
-		# are the last real row).
+		# Reviewer note: .tableSanitizer() appends a synthetic terminal row to
+		# "close" the table whose lx carries the remaining survivors and whose
+		# decrement cells are copies of that same number on the first cause.
+		# Plotting it would double-count the last real age, so we drop it here.
 		ages <- tbl$x[-nrow(tbl)]
 
-		# Build a long-format data frame for ggplot2
+		# Reshape to one row per (age, decrement) so ggplot2 can colour / stack
+		# by `decrement`. unlist(lapply(...)) traverses the decrements in the
+		# same order used by rep(..., each = length(ages)) above, so column
+		# alignment holds without an explicit join.
 		longDf <- data.frame(
 			age = rep(ages, times = length(decrements)),
 			decrement = rep(decrements, each = length(ages)),
 			value = unlist(lapply(decrements, function(d) tbl[[d]][-nrow(tbl)])),
 			stringsAsFactors = FALSE
 		)
+		# Keeping the factor levels in the table's own column order makes the
+		# stacking (and the legend) deterministic across themes/ggplot2 versions.
 		longDf$decrement <- factor(longDf$decrement, levels = decrements)
 
 		if (type == "probability") {
