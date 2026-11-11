@@ -24,80 +24,88 @@
 
 
 
-#' Endowment, insurance, pure endowment, and survival annuity APVs (shared topic)
+#' Endowment, insurance, pure endowment and survival-annuity APVs
 #'
-#' This help page groups four classical life-contingency present values:
+#' Four classical single-life life-contingency actuarial present values,
+#' sharing a single documentation page because they take the same core
+#' arguments and are typically used together:
 #' \itemize{
-#'   \item \strong{Exn}: pure endowment, pays 1 at time \code{n} if alive.
-#'   \item \strong{Axn}: term/whole life insurance, pays 1 at death within \code{n} years
-#'         (or up to limiting age if \code{n} is missing), with fractional claim timing.
-#'   \item \strong{AExn}: n-year endowment insurance, i.e. \code{Axn + Exn}.
-#'   \item \strong{axn}: survival annuity (immediate/due), with deferment \code{m} and \code{k} payments per year.
+#'   \item \strong{Exn} — pure endowment: pays 1 at time \code{n} if alive.
+#'   \item \strong{Axn} — term / whole-life insurance: pays 1 at the end of
+#'         the subperiod of death within \code{n} years (or up to the
+#'         limiting age if \code{n} is missing), with fractional claim timing.
+#'   \item \strong{AExn} — \code{n}-year endowment insurance: \code{Axn + Exn}.
+#'   \item \strong{axn} — survival annuity (immediate or due), deferred by
+#'         \code{m} years, with \code{k} payments per year.
 #' }
-#'
-#' @section \code{Exn} — Pure endowment:
-#' Computes the actuarial present value (APV) of a pure endowment that pays 1 at
-#' time \code{n} provided survival to \code{x+n}.
 #'
 #' @param actuarialtable A \code{lifetable} or \code{actuarialtable} object.
 #' @param x Attained age at inception.
-#' @param n Contract length in years. If missing, for \code{Exn} and \code{Axn} it is set to
-#'   \code{pmax(ceiling((getOmega(actuarialtable)+1 - x - m)*k)/k, 0)}; for \code{AExn} it defaults to
-#'   \code{getOmega(actuarialtable) - x - 1}. (See function-specific details below.)
-#' @param i Annual effective interest rate. Defaults to \code{actuarialtable@interest}.
-#' @param type Output type: \code{"EV"} (expected value, default) or \code{"ST"} (one stochastic
-#'   realization via \code{rLifeContingencies}).
-#' @param power Power of the discounted payoff before expectation (default 1).
+#' @param n Contract length in years. If missing, \code{Exn} and \code{Axn}
+#'   use \code{pmax(ceiling((getOmega(actuarialtable)+1 - x - m)*k)/k, 0)}
+#'   (coverage up to the limiting age), while \code{AExn} uses
+#'   \code{getOmega(actuarialtable) - x - 1}.
+#' @param i Annual effective interest rate. Defaults to
+#'   \code{actuarialtable@interest}.
+#' @param type Output type: \code{"EV"} (expected value, default) or
+#'   \code{"ST"} (one stochastic realization drawn with
+#'   \code{\link{rLifeContingencies}}).
+#' @param power Power applied to the discounted payoff before expectation
+#'   (default 1). Used to compute higher moments of the present value.
 #'
-#' @return A numeric value (or vector for vectorized inputs): the APV in expected value,
-#'   or one simulated realization when \code{type="ST"}.
+#' @return A numeric value for scalar inputs, or a numeric vector for
+#'   vectorized inputs: the APV when \code{type = "EV"}, or one simulated
+#'   realization when \code{type = "ST"}.
 #'
 #' @details
-#' \strong{Exn}: \eqn{E_x^n = v^n \, {}_np_x} with \eqn{v=(1+i)^{-1}}.
+#' With \eqn{v = (1 + i)^{-1}}:
 #'
-#' \strong{Axn}: With fractional claims,
+#' \strong{Exn}: pure endowment, \eqn{E_x^n = v^n \, {}_n p_x}.
+#'
+#' \strong{Axn}: fractional-claim term/whole-life insurance,
 #' \deqn{A_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)},}
-#' where \eqn{t_j = m + (j-1)/k}, computed via \code{pxt(\dots)} and \code{qxt(\dots, t=1/k)}.
+#' where \eqn{t_j = m + (j-1)/k}, computed via \code{pxt(\dots)} and
+#' \code{qxt(\dots, t = 1/k)}.
 #'
-#' \strong{AExn}: returns \code{Axn(...) + Exn(...)} with aligned arguments.
+#' \strong{AExn}: equals \code{Axn(...) + Exn(...)} with aligned arguments.
 #'
-#' \strong{Vectorization}: \code{Exn} and \code{AExn} accept vectors for \code{x}, \code{n} and \code{i};
-#' the arguments are recycled to a common length and one value per element is returned.
+#' \strong{Vectorization}: \code{Exn} and \code{AExn} accept vectors for
+#' \code{x}, \code{n} and \code{i}; the arguments are recycled to a common
+#' length and one value per element is returned.
 #'
-#' \strong{axn}: Survival annuity with payment timing \code{"immediate"} (arrears) or \code{"due"} (advance),
-#' deferment \code{m} and \code{k} payments per year (see function-specific parameters).
+#' @references Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A.,
+#'   Nesbitt, C. J. (1997). \emph{Actuarial Mathematics}, 2nd ed., SOA.
 #'
-#' @references
-#' Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A., Nesbitt, C. J. (1997).
-#' \emph{Actuarial Mathematics}, 2nd ed., SOA.
-#'
-#' @seealso \code{\link{Axn}}, \code{\link{AExn}}, \code{\link{axn}}, \code{\link{Exn}}
+#' @seealso \code{\link{Axn}}, \code{\link{AExn}}, \code{\link{axn}},
+#'   \code{\link{Exn}}, \code{\link{rLifeContingencies}}
 #'
 #' @examples
 #' ## Common setup used in legacy docs
 #' data(soaLt)
-#' soa08Act <- with(soaLt, new("actuarialtable", interest=0.06, x=x, lx=Ix, name="SOA2008"))
+#' soa08Act <- with(soaLt,
+#'   new("actuarialtable", interest = 0.06, x = x, lx = Ix, name = "SOA2008"))
 #'
 #' ## Exn (pure endowment)
-#' Exn(soa08Act, x=30, n=35)
+#' Exn(soa08Act, x = 30, n = 35)
 #'
 #' ## Axn (term / whole life insurance)
 #' # 10-year term, semiannual claims:
-#' Axn(soa08Act, x=50, n=10, k=2)
+#' Axn(soa08Act, x = 50, n = 10, k = 2)
 #' # Whole life (n inferred), monthly:
-#' Axn(soa08Act, x=30, k=12)
+#' Axn(soa08Act, x = 30, k = 12)
 #'
 #' # Several ages and terms at once:
-#' Exn(soa08Act, x=c(30,40,50), n=c(35,25,15))
+#' Exn(soa08Act, x = c(30, 40, 50), n = c(35, 25, 15))
 #'
-#' ## AExn = Axn + Exn  (legacy book-check)
-#' AExn(soa08Act, x=35, n=30, i=0.06)
-#' Exn(soa08Act, x=35, n=30, i=0.06) + Axn(soa08Act, x=35, n=30, i=0.06)
-#' AExn(soa08Act, x=c(35,45), n=c(30,20))
+#' ## AExn = Axn + Exn (legacy book-check)
+#' AExn(soa08Act, x = 35, n = 30, i = 0.06)
+#' Exn(soa08Act, x = 35, n = 30, i = 0.06) +
+#'   Axn(soa08Act, x = 35, n = 30, i = 0.06)
+#' AExn(soa08Act, x = c(35, 45), n = c(30, 20))
 #'
 #' ## axn (survival annuity, legacy example)
 #' # Life-long annuity for age 65:
-#' axn(soa08Act, x=65)
+#' axn(soa08Act, x = 65)
 #'
 #' @family life-contingency APVs
 #' @name endowment_trio
@@ -138,20 +146,23 @@ Exn <- function(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", 
 
 #' @rdname endowment_trio
 #'
-#' @param payment Payment timing for annuities: \code{"advance"} (aka due) or \code{"immediate"} (aka arrears). (axn)
+#' @param payment Payment timing for annuities: \code{"advance"} (alias
+#'   \code{"due"}, the default for \code{axn}) or \code{"arrears"} (alias
+#'   \code{"immediate"}).
+#'
 #' @details
-#' \strong{axn} — Survival annuity (immediate/due), with deferment \code{m} and \code{k} fractional payments.
-#' For \code{type="EV"} the annuity is computed as
+#' \strong{axn} — Survival annuity (immediate/due) with deferment \code{m}
+#' and \code{k} fractional payments. For \code{type = "EV"} the annuity is
 #' \deqn{a_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} \frac{1}{k}\, v^{t_j}\, {}_{t_j}p_x,}
-#' where \eqn{t_j} are the payment times depending on \code{payment} and \code{m}.
+#' with payment times \eqn{t_j} determined by \code{payment} and \code{m}.
 #'
 #' @examples
 #' ## axn specific legacy examples
 #' # Immediate (arrears) vs due (advance), quarterly, 15-year term deferred 5 years:
-#' axn(soa08Act, x=60, n=15, m=5, k=4, payment="immediate")
-#' axn(soa08Act, x=60, n=15, m=5, k=4, payment="due")
-#' # Vectorization over x/n:
-#' axn(soa08Act, x=c(60,65), n=c(10,20), k=12, payment="due")
+#' axn(soa08Act, x = 60, n = 15, m = 5, k = 4, payment = "immediate")
+#' axn(soa08Act, x = 60, n = 15, m = 5, k = 4, payment = "due")
+#' # Vectorization over x and n:
+#' axn(soa08Act, x = c(60, 65), n = c(10, 20), k = 12, payment = "due")
 #'
 #' @export
 axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
@@ -170,7 +181,7 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if(length(k) > 1)
   {
     k <- k[1]
-    warnings("k should be of length 1, it takes the first value")
+    warning("k should be of length 1, taking the first value")
   }
   if (missing(m))
     m <- 0
@@ -181,21 +192,23 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   }
   if (any(x < 0, n < 0, m < 0))
     stop("Check x, n or m")
-  
+
   if(length(x) <= 0)
     stop("x is of length zero")
-  if(length(t) <= 0)
-    stop("t is of length zero")
-  
+  # Historical copy of a pxt() check that referenced the time vector `t`;
+  # here the time dimension is carried by n, which is the quantity to guard.
+  if(length(n) <= 0)
+    stop("n is of length zero")
+
   ntot <- max(length(n), length(x), length(m))
   if(length(n) != length(x) || length(n) != length(m))
   {
     if(length(m) != ntot)
-      warnings("m argument has been recycled to match the maximum length of x, m and n")
+      warning("m argument has been recycled to match the maximum length of x, m and n")
     if(length(n) != ntot)
-      warnings("n argument has been recycled to match the maximum length of x, m and n")
+      warning("n argument has been recycled to match the maximum length of x, m and n")
     if(length(x) != ntot)
-      warnings("x argument has been recycled to match the maximum length of x, m and n")
+      warning("x argument has been recycled to match the maximum length of x, m and n")
     m <- rep(m, length.out=ntot)
     n <- rep(n, length.out=ntot)
     x <- rep(x, length.out=ntot)
@@ -204,8 +217,8 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
     if(any(x < 0, n < 0, m < 0))
       stop("(strictly) negative values provided in x, n or m")
   }
-  
-  
+
+
   if (type == "EV")
   {
     single_axn_immediate <- function(j)
@@ -273,7 +286,7 @@ axyn <- function(tablex, tabley, x,y, n,i, m,k = 1, status = "joint", type = "EV
     if (missing(n))
       n = max(getOmega(tablex) - x,getOmega(tabley) - y) - m #maximum sequence of payments
     if (tablex@interest != tabley@interest) {
-      warning("Warning! Intesters differ between tablex and tabley. Using average")
+      warning("Interest rates differ between tablex and tabley; using their average")
     }
     if (!missing(i))
       interest = i
@@ -353,18 +366,16 @@ axyznvect <- function(tablesList, x, n, i, m, k = 1, status = "joint", type = "E
   if(length(k) > 1)
   {
     k <- k[1]
-    warnings("k should be of length 1, it takes first value")
+    warning("k should be of length 1, taking the first value")
   }
   if (missing(m))
     m <- 0
   if (any(x < 0, m < 0))
     stop("Check x, n or m")
-  
+
   if(length(x) <= 0)
     stop("x is of length zero")
-  if(length(t) <= 0)
-    stop("t is of length zero")
-  
+
   missingn <- missing(n)
   if(!missingn)
   {
@@ -377,43 +388,43 @@ axyznvect <- function(tablesList, x, n, i, m, k = 1, status = "joint", type = "E
     computn <- function(idrow)
     {
       getn <- function(j)
-        ceiling((getOmega(tablesList[[j]]) + 1 - x[idrow, j] - m) * k) / k 
+        ceiling((getOmega(tablesList[[j]]) + 1 - x[idrow, j] - m) * k) / k
       myn <- max(sapply(1:numTables, getn))
     }
     n <- sapply(1:nbcomput, computn)
   }
-  
+
   #recycle some parameters
   if(length(m) != nbcomput)
   {
     m <- rep(m, length.out = nbcomput)
-    warnings("m argument has been recycled to match the row number of x")
+    warning("m argument has been recycled to match the row number of x")
   }
   if(length(k) != nbcomput)
   {
     k <- rep(k, length.out = nbcomput)
-    warnings("k argument has been recycled to match the row number of x")
+    warning("k argument has been recycled to match the row number of x")
   }
   if(length(n) != nbcomput)
   {
     n <- rep(n, length.out = nbcomput)
-    warnings("n argument has been recycled to match the row number of x")
+    warning("n argument has been recycled to match the row number of x")
   }
-  
-  
+
+
   if (!missing(i))
   {
     if(!is.numeric(i))
       stop("Error! i should be a numeric vector")
     interest = i
-  }else 
+  }else
   {
     interest <- sapply(1:numTables, function(j) tablesList[[j]]@interest)
   }
   if(length(interest) > 1)
   {
     interest <- mean(interest)
-    warnings("i argument is the average value of interest values")
+    warning("i argument is the average value of interest values")
   }
   
   
@@ -551,13 +562,17 @@ axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",pow
 
 #' @rdname endowment_trio
 #'
-#' @param m Deferment (years). Default 0. Vector accepted. (Axn/axn)
-#' @param k Fractional periods per year (\eqn{k \ge 1}). Default 1. Must be scalar. (Axn/axn/AExn insurance leg)
-#' @param ... Extra args forwarded to mortality helpers (\code{pxt}, \code{qxt}), e.g. fractional assumptions. (Axn)
+#' @param m Deferment (years). Default 0. Vector accepted (for \code{Axn}
+#'   and \code{axn}).
+#' @param k Fractional periods per year (\eqn{k \ge 1}); must be scalar.
+#'   Default 1.
+#' @param ... Extra arguments forwarded to \code{\link{pxt}} /
+#'   \code{\link{qxt}} (e.g. a different fractional-age assumption).
 #'
 #' @details
-#' \strong{Axn} — Life insurance (term / whole life), fractional claim times.
-#' Vectorized in \code{x}, \code{n}, \code{m}. \code{k} must be scalar.
+#' \strong{Axn} — Life insurance (term / whole life) with fractional claim
+#' times, vectorized in \code{x}, \code{n} and \code{m} (recycled to a
+#' common length); \code{k} must be scalar.
 #'
 #' @export
 Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
@@ -575,7 +590,7 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   if(length(k) > 1)
   {
     k <- k[1]
-    warnings("k should be of length 1, it takes first value")
+    warning("k should be of length 1, taking the first value")
   }
   if (missing(m))
     m <- 0
@@ -586,21 +601,23 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
   }
   if (any(x < 0, n < 0, m < 0))
     stop("Check x, n or m")
-  
+
   if(length(x) <= 0)
     stop("x is of length zero")
-  if(length(t) <= 0)
-    stop("t is of length zero")
-  
+  # Historical copy of a pxt() check that referenced the time vector `t`;
+  # here the time dimension is carried by n, which is the quantity to guard.
+  if(length(n) <= 0)
+    stop("n is of length zero")
+
   ntot <- max(length(n), length(x), length(m))
   if(length(n) != length(x) || length(n) != length(m))
   {
     if(length(m) != ntot)
-      warnings("m argument has been recycled to match the maximum length of x, m and n")
+      warning("m argument has been recycled to match the maximum length of x, m and n")
     if(length(n) != ntot)
-      warnings("n argument has been recycled to match the maximum length of x, m and n")
+      warning("n argument has been recycled to match the maximum length of x, m and n")
     if(length(x) != ntot)
-      warnings("x argument has been recycled to match the maximum length of x, m and n")
+      warning("x argument has been recycled to match the maximum length of x, m and n")
     m <- rep(m, length.out=ntot)
     n <- rep(n, length.out=ntot)
     x <- rep(x, length.out=ntot)
@@ -609,8 +626,8 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
     if(any(x < 0, n < 0, m < 0))
       stop("(strictly) negative values provided in x, n or m")
   }
-  
-  
+
+
   if (type == "EV")
   {
     single_Axn <- function(j)
@@ -658,7 +675,7 @@ Axyn <- function(tablex, x,tabley, y, n,i, m, k = 1, status = "joint", type = "E
       n = max(getOmega(tablex) - x,getOmega(tabley) - y) - m - 1
     
     if (tablex@interest != tabley@interest) {
-      warning("Warning! Intesters differ between tablex and tabley. The average will be used")
+      warning("Interest rates differ between tablex and tabley; using their average")
     }
     if (!missing(i))
       interest = i
@@ -795,66 +812,80 @@ Axyzn <- function(tablesList, x, n,i, m, k = 1, status = "joint", type = "EV",po
 # i=0.06
 # m=0
 # k=2
-#' Life insurance with arithmetic-variation benefit (increasing/decreasing, fractional claims)
+#' Life insurance with arithmetic-variation benefit
 #'
-#' This help page groups two term life insurances with **arithmetic variation** of the benefit,
-#' both with optional deferment \code{m} and \code{k} fractional claim times (claims at end of subperiods):
+#' Two term life insurances whose benefit varies arithmetically over the
+#' coverage period, both with optional deferment \code{m} and \code{k}
+#' fractional claim times (claims settled at the end of each sub-period):
 #' \itemize{
-#'   \item \strong{IAxn}: \emph{increasing} arithmetic term insurance (benefit grows linearly with time);
-#'   \item \strong{DAxn}: \emph{decreasing} arithmetic term insurance (benefit declines linearly with time).
+#'   \item \strong{IAxn} — \emph{increasing} arithmetic term insurance
+#'         (benefit grows linearly with time);
+#'   \item \strong{DAxn} — \emph{decreasing} arithmetic term insurance
+#'         (benefit declines linearly with time).
 #' }
-#'
-#' @section \code{IAxn} — Increasing arithmetic term:
-#' Computes the APV of an n-year **increasing** term insurance on a life aged \code{x}, with \code{k} fractional
-#' claim times and optional deferment \code{m}. The benefit at the \eqn{j}-th subperiod equals \eqn{j/k}.
 #'
 #' @param actuarialtable A \code{lifetable} or \code{actuarialtable} object.
 #' @param x Attained age at inception.
-#' @param n Coverage length in years. If missing, it is set to \code{getOmega(actuarialtable) - x - m}.
-#' @param i Annual effective interest rate. Defaults to \code{actuarialtable@interest}.
+#' @param n Coverage length in years. If missing, defaults to
+#'   \code{getOmega(actuarialtable) - x - m}.
+#' @param i Annual effective interest rate. Defaults to
+#'   \code{actuarialtable@interest}.
 #' @param m Deferment (years). Default 0.
 #' @param k Fractional periods per year (\eqn{k \ge 1}). Default 1.
-#' @param type Output type: \code{"EV"} (expected value, default) or \code{"ST"} (one stochastic
-#'   realization via \code{rLifeContingencies}).
-#' @param power Power applied to discounted cash flows before expectation (default 1).
+#' @param type Output type: \code{"EV"} (expected value, default) or
+#'   \code{"ST"} (one stochastic realization drawn with
+#'   \code{\link{rLifeContingencies}}).
+#' @param power Power applied to the discounted payoff before expectation
+#'   (default 1). Used to compute higher moments.
 #'
-#' @return A numeric value: the APV (or one simulated realization if \code{type="ST"}).
+#' @return A numeric scalar: the APV, or one simulated realization when
+#'   \code{type = "ST"}.
 #'
 #' @details
-#' Let \eqn{t_j = m + (j-1)/k}, \eqn{j=1,\dots,nk}. With **fractional claims at end of subperiods**,
-#' the EV implementations follow the pattern already used in \code{\link{Axn}}:
+#' Let \eqn{t_j = m + (j-1)/k} for \eqn{j=1,\dots,nk} and
+#' \eqn{v = (1+i)^{-1}}. With fractional claims at end-of-sub-period:
 #'
-#' \strong{IAxn} (increasing):
-#' \deqn{ \mathrm{IA}_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} \Big(\frac{j}{k}\Big)\,
-#'         v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}, }
-#' where \eqn{v=(1+i)^{-1}}, computed via \code{pxt(\dots)} and \code{qxt(\dots, t=1/k)}.
+#' \strong{IAxn} — increasing arithmetic term, benefit \eqn{j/k} at \eqn{t_j}:
+#' \deqn{\mathrm{IA}_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk}
+#'       \frac{j}{k}\, v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}.}
 #'
-#' \strong{DAxn} (decreasing) is analogous with benefit \eqn{(n - (j-1)/k)}; see its subsection below.
+#' \strong{DAxn} — decreasing arithmetic term, benefit \eqn{n - (j-1)/k} at
+#' \eqn{t_j}:
+#' \deqn{\mathrm{DA}_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk}
+#'       \Big(n - \frac{j-1}{k}\Big)\, v^{t_j + 1/k}\;
+#'       {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}.}
+#'
+#' Both expressions call \code{\link{pxt}} and
+#' \code{\link{qxt}(\dots, t = 1/k)} just as \code{\link{Axn}} does for the
+#' level benefit case.
 #'
 #' @section Fractional timing conventions:
-#' For **insurance** benefits in this package, fractional claims are assumed to occur at the
-#' **end** of each subperiod (i.e., at \eqn{t_j + 1/k}). This matches the implementation that
-#' multiplies survival to \eqn{t_j} and a fractional death probability over the next subperiod:
-#' \deqn{ v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}. }
-#' By contrast, **annuities** use a payment-timing flag (\code{"immediate"} vs \code{"due"}) which
-#' changes the evaluation times; insurance here has a fixed claim timing at end-subperiod.
+#' For insurance benefits in this package, fractional claims are placed at
+#' the \emph{end} of each sub-period (at \eqn{t_j + 1/k}). This matches the
+#' implementation that multiplies survival to \eqn{t_j} by the fractional
+#' death probability over the next sub-period:
+#' \deqn{v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}.}
+#' Annuities, by contrast, carry a payment-timing flag (\code{"immediate"}
+#' vs \code{"due"}) that changes the evaluation times; insurance here always
+#' uses end-of-sub-period timing.
 #'
-#' @references
-#' Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A., Nesbitt, C. J. (1997).
-#' \emph{Actuarial Mathematics}, 2nd ed., SOA.
+#' @references Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A.,
+#'   Nesbitt, C. J. (1997). \emph{Actuarial Mathematics}, 2nd ed., SOA.
 #'
-#' @seealso \code{\link{Axn}} (level benefit), \code{\link{AExn}}, \code{\link{Exn}}, \code{\link{axn}}
+#' @seealso \code{\link{Axn}} (level benefit), \code{\link{AExn}},
+#'   \code{\link{Exn}}, \code{\link{axn}}
 #'
 #' @examples
 #' ## Setup (legacy examples)
 #' data(soaLt)
-#' soa08Act <- with(soaLt, new("actuarialtable", interest=0.06, x=x, lx=Ix, name="SOA2008"))
+#' soa08Act <- with(soaLt,
+#'   new("actuarialtable", interest = 0.06, x = x, lx = Ix, name = "SOA2008"))
 #'
 #' ## IAxn: increasing arithmetic term, 10 years, age 25 (legacy)
 #' IAxn(actuarialtable = soa08Act, x = 25, n = 10)
 #'
-#' ## More examples (k>1 and deferment)
-#' IAxn(actuarialtable = soa08Act, x = 40, n = 20, k = 12)     # monthly claims
+#' ## More examples (k > 1 and deferment)
+#' IAxn(actuarialtable = soa08Act, x = 40, n = 20, k = 12)       # monthly
 #' IAxn(actuarialtable = soa08Act, x = 40, n = 15, m = 5, k = 4) # deferred 5y, quarterly
 #'
 #' @family life-contingency APVs
@@ -910,21 +941,11 @@ IAxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, k = 1,
 
 #' @rdname arithmetic_variation_insurances
 #'
-#' @section \code{DAxn} — Decreasing arithmetic term:
-#' Computes the APV of an n-year **decreasing** term insurance on a life aged \code{x}, with \code{k} fractional
-#' claim times and optional deferment \code{m}. The benefit at the \eqn{j}-th subperiod equals \eqn{n - (j-1)/k}.
-#'
-#' @details
-#' \strong{DAxn} (decreasing):
-#' \deqn{ \mathrm{DA}_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} \Big(n - \frac{j-1}{k}\Big)\,
-#'         v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)}, \qquad t_j = m + \frac{j-1}{k}. }
-#' See “Fractional timing conventions” above for claim timing assumptions.
-#'
 #' @examples
 #' ## DAxn: decreasing arithmetic term, 10 years, age 25 (legacy)
 #' DAxn(actuarialtable = soa08Act, x = 25, n = 10)
-#' ## More examples (k>1 and deferment)
-#' DAxn(actuarialtable = soa08Act, x = 45, n = 10, k = 2)       # semiannual
+#' ## More examples (k > 1 and deferment)
+#' DAxn(actuarialtable = soa08Act, x = 45, n = 10, k = 2)         # semiannual
 #' DAxn(actuarialtable = soa08Act, x = 45, n = 12, m = 3, k = 12) # deferred 3y, monthly
 #'
 #' @export
@@ -1018,7 +1039,12 @@ Iaxn <- function(actuarialtable, x, n,i = actuarialtable@interest, m = 0, type =
 #' @rdname endowment_trio
 #'
 #' @details
-#' \strong{AExn} — n-year endowment insurance, computed as \code{Axn + Exn}.
+#' \strong{AExn} — \code{n}-year endowment insurance, computed as
+#' \code{Axn(..., n, k) + Exn(..., n)}. Vectorised over \code{x}, \code{n}
+#' and \code{i}; a zero-term endowment pays 1 immediately. When all
+#' contracts share the same interest rate, \code{Axn}/\code{Exn} are
+#' called once with the full vector of ages/terms; otherwise the loop runs
+#' contract by contract (\code{Axn} takes a single scalar \code{i}).
 #'
 #' @export
 AExn <- function(actuarialtable, x, n,i = actuarialtable@interest, k = 1, type =

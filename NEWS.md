@@ -1,3 +1,40 @@
+# lifecontingencies 1.6.4 (in development)
+
+* Roxygen documentation consistency pass. Several exported functions
+  (`annuity()`, `accumulatedValue()`, `increasingAnnuity()`,
+  `decreasingAnnuity()`, `Isn()`, `probs2lifetable()`, `interest2Discount()`,
+  `discount2Interest()`, the `getDecrements()` and `getOmega()` generics)
+  moved from hand-maintained `.Rd` files to roxygen comments in R, so that
+  the single-source-of-truth is uniform across the package. Existing
+  roxygen comments on `presentValue()`, `duration()`/`convexity()`,
+  `nominal2Real()`/`real2Nominal()`, `intensity2Interest()`,
+  `Lxt()`/`Tx()`, `mxt()`, `mx2qx()`/`qx2mx()`, the `endowment_trio`
+  (`Exn`, `Axn`, `AExn`, `axn`) and the `arithmetic_variation_insurances`
+  (`IAxn`, `DAxn`) help pages were cleaned up (duplicate `@title` /
+  `@description` blocks removed, parameters tightened, examples made
+  self-contained). Run `devtools::document()` after pulling to regenerate
+  the `.Rd` files that were deleted here; no public API changes.
+* Fixed a latent typo in which `warnings()` (plural, which merely lists
+  queued warnings) was called instead of `warning()` (singular, which emits
+  one). Fifteen recycle-length diagnostics in `.pxtPrepareArgs()`,
+  `pxyzt()`, `axn()`, `Axn()` and `axyznvect()` therefore never surfaced;
+  they now do.
+* `axn()`, `Axn()` and `axyznvect()` had a copy of a `pxt()` sanity check
+  (`if (length(t) <= 0) stop("t is of length zero")`) where no `t`
+  variable exists at all (R would have resolved it to `base::t`, making
+  the branch dead); replaced with a matching length check on `n`.
+* Reworded a handful of misleading error messages and typos
+  (`"Intesters differ"` -> `"Interest rates differ"`,
+  `"Objectx needs be lifetable"` -> `"objecty needs to be a lifetable..."`
+  for the `y` life, `"countinuous"`, `"cumproduct"`, `"Dowloaded"`,
+  `"Healty"`, `"elevent"`, AF92 described as "males", `elsewere`).
+* Added reviewer-oriented inline comments to the denser pieces of the
+  code base (`.pxtFromLxSeries()` fractional-age decomposition,
+  `pxyzt()` x/t broadcasting rules, `.qxtDecrementMdt()` cumulative-sum
+  indexing, `.tableSanitizer()` padding conventions, the `mdt` `plot()`
+  reshape, `.ageAtDeathQuantile()` UDD interpolation, the lifetime draw
+  that keeps `rLifeContingencies()` reproducible under opt-in OpenMP).
+
 # lifecontingencies 1.6.3
 
 * `markovchain` is now a genuinely optional dependency (`Suggests`). Before, the S4 coercions to `markovchainList` were registered at *build* time only if markovchain happened to be installed then, so installing it later left `as(x, "markovchainList")` broken while `rmdt()` worked; they are now registered at load time (`.onLoad()`), whichever order the packages were installed in. Without markovchain, `rmdt()` stops with an informative error instead of warning and returning `NULL`, and the vignette chunk that needs it is skipped (`eval = requireNamespace("markovchain")`); the `rmdt()` example is guarded the same way. Tests in `test-optional-markovchain.R` cover both states.

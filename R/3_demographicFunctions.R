@@ -113,7 +113,9 @@ setMethod("pxt", "ANY",
   if(length(t) != length(x))
   {
     if(length(t) > 1 && length(x) > 1)
-      warnings("t and x arguments have been recycled to match the maximum length of x and t")
+      # Note: this used to call warnings() (plural) which just lists queued
+      # warnings and never surfaced this message. warning() (singular) emits it.
+      warning("t and x arguments have been recycled to match the maximum length of x and t")
     t <- rep(t, length.out=n)
     x <- rep(x, length.out=n)
   }
@@ -142,9 +144,14 @@ setMethod("pxt", "ANY",
 # values outside [0,1]) whenever the first row of the table had no zero cells.
 .qxtDecrementMdt <- function(object, x, t, decrement) {
   tbl <- object@table
+  # dj: for each row in the table, the total number of decrements for the
+  # selected causes (so a single scalar per age).
   dj <- rowSums(as.matrix(tbl[, decrement, drop = FALSE]))
   ages <- tbl$x
   nr <- length(ages)
+  # cumd[k+1] = sum of dj over the first k rows, so cumd[j+1] - cumd[i]
+  # yields the number of selected decrements over age rows i..j inclusive
+  # in one O(1) subtraction (independent of t).
   cumd <- c(0, cumsum(dj))
   ix <- match(x, ages)
   if (anyNA(ix))
@@ -152,8 +159,11 @@ setMethod("pxt", "ANY",
          paste(unique(x[is.na(ix)]), collapse = ", "))
   t0 <- floor(t)
   fr <- t - t0
+  # Row index of the first age NOT counted in the integer sum, clamped so a
+  # request beyond the end of the table reads cumd[nr+1] (the total).
   endRow <- pmin(ix + t0, nr + 1L)          # exclusive end in 1..nr+1
-  num <- cumd[endRow] - cumd[ix]
+  num <- cumd[endRow] - cumd[ix]            # integer-part decrement count
+  # Linear UDD piece: fr * d_{x+floor(t)} (only when within the table).
   fracRow <- ix + t0
   fracD <- ifelse(fr > 0 & fracRow <= nr, dj[pmin(fracRow, nr)], 0)
   as.numeric((num + fr * fracD) / tbl$lx[ix])
@@ -161,36 +171,54 @@ setMethod("pxt", "ANY",
 
 # Survival probability from an (x, lx) series with the package's fractional
 # age/duration conventions; used by the mdt method (total decrement).
+#
+# Vectorised over x and t (same length). The computation is the standard
+# "shift to the next integer age" trick: write
+#   x    = floor(x)   + eps_x,
+#   x+t  = floor(x+t) + eps_u,
+# so that we can factor
+#   tpx = eps_u-years survival from floor(x+t)   times
+#         (floor(x+t) - floor(x))-years survival from floor(x)   divided by
+#         eps_x-years survival from floor(x).
+# Each fractional-age piece is approximated by one of three UDD-family
+# assumptions (linear / constant force / hyperbolic).
+#
+# Age lookups are done by name on `mylx`: we name each l_x value with
+# "x<age>" so the vectorised match on floor(x) and floor(x+t) is a single
+# character lookup; `mylx` is already padded with a trailing 0 beyond omega,
+# so lookups past the table hit NA and are coerced to 0 below.
 .pxtFromLxSeries <- function(myx, mylx, omega, x, t, fractional) {
   names(mylx) <- paste0("x", c(myx, omega+1))
 
-  #adjustment when age x is not an integer
-  floorx <- floor(x) #compute floor(x)
-  eps_x <- x - floorx #compute epsilon x
-  u <- t+eps_x #add epsilon x to time t
-  flooru <- floor(u) #compute floor(u)
-  eps_u <- u - flooru #compute epsilon t
+  #decompose x and x+t into integer + fractional part
+  floorx <- floor(x)
+  eps_x <- x - floorx
+  u <- t+eps_x #u = t + eps_x so that floor(x+t) = floor(x) + floor(u)
+  flooru <- floor(u)
+  eps_u <- u - flooru
 
-  #get l_floor(x) and consecutive
-  l_floorx <- mylx[paste0("x", floorx)]
-  l_floorxp1 <- mylx[paste0("x", floorx+1)]
-  #get l_floor(x+t) and consecutive
-  l_floorxu <- mylx[paste0("x", floorx+flooru)]
-  l_floorxup1 <- mylx[paste0("x", floorx+flooru+1)]
+  #pull l_x values at the integer anchors (named lookup is O(1) per entry)
+  l_floorx <- mylx[paste0("x", floorx)]           # l_{floor(x)}
+  l_floorxp1 <- mylx[paste0("x", floorx+1)]       # l_{floor(x)+1}
+  l_floorxu <- mylx[paste0("x", floorx+flooru)]   # l_{floor(x+t)}
+  l_floorxup1 <- mylx[paste0("x", floorx+flooru+1)] # l_{floor(x+t)+1}
 
-  #compute one-year survival probabilites
-  flooru_p_floorx <- l_floorxu / l_floorx
-  floorup1_p_floorx <- l_floorxup1 / l_floorx
-  one_p_floorxu <- l_floorxup1 / l_floorxu
-  one_p_floorx <- l_floorxp1 / l_floorx
+  #one-year survival factors used by the UDD-family formulas
+  flooru_p_floorx <- l_floorxu / l_floorx           # floor(u)-years survival from floor(x)
+  floorup1_p_floorx <- l_floorxup1 / l_floorx       # (floor(u)+1)-years survival from floor(x)
+  one_p_floorxu <- l_floorxup1 / l_floorxu          # 1-year survival from floor(x+t)
+  one_p_floorx <- l_floorxp1 / l_floorx             # 1-year survival from floor(x)
 
-  #may contains NA if x or x+t is above omega => set to 0
+  #ratios are NA when any of x, x+t, x+t+1 is past the end of the table:
+  #those contribute no survivors, so clamp to 0 before combining.
   flooru_p_floorx[is.na(flooru_p_floorx)] <- 0
   floorup1_p_floorx[is.na(floorup1_p_floorx)] <- 0
   one_p_floorxu[is.na(one_p_floorxu)] <- 0
   one_p_floorx[is.na(one_p_floorx)] <- 0
 
-  #adjustment when t is not integer
+  # Fractional-age survival from floor(x) over `u` years, under the three
+  # supported assumptions. "Linear" is the standard UDD, "constant force"
+  # is the exponential form, "hyperbolic" is the Balducci/harmonic one.
   if (fractional == "linear") {
     u_p_floorx <- flooru_p_floorx * (1 - eps_u*(1-one_p_floorxu))
       #equivalent to eps_u * floorup1_p_floorx + (1 - eps_u) * flooru_p_floorx
@@ -200,7 +228,8 @@ setMethod("pxt", "ANY",
     u_p_floorx <- flooru_p_floorx * one_p_floorxu / (1 - (1-eps_u)*(1-one_p_floorxu))
   }
 
-  #adjustment when age x is not an integer (otherwise equal 1)
+  # Correction for the eps_x "slice" below the integer age (equals 1 when x
+  # is an integer and eps_x_p_floorx == 1).
   if (fractional == "linear") {
     eps_x_p_floorx <-  1 - eps_x * (1-one_p_floorx)
   } else if (fractional == "constant force") {
@@ -208,6 +237,8 @@ setMethod("pxt", "ANY",
   } else if (fractional == "hyperbolic") {
     eps_x_p_floorx <- one_p_floorx / (1 - (1-eps_x)*(1-one_p_floorx))
   }
+  # tpx = u_p_floorx / eps_x_p_floorx by the conditional-probability
+  # decomposition described at the top of the function.
   as.numeric(u_p_floorx / eps_x_p_floorx)
 }
 
@@ -359,15 +390,33 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
 	return(out)
 }
 
+#' @title Various demographic functions on a life table
+#' @name other-demographic-functions
 #' @rdname other-demographic-functions
-#' @param t duration of the calculation
-#' @param fxt correction constant, default 0.5
 #' @aliases Lxt
-#' @examples 
+#'
+#' @description
+#' \code{Lxt} computes the person-years lived between ages \code{x} and
+#' \code{x + t}; \code{Tx} returns the total person-years lived from age
+#' \code{x} to the end of the table. They are the standard building blocks
+#' of life-table analysis and feed into the complete expectation of life
+#' (\code{\link{exn}}).
+#'
+#' @param t duration of the calculation (default 1).
+#' @param fxt fraction of the year of age lived by those who die within the
+#'   year, so that \eqn{L_x = l_x - fxt\, d_x}. Defaults to \code{0.5}
+#'   (uniform distribution of deaths).
+#'
+#' @details
+#' With \eqn{d_x = l_x - l_{x+1}} and \eqn{{}_tL_x = \sum_{k=0}^{t-1}
+#' (l_{x+k} - fxt\, d_{x+k})}, the function sums person-years over the
+#' requested age window.
+#'
+#' @examples
 #' data(soaLt)
-#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,
-#' x=x,lx=Ix,name="SOA2008"))
-#' Lxt(soa08Act, 67,10)
+#' soa08Act <- with(soaLt, new("actuarialtable", interest = 0.06,
+#'                             x = x, lx = Ix, name = "SOA2008"))
+#' Lxt(soa08Act, 67, 10)
 #' @export
 Lxt <- function(object, x,t=1,fxt=0.5)
 {
@@ -390,13 +439,9 @@ Lxt <- function(object, x,t=1,fxt=0.5)
 
 #' @rdname other-demographic-functions
 #' @aliases Tx
-#' @title Various demographic functions
 #'
-#' @param object a \code{lifetable} or \code{actuarialtable} object
-#' @param x age of the subject
-#' @param fxt fraction of the year of age lived by those who die within the
-#'   year (so that \eqn{L_x = l_x - fxt\, d_x}, matching \code{\link{Lxt}}).
-#'   Defaults to \code{0.5} (uniform distribution of deaths).
+#' @param object a \code{lifetable} or \code{actuarialtable} object.
+#' @param x age of the subject.
 #' @param axOmega mean number of years lived in the last, open-ended age
 #'   interval by those still alive at the last tabulated age \eqn{\omega}
 #'   (so that \eqn{L_\omega = axOmega \cdot l_\omega}). The default,
@@ -406,15 +451,16 @@ Lxt <- function(object, x,t=1,fxt=0.5)
 #'   last interval open set \eqn{L_\omega = l_\omega / m_\omega}: pass
 #'   \code{axOmega = 1 / mOmega} to reproduce them. Only relevant when
 #'   \eqn{l_\omega > 0}.
-#' @details \code{Tx} il the sum of years lived since age \code{x} by the population of the life table, it is the sum of \code{Lx}. The function is provided as is,
-#' without any warranty regarding the accuracy of calculations. Use at own risk.
-#' @return A numeric value
-#' @references 	Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
-#' @author Giorgio Alfredo Spedicato.
+#'
+#' @details
+#' \code{Tx} is the total number of years lived from age \code{x} by the
+#' life-table cohort, i.e. the sum of \code{Lx} from \code{x} to the last
+#' tabulated age \eqn{\omega}.
+#' @return A numeric scalar.
+#' @references Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L.,
+#'   Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+#' @author Giorgio Alfredo Spedicato
 #' @examples
-#' #assumes SOA example life table to be load
-#' data(soaLt)
-#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
 #' Tx(soa08Act, 67)
 #' @export
 Tx <- function(object,x,fxt=0.5,axOmega=1-fxt)
@@ -441,20 +487,36 @@ Tx <- function(object,x,fxt=0.5,axOmega=1-fxt)
 	return(out)
 }
 
-#' @title Central mortality rate
-#' @description This function returns the central mortality rate demographic function.
-#' @param object a \code{lifetable} or \code{actuarialtable} object
-#' @param x subject's age
-#' @param t period on which the rate is evaluated
-#' @return A numeric value representing the central mortality rate between age \eqn{x} and \eqn{x+t}.
-#' @references Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
-#' @examples 
-#' #assumes SOA example life table to be load
+#' Central mortality rate
+#'
+#' Compute the central mortality rate \eqn{{}_tm_x}, i.e. deaths between
+#' ages \code{x} and \code{x+t} divided by the person-years lived over that
+#' window. It is the demographic rate counterpart of the (per-life)
+#' probability of death \code{\link{qxt}}.
+#'
+#' @param object A \code{lifetable} or \code{actuarialtable} object.
+#' @param x Subject's attained age.
+#' @param t Length of the age interval over which the rate is evaluated
+#'   (default 1).
+#'
+#' @details
+#' With \code{\link{dxt}} and \code{\link{Lxt}}:
+#' \deqn{{}_tm_x = \frac{{}_td_x}{{}_tL_x}.}
+#' Under the uniform distribution of deaths within each year of age,
+#' \eqn{{}_1m_x \approx {}_1q_x / (1 - 0.5 \cdot {}_1q_x)}.
+#'
+#' @return A numeric scalar: the central mortality rate between \eqn{x}
+#'   and \eqn{x+t}.
+#' @references Actuarial Mathematics (Second Edition), 1997, by Bowers,
+#'   N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+#' @examples
+#' # Assumes the SOA example life table to be loaded
 #' data(soaLt)
-#' soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
-#' #compare mx and qx 
-#' mxt(soa08Act, 60,10)
-#' qxt(soa08Act, 60,10)
+#' soa08Act <- with(soaLt,
+#'   new("actuarialtable", interest = 0.06, x = x, lx = Ix, name = "SOA2008"))
+#' # Compare mx and qx
+#' mxt(soa08Act, 60, 10)
+#' qxt(soa08Act, 60, 10)
 #' @export
 mxt <- function(object,x,t)
 {
@@ -608,8 +670,8 @@ pxyt <- function(objectx, objecty,x,y,t, status="joint")
   out<-NULL
 	
 	#checks
-	if(!is(objectx, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
-	if(!is(objecty, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
+	if(!is(objectx, "lifetable")) stop("Error! objectx needs to be a lifetable or actuarialtable object")
+	if(!is(objecty, "lifetable")) stop("Error! objecty needs to be a lifetable or actuarialtable object")
 	if(missing(x)) stop("Missing x")
 	if(missing(y)) stop("Missing y")
 	if(missing(t)) t=1 #default 1
@@ -627,8 +689,8 @@ qxyt <- function(objectx, objecty,x,y,t, status="joint")
   .Deprecated("qxyzt")
   out<-NULL
 	#checks
-	if(!is(objectx, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
-	if(!is(objecty, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
+	if(!is(objectx, "lifetable")) stop("Error! objectx needs to be a lifetable or actuarialtable object")
+	if(!is(objecty, "lifetable")) stop("Error! objecty needs to be a lifetable or actuarialtable object")
 	if(missing(x)) stop("Missing x")
 	if(missing(y)) stop("Missing y")
 	if(missing(t)) t=1 #default 1
@@ -644,11 +706,11 @@ exyt<-function(objectx, objecty,x,y,t,status="joint")
   .Deprecated("exyzt")
   out<-NULL
 	#checks
-	if(!is(objectx, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
-	if(!is(objecty, "lifetable")) stop("Error! Objectx needs be lifetable or actuarialtable objects")
+	if(!is(objectx, "lifetable")) stop("Error! objectx needs to be a lifetable or actuarialtable object")
+	if(!is(objecty, "lifetable")) stop("Error! objecty needs to be a lifetable or actuarialtable object")
 	if(missing(x)) stop("Missing x")
 	if(missing(y)) stop("Missing y")
-	maxTime=max(getOmega(objectx)-x, getOmega(objecty)-y)  #maximum number of years people can live togeter
+	maxTime=max(getOmega(objectx)-x, getOmega(objecty)-y)  #maximum number of years both can live together
 	if(missing(t)) t=maxTime
 	if(any(x<0,y<0,t<0)) stop("Check x, y and t domain")
 	toSum=min(t,maxTime) #max number of years to sum
@@ -660,6 +722,42 @@ exyt<-function(objectx, objecty,x,y,t,status="joint")
 	return(out)
 }
 
+#' Life table from a vector of probabilities
+#'
+#' Create a \code{\linkS4class{lifetable}} object from a vector of one-year
+#' survival or death probabilities, starting at age 0. Useful for feeding
+#' mortality projections produced by other software (e.g. \pkg{StMoMo})
+#' into \pkg{lifecontingencies}.
+#'
+#' @param probs Numeric vector of one-year survival or death probabilities,
+#'   starting at age 0. Its last element must be \code{0} when \code{type}
+#'   is \code{"px"} (nobody survives beyond \eqn{\omega}) or \code{1} when
+#'   \code{type} is \code{"qx"} (everyone alive at \eqn{\omega} dies within
+#'   the last year); otherwise the function appends the missing terminal
+#'   value and warns via \code{cat()}.
+#' @param radix Initial cohort size \eqn{l_0}. Default \code{10000}.
+#' @param type Either \code{"px"} (survival) or \code{"qx"} (death)
+#'   probabilities.
+#' @param name Character string stored in the \code{@name} slot of the
+#'   returned object.
+#'
+#' @details
+#' The limiting age \eqn{\omega} is the length of \code{probs}. The survival
+#' factor at age \eqn{k} is \code{probs[k]} (if \code{type = "px"}) or
+#' \code{1 - probs[k]} (if \code{type = "qx"}), and \eqn{l_x} is built as the
+#' cumulative product of these factors times \code{radix}.
+#'
+#' @return A \code{\linkS4class{lifetable}} object.
+#' @references Actuarial Mathematics (Second Edition), 1997, by Bowers,
+#'   N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+#' @author Giorgio A. Spedicato
+#' @seealso \code{\linkS4class{lifetable}}, \code{\linkS4class{actuarialtable}}
+#' @examples
+#' fakeSurvivalProbs <- seq(0.9, 0, by = -0.1)
+#' newTable <- probs2lifetable(fakeSurvivalProbs, type = "px", name = "fake")
+#' head(newTable)
+#' tail(newTable)
+#' @export
 probs2lifetable <- function(probs, radix=10000, type="px", name="ungiven")
 {
 	if(any(probs>1) | any(probs<0)) stop("Error: probabilities must lie between 0 an 1")
@@ -678,19 +776,33 @@ probs2lifetable <- function(probs, radix=10000, type="px", name="ungiven")
 }
 
 #multiple life new function
-pxyzt <- function(tablesList, x, t, status="joint", 
+#
+# Compute (joint- or last-survivor) survival probabilities for a group of
+# lives, each with its own life table. x and t may be scalars, vectors or
+# matrices; this function normalises them into (nContracts x nLives)
+# matrices (valx, valt) so each row describes one evaluation point and each
+# column one life. The combinations handled below are:
+#   vector x,   vector t   -> one evaluation point   (nrow = 1)
+#   matrix x,   vector t   -> t is recycled per contract
+#   vector x,   matrix t   -> x is recycled per contract
+#   matrix x,   matrix t   -> rows aligned/recycled to the max of NROW(x), NROW(t)
+# After normalisation, pxt() is called once per life (vectorised over
+# contracts) and the resulting matrix of per-life survivals is combined with
+# prod (joint) or 1 - prod of complements (last-survivor).
+pxyzt <- function(tablesList, x, t, status="joint",
                       fractional=rep("linear",length(tablesList)), ...)
 {
-  #fractional list can be either missing or a string length of character one
-  if(length(fractional)==1) 
+  # Recycle a scalar fractional-age flag to one entry per life so the
+  # per-life pxt() calls below each get their own assumption.
+  if(length(fractional)==1)
   {
     temp <- fractional;
     fractional <- rep(temp, length.out =length(tablesList))
   }
-  
+
   fractional <- sapply(fractional, testfractionnalarg)
   status <- teststatusarg(status)
-  
+
   #initial checkings
   if (missing(x))
     stop("Missing x")
@@ -698,7 +810,7 @@ pxyzt <- function(tablesList, x, t, status="joint",
     stop("non numeric x")
   if (missing(t))
     t = 1 #default 1
-  #convert argument to matrix
+  #Normalise x and t into (nContracts x numTables) matrices valx/valt.
   numTables <- length(tablesList)
   if(is.vector(x) && is.vector(t))
   {
@@ -708,6 +820,7 @@ pxyzt <- function(tablesList, x, t, status="joint",
       t <- rep(t, length.out=length(x))
     if(length(t) != numTables)
       stop("Error! Initial time vector length does not match with number of lives")
+    # Single evaluation point: 1 x numTables matrix.
     valx <- t(as.matrix(x))
     valt <- t(as.matrix(t))
   }else if(is.matrix(x) && is.vector(t))
@@ -719,6 +832,7 @@ pxyzt <- function(tablesList, x, t, status="joint",
     if(length(t) != numTables)
       stop("Error! Initial time vector length does not match with number of lives")
     valx <- as.matrix(x)
+    # Broadcast the per-life t to every row of valx.
     valt <- matrix(t, nrow=NROW(valx), ncol=numTables, byrow=TRUE)
   }else if(is.vector(x) && is.matrix(t))
   {
@@ -727,6 +841,7 @@ pxyzt <- function(tablesList, x, t, status="joint",
     if(NCOL(t) != numTables)
       stop("Error! Initial time matrix does not have as much column as number of lives")
     valt <- as.matrix(t)
+    # Broadcast the per-life x to every row of valt.
     valx <- matrix(x, nrow=NROW(valt), ncol=numTables, byrow=TRUE)
   }else
   {
@@ -735,27 +850,31 @@ pxyzt <- function(tablesList, x, t, status="joint",
     if(NCOL(t) != numTables)
       stop("Error! Initial time matrix does not have as much column as number of lives")
     if(NROW(x) != NROW(t))
-      warnings("t and x arguments have been recycled to match the maximum row number of x and t")
+      warning("t and x arguments have been recycled to match the maximum row number of x and t")
+    # Recycle rows (not entries) so that each contract keeps its full
+    # per-life age/time pattern across the join.
     n <- max(NROW(x), NROW(t))
     id2select <- rep(1:NROW(x), length.out=n)
     valx <- x[id2select, ]
     id2select <- rep(1:NROW(t), length.out=n)
     valt <- t[id2select, ]
   }
-  #computation
+  # One vectorised pxt() per life: result is a matrix (nContracts x numTables)
+  # of per-life survival probabilities.
   allpxt <- sapply(1:numTables, function(i)
                    pxt(tablesList[[i]], valx[,i], valt[,i], fractional = fractional[i], ...)
   )
-  
-  #the survival probability is the cumproduct of the single survival probabilities
+
+  # Combine across lives: joint status is the product, last-survivor status
+  # is the complement of the product of complements.
   if(status == "joint")
   {
     if(is.vector(allpxt))
       out <- prod(allpxt)
-    else 
+    else
       out <- apply(allpxt, 1, prod)
   }else{ #last survivor status
-    allqxt <- 1-allpxt 
+    allqxt <- 1-allpxt
     if(is.vector(allpxt))
       out <- 1-prod(allqxt)
     else
@@ -781,7 +900,7 @@ pxyztold <- function(tablesList,x,t, status="joint",fractional=rep("linear",leng
 	for(i in 1:numTables) {
 		if(!(class(tablesList[[i]]) %in% c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
 	}
-	#the survival probability is the cumproduct of the single survival probabilities
+	#the survival probability is the cumulative product of the single survival probabilities
 	if(status=="joint")
 	{
 		for(i in 1:numTables) out=out*pxt(object=tablesList[[i]],x=x[i],t=t,fractional=fractional[i],...)
@@ -870,48 +989,51 @@ exyzt <- function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 	return(out)
 }
 
-#' @name mx2qx
-#' @title Mortality rates to Death probabilities
-#' 
-#' @description Function to convert mortality rates to probabilities of death
+#' Convert mortality rates to death probabilities
 #'
-#' @details Function to convert mortality rates to probabilities of death
-#' 
-#' @param mx mortality rates vector
-#' @param ax the average number of years lived between ages x and x +1 by individuals who die in that interval
-#' 
-#' @return A vector of death probabilities
-#' @examples 
-#' 
-#' #using some recursion
-#' qx2mx(mx2qx(.2))
-#' 
-#' @seealso \code{mxt}, \code{qxt}, \code{qx2mx}
-
+#' Convert a vector of central mortality rates \eqn{{}_1m_x} into one-year
+#' death probabilities \eqn{{}_1q_x} using the standard identity
+#' \deqn{{}_1q_x = \frac{{}_1m_x}{1 + (1 - a_x) {}_1m_x} ,}
+#' where \eqn{a_x} is the average fraction of year lived by those who die
+#' between ages \eqn{x} and \eqn{x+1}. The default \code{ax = 0.5}
+#' corresponds to the uniform distribution of deaths within the year.
+#'
+#' @param mx Numeric vector of central mortality rates.
+#' @param ax Average fraction of a year lived by those who die in it.
+#'   Default \code{0.5} (UDD).
+#'
+#' @return A numeric vector of one-year death probabilities.
+#' @examples
+#' # Round-trip: qx2mx should invert mx2qx
+#' qx2mx(mx2qx(0.2))
+#' @seealso \code{\link{mxt}}, \code{\link{qxt}}, \code{\link{qx2mx}}
+#' @name mx2qx
+#' @export
 mx2qx <- function(mx, ax = 0.5)
 {
   out <- mx / (1 +  (1 - ax)*mx)
   return(out)
 }
 
-#' @name qx2mx
-#' @title Death Probabilities to Mortality Rates
-#' 
-#' @description Function to convert death probabilities to mortality rates
+#' Convert death probabilities to mortality rates
 #'
-#' @details Function to convert death probabilities to mortality rates
-#' 
-#' @param qx death probabilities
-#' @param ax the average number of years lived between ages x and x +1 by individuals who die in that interval
-#' 
-#' @return A vector of mortality rates
-#' @examples 
+#' Inverse of \code{\link{mx2qx}}: convert one-year death probabilities
+#' \eqn{{}_1q_x} into central mortality rates \eqn{{}_1m_x},
+#' \deqn{{}_1m_x = \frac{{}_1q_x}{1 + a_x {}_1q_x - {}_1q_x} .}
+#'
+#' @param qx Numeric vector of one-year death probabilities.
+#' @param ax Average fraction of a year lived by those who die in it.
+#'   Default \code{0.5} (UDD).
+#'
+#' @return A numeric vector of central mortality rates.
+#' @examples
 #' data(soa08Act)
-#' soa08qx<-as(soa08Act,"numeric")
-#' soa08mx<-qx2mx(qx=soa08qx)
-#' soa08qx2<-mx2qx(soa08mx)
-#' @seealso \code{mxt}, \code{qxt}, \code{mx2qx}
-
+#' soa08qx <- as(soa08Act, "numeric")
+#' soa08mx <- qx2mx(qx = soa08qx)
+#' soa08qx2 <- mx2qx(soa08mx)
+#' @seealso \code{\link{mxt}}, \code{\link{qxt}}, \code{\link{mx2qx}}
+#' @name qx2mx
+#' @export
 qx2mx <- function(qx, ax=0.5) {
   out <- qx/(1+ax*qx-qx)
   return(out)
