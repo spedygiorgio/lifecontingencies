@@ -5,18 +5,12 @@
 - [`Iaxn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Iaxn_1.md)
   : Increasing annuity life contingencies
 
-- [`Isn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Isn.md)
-  : Function to calculated accumulated increasing annuity future value.
-
 - [`Axyzn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Multiple-life-insurances.md)
   [`axyzn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Multiple-life-insurances.md)
   : Multiple lifes insurances and annuities
 
 - [`AF92Lt`](https://spedygiorgio.github.io/lifecontingencies/reference/UkLifeTables.md)
   : Uk AM AF 92 life tables
-
-- [`accumulatedValue()`](https://spedygiorgio.github.io/lifecontingencies/reference/accumulatedValue.md)
-  : Function to evaluate the accumulated value.
 
 - [`actuarialtable-class`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
   [`coerce,actuarialtable,data.frame-method`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
@@ -29,9 +23,6 @@
   :
 
   Class `"actuarialtable"`
-
-- [`annuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/annuity.md)
-  : Annuity
 
 - [`IAxn()`](https://spedygiorgio.github.io/lifecontingencies/reference/arithmetic_variation_insurances.md)
   [`DAxn()`](https://spedygiorgio.github.io/lifecontingencies/reference/arithmetic_variation_insurances.md)
@@ -50,9 +41,6 @@
 
 - [`de_angelis_di_falco`](https://spedygiorgio.github.io/lifecontingencies/reference/de_angelis_di_falco.md)
   : Italian Health Insurance Data
-
-- [`decreasingAnnuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/decreasingAnnuity.md)
-  : Function to evaluate decreasing annuities.
 
 - [`demoCanada`](https://spedygiorgio.github.io/lifecontingencies/reference/demoCanada.md)
   : Canada Mortality Rates for UP94 Series
@@ -78,10 +66,6 @@
 - [`demoUsa`](https://spedygiorgio.github.io/lifecontingencies/reference/demoUsa.md)
   : United States Social Security life tables
 
-- [`interest2Discount()`](https://spedygiorgio.github.io/lifecontingencies/reference/discount-interest.md)
-  [`discount2Interest()`](https://spedygiorgio.github.io/lifecontingencies/reference/discount-interest.md)
-  : Functions to switch from interest to discount rates
-
 - [`duration()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md)
   [`convexity()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md)
   : Compute the duration or the convexity of a series of CF
@@ -96,19 +80,10 @@
 - [`exn()`](https://spedygiorgio.github.io/lifecontingencies/reference/exn.md)
   : Expected residual life.
 
-- [`getDecrements()`](https://spedygiorgio.github.io/lifecontingencies/reference/getDecrements.md)
-  : Function to return the decrements defined in the mdt class
-
 - [`getLifecontingencyPv()`](https://spedygiorgio.github.io/lifecontingencies/reference/getLifeContingencies.md)
   [`getLifecontingencyPvXyz()`](https://spedygiorgio.github.io/lifecontingencies/reference/getLifeContingencies.md)
   : Functions to obtain the present value of a life contingency given
   the time to death
-
-- [`getOmega()`](https://spedygiorgio.github.io/lifecontingencies/reference/getOmega.md)
-  : Function to return the terminal age of a life table.
-
-- [`increasingAnnuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/increasingAnnuity.md)
-  : Increasing annuity.
 
 - [`independentRatesFromMdt()`](https://spedygiorgio.github.io/lifecontingencies/reference/independentRatesFromMdt.md)
   : Extract the full Associated Single Decrement Table (ASDT) from an
@@ -193,9 +168,6 @@
 
 - [`presentValue()`](https://spedygiorgio.github.io/lifecontingencies/reference/presentValue.md)
   : Present value of a series of cash flows
-
-- [`probs2lifetable()`](https://spedygiorgio.github.io/lifecontingencies/reference/probs2lifetable.md)
-  : Life table from probabilities
 
 - [`dxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/pxt.md)
   [`pxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/pxt.md)

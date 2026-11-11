@@ -184,6 +184,7 @@ AExn(soa08Act, x=35, n=30, i=0.06)
 Exn(soa08Act, x=35, n=30, i=0.06) + Axn(soa08Act, x=35, n=30, i=0.06)
 #> [1] 0.2067226
 AExn(soa08Act, x=c(35,45), n=c(30,20))
+#> Warning: m argument has been recycled to match the maximum length of x, m and n
 #> [1] 0.2067226 0.3448057
 
 ## axn (survival annuity, legacy example)
@@ -199,5 +200,6 @@ axn(soa08Act, x=60, n=15, m=5, k=4, payment="due")
 #> [1] 5.719212
 # Vectorization over x/n:
 axn(soa08Act, x=c(60,65), n=c(10,20), k=12, payment="due")
+#> Warning: m argument has been recycled to match the maximum length of x, m and n
 #> [1] 7.024080 9.018623
 ```

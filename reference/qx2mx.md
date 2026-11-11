@@ -36,6 +36,7 @@ Function to convert death probabilities to mortality rates
 ``` r
 data(soa08Act)
 soa08qx<-as(soa08Act,"numeric")
+#> Warning: m argument has been recycled to match the maximum length of x, m and n
 soa08mx<-qx2mx(qx=soa08qx)
 soa08qx2<-mx2qx(soa08mx)
 ```

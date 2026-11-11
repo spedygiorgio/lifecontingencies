@@ -1,6 +1,64 @@
 # Changelog
 
+## lifecontingencies 1.6.4 (in development)
+
+- Roxygen documentation consistency pass. Several exported functions
+  (`annuity()`, `accumulatedValue()`, `increasingAnnuity()`,
+  `decreasingAnnuity()`, `Isn()`, `probs2lifetable()`,
+  `interest2Discount()`, `discount2Interest()`, the `getDecrements()`
+  and `getOmega()` generics) moved from hand-maintained `.Rd` files to
+  roxygen comments in R, so that the single-source-of-truth is uniform
+  across the package. Existing roxygen comments on
+  [`presentValue()`](https://spedygiorgio.github.io/lifecontingencies/reference/presentValue.md),
+  [`duration()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md)/[`convexity()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md),
+  [`nominal2Real()`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md)/[`real2Nominal()`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md),
+  [`intensity2Interest()`](https://spedygiorgio.github.io/lifecontingencies/reference/intensity-interest.md),
+  [`Lxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/other-demographic-functions.md)/[`Tx()`](https://spedygiorgio.github.io/lifecontingencies/reference/other-demographic-functions.md),
+  [`mxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/mxt.md),
+  [`mx2qx()`](https://spedygiorgio.github.io/lifecontingencies/reference/mx2qx.md)/[`qx2mx()`](https://spedygiorgio.github.io/lifecontingencies/reference/qx2mx.md),
+  the `endowment_trio` (`Exn`, `Axn`, `AExn`, `axn`) and the
+  `arithmetic_variation_insurances` (`IAxn`, `DAxn`) help pages were
+  cleaned up (duplicate `@title` / `@description` blocks removed,
+  parameters tightened, examples made self-contained). Run
+  `devtools::document()` after pulling to regenerate the `.Rd` files
+  that were deleted here; no public API changes.
+- Fixed a latent typo in which
+  [`warnings()`](https://rdrr.io/r/base/warnings.html) (plural, which
+  merely lists queued warnings) was called instead of
+  [`warning()`](https://rdrr.io/r/base/warning.html) (singular, which
+  emits one). Fifteen recycle-length diagnostics in `.pxtPrepareArgs()`,
+  [`pxyzt()`](https://spedygiorgio.github.io/lifecontingencies/reference/multiple-life-probabilities.md),
+  [`axn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md),
+  [`Axn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md)
+  and `axyznvect()` therefore never surfaced; they now do.
+- [`axn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md),
+  [`Axn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md)
+  and `axyznvect()` had a copy of a
+  [`pxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/pxt.md)
+  sanity check (`if (length(t) <= 0) stop("t is of length zero")`) where
+  no `t` variable exists at all (R would have resolved it to
+  [`base::t`](https://rdrr.io/r/base/t.html), making the branch dead);
+  replaced with a matching length check on `n`.
+- Reworded a handful of misleading error messages and typos
+  (`"Intesters differ"` -\> `"Interest rates differ"`,
+  `"Objectx needs be lifetable"` -\>
+  `"objecty needs to be a lifetable..."` for the `y` life,
+  `"countinuous"`, `"cumproduct"`, `"Dowloaded"`, `"Healty"`,
+  `"elevent"`, AF92 described as “males”, `elsewere`).
+- Added reviewer-oriented inline comments to the denser pieces of the
+  code base (`.pxtFromLxSeries()` fractional-age decomposition,
+  [`pxyzt()`](https://spedygiorgio.github.io/lifecontingencies/reference/multiple-life-probabilities.md)
+  x/t broadcasting rules, `.qxtDecrementMdt()` cumulative-sum indexing,
+  `.tableSanitizer()` padding conventions, the `mdt`
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) reshape,
+  `.ageAtDeathQuantile()` UDD interpolation, the lifetime draw that
+  keeps
+  [`rLifeContingencies()`](https://spedygiorgio.github.io/lifecontingencies/reference/rLifeContingencies.md)
+  reproducible under opt-in OpenMP).
+
 ## lifecontingencies 1.6.3
+
+CRAN release: 2026-10-10
 
 - `markovchain` is now a genuinely optional dependency (`Suggests`).
   Before, the S4 coercions to `markovchainList` were registered at

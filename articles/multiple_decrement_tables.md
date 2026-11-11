@@ -12,7 +12,7 @@
     ##   Gian Paolo Clemente [ctb] (ORCID:
     ##     <https://orcid.org/0000-0001-6795-4595>),
     ##   Ivan Williams [ctb]
-    ## Version:  1.6.3
+    ## Version:  1.6.3.9000
     ## Date:     
     ## BugReport: https://github.com/spedygiorgio/lifecontingencies/issues
 
