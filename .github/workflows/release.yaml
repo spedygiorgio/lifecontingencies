@@ -24,15 +24,23 @@ jobs:
         shell: bash
         run: |
           VERSION=$(sed -n 's/^Version:[[:space:]]*//p' DESCRIPTION | head -n 1)
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid or missing package version: '$VERSION'"
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::Missing package version in DESCRIPTION"
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+            echo "Release version detected: $VERSION"
+          else
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+            echo "Development version detected ($VERSION); skipping GitHub release."
+          fi
 
       - name: Check whether the release already exists
         id: release
+        if: steps.version.outputs.is_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
@@ -47,7 +55,7 @@ jobs:
           fi
 
       - name: Create GitHub release
-        if: steps.release.outputs.exists == 'false'
+        if: steps.version.outputs.is_release == 'true' && steps.release.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
