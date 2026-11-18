@@ -2,6 +2,17 @@
 
 ## lifecontingencies 1.6.4 (in development)
 
+- The `mdt` (multiple decrement table) validity method now rejects
+  tables that would imply a negative survival probability (GH
+  [\#34](https://github.com/spedygiorgio/lifecontingencies/issues/34)).
+  Negative decrement counts, and survivor (`lx`) values driven below
+  zero by decrements exceeding the survivors at some age, are caught at
+  construction time with an informative error instead of silently
+  propagating into
+  [`pxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/pxt.md)/[`qxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/pxt.md).
+  A small relative tolerance absorbs the floating-point noise of an `lx`
+  column reconstructed by repeated subtraction in `.tableSanitizer()`.
+  Covered by `tests/testthat/test-mdt-negative-survival.R`.
 - Roxygen documentation consistency pass. Several exported functions
   (`annuity()`, `accumulatedValue()`, `increasingAnnuity()`,
   `decreasingAnnuity()`, `Isn()`, `probs2lifetable()`,
