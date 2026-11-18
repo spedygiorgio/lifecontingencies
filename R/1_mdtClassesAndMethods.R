@@ -84,6 +84,22 @@ setValidity("mdt",
 				if(!.mdtBalanced(sum(onlyDecrements), object@table$lx[1])) {
 					check <- c(check, "Check the lx")
 				}
+
+				# Guard against tables that imply a negative survival probability
+				# (GH #34). Decrement counts and survivors must both be
+				# non-negative: a negative decrement, or an lx driven below zero
+				# by decrements exceeding the survivors at some age, makes
+				# derived quantities such as pxt() negative. A small relative
+				# tolerance absorbs the floating-point noise of an lx column
+				# reconstructed by repeated subtraction in .tableSanitizer().
+				negTol <- .MDT_BALANCE_TOL * max(1, abs(object@table$lx[1]))
+				if(any(onlyDecrements < -negTol, na.rm = TRUE)) {
+					check <- c(check, "Decrement counts must be non-negative")
+				}
+				if(any(object@table$lx < -negTol, na.rm = TRUE)) {
+					check <- c(check,
+						"Survivors (lx) must be non-negative; the table implies a negative survival probability")
+				}
 			}
 
 			if(length(check) == 0) {
