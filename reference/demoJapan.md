@@ -30,7 +30,7 @@ SOA mortality web site
 
 ## Details
 
-Dowloaded in 2012 from Society of Actuaries (SOA) mortality table web
+Downloaded in 2012 from Society of Actuaries (SOA) mortality table web
 site
 
 ## Examples

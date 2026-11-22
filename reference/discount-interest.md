@@ -1,6 +1,8 @@
-# Functions to switch from interest to discount rates
+# Convert between interest and discount rates
 
-These functions switch from interest to discount rates and vice - versa
+Switch between an effective interest rate \\i\\ and the corresponding
+effective discount rate \\d\\ using the standard identity \$\$d =
+\frac{i}{1 + i}, \qquad i = \frac{d}{1 - d}.\$\$
 
 ## Usage
 
@@ -14,37 +16,37 @@ discount2Interest(d)
 
 - i:
 
-  Interest rate
+  Effective interest rate.
 
 - d:
 
-  Discount rate
-
-## Details
-
-The following formula (and its inverse) rules the relationships:
-\$\$\frac{i}{{1 + i}} = d\$\$
+  Effective discount rate.
 
 ## Value
 
-A numeric value
+A numeric scalar.
 
 ## References
 
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
-2008, ACTEX Publications.
+Broverman, S.A. (2008). *Mathematics of Investment and Credit* (Fourth
+Edition), ACTEX Publications.
+
+## See also
+
+[`intensity2Interest`](https://spedygiorgio.github.io/lifecontingencies/reference/intensity-interest.md),
+[`nominal2Real`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md)
 
 ## Author
 
 Giorgio Alfredo Spedicato
 
-## See also
-
-[`intensity2Interest`](https://spedygiorgio.github.io/lifecontingencies/reference/intensity-interest.md),[`nominal2Real`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md)
-
 ## Examples
 
 ``` r
-discount2Interest(d=0.04)
+# An effective interest rate of 4% corresponds to a discount rate of
+interest2Discount(i = 0.04)
+#> [1] 0.03846154
+# The inverse direction:
+discount2Interest(d = 0.04)
 #> [1] 0.04166667
 ```

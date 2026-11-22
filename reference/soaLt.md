@@ -23,9 +23,9 @@ A `data.frame` with 111 obs on the following 2 variables:
 
 ## Details
 
-Early ages have been found elsewere since miss in the original data
-sources; SOA did not provide population at risk data for certain spans
-of age (e.g. 1-5, 6-9, 11-14 and 16-19)
+Early ages have been sourced elsewhere because they are missing from the
+original data; SOA did not provide population at risk data for certain
+spans of age (e.g. 1-5, 6-9, 11-14 and 16-19)
 
 ## References
 

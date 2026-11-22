@@ -26,7 +26,8 @@ Work in progress.
 
 ## See also
 
-`accumulatedValue`, `annuity`
+[`accumulatedValue`](https://spedygiorgio.github.io/lifecontingencies/reference/accumulatedValue.md),
+[`annuity`](https://spedygiorgio.github.io/lifecontingencies/reference/annuity.md)
 
 ## Warning
 

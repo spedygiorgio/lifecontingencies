@@ -1,6 +1,12 @@
-# Functions to switch from nominal / effective / convertible rates
+# Convert between effective, nominal, convertible and discount rates
 
-Functions to switch from nominal / effective / convertible rates
+Convert between an effective annual rate (also called "real" rate here)
+and the corresponding nominal rate convertible \\k\\-thly (also called
+"convertible" rate), for either interest or discount. Convertible rates
+are synonyms of nominal rates, so `convertible2Effective` and
+`effective2Convertible` are thin wrappers of `nominal2Real` and
+`real2Nominal` respectively, provided for naming consistency with
+different textbook traditions.
 
 ## Usage
 
@@ -22,29 +28,31 @@ effective2Convertible(i, k = 1, type = "interest")
 
 - k:
 
-  The original / target compounding frequency.
+  The original / target compounding frequency (periods per year).
 
 - type:
 
-  Either "interest" (default) or "nominal".
+  `"interest"` (default) for interest rates or `"nominal"` for discount
+  rates. (Historical naming retained for backward compatibility.)
 
 ## Value
 
-A numeric value.
+A numeric scalar.
 
 ## Details
 
-`effective2Convertible` and `convertible2Effective` wrap the other two
-functions.
+With `type = "interest"`, `nominal2Real(i, k)` returns \\(1 + i/k)^k -
+1\\; with `type = "nominal"` it returns \\1 - (1 - i/k)^k\\ (the
+discount analogue). `real2Nominal` inverts the respective expression.
 
 ## Note
 
-Convertible rates are synonims of nominal rates
+Convertible rates are synonyms of nominal rates.
 
 ## References
 
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
-2008, ACTEX Publications.
+Broverman, S.A. (2008). *Mathematics of Investment and Credit* (Fourth
+Edition), ACTEX Publications.
 
 ## See also
 
@@ -53,7 +61,8 @@ Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
 ## Examples
 
 ``` r
-#a nominal rate of 0.12 equates an APR of
-nominal2Real(i=0.12, k = 12, "interest")
+# A nominal annual rate of 0.12 convertible monthly is equivalent to an
+# effective annual rate of
+nominal2Real(i = 0.12, k = 12, "interest")
 #> [1] 0.126825
 ```

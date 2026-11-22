@@ -59,7 +59,6 @@ Giorgio Alfredo Spedicato
 mdtDf<-data.frame(x=c(0,1,2,3),death=c(100,50,30,10),lapse=c(150,20,2,0))
 myMdt<-new("mdt",name="example Mdt",table=mdtDf)
 #> Added lx 
-# rmdt() needs the optional markovchain package
 if (requireNamespace("markovchain", quietly = TRUE)) {
   ciao<-rmdt(n=5,object = myMdt,x = 0,t = 4,include.t0=FALSE,t0="alive")
 }

@@ -1,11 +1,22 @@
-# Function to return the terminal age of a life table.
+# Last attainable age of a life or multiple-decrement table
 
-This function returns the \\\omega\\ value of a life table object, that
-is, the last attainable age within a life table.
+Return the \\\omega\\ value of a life table or multiple-decrement table,
+i.e. the largest age tabulated in the object. Methods are provided for
+[`lifetable`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
+(inherited by
+[`actuarialtable`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md))
+and
+[`mdt`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md).
 
 ## Usage
 
 ``` r
+getOmega(object)
+
+# S4 method for class 'mdt'
+getOmega(object)
+
+# S4 method for class 'lifetable'
 getOmega(object)
 ```
 
@@ -13,39 +24,36 @@ getOmega(object)
 
 - object:
 
-  A life table object.
+  A life-table-like object
+  ([`lifetable`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md),
+  [`actuarialtable`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
+  or
+  [`mdt`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md)).
 
 ## Value
 
-A numeric value representing the \\\omega\\ value of a life table object
+A numeric scalar: the largest tabulated age.
 
 ## References
 
 Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber,
 H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 
+## See also
+
+[`lifetable`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md),
+[`actuarialtable`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
+
 ## Author
 
 Giorgio A. Spedicato
 
-## Warning
-
-The function is provided as is, without any guarantee regarding the
-accuracy of calculation. We disclaim any liability for eventual losses
-arising from direct or indirect use of this software.
-
-## See also
-
-[`actuarialtable`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
-
 ## Examples
 
 ``` r
-    #assumes SOA example life table to be load
-    data(soaLt)
-    soa08=with(soaLt, new("lifetable",
-    x=x,lx=Ix,name="SOA2008"))
-    #the last attainable age under SOA life table is
-    getOmega(soa08) 
+# Assumes the SOA example life table to be loaded
+data(soaLt)
+soa08 <- with(soaLt, new("lifetable", x = x, lx = Ix, name = "SOA2008"))
+getOmega(soa08)
 #> [1] 110
 ```

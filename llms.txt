@@ -28,12 +28,18 @@ devtools::install_github('spedygiorgio/lifecontingencies')
 - [`Iaxn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Iaxn_1.md)
   : Increasing annuity life contingencies
 
+- [`Isn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Isn.md)
+  : Accumulated value of an increasing annuity
+
 - [`Axyzn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Multiple-life-insurances.md)
   [`axyzn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Multiple-life-insurances.md)
   : Multiple lifes insurances and annuities
 
 - [`AF92Lt`](https://spedygiorgio.github.io/lifecontingencies/reference/UkLifeTables.md)
   : Uk AM AF 92 life tables
+
+- [`accumulatedValue()`](https://spedygiorgio.github.io/lifecontingencies/reference/accumulatedValue.md)
+  : Accumulated value of an annuity-certain
 
 - [`actuarialtable-class`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
   [`coerce,actuarialtable,data.frame-method`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
@@ -47,10 +53,12 @@ devtools::install_github('spedygiorgio/lifecontingencies')
 
   Class `"actuarialtable"`
 
+- [`annuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/annuity.md)
+  : Present value of an annuity-certain
+
 - [`IAxn()`](https://spedygiorgio.github.io/lifecontingencies/reference/arithmetic_variation_insurances.md)
   [`DAxn()`](https://spedygiorgio.github.io/lifecontingencies/reference/arithmetic_variation_insurances.md)
   : Life insurance with arithmetic-variation benefit
-  (increasing/decreasing, fractional claims)
 
 - [`autoplot(`*`<lifetable>`*`)`](https://spedygiorgio.github.io/lifecontingencies/reference/autoplot.lifetable.md)
   : Autoplot a life table
@@ -64,6 +72,9 @@ devtools::install_github('spedygiorgio/lifecontingencies')
 
 - [`de_angelis_di_falco`](https://spedygiorgio.github.io/lifecontingencies/reference/de_angelis_di_falco.md)
   : Italian Health Insurance Data
+
+- [`decreasingAnnuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/decreasingAnnuity.md)
+  : Decreasing annuity-certain
 
 - [`demoCanada`](https://spedygiorgio.github.io/lifecontingencies/reference/demoCanada.md)
   : Canada Mortality Rates for UP94 Series
@@ -89,24 +100,38 @@ devtools::install_github('spedygiorgio/lifecontingencies')
 - [`demoUsa`](https://spedygiorgio.github.io/lifecontingencies/reference/demoUsa.md)
   : United States Social Security life tables
 
+- [`interest2Discount()`](https://spedygiorgio.github.io/lifecontingencies/reference/discount-interest.md)
+  [`discount2Interest()`](https://spedygiorgio.github.io/lifecontingencies/reference/discount-interest.md)
+  : Convert between interest and discount rates
+
 - [`duration()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md)
   [`convexity()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md)
-  : Compute the duration or the convexity of a series of CF
+  : Duration and convexity of a series of cash flows
 
 - [`Exn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md)
   [`axn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md)
   [`Axn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md)
   [`AExn()`](https://spedygiorgio.github.io/lifecontingencies/reference/endowment_trio.md)
-  : Endowment, insurance, pure endowment, and survival annuity APVs
-  (shared topic)
+  : Endowment, insurance, pure endowment and survival-annuity APVs
 
 - [`exn()`](https://spedygiorgio.github.io/lifecontingencies/reference/exn.md)
   : Expected residual life.
+
+- [`getDecrements()`](https://spedygiorgio.github.io/lifecontingencies/reference/getDecrements.md)
+  :
+
+  Decrement names of an `mdt` object
 
 - [`getLifecontingencyPv()`](https://spedygiorgio.github.io/lifecontingencies/reference/getLifeContingencies.md)
   [`getLifecontingencyPvXyz()`](https://spedygiorgio.github.io/lifecontingencies/reference/getLifeContingencies.md)
   : Functions to obtain the present value of a life contingency given
   the time to death
+
+- [`getOmega()`](https://spedygiorgio.github.io/lifecontingencies/reference/getOmega.md)
+  : Last attainable age of a life or multiple-decrement table
+
+- [`increasingAnnuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/increasingAnnuity.md)
+  : Increasing annuity-certain
 
 - [`independentRatesFromMdt()`](https://spedygiorgio.github.io/lifecontingencies/reference/independentRatesFromMdt.md)
   : Extract the full Associated Single Decrement Table (ASDT) from an
@@ -114,7 +139,7 @@ devtools::install_github('spedygiorgio/lifecontingencies')
 
 - [`intensity2Interest()`](https://spedygiorgio.github.io/lifecontingencies/reference/intensity-interest.md)
   [`interest2Intensity()`](https://spedygiorgio.github.io/lifecontingencies/reference/intensity-interest.md)
-  : Functions to switch from interest to intensity and vice versa.
+  : Convert between interest rate and force of interest
 
 - [`lifecontingencies-package`](https://spedygiorgio.github.io/lifecontingencies/reference/lifecontingencies-package.md)
   [`lifecontingencies`](https://spedygiorgio.github.io/lifecontingencies/reference/lifecontingencies-package.md)
@@ -126,7 +151,6 @@ devtools::install_github('spedygiorgio/lifecontingencies')
   [`coerce,lifetable,data.frame-method`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
   [`coerce,lifetable,numeric-method`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
   [`coerce,lifetable,markovchainList-method`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
-  [`getOmega,lifetable-method`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
   [`head,lifetable-method`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
   [`initialize,lifetable-method`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
   [`plot,lifetable-method`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
@@ -140,8 +164,6 @@ devtools::install_github('spedygiorgio/lifecontingencies')
   Class `"lifetable"`
 
 - [`mdt-class`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md)
-  [`getDecrements,mdt-method`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md)
-  [`getOmega,mdt-method`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md)
   [`initialize,mdt-method`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md)
   [`print,mdt-method`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md)
   [`coerce,mdt,data.frame-method`](https://spedygiorgio.github.io/lifecontingencies/reference/mdt-class.md)
@@ -171,7 +193,7 @@ devtools::install_github('spedygiorgio/lifecontingencies')
   : Functions to deals with multiple life models
 
 - [`mx2qx()`](https://spedygiorgio.github.io/lifecontingencies/reference/mx2qx.md)
-  : Mortality rates to Death probabilities
+  : Convert mortality rates to death probabilities
 
 - [`mxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/mxt.md)
   : Central mortality rate
@@ -180,17 +202,20 @@ devtools::install_github('spedygiorgio/lifecontingencies')
   [`convertible2Effective()`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md)
   [`real2Nominal()`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md)
   [`effective2Convertible()`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md)
-  : Functions to switch from nominal / effective / convertible rates
+  : Convert between effective, nominal, convertible and discount rates
 
 - [`Lxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/other-demographic-functions.md)
   [`Tx()`](https://spedygiorgio.github.io/lifecontingencies/reference/other-demographic-functions.md)
-  : Various demographic functions
+  : Various demographic functions on a life table
 
 - [`plot(`*`<mdt>`*`,`*`<missing>`*`)`](https://spedygiorgio.github.io/lifecontingencies/reference/plot-mdt-missing-method.md)
   : Plot a multiple decrement table
 
 - [`presentValue()`](https://spedygiorgio.github.io/lifecontingencies/reference/presentValue.md)
   : Present value of a series of cash flows
+
+- [`probs2lifetable()`](https://spedygiorgio.github.io/lifecontingencies/reference/probs2lifetable.md)
+  : Life table from a vector of probabilities
 
 - [`dxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/pxt.md)
   [`pxt()`](https://spedygiorgio.github.io/lifecontingencies/reference/pxt.md)
@@ -206,7 +231,7 @@ devtools::install_github('spedygiorgio/lifecontingencies')
   : Quantiles of the age-at-death distribution of a life table
 
 - [`qx2mx()`](https://spedygiorgio.github.io/lifecontingencies/reference/qx2mx.md)
-  : Death Probabilities to Mortality Rates
+  : Convert death probabilities to mortality rates
 
 - [`qxt.prime.fromMdt()`](https://spedygiorgio.github.io/lifecontingencies/reference/qxt.prime.fromMdt.md)
   [`qxt.fromQxprime()`](https://spedygiorgio.github.io/lifecontingencies/reference/qxt.prime.fromMdt.md)

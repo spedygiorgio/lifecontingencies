@@ -22,7 +22,7 @@ A data frame with 74 observations on the following 3 variables:
 
 - `AF92`:
 
-  One year mortality rate (males)
+  One year mortality rate (females)
 
 ## Source
 

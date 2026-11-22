@@ -14,12 +14,21 @@
   column reconstructed by repeated subtraction in `.tableSanitizer()`.
   Covered by `tests/testthat/test-mdt-negative-survival.R`.
 - Roxygen documentation consistency pass. Several exported functions
-  (`annuity()`, `accumulatedValue()`, `increasingAnnuity()`,
-  `decreasingAnnuity()`, `Isn()`, `probs2lifetable()`,
-  `interest2Discount()`, `discount2Interest()`, the `getDecrements()`
-  and `getOmega()` generics) moved from hand-maintained `.Rd` files to
-  roxygen comments in R, so that the single-source-of-truth is uniform
-  across the package. Existing roxygen comments on
+  ([`annuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/annuity.md),
+  [`accumulatedValue()`](https://spedygiorgio.github.io/lifecontingencies/reference/accumulatedValue.md),
+  [`increasingAnnuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/increasingAnnuity.md),
+  [`decreasingAnnuity()`](https://spedygiorgio.github.io/lifecontingencies/reference/decreasingAnnuity.md),
+  [`Isn()`](https://spedygiorgio.github.io/lifecontingencies/reference/Isn.md),
+  [`probs2lifetable()`](https://spedygiorgio.github.io/lifecontingencies/reference/probs2lifetable.md),
+  [`interest2Discount()`](https://spedygiorgio.github.io/lifecontingencies/reference/discount-interest.md),
+  [`discount2Interest()`](https://spedygiorgio.github.io/lifecontingencies/reference/discount-interest.md),
+  the
+  [`getDecrements()`](https://spedygiorgio.github.io/lifecontingencies/reference/getDecrements.md)
+  and
+  [`getOmega()`](https://spedygiorgio.github.io/lifecontingencies/reference/getOmega.md)
+  generics) moved from hand-maintained `.Rd` files to roxygen comments
+  in R, so that the single-source-of-truth is uniform across the
+  package. Existing roxygen comments on
   [`presentValue()`](https://spedygiorgio.github.io/lifecontingencies/reference/presentValue.md),
   [`duration()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md)/[`convexity()`](https://spedygiorgio.github.io/lifecontingencies/reference/duration.md),
   [`nominal2Real()`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md)/[`real2Nominal()`](https://spedygiorgio.github.io/lifecontingencies/reference/nominal-real-convertible.md),

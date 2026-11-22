@@ -1,7 +1,9 @@
-# Function to calculated accumulated increasing annuity future value.
+# Accumulated value of an increasing annuity
 
-This function evaluates non - stochastic increasing annuities future
-values.
+Future (accumulated) value at time `n` of an increasing annuity with
+payment stream \\1, 2, \ldots, n\\. Equivalent to capitalising
+[`increasingAnnuity`](https://spedygiorgio.github.io/lifecontingencies/reference/increasingAnnuity.md)
+by \\(1+i)^n\\.
 
 ## Usage
 
@@ -13,52 +15,37 @@ Isn(i, n, type = "immediate")
 
 - i:
 
-  Interest rate.
+  Effective interest rate.
 
 - n:
 
-  Terms.
+  Number of periods.
 
 - type:
 
-  Either "due" for annuity due or "immediate" for annuity immediate.
-
-## Details
-
-It calls
-[`increasingAnnuity`](https://spedygiorgio.github.io/lifecontingencies/reference/increasingAnnuity.md)
-after having capitalized by \\\left( 1 + i \right)^n\\
+  `"immediate"` (default) or `"due"`.
 
 ## Value
 
-A numeric value
+A numeric scalar.
 
 ## References
 
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
-2008, ACTEX Publications.
+Broverman, S.A. (2008). *Mathematics of Investment and Credit* (Fourth
+Edition), ACTEX Publications.
+
+## See also
+
+[`accumulatedValue`](https://spedygiorgio.github.io/lifecontingencies/reference/accumulatedValue.md),
+[`increasingAnnuity`](https://spedygiorgio.github.io/lifecontingencies/reference/increasingAnnuity.md)
 
 ## Author
 
 Giorgio A. Spedicato
 
-## Note
-
-This function calls internally `increasingAnnuity` function.
-
-## Warning
-
-The function is provided as is, without any guarantee regarding the
-accuracy of calculation. We disclaim any liability for eventual losses
-arising from direct or indirect use of this software.
-
-## See also
-
-[`accumulatedValue`](https://spedygiorgio.github.io/lifecontingencies/reference/accumulatedValue.md)
-
 ## Examples
 
 ``` r
-Isn(n=10,i=0.03)
+Isn(n = 10, i = 0.03)
 #> [1] 60.25986
 ```

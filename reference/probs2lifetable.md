@@ -1,7 +1,10 @@
-# Life table from probabilities
+# Life table from a vector of probabilities
 
-This function returns a newly created lifetable object given either
-survival or death (one year) probabilities)
+Create a
+[`lifetable`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
+object from a vector of one-year survival or death probabilities,
+starting at age 0. Useful for feeding mortality projections produced by
+other software (e.g. StMoMo) into lifecontingencies.
 
 ## Usage
 
@@ -13,28 +16,24 @@ probs2lifetable(probs, radix = 10000, type = "px", name = "ungiven")
 
 - probs:
 
-  A real valued vector representing either one year survival or death
-  probabilities. The last value in the vector must be either 1 or 0,
-  depending if it represents death or survival probabilities
-  respectively.
+  Numeric vector of one-year survival or death probabilities, starting
+  at age 0. Its last element must be `0` when `type` is `"px"` (nobody
+  survives beyond \\\omega\\) or `1` when `type` is `"qx"` (everyone
+  alive at \\\omega\\ dies within the last year); otherwise the function
+  appends the missing terminal value and warns via
+  [`cat()`](https://rdrr.io/r/base/cat.html).
 
 - radix:
 
-  The radix of the life table.
+  Initial cohort size \\l_0\\. Default `10000`.
 
 - type:
 
-  Character value either "px" or "qx" indicating how probabilities must
-  be interpreted.
+  Either `"px"` (survival) or `"qx"` (death) probabilities.
 
 - name:
 
-  The character value to be put in the corresponding slot of returned
-  object.
-
-## Details
-
-The \\\omega\\ value is the length of the probs vector.
+  Character string stored in the `@name` slot of the returned object.
 
 ## Value
 
@@ -42,35 +41,32 @@ A
 [`lifetable`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md)
 object.
 
+## Details
+
+The limiting age \\\omega\\ is the length of `probs`. The survival
+factor at age \\k\\ is `probs[k]` (if `type = "px"`) or `1 - probs[k]`
+(if `type = "qx"`), and \\l_x\\ is built as the cumulative product of
+these factors times `radix`.
+
 ## References
 
 Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber,
 H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 
+## See also
+
+[`lifetable`](https://spedygiorgio.github.io/lifecontingencies/reference/lifetable-class.md),
+[`actuarialtable`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
+
 ## Author
 
 Giorgio A. Spedicato
 
-## Note
-
-This function allows to use mortality projection given by other
-softwares with the lifecontingencies package.
-
-## Warning
-
-The function is provided as is, without any guarantee regarding the
-accuracy of calculation. We disclaim any liability for eventual losses
-arising from direct or indirect use of this software.
-
-## See also
-
-[`actuarialtable`](https://spedygiorgio.github.io/lifecontingencies/reference/actuarialtable-class.md)
-
 ## Examples
 
 ``` r
-fakeSurvivalProbs=seq(0.9,0,by=-0.1)
-newTable=probs2lifetable(fakeSurvivalProbs,type="px",name="fake")
+fakeSurvivalProbs <- seq(0.9, 0, by = -0.1)
+newTable <- probs2lifetable(fakeSurvivalProbs, type = "px", name = "fake")
 head(newTable)
 #>   x    lx
 #> 1 0 10000

@@ -1,6 +1,10 @@
-# Various demographic functions
+# Various demographic functions on a life table
 
-Various demographic functions
+`Lxt` computes the person-years lived between ages `x` and `x + t`; `Tx`
+returns the total person-years lived from age `x` to the end of the
+table. They are the standard building blocks of life-table analysis and
+feed into the complete expectation of life
+([`exn`](https://spedygiorgio.github.io/lifecontingencies/reference/exn.md)).
 
 ## Usage
 
@@ -14,21 +18,21 @@ Tx(object, x, fxt = 0.5, axOmega = 1 - fxt)
 
 - object:
 
-  a `lifetable` or `actuarialtable` object
+  a `lifetable` or `actuarialtable` object.
 
 - x:
 
-  age of the subject
+  age of the subject.
 
 - t:
 
-  duration of the calculation
+  duration of the calculation (default 1).
 
 - fxt:
 
-  fraction of the year of age lived by those who die within the year (so
-  that \\L_x = l_x - fxt\\ d_x\\, matching `Lxt`). Defaults to `0.5`
-  (uniform distribution of deaths).
+  fraction of the year of age lived by those who die within the year, so
+  that \\L_x = l_x - fxt\\ d_x\\. Defaults to `0.5` (uniform
+  distribution of deaths).
 
 - axOmega:
 
@@ -43,14 +47,17 @@ Tx(object, x, fxt = 0.5, axOmega = 1 - fxt)
 
 ## Value
 
-A numeric value
+A numeric scalar.
 
 ## Details
 
-`Tx` il the sum of years lived since age `x` by the population of the
-life table, it is the sum of `Lx`. The function is provided as is,
-without any warranty regarding the accuracy of calculations. Use at own
-risk.
+With \\d_x = l_x - l\_{x+1}\\ and \\{}\_tL_x = \sum\_{k=0}^{t-1}
+(l\_{x+k} - fxt\\ d\_{x+k})\\, the function sums person-years over the
+requested age window.
+
+`Tx` is the total number of years lived from age `x` by the life-table
+cohort, i.e. the sum of `Lx` from `x` to the last tabulated age
+\\\omega\\.
 
 ## References
 
@@ -59,19 +66,16 @@ H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 
 ## Author
 
-Giorgio Alfredo Spedicato.
+Giorgio Alfredo Spedicato
 
 ## Examples
 
 ``` r
 data(soaLt)
-soa08Act=with(soaLt, new("actuarialtable",interest=0.06,
-x=x,lx=Ix,name="SOA2008"))
-Lxt(soa08Act, 67,10)
+soa08Act <- with(soaLt, new("actuarialtable", interest = 0.06,
+                            x = x, lx = Ix, name = "SOA2008"))
+Lxt(soa08Act, 67, 10)
 #> [1] 61131812
-#assumes SOA example life table to be load
-data(soaLt)
-soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
 Tx(soa08Act, 67)
 #> [1] 102198948
 ```

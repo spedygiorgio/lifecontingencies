@@ -1,6 +1,8 @@
-# Functions to switch from interest to intensity and vice versa.
+# Convert between interest rate and force of interest
 
-There functions switch from interest to intensity and vice - versa.
+These functions switch between an effective interest rate \\i\\ and the
+corresponding force of interest (intensity) \\\delta\\, using the
+standard identities \\\delta = \log(1 + i)\\ and \\i = e^{\delta} - 1\\.
 
 ## Usage
 
@@ -14,7 +16,7 @@ interest2Intensity(i)
 
 - intensity:
 
-  Intensity rate
+  Force of interest (continuous-time intensity).
 
 - i:
 
@@ -22,16 +24,17 @@ interest2Intensity(i)
 
 ## Value
 
-A numeric value.
+A numeric scalar.
 
 ## Details
 
-Simple financial mathematics formulas are applied.
+Simple financial-mathematics formulas: \$\$i = e^{\delta} - 1, \qquad
+\delta = \log(1 + i).\$\$
 
 ## References
 
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
-2008, ACTEX Publications.
+Broverman, S.A. (2008). *Mathematics of Investment and Credit* (Fourth
+Edition), ACTEX Publications.
 
 ## See also
 
@@ -45,8 +48,8 @@ Giorgio A. Spedicato
 ## Examples
 
 ``` r
-# a force of interest of 0.02 corresponds to an APR of 
-intensity2Interest(intensity=0.02)
+# A force of interest of 0.02 corresponds to an effective rate of
+intensity2Interest(intensity = 0.02)
 #> [1] 0.02020134
 #an interest rate equal to 0.02 corresponds to a force of interest of of 
 interest2Intensity(i=0.02)

@@ -1,7 +1,7 @@
-# Annuity
+# Present value of an annuity-certain
 
-This function calculates the present value of a stream of fixed payments
-separated by equal intervals of time.
+Compute the present value of a stream of fixed payments separated by
+equal intervals of time. Returns the perpetuity value when `n = Inf`.
 
 ## Usage
 
@@ -13,56 +13,76 @@ annuity(i, n, m = 0, k = 1, type = "immediate")
 
 - i:
 
-  Effective interest rate expressed in decimal form. E.g. 0.03 means 3%.
-  It can be a vector of interest rates of the same length of periods.
+  Effective interest rate expressed in decimal form (e.g. `0.03` for
+  3%). May also be a vector of per-period rates with the same length as
+  the implied payment schedule.
 
 - n:
 
-  Periods for payments. If n = `infinity` then `annuity` returns the
-  value of a perpetuity (either immediate or due).
+  Number of payment periods. `Inf` returns the value of a perpetuity
+  (either immediate or due, depending on `type`).
 
 - m:
 
-  Deferring period, whose default value is zero.
+  Deferment period. Default `0`.
 
 - k:
 
-  Yearly payments frequency. A payment of \\k^-1\\ is supposed to be
-  performed at the end of each year.
+  Number of payments per year. A payment of \\1/k\\ is assumed in each
+  sub-period, so that the total yearly outflow stays equal to 1.
 
 - type:
 
-  The payment type. Use `"immediate"` (default) for an
-  annuity-immediate, where payments are made at the end of each period,
-  or `"due"` for an annuity-due, where payments are made at the
-  beginning of each period. For compatibility, `"arrears"` is an alias
-  for `"immediate"` and `"advance"` is an alias for `"due"` (can be
-  abbreviated).
+  Payment timing. `"immediate"` (default) pays at the end of each
+  period; `"due"` pays at the beginning. `"arrears"` and `"advance"` are
+  the respective aliases (can be abbreviated).
+
+## Value
+
+A numeric scalar: the present value of the annuity.
 
 ## Details
 
 For an annuity-immediate the first payment occurs at time \\1/k\\; for
-an annuity-due the first payment occurs at time \\0\\. Thus, for annual
-payments, an annuity-immediate has payment times \\1,2,\ldots,n\\,
-whereas an annuity-due has payment times \\0,1,\ldots,n-1\\.
+an annuity-due the first payment occurs at time \\0\\. The present value
+is obtained by delegating to
+[`presentValue`](https://spedygiorgio.github.io/lifecontingencies/reference/presentValue.md)
+with the appropriate payment schedule rather than closed-form formulas,
+which keeps the output consistent across other APV functions that reuse
+the same kernel.
 
-## Value
+## Note
 
-A numeric value representing the present value of the annuity.
+The value returned derives from direct discounting of the cash flow
+schedule, not from closed-form formulas such as
+\\a^{(m)}\_{\overline{n}\|} = (1 - v^n)/i^{(m)}\\. When `m > 1`, the
+per-period payment is \\1/m\\.
 
 ## References
 
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
-2008, ACTEX Publications.
+Broverman, S.A. (2008). *Mathematics of Investment and Credit* (Fourth
+Edition), ACTEX Publications.
+
+## See also
+
+[`accumulatedValue`](https://spedygiorgio.github.io/lifecontingencies/reference/accumulatedValue.md),
+[`increasingAnnuity`](https://spedygiorgio.github.io/lifecontingencies/reference/increasingAnnuity.md),
+[`decreasingAnnuity`](https://spedygiorgio.github.io/lifecontingencies/reference/decreasingAnnuity.md)
 
 ## Author
 
 Giorgio A. Spedicato
 
-## Note
+## Examples
 
-The value returned by annuity function derives from direct calculation
-of the discounted cash flow and not from formulas, like \\{a^{\left( m
-\right)}}\_{\left. {\overline {\\ n \\}}\\ \right\| } = \frac{{1 -
-{v^n}}}{{{i^{\left( m \right)}}}}\\. When m is greater than 1, the
-payment per period is assumed to be \\\frac{1}{m}\\.
+``` r
+# Present value of 1 per year, paid in arrears, for 10 years at 3%:
+annuity(i = 0.03, n = 10)
+#> [1] 8.530203
+# Same but paid monthly (1/12 at the end of each month):
+annuity(i = 0.03, n = 10, k = 12)
+#> [1] 8.646867
+# Perpetuity due:
+annuity(i = 0.05, n = Inf, type = "due")
+#> [1] 21
+```

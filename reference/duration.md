@@ -1,6 +1,9 @@
-# Compute the duration or the convexity of a series of CF
+# Duration and convexity of a series of cash flows
 
-Compute the duration or the convexity of a series of CF
+`duration` returns the Macaulay (or modified) duration of a stream of
+cash flows; `convexity` returns its convexity. Both are the classical
+first- and second-order sensitivity measures of present value to a small
+parallel shift of the interest rate.
 
 ## Usage
 
@@ -14,49 +17,52 @@ convexity(cashFlows, timeIds, i, k = 1)
 
 - cashFlows:
 
-  A vector representing the cash flows amounts.
+  A numeric vector of cash-flow amounts.
 
 - timeIds:
 
-  Cash flows times
+  Numeric vector of payment times, same length as `cashFlows`.
 
 - i:
 
-  APR interest, i.e. nominal interest rate compounded m-thly.
+  Nominal (APR) interest rate convertible `k`-thly. Pass the effective
+  annual rate when `k = 1`.
 
 - k:
 
-  Compounding frequency for the nominal interest rate.
+  Compounding frequency for the nominal interest rate (periods per
+  year); default `1`.
 
 - macaulay:
 
-  Use the Macaulay formula
+  Logical. `TRUE` (default) returns the Macaulay duration; `FALSE`
+  returns the modified duration \\D^{mod} = D / (1 + i/k)\\.
 
 ## Value
 
-A numeric value representing either the duration or the convexity of the
-cash flow series
+A numeric scalar: the (Macaulay or modified) duration, or the convexity,
+of the cash-flow series.
 
 ## Details
 
-The Macaulay duration is defined as \\\sum\limits_t^{T}
-\frac{t\*CF\_{t}\left( 1 + \frac{i}{k} \right)^{ - t\*k}}{P}\\, while
-\\\sum\limits\_{t}^{T} t\*\left( t + \frac{1}{k} \right) \* CF_t
-\left(1 + \frac{y}{k} \right)^{ - k\*t - 2}\\
+With \\v = (1 + i/k)^{-1}\\ and \\t'\_j = t_j k\\, the Macaulay duration
+is \$\$D = \frac{\sum_j t_j\\ CF_j\\ v^{t'\_j}}{\sum_j CF_j\\ v^{t'\_j}}
+,\$\$ and the convexity is \$\$C = \frac{\sum_j t_j (t_j + 1/k)\\ CF_j\\
+v^{t'\_j}} {\sum_j CF_j\\ v^{t'\_j}} (1 + i/k)^{-2} .\$\$
 
 ## References
 
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
-2008, ACTEX Publications.
+Broverman, S.A. (2008). *Mathematics of Investment and Credit* (Fourth
+Edition), ACTEX Publications.
 
 ## Examples
 
 ``` r
-#evaluate the duration/convexity of a coupon payment
-cf=c(10,10,10,10,10,110)
-t=c(1,2,3,4,5,6)
-duration(cf, t, i=0.03)
+# Duration and convexity of a coupon bond (10 per year, 100 at maturity)
+cf <- c(10, 10, 10, 10, 10, 110)
+t  <- c(1, 2, 3, 4, 5, 6)
+duration(cf, t, i = 0.03)
 #> [1] 4.984214
-convexity(cf, t, i=0.03)
+convexity(cf, t, i = 0.03)
 #> [1] 30.69613
 ```

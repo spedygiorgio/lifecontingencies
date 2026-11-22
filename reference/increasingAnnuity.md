@@ -1,6 +1,8 @@
-# Increasing annuity.
+# Increasing annuity-certain
 
-This function evaluates non-stochastic increasing annuities.
+Present value of an increasing annuity with payment stream \\1, 2,
+\ldots, n\\. Payments occur at times \\1, 2, \ldots, n\\ for an
+annuity-immediate, or at \\0, 1, \ldots, n-1\\ for an annuity-due.
 
 ## Usage
 
@@ -12,62 +14,46 @@ increasingAnnuity(i, n, type = "immediate")
 
 - i:
 
-  A numeric value representing the interest rate.
+  Effective interest rate.
 
 - n:
 
-  The number of periods.
+  Number of periods.
 
 - type:
 
-  The payment type. Use `"immediate"` (default) for an
-  annuity-immediate, where payments are made at the end of each period,
-  or `"due"` for an annuity-due, where payments are made at the
-  beginning of each period. For compatibility, `"arrears"` is an alias
-  for `"immediate"` and `"advance"` is an alias for `"due"` (can be
-  abbreviated).
-
-## Details
-
-An increasing annuity shows the following flow of payments:
-\\1,2,\ldots,n-1,n\\. For an annuity-immediate these payments occur at
-times \\1,2,\ldots,n\\; for an annuity-due they occur at times
-\\0,1,\ldots,n-1\\.
+  Payment timing: `"immediate"` (default) or `"due"`; `"arrears"` and
+  `"advance"` are the respective aliases.
 
 ## Value
 
-The value of the annuity.
+A numeric scalar: the present value of the increasing cash flow.
+
+## Note
+
+Internally calls
+[`presentValue`](https://spedygiorgio.github.io/lifecontingencies/reference/presentValue.md).
 
 ## References
 
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition),
-2008, ACTEX Publications.
+Broverman, S.A. (2008). *Mathematics of Investment and Credit* (Fourth
+Edition), ACTEX Publications.
+
+## See also
+
+[`annuity`](https://spedygiorgio.github.io/lifecontingencies/reference/annuity.md),
+[`decreasingAnnuity`](https://spedygiorgio.github.io/lifecontingencies/reference/decreasingAnnuity.md),
+[`IAxn`](https://spedygiorgio.github.io/lifecontingencies/reference/arithmetic_variation_insurances.md)
 
 ## Author
 
 Giorgio A. Spedicato
 
-## Note
-
-This function calls internally `presentValue` function.
-
-## See also
-
-[`decreasingAnnuity`](https://spedygiorgio.github.io/lifecontingencies/reference/decreasingAnnuity.md),
-[`IAxn`](https://spedygiorgio.github.io/lifecontingencies/reference/arithmetic_variation_insurances.md)
-
-## Warning
-
-The function is provided as is, without any guarantee regarding the
-accuracy of calculation. We disclaim any liability for eventual losses
-arising from direct or indirect use of this software.
-
 ## Examples
 
 ``` r
-# The present value of an increasing sequence of payments payable at the end
-# of each period for 10 periods is
+# Present value of 1, 2, 3, ..., 10 payable at the end of each year
+# for 10 years at 3%:
 increasingAnnuity(i = 0.03, n = 10)
 #> [1] 44.83899
-# Assuming a 3% interest rate
 ```
