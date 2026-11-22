@@ -7,26 +7,39 @@
 mxt(object, x, t)
 }
 \arguments{
-\item{object}{a \code{lifetable} or \code{actuarialtable} object}
+\item{object}{A \code{lifetable} or \code{actuarialtable} object.}
 
-\item{x}{subject's age}
+\item{x}{Subject's attained age.}
 
-\item{t}{period on which the rate is evaluated}
+\item{t}{Length of the age interval over which the rate is evaluated
+(default 1).}
 }
 \value{
-A numeric value representing the central mortality rate between age \eqn{x} and \eqn{x+t}.
+A numeric scalar: the central mortality rate between \eqn{x}
+  and \eqn{x+t}.
 }
 \description{
-This function returns the central mortality rate demographic function.
+Compute the central mortality rate \eqn{{}_tm_x}, i.e. deaths between
+ages \code{x} and \code{x+t} divided by the person-years lived over that
+window. It is the demographic rate counterpart of the (per-life)
+probability of death \code{\link{qxt}}.
+}
+\details{
+With \code{\link{dxt}} and \code{\link{Lxt}}:
+\deqn{{}_tm_x = \frac{{}_td_x}{{}_tL_x}.}
+Under the uniform distribution of deaths within each year of age,
+\eqn{{}_1m_x \approx {}_1q_x / (1 - 0.5 \cdot {}_1q_x)}.
 }
 \examples{
-#assumes SOA example life table to be load
+# Assumes the SOA example life table to be loaded
 data(soaLt)
-soa08Act=with(soaLt, new("actuarialtable",interest=0.06,x=x,lx=Ix,name="SOA2008"))
-#compare mx and qx 
-mxt(soa08Act, 60,10)
-qxt(soa08Act, 60,10)
+soa08Act <- with(soaLt,
+  new("actuarialtable", interest = 0.06, x = x, lx = Ix, name = "SOA2008"))
+# Compare mx and qx
+mxt(soa08Act, 60, 10)
+qxt(soa08Act, 60, 10)
 }
 \references{
-Actuarial Mathematics (Second Edition), 1997, by Bowers, N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
+Actuarial Mathematics (Second Edition), 1997, by Bowers,
+  N.L., Gerber, H.U., Hickman, J.C., Jones, D.A. and Nesbitt, C.J.
 }

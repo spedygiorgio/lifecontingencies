@@ -16,7 +16,7 @@ This table has been used by the classical book Actuarial Mathematics and by the 
 of Actuaries for US professional examinations.
 }
 \details{
-Early ages have been found elsewere since miss in the original data sources; SOA did not 
+Early ages have been sourced elsewhere because they are missing from the original data; SOA did not
 provide population at risk data for certain spans of age (e.g. 1-5, 6-9, 11-14 and 16-19)
 }
 \examples{

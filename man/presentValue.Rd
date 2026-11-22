@@ -7,50 +7,65 @@
 presentValue(cashFlows, timeIds, interestRates, probabilities, power = 1)
 }
 \arguments{
-\item{cashFlows}{Numeric vector of cash flows. Must be coherent with \code{timeIds}.}
+\item{cashFlows}{Numeric vector of cash flows, coherent in length with
+\code{timeIds}.}
 
-\item{timeIds}{Numeric vector of time points where \code{cashFlows} are due.}
+\item{timeIds}{Numeric vector of time points at which the \code{cashFlows}
+are due.}
 
-\item{interestRates}{A single numeric interest rate or a numeric vector of the same
-length as \code{timeIds} used to discount cash flows.}
+\item{interestRates}{Either a scalar effective interest rate or a numeric
+vector of the same length as \code{timeIds}: entry \code{j} discounts the
+\code{j}-th cash flow back to time 0.}
 
-\item{probabilities}{Optional numeric vector of occurrence probabilities. If
-missing, a vector of ones (certainty) is assumed.}
+\item{probabilities}{Optional numeric vector of occurrence probabilities,
+one per element of \code{cashFlows}. If missing a vector of 1's
+(certainty) is assumed, which turns the output into a plain financial
+present value.}
 
-\item{power}{Numeric power applied to discount and cash flows. Defaults to 1.}
+\item{power}{Numeric exponent applied to each discounted (and
+probability-weighted) cash flow before summation. The default \code{1}
+returns a plain APV; higher integer powers are used by the package to
+compute higher moments of the present value, hence the name.}
 }
 \value{
-A numeric scalar representing the present value of the cash flow vector,
-or the actuarial present value if \code{probabilities} are provided.
+A numeric scalar: the (actuarial) present value of the cash-flow
+  series.
 }
 \description{
-This function evaluates the present values of a series of cash flows,
-given occurrence time. Probabilities of occurrence can also be taken into account.
+Evaluate the present value, or the actuarial present value when occurrence
+\code{probabilities} are supplied, of a vector of cash flows discounted at a
+given set of interest rates. This is the computational kernel on top of
+which the actuarial APV machinery (\code{\link{Axn}}, \code{\link{axn}},
+\code{\link{Exn}}, \code{\link{IAxn}}, \code{\link{DAxn}}, ...) is built.
 }
 \details{
-Present value of a series of cash flows.
-
-Evaluate the present value (or actuarial present value when
-probabilities are provided) of a vector of cash flows occurring at
-given time instants and discounted by provided interest rates.
-
-\code{probabilities} is optional; when omitted a sequence of 1's with the
-same length as \code{timeIds} is assumed. Interest rate may be a fixed number
-or a vector of the same size as \code{timeIds}. The \code{power} parameter is
-normally unused except in special actuarial evaluations.
+With \code{power = 1}, the function implements
+\deqn{\mathrm{APV} = \sum_j (1 + i_j)^{-t_j}\, CF_j\, p_j,}
+where \code{(t_j, CF_j, i_j, p_j)} are the aligned entries of
+\code{timeIds}, \code{cashFlows}, \code{interestRates} and
+\code{probabilities}. A missing \code{timeIds} is interpreted as the
+single time \eqn{t = 1} (a warning is emitted so that silent
+misalignments can be caught). The numerical work is delegated to the C++
+kernel \code{.presentValueC()} for performance.
 }
 \note{
-This simple function is the kernel working core of the package. Actuarial and financial mathematics ground on it.
+This simple function is the kernel on which the package's actuarial
+  and financial mathematics rest.
 }
 \examples{
-# simple example
-cf <- c(10,10,10)    # $10 payments one per year for three years
-t  <- c(1,2,3)       # years
-p  <- c(1,1,1)       # payments certainty
-presentValue(cashFlows = cf, timeIds = t, interestRates = 0.03, probabilities = p)
+# Three $10 payments at the end of years 1-3, certainty, flat 3\% rate:
+cf <- c(10, 10, 10)
+t  <- c(1, 2, 3)
+p  <- c(1, 1, 1)
+presentValue(cashFlows = cf, timeIds = t, interestRates = 0.03,
+             probabilities = p)
 }
 \references{
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
+Broverman, S.A. (2008). \emph{Mathematics of Investment and
+  Credit} (Fourth Edition), ACTEX Publications.
+}
+\seealso{
+\code{\link{annuity}}, \code{\link{Axn}}, \code{\link{axn}}
 }
 \author{
 Giorgio A. Spedicato

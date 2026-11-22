@@ -2,8 +2,6 @@
 \Rdversion{1.1}
 \docType{class}
 \alias{mdt-class}
-\alias{getDecrements,mdt-method}
-\alias{getOmega,mdt-method}
 \alias{initialize,mdt-method}
 \alias{print,mdt-method}
 \alias{coerce,mdt,data.frame-method}

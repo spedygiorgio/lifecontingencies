@@ -45,4 +45,4 @@ BuildVignettes: yes
 VignetteBuilder: utils, knitr, quarto
 URL: https://github.com/spedygiorgio/lifecontingencies
 LinkingTo: Rcpp
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1

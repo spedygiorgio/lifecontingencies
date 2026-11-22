@@ -3,41 +3,54 @@
 \name{duration}
 \alias{duration}
 \alias{convexity}
-\title{Compute the duration or the convexity of a series of CF}
+\title{Duration and convexity of a series of cash flows}
 \usage{
 duration(cashFlows, timeIds, i, k = 1, macaulay = TRUE)
 
 convexity(cashFlows, timeIds, i, k = 1)
 }
 \arguments{
-\item{cashFlows}{A vector representing the cash flows amounts.}
+\item{cashFlows}{A numeric vector of cash-flow amounts.}
 
-\item{timeIds}{Cash flows times}
+\item{timeIds}{Numeric vector of payment times, same length as
+\code{cashFlows}.}
 
-\item{i}{APR interest, i.e. nominal interest rate compounded m-thly.}
+\item{i}{Nominal (APR) interest rate convertible \code{k}-thly. Pass the
+effective annual rate when \code{k = 1}.}
 
-\item{k}{Compounding frequency for the nominal interest rate.}
+\item{k}{Compounding frequency for the nominal interest rate (periods per
+year); default \code{1}.}
 
-\item{macaulay}{Use the Macaulay formula}
+\item{macaulay}{Logical. \code{TRUE} (default) returns the Macaulay
+duration; \code{FALSE} returns the modified duration
+\eqn{D^{mod} = D / (1 + i/k)}.}
 }
 \value{
-A numeric value representing either the duration or the convexity of the cash flow series
+A numeric scalar: the (Macaulay or modified) duration, or the
+  convexity, of the cash-flow series.
 }
 \description{
-Compute the duration or the convexity of a series of CF
+\code{duration} returns the Macaulay (or modified) duration of a stream of
+cash flows; \code{convexity} returns its convexity. Both are the classical
+first- and second-order sensitivity measures of present value to a small
+parallel shift of the interest rate.
 }
 \details{
-The Macaulay duration is defined  as 
-\eqn{\sum\limits_t^{T} \frac{t*CF_{t}\left( 1 + \frac{i}{k} \right)^{ - t*k}}{P}}, 
-while  \eqn{\sum\limits_{t}^{T} t*\left( t + \frac{1}{k} \right) * CF_t \left(1 + \frac{y}{k} \right)^{ - k*t - 2}}
+With \eqn{v = (1 + i/k)^{-1}} and \eqn{t'_j = t_j k}, the Macaulay
+duration is
+\deqn{D = \frac{\sum_j t_j\, CF_j\, v^{t'_j}}{\sum_j CF_j\, v^{t'_j}} ,}
+and the convexity is
+\deqn{C = \frac{\sum_j t_j (t_j + 1/k)\, CF_j\, v^{t'_j}}
+               {\sum_j CF_j\, v^{t'_j}} (1 + i/k)^{-2} .}
 }
 \examples{
-#evaluate the duration/convexity of a coupon payment
-cf=c(10,10,10,10,10,110)
-t=c(1,2,3,4,5,6)
-duration(cf, t, i=0.03)
-convexity(cf, t, i=0.03)
+# Duration and convexity of a coupon bond (10 per year, 100 at maturity)
+cf <- c(10, 10, 10, 10, 10, 110)
+t  <- c(1, 2, 3, 4, 5, 6)
+duration(cf, t, i = 0.03)
+convexity(cf, t, i = 0.03)
 }
 \references{
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
+Broverman, S.A. (2008). \emph{Mathematics of Investment and
+  Credit} (Fourth Edition), ACTEX Publications.
 }

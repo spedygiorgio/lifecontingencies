@@ -3,34 +3,38 @@
 \name{intensity2Interest}
 \alias{intensity2Interest}
 \alias{interest2Intensity}
-\title{Functions to switch from interest to intensity and vice versa.}
+\title{Convert between interest rate and force of interest}
 \usage{
 intensity2Interest(intensity)
 
 interest2Intensity(i)
 }
 \arguments{
-\item{intensity}{Intensity rate}
+\item{intensity}{Force of interest (continuous-time intensity).}
 
 \item{i}{interest rate}
 }
 \value{
-A numeric value.
+A numeric scalar.
 }
 \description{
-There functions switch from interest to intensity and vice - versa.
+These functions switch between an effective interest rate \eqn{i} and the
+corresponding force of interest (intensity) \eqn{\delta}, using the
+standard identities \eqn{\delta = \log(1 + i)} and \eqn{i = e^{\delta} - 1}.
 }
 \details{
-Simple financial mathematics formulas are applied.
+Simple financial-mathematics formulas:
+\deqn{i = e^{\delta} - 1, \qquad \delta = \log(1 + i).}
 }
 \examples{
-# a force of interest of 0.02 corresponds to an APR of 
-intensity2Interest(intensity=0.02)
+# A force of interest of 0.02 corresponds to an effective rate of
+intensity2Interest(intensity = 0.02)
 #an interest rate equal to 0.02 corresponds to a force of interest of of 
 interest2Intensity(i=0.02)
 }
 \references{
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
+Broverman, S.A. (2008). \emph{Mathematics of Investment and
+  Credit} (Fourth Edition), ACTEX Publications.
 }
 \seealso{
 \code{\link{real2Nominal}}, \code{\link{nominal2Real}}

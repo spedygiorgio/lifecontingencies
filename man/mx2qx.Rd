@@ -2,30 +2,31 @@
 % Please edit documentation in R/3_demographicFunctions.R
 \name{mx2qx}
 \alias{mx2qx}
-\title{Mortality rates to Death probabilities}
+\title{Convert mortality rates to death probabilities}
 \usage{
 mx2qx(mx, ax = 0.5)
 }
 \arguments{
-\item{mx}{mortality rates vector}
+\item{mx}{Numeric vector of central mortality rates.}
 
-\item{ax}{the average number of years lived between ages x and x +1 by individuals who die in that interval}
+\item{ax}{Average fraction of a year lived by those who die in it.
+Default \code{0.5} (UDD).}
 }
 \value{
-A vector of death probabilities
+A numeric vector of one-year death probabilities.
 }
 \description{
-Function to convert mortality rates to probabilities of death
-}
-\details{
-Function to convert mortality rates to probabilities of death
+Convert a vector of central mortality rates \eqn{{}_1m_x} into one-year
+death probabilities \eqn{{}_1q_x} using the standard identity
+\deqn{{}_1q_x = \frac{{}_1m_x}{1 + (1 - a_x) {}_1m_x} ,}
+where \eqn{a_x} is the average fraction of year lived by those who die
+between ages \eqn{x} and \eqn{x+1}. The default \code{ax = 0.5}
+corresponds to the uniform distribution of deaths within the year.
 }
 \examples{
-
-#using some recursion
-qx2mx(mx2qx(.2))
-
+# Round-trip: qx2mx should invert mx2qx
+qx2mx(mx2qx(0.2))
 }
 \seealso{
-\code{mxt}, \code{qxt}, \code{qx2mx}
+\code{\link{mxt}}, \code{\link{qxt}}, \code{\link{qx2mx}}
 }

@@ -6,7 +6,7 @@
 \alias{Axn}
 \alias{AExn}
 \alias{axn}
-\title{Endowment, insurance, pure endowment, and survival annuity APVs (shared topic)}
+\title{Endowment, insurance, pure endowment and survival-annuity APVs}
 \usage{
 Exn(actuarialtable, x, n, i = actuarialtable@interest, type = "EV", power = 1)
 
@@ -50,110 +50,128 @@ AExn(
 
 \item{x}{Attained age at inception.}
 
-\item{n}{Contract length in years. If missing, for \code{Exn} and \code{Axn} it is set to
-\code{pmax(ceiling((getOmega(actuarialtable)+1 - x - m)*k)/k, 0)}; for \code{AExn} it defaults to
-\code{getOmega(actuarialtable) - x - 1}. (See function-specific details below.)}
+\item{n}{Contract length in years. If missing, \code{Exn} and \code{Axn}
+use \code{pmax(ceiling((getOmega(actuarialtable)+1 - x - m)*k)/k, 0)}
+(coverage up to the limiting age), while \code{AExn} uses
+\code{getOmega(actuarialtable) - x - 1}.}
 
-\item{i}{Annual effective interest rate. Defaults to \code{actuarialtable@interest}.}
+\item{i}{Annual effective interest rate. Defaults to
+\code{actuarialtable@interest}.}
 
-\item{type}{Output type: \code{"EV"} (expected value, default) or \code{"ST"} (one stochastic
-realization via \code{rLifeContingencies}).}
+\item{type}{Output type: \code{"EV"} (expected value, default) or
+\code{"ST"} (one stochastic realization drawn with
+\code{\link{rLifeContingencies}}).}
 
-\item{power}{Power of the discounted payoff before expectation (default 1).}
+\item{power}{Power applied to the discounted payoff before expectation
+(default 1). Used to compute higher moments of the present value.}
 
-\item{m}{Deferment (years). Default 0. Vector accepted. (Axn/axn)}
+\item{m}{Deferment (years). Default 0. Vector accepted (for \code{Axn}
+and \code{axn}).}
 
-\item{k}{Fractional periods per year (\eqn{k \ge 1}). Default 1. Must be scalar. (Axn/axn/AExn insurance leg)}
+\item{k}{Fractional periods per year (\eqn{k \ge 1}); must be scalar.
+Default 1.}
 
-\item{payment}{Payment timing for annuities: \code{"advance"} (aka due) or \code{"immediate"} (aka arrears). (axn)}
+\item{payment}{Payment timing for annuities: \code{"advance"} (alias
+\code{"due"}, the default for \code{axn}) or \code{"arrears"} (alias
+\code{"immediate"}).}
 
-\item{...}{Extra args forwarded to mortality helpers (\code{pxt}, \code{qxt}), e.g. fractional assumptions. (Axn)}
+\item{...}{Extra arguments forwarded to \code{\link{pxt}} /
+\code{\link{qxt}} (e.g. a different fractional-age assumption).}
 }
 \value{
-A numeric value (or vector for vectorized inputs): the APV in expected value,
-  or one simulated realization when \code{type="ST"}.
+A numeric value for scalar inputs, or a numeric vector for
+  vectorized inputs: the APV when \code{type = "EV"}, or one simulated
+  realization when \code{type = "ST"}.
 }
 \description{
-This help page groups four classical life-contingency present values:
+Four classical single-life life-contingency actuarial present values,
+sharing a single documentation page because they take the same core
+arguments and are typically used together:
 \itemize{
-  \item \strong{Exn}: pure endowment, pays 1 at time \code{n} if alive.
-  \item \strong{Axn}: term/whole life insurance, pays 1 at death within \code{n} years
-        (or up to limiting age if \code{n} is missing), with fractional claim timing.
-  \item \strong{AExn}: n-year endowment insurance, i.e. \code{Axn + Exn}.
-  \item \strong{axn}: survival annuity (immediate/due), with deferment \code{m} and \code{k} payments per year.
+  \item \strong{Exn} — pure endowment: pays 1 at time \code{n} if alive.
+  \item \strong{Axn} — term / whole-life insurance: pays 1 at the end of
+        the subperiod of death within \code{n} years (or up to the
+        limiting age if \code{n} is missing), with fractional claim timing.
+  \item \strong{AExn} — \code{n}-year endowment insurance: \code{Axn + Exn}.
+  \item \strong{axn} — survival annuity (immediate or due), deferred by
+        \code{m} years, with \code{k} payments per year.
 }
 }
 \details{
-\strong{Exn}: \eqn{E_x^n = v^n \, {}_np_x} with \eqn{v=(1+i)^{-1}}.
+With \eqn{v = (1 + i)^{-1}}:
 
-\strong{Axn}: With fractional claims,
+\strong{Exn}: pure endowment, \eqn{E_x^n = v^n \, {}_n p_x}.
+
+\strong{Axn}: fractional-claim term/whole-life insurance,
 \deqn{A_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} v^{t_j + 1/k}\; {}_{t_j}p_x\; q_{x+t_j}^{(1/k)},}
-where \eqn{t_j = m + (j-1)/k}, computed via \code{pxt(\dots)} and \code{qxt(\dots, t=1/k)}.
+where \eqn{t_j = m + (j-1)/k}, computed via \code{pxt(\dots)} and
+\code{qxt(\dots, t = 1/k)}.
 
-\strong{AExn}: returns \code{Axn(...) + Exn(...)} with aligned arguments.
+\strong{AExn}: equals \code{Axn(...) + Exn(...)} with aligned arguments.
 
-\strong{Vectorization}: \code{Exn} and \code{AExn} accept vectors for \code{x}, \code{n} and \code{i};
-the arguments are recycled to a common length and one value per element is returned.
+\strong{Vectorization}: \code{Exn} and \code{AExn} accept vectors for
+\code{x}, \code{n} and \code{i}; the arguments are recycled to a common
+length and one value per element is returned.
 
-\strong{axn}: Survival annuity with payment timing \code{"immediate"} (arrears) or \code{"due"} (advance),
-deferment \code{m} and \code{k} payments per year (see function-specific parameters).
-
-\strong{axn} — Survival annuity (immediate/due), with deferment \code{m} and \code{k} fractional payments.
-For \code{type="EV"} the annuity is computed as
+\strong{axn} — Survival annuity (immediate/due) with deferment \code{m}
+and \code{k} fractional payments. For \code{type = "EV"} the annuity is
 \deqn{a_{\overline{n}|}^{(k)} = \sum_{j=1}^{nk} \frac{1}{k}\, v^{t_j}\, {}_{t_j}p_x,}
-where \eqn{t_j} are the payment times depending on \code{payment} and \code{m}.
+with payment times \eqn{t_j} determined by \code{payment} and \code{m}.
 
-\strong{Axn} — Life insurance (term / whole life), fractional claim times.
-Vectorized in \code{x}, \code{n}, \code{m}. \code{k} must be scalar.
+\strong{Axn} — Life insurance (term / whole life) with fractional claim
+times, vectorized in \code{x}, \code{n} and \code{m} (recycled to a
+common length); \code{k} must be scalar.
 
-\strong{AExn} — n-year endowment insurance, computed as \code{Axn + Exn}.
+\strong{AExn} — \code{n}-year endowment insurance, computed as
+\code{Axn(..., n, k) + Exn(..., n)}. Vectorised over \code{x}, \code{n}
+and \code{i}; a zero-term endowment pays 1 immediately. When all
+contracts share the same interest rate, \code{Axn}/\code{Exn} are
+called once with the full vector of ages/terms; otherwise the loop runs
+contract by contract (\code{Axn} takes a single scalar \code{i}).
 }
-\section{\code{Exn} — Pure endowment}{
-
-Computes the actuarial present value (APV) of a pure endowment that pays 1 at
-time \code{n} provided survival to \code{x+n}.
-}
-
 \examples{
 ## Common setup used in legacy docs
 data(soaLt)
-soa08Act <- with(soaLt, new("actuarialtable", interest=0.06, x=x, lx=Ix, name="SOA2008"))
+soa08Act <- with(soaLt,
+  new("actuarialtable", interest = 0.06, x = x, lx = Ix, name = "SOA2008"))
 
 ## Exn (pure endowment)
-Exn(soa08Act, x=30, n=35)
+Exn(soa08Act, x = 30, n = 35)
 
 ## Axn (term / whole life insurance)
 # 10-year term, semiannual claims:
-Axn(soa08Act, x=50, n=10, k=2)
+Axn(soa08Act, x = 50, n = 10, k = 2)
 # Whole life (n inferred), monthly:
-Axn(soa08Act, x=30, k=12)
+Axn(soa08Act, x = 30, k = 12)
 
 # Several ages and terms at once:
-Exn(soa08Act, x=c(30,40,50), n=c(35,25,15))
+Exn(soa08Act, x = c(30, 40, 50), n = c(35, 25, 15))
 
-## AExn = Axn + Exn  (legacy book-check)
-AExn(soa08Act, x=35, n=30, i=0.06)
-Exn(soa08Act, x=35, n=30, i=0.06) + Axn(soa08Act, x=35, n=30, i=0.06)
-AExn(soa08Act, x=c(35,45), n=c(30,20))
+## AExn = Axn + Exn (legacy book-check)
+AExn(soa08Act, x = 35, n = 30, i = 0.06)
+Exn(soa08Act, x = 35, n = 30, i = 0.06) +
+  Axn(soa08Act, x = 35, n = 30, i = 0.06)
+AExn(soa08Act, x = c(35, 45), n = c(30, 20))
 
 ## axn (survival annuity, legacy example)
 # Life-long annuity for age 65:
-axn(soa08Act, x=65)
+axn(soa08Act, x = 65)
 
 ## axn specific legacy examples
 # Immediate (arrears) vs due (advance), quarterly, 15-year term deferred 5 years:
-axn(soa08Act, x=60, n=15, m=5, k=4, payment="immediate")
-axn(soa08Act, x=60, n=15, m=5, k=4, payment="due")
-# Vectorization over x/n:
-axn(soa08Act, x=c(60,65), n=c(10,20), k=12, payment="due")
+axn(soa08Act, x = 60, n = 15, m = 5, k = 4, payment = "immediate")
+axn(soa08Act, x = 60, n = 15, m = 5, k = 4, payment = "due")
+# Vectorization over x and n:
+axn(soa08Act, x = c(60, 65), n = c(10, 20), k = 12, payment = "due")
 
 }
 \references{
-Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A., Nesbitt, C. J. (1997).
-\emph{Actuarial Mathematics}, 2nd ed., SOA.
+Bowers, N. L., Gerber, H. U., Hickman, J. C., Jones, D. A.,
+  Nesbitt, C. J. (1997). \emph{Actuarial Mathematics}, 2nd ed., SOA.
 }
 \seealso{
-\code{\link{Axn}}, \code{\link{AExn}}, \code{\link{axn}}, \code{\link{Exn}}
+\code{\link{Axn}}, \code{\link{AExn}}, \code{\link{axn}},
+  \code{\link{Exn}}, \code{\link{rLifeContingencies}}
 
 Other life-contingency APVs:
 \code{\link{arithmetic_variation_insurances}}

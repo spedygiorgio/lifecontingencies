@@ -6,7 +6,6 @@
 \alias{coerce,lifetable,data.frame-method}
 \alias{coerce,lifetable,numeric-method}
 \alias{coerce,lifetable,markovchainList-method}
-\alias{getOmega,lifetable-method}
 \alias{head,lifetable-method}
 \alias{initialize,lifetable-method}
 \alias{plot,lifetable-method}

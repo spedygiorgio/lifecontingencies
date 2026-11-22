@@ -18,7 +18,7 @@ data(demoJapan)
 Two yearly mortality rates for each age
 }
 \details{
-Dowloaded in 2012 from Society of Actuaries (SOA) mortality table web site
+Downloaded in 2012 from Society of Actuaries (SOA) mortality table web site
 }
 \examples{
 data(demoJapan)

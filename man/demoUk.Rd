@@ -6,7 +6,7 @@
 \title{UK life tables}
 \format{
 A data frame with 74 observations on the following 3 variables:
-\describe{ \item{\code{Age}}{Annuitant age} \item{\code{AM92}}{One year mortality rate (males)} \item{\code{AF92}}{One year mortality rate (males)} }
+\describe{ \item{\code{Age}}{Annuitant age} \item{\code{AM92}}{One year mortality rate (males)} \item{\code{AF92}}{One year mortality rate (females)} }
 }
 \source{
 Institute of Actuaries

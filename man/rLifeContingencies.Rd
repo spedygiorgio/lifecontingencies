@@ -69,9 +69,9 @@ Defaults to \code{NULL}, which falls back to
 \code{getOption("lifecontingencies.nthreads", 2L)}; it is never set
 automatically to the number of available cores.}
 
-\item{payment}{The Payment type, either \code{"advance"} for the annuity due (default) 
-or \code{"arrears"} for the annuity immediate. 
-Alternatively, one can use \code{"due"} or \code{"immediate"} 
+\item{payment}{The Payment type, either \code{"advance"} for the annuity due (default)
+or \code{"arrears"} for the annuity immediate.
+Alternatively, one can use \code{"due"} or \code{"immediate"}
 respectively (can be abbreviated).}
 
 \item{tablesList}{A list of \code{actuarialtable} objects}

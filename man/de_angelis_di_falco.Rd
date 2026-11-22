@@ -5,7 +5,7 @@
 \alias{de_angelis_di_falco}
 \title{Italian Health Insurance Data}
 \format{
-a list containing elevent items (data.frames), and an mdt data object (HealthyMaleTable2013)
+a list containing eleven items (data.frames), and an mdt data object (HealthyMaleTable2013)
 }
 \source{
 Paolo De Angelis, Luigi di Falco (a cura di). Assicurazioni sulla salute: caratteristiche, 
@@ -17,6 +17,6 @@ de_angelis_di_falco
 \description{
 A list of data.frames containing transition probabilities by age (row) and year of projections
 Transitions are split by males and females, and show probabilities of survival, death 
-and transitions from Healty to Disabled
+and transitions from Healthy to Disabled
 }
 \keyword{datasets}

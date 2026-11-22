@@ -5,7 +5,7 @@
 \alias{convertible2Effective}
 \alias{real2Nominal}
 \alias{effective2Convertible}
-\title{Functions to switch from nominal / effective / convertible rates}
+\title{Convert between effective, nominal, convertible and discount rates}
 \usage{
 nominal2Real(i, k = 1, type = "interest")
 
@@ -18,28 +18,41 @@ effective2Convertible(i, k = 1, type = "interest")
 \arguments{
 \item{i}{The rate to be converted.}
 
-\item{k}{The original / target compounding frequency.}
+\item{k}{The original / target compounding frequency (periods per year).}
 
-\item{type}{Either "interest" (default) or "nominal".}
+\item{type}{\code{"interest"} (default) for interest rates or
+\code{"nominal"} for discount rates. (Historical naming retained for
+backward compatibility.)}
 }
 \value{
-A numeric value.
+A numeric scalar.
 }
 \description{
-Functions to switch from nominal / effective / convertible rates
+Convert between an effective annual rate (also called "real" rate here)
+and the corresponding nominal rate convertible \eqn{k}-thly (also called
+"convertible" rate), for either interest or discount. Convertible rates
+are synonyms of nominal rates, so \code{convertible2Effective} and
+\code{effective2Convertible} are thin wrappers of \code{nominal2Real} and
+\code{real2Nominal} respectively, provided for naming consistency with
+different textbook traditions.
 }
 \details{
-\code{effective2Convertible} and \code{convertible2Effective} wrap the other two functions.
+With \code{type = "interest"}, \code{nominal2Real(i, k)} returns
+\eqn{(1 + i/k)^k - 1}; with \code{type = "nominal"} it returns
+\eqn{1 - (1 - i/k)^k} (the discount analogue). \code{real2Nominal}
+inverts the respective expression.
 }
 \note{
-Convertible rates are synonims of nominal rates
+Convertible rates are synonyms of nominal rates.
 }
 \examples{
-#a nominal rate of 0.12 equates an APR of
-nominal2Real(i=0.12, k = 12, "interest")
+# A nominal annual rate of 0.12 convertible monthly is equivalent to an
+# effective annual rate of
+nominal2Real(i = 0.12, k = 12, "interest")
 }
 \references{
-Broverman, S.A., Mathematics of Investment and Credit (Fourth Edition), 2008, ACTEX Publications.
+Broverman, S.A. (2008). \emph{Mathematics of Investment and
+  Credit} (Fourth Edition), ACTEX Publications.
 }
 \seealso{
 \code{\link{real2Nominal}}
