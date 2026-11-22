@@ -1,6 +1,6 @@
 # Changelog
 
-## lifecontingencies 1.6.4 (in development)
+## lifecontingencies 1.6.4
 
 - The `mdt` (multiple decrement table) validity method now rejects
   tables that would imply a negative survival probability (GH
