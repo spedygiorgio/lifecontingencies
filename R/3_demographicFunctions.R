@@ -125,7 +125,7 @@ setMethod("pxt", "ANY",
 # Validates a (possibly multiple) decrement specification against an mdt and
 # returns the corresponding column names.
 .mdtDecrementNames <- function(object, decrement) {
-  stopifnot(class(decrement) %in% c("numeric", "integer", "character"))
+  stopifnot(inherits(decrement, c("numeric", "integer", "character")))
   if (is.numeric(decrement))
     decrement <- getDecrements(object)[decrement]
   if (length(decrement) == 0 || anyNA(decrement) ||
@@ -281,7 +281,7 @@ pxtold <- function(object, x, t, fractional = "linear", decrement)
 {
   out <- NULL
   #checks
-  if (!(class(object) %in% c("lifetable","actuarialtable","mdt")))
+  if (!inherits(object, c("lifetable","actuarialtable","mdt")))
     stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
   
   fractional <- testfractionnalarg(fractional)
@@ -563,7 +563,7 @@ qxtold <- function(object, x, t, fractional="linear", decrement)
 {
   out<-NULL
   #checks
-  if(!(class(object) %in% c("lifetable","actuarialtable","mdt"))) 
+  if(!inherits(object, c("lifetable","actuarialtable","mdt"))) 
     stop("Error! Only lifetable, actuarialtable or mdt classes are accepted")
   if(missing(x)) 
     stop("Missing x")
@@ -898,7 +898,7 @@ pxyztold <- function(tablesList,x,t, status="joint",fractional=rep("linear",leng
 	numTables=length(tablesList)
 	if(length(x)!=numTables) stop("Error! Initial ages vector length does not match with number of lives")
 	for(i in 1:numTables) {
-		if(!(class(tablesList[[i]]) %in% c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
+		if(!inherits(tablesList[[i]], c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
 	}
 	#the survival probability is the cumulative product of the single survival probabilities
 	if(status=="joint")
@@ -960,7 +960,7 @@ exyzt <- function(tablesList,x,t=Inf, status="joint",type="Kx",...)
 	numTables=length(tablesList)
 	if(length(x)!=numTables) stop("Error! Initial ages vector length does not match with number of lives")
 	for(i in 1:numTables) {
-	if(!(class(tablesList[[i]]) %in% c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
+	if(!inherits(tablesList[[i]], c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
 	}
 	type <- testtypelifearg(type)
 	status <- teststatusarg(status)

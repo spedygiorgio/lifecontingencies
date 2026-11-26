@@ -169,7 +169,7 @@ axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                     k = 1, type = "EV",power = 1, payment = "advance", ...)
 {
   #checks
-  if (!(class(actuarialtable) %in% c("lifetable","actuarialtable")))
+  if (!inherits(actuarialtable, c("lifetable","actuarialtable")))
     stop("Error! Only lifetable, actuarialtable classes are accepted")
   
   type <- testtyperesarg(type)
@@ -354,8 +354,8 @@ axyznvect <- function(tablesList, x, n, i, m, k = 1, status = "joint", type = "E
   #from here, x is a matrix where NCOL(x) == numTables
   nbcomput <- NROW(x)
   
-  classlist <- sapply(tablesList, class)
-  if(any(!classlist %in% c("lifetable", "actuarialtable")))
+  classlist <- vapply(tablesList, function(x) inherits(x, c("lifetable", "actuarialtable")), logical(1))
+  if(any(!classlist))
     stop("Error! A list of lifetable objects is required")
   
   type <- testtyperesarg(type)
@@ -472,7 +472,7 @@ axyzn <- function(tablesList, x, n,i, m,k = 1, status = "joint", type = "EV",pow
     if (length(x) != numTables)
       stop("Error! Initial ages vector length does not match with number of lives")
     for (j in 1:numTables) {
-      if (!(class(tablesList[[j]]) %in% c("lifetable", "actuarialtable")))
+      if (!inherits(tablesList[[j]], c("lifetable", "actuarialtable")))
         stop("Error! A list of lifetable objects is required")
     }
     type <- testtyperesarg(type)
@@ -579,7 +579,7 @@ Axn <- function(actuarialtable, x, n, i = actuarialtable@interest, m,
                     k = 1, type = "EV", power = 1, ...)
 {
   #checks
-  if (!(class(actuarialtable) %in% c("lifetable","actuarialtable")))
+  if (!inherits(actuarialtable, c("lifetable","actuarialtable")))
     stop("Error! Only lifetable, actuarialtable classes are accepted")
   
   type <- testtyperesarg(type)
@@ -726,7 +726,7 @@ Axyzn <- function(tablesList, x, n,i, m, k = 1, status = "joint", type = "EV",po
     if (length(x) != numTables)
       stop("Error! Initial ages vector length does not match with number of lives")
     for (j in 1:numTables) {
-      if (!(class(tablesList[[j]]) %in% c("lifetable", "actuarialtable")))
+      if (!inherits(tablesList[[j]], c("lifetable", "actuarialtable")))
         stop("Error! A list of lifetable objects is required")
     }
     type <- testtyperesarg(type)

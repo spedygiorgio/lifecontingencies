@@ -35,8 +35,10 @@ double mult3sum(NumericVector x, NumericVector y, NumericVector z)
 {
   check_same_length(x, y, z, "x, y and z must have the same length");
 
-  double total = 0.0;
   R_xlen_t n = x.size();
+  if (n == 0) return 0.0;
+
+  double total = 0.0;
   const double* xp = REAL(x);
   const double* yp = REAL(y);
   const double* zp = REAL(z);
@@ -52,8 +54,10 @@ double mult2sum(NumericVector x, NumericVector y)
 {
   check_same_length(x, y, "x and y must have the same length");
 
-  double total = 0.0;
   R_xlen_t n = x.size();
+  if (n == 0) return 0.0;
+
+  double total = 0.0;
   const double* xp = REAL(x);
   const double* yp = REAL(y);
 
@@ -75,8 +79,10 @@ double presentValueC(NumericVector cashFlows,
     stop("cashFlows, timeIds, interestRates and probabilities must have the same length");
   }
 
-  double total = 0.0;
   R_xlen_t n = cashFlows.size();
+  if (n == 0) return 0.0;
+
+  double total = 0.0;
   const double* cashFlowsPtr = REAL(cashFlows);
   const double* timeIdsPtr = REAL(timeIds);
   const double* interestRatesPtr = REAL(interestRates);
