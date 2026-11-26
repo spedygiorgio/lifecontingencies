@@ -81,7 +81,7 @@ out=ifelse((x>getOmega(object)),0,dxt(object = object,
 rLife<-function(n,object, x=0,k=1, type="Tx")
 {
 	if(missing(n)) stop("Error! Needing the n number of variates to return")
-	if((class(object) %in% c("lifetable", "actuarialtable"))==FALSE) stop("Error! object needs to be a lifetable or actuarialtable object")
+	if(!inherits(object, c("lifetable", "actuarialtable"))) stop("Error! object needs to be a lifetable or actuarialtable object")
 	if(x>getOmega(object)) stop("Error! x > maximum attainable age")
   type <- testtypelifearg(type)
   
@@ -135,7 +135,7 @@ rLifexyz <- function(n,tablesList,x,k=1, type="Tx")
 	numTables=length(tablesList)
 	if(length(x)!=numTables) stop("Error! Initial ages vector length does not match with number of lives")
 	for(i in 1:numTables) {
-		if(!(class(tablesList[[i]]) %in% c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
+		if(!inherits(tablesList[[i]], c("lifetable", "actuarialtable"))) stop("Error! A list of lifetable objects is required")
 	}	
 	type <- testtypelifearg(type)
 	
